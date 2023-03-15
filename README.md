@@ -1,95 +1,102 @@
-# Template for Java Spring Microservice project
+# FDR - Flussi di rendicontazione
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TODO-set-your-id&metric=alert_status)](https://sonarcloud.io/dashboard?id=TODO-set-your-id)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-fdr&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa_pagopa-fdr)
 
-TODO: add a description
-
-TODO: generate a index with this tool: https://ecotrust-canada.github.io/markdown-toc/
-
-TODO: resolve all the TODOs in this template
+Manage FDR ( aka "Flussi di Rendicontazione" ) exchanged between PSP and EC
 
 ---
-
 ## Api Documentation 📖
 
-See the [OpenApi 3 here.](TODO: set your url)
+See the [OpenApi 3 here.](https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi.json)
+
+In local env typing following url on browser for ui interface:
+
+```http://localhost:8080/q/swagger-ui```
+
+or that for `yaml` version ```http://localhost:8080/q/openapi```
+
+or that for `json` version ```http://localhost:8080/q/openapi?format=json```
 
 ---
 
-## Technology Stack
-
-- Java 11
-- Spring Boot
-- Spring Web
-- Hibernate
-- JPA
-- ...
-- TODO
+## Technology Stack 📚
+- Java 17 Runtime Environment GraalVM CE
+- [Quarkus](https://quarkus.io/)
+- quarkus-resteasy-reactive
+- quarkus-logging-gelf
+- quarkus-micrometer-registry-prometheus
+- quarkus-smallrye-health
+- quarkus-opentelemetry
+- quarkus-smallrye-openapi
+- quarkus-resteasy-reactive-jackson
+- quarkus-agroal
+- quarkus-hibernate-orm-panache
+- quarkus-jdbc-postgresql
+- quarkus-hibernate-validator
+- quarkus-narayana-jta
+- lombok (provided)
+- mapstruct
 
 ---
-
-## Start Project Locally 🚀
-
-### Prerequisites
-
+## Running the infrastructure 🚀
+Requirements:
 - docker
+- docker-compose
 
-### Run docker container
+This compose run:
+- ELK
+    - elasticsearch
+    - logstash
+    - [kibana](http://localhost:5601/)
+- Monitoring
+    - alertmanager
+    - [prometheus](http://localhost:9090/),
+    - [grafana](http://localhost:3000/) (user: ```admin```, password: ```admin```)
+- Tracing
+    - otel-collector
+    - [jaeger](http://localhost:16686/)
+- DB
+    - Postgres (jdbc: ```jdbc:postgresql://postgres:5432/quarkus```, user: ```admin```, password: ```admin```)
 
-from `./docker` directory
+```shell script
+sh run-infra.sh
+```
 
-`sh ./run_docker.sh dev`
+## Running the application in dev mode
 
-ℹ️ Note: for PagoPa ACR is required the login `az acr login -n <acr-name>`
+You can run your application in dev mode that enables live coding using:
+```shell script
+./mvnw compile quarkus:dev
+```
+
+> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+
+
+## Creating a native executable
+You can create a native executable using:
+```shell script
+sh build-and-run.sh build
+```
+for run use ```sh build-and-run.sh run```
 
 ---
 
-## Develop Locally 💻
+# Run Tests 🧪 [WIP] 👩‍💻
 
-### Prerequisites
+#### Unit test
 
-- git
-- maven
-- jdk-11
+Typing `mvn clean verify`
 
-### Run the project
+#### Integration test
 
-Start the springboot application with this command:
-
-`mvn spring-boot:run -Dspring-boot.run.profiles=local`
-
-### Spring Profiles
-
-- **local**: to develop locally.
-- _default (no profile set)_: The application gets the properties from the environment (for Azure).
-
-### Testing 🧪
-
-#### Unit testing
-
-To run the **Junit** tests:
-
-`mvn clean verify`
-
-#### Integration testing
-
-From `./integration-test/src`
-
-1. `yarn install`
-2. `yarn test`
-
-#### Performance testing
-
-install [k6](https://k6.io/) and then from `./performance-test/src`
-
-1. `k6 run --env VARS=local.environment.json --env TEST_TYPE=./test-types/load.json main_scenario.js`
+- Run the application
+- Install dependencies: `yarn install`
+- Run the test: `yarn test`
 
 ---
 
 ## Contributors 👥
-
 Made with ❤️ by PagoPa S.p.A.
 
 ### Mainteiners
-
 See `CODEOWNERS` file
