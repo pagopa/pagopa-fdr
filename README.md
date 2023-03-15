@@ -59,7 +59,7 @@ This compose run:
     - Postgres (jdbc: ```jdbc:postgresql://postgres:5432/quarkus```, user: ```admin```, password: ```admin```)
 
 ```shell script
-sh run-infra.sh
+sh run-local-infra.sh
 ```
 
 ## Running the application in dev mode
