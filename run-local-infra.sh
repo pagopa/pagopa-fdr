@@ -1,8 +1,8 @@
 #!/bin/bash
 
 cd dev-env
-docker-compose down --remove-orphans --volumes
-docker-compose up -d
+docker compose down --remove-orphans --volumes
+docker compose up -d
 cd ..
 
 sleep 15

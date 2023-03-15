@@ -40,10 +40,10 @@ or that for `json` version ```http://localhost:8080/q/openapi?format=json```
 ---
 ## Running the infrastructure 🚀
 Requirements:
-- docker
-- docker-compose
+- docker (v20.10.23)
+- docker-compose (v2.15.1)
 
-This compose run:
+This docker-compose run:
 - ELK
     - elasticsearch
     - logstash
