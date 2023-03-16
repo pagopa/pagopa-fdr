@@ -38,31 +38,16 @@ stages:
               cd /tmp
               curl -o GraalVM.tar.gz -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$(GRAALVM_VERSION)/graalvm-ce-java17-linux-amd64-$(GRAALVM_VERSION).tar.gz
               tar -xzf GraalVM.tar.gz
-                            
+              
+              #set for next step
               echo "##vso[task.setvariable variable=JAVA_HOME]/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)"
               echo "##vso[task.setvariable variable=PATH]/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin;$(PATH)"
       
+              #set fot this step
+              export JAVA_HOME=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)
+              export PATH=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin:$PATH
               java -version
-            displayName: Install GraalVM $(GRAALVM_VERSION)
-
-          - script: |
-              echo "Install Maven"
-              cd /tmp
-              curl -o Maven.tar.gz -L https://dlcdn.apache.org/maven/maven-3/$(MAVEN_VERSION)/binaries/apache-maven-$(MAVEN_VERSION)-bin.tar.gz
-              tar -xzf Maven.tar.gz
-             
-              echo "##vso[task.setvariable variable=MAVEN_HOME]/tmp/apache-maven-$(MAVEN_VERSION)"
-              echo "##vso[task.setvariable variable=M2_HOME]/tmp/apache-maven-$(MAVEN_VERSION)"
-              echo "##vso[task.setvariable variable=PATH]/tmp/apache-maven-$(MAVEN_VERSION)/bin;$(PATH)"
-              
-              mvn -version
-            displayName: Install Maven $(MAVEN_VERSION)
-
-          - script: |
-              echo "Verify version (Maven, Java)"
-              mvn -version
-            displayName: Verify version (Maven, Java)
-
+            displayName: Install GraalVM
 
           - task: SonarCloudPrepare@1
             displayName: 'Prepare SonarCloud analysis configuration'
@@ -86,9 +71,9 @@ stages:
               codeCoverageToolOption: 'JaCoCo'
               javaHomeOption: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               jdkDirectory: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
-              mavenVersionOption: 'Path'
-              mavenDirectory: '/tmp/apache-maven-$(MAVEN_VERSION)'
-              mavenSetM2Home: true
+              mavenVersionOption: 'Default'
+              #mavenDirectory: '/tmp/apache-maven-$(MAVEN_VERSION)'
+              #mavenSetM2Home: true
               mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
               mavenAuthenticateFeed: false
               effectivePomSkip: false
