@@ -6,7 +6,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
-import org.jboss.logging.MDC;
 
 @Path("/info")
 public class InfoResource {
@@ -24,7 +23,6 @@ public class InfoResource {
 
   @GET
   public Info hello() {
-    MDC.put("terra", "prova");
     log.info("info");
 
     return Info.builder().name(name).version(version).environment(environment).build();
