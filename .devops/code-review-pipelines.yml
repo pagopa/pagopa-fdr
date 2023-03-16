@@ -72,8 +72,6 @@ stages:
               javaHomeOption: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               jdkDirectory: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               mavenVersionOption: 'Default'
-              #mavenDirectory: '/tmp/apache-maven-$(MAVEN_VERSION)'
-              #mavenSetM2Home: true
               mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
               mavenAuthenticateFeed: false
               effectivePomSkip: false
