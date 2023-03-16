@@ -148,17 +148,17 @@ stages:
             inputs:
               mavenPomFile: 'pom.xml'
               goals: 'clean package -Pnative -Dquarkus.native.container-build=true'
-              publishJUnitResults: true
-              testResultsFiles: '**/surefire-reports/TEST-*.xml'
-              codeCoverageToolOption: 'JaCoCo'
+              publishJUnitResults: false
+              #testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              #codeCoverageToolOption: 'JaCoCo'
               javaHomeOption: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               jdkDirectory: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               mavenVersionOption: 'Default'
               mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
               mavenAuthenticateFeed: false
               effectivePomSkip: false
-              sonarQubeRunAnalysis: true
-              isJacocoCoverageReportXML: true
+              #sonarQubeRunAnalysis: true
+              #isJacocoCoverageReportXML: true
               sqMavenPluginVersionChoice: 'latest'
 
           - template: templates/docker-release/template.yaml@pagopaCommons
