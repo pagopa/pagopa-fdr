@@ -143,22 +143,21 @@ stages:
               java -version
             displayName: Install GraalVM $(GRAALVM_VERSION) - JAVA 17
 
+          - script: ./sbt -v docker:stage
+            displayName: "Create Dockerfile"
+
           - task: Maven@3
             displayName: 'Run native build'
             inputs:
               mavenPomFile: 'pom.xml'
-              goals: 'clean package -Pnative -Dquarkus.native.container-build=true'
+              goals: 'clean package -Pnative -Dquarkus.native.container-build=true -Dmaven.test.skip=true'
               publishJUnitResults: false
-              #testResultsFiles: '**/surefire-reports/TEST-*.xml'
-              #codeCoverageToolOption: 'JaCoCo'
               javaHomeOption: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               jdkDirectory: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               mavenVersionOption: 'Default'
               mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
               mavenAuthenticateFeed: false
               effectivePomSkip: false
-              #sonarQubeRunAnalysis: true
-              #isJacocoCoverageReportXML: true
               sqMavenPluginVersionChoice: 'latest'
 
           - template: templates/docker-release/template.yaml@pagopaCommons
