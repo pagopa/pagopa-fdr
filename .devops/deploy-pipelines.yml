@@ -143,9 +143,6 @@ stages:
               java -version
             displayName: Install GraalVM $(GRAALVM_VERSION) - JAVA 17
 
-          - script: ./sbt -v docker:stage
-            displayName: "Create Dockerfile"
-
           - task: Maven@3
             displayName: 'Run native build'
             inputs:
