@@ -165,7 +165,6 @@ stages:
               DOCKER_IMAGE_TAG: $(current_version)
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
               DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.native"
-              DOCKERCONTEXT: "$(Build.SourcesDirectory)/target"
 
   # Testing the docker image
   - stage: Smoke_Test
