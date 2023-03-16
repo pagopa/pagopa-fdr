@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd dev-env
+cd docker-infra
 docker compose down --remove-orphans --volumes
 docker compose up -d
 cd ..
