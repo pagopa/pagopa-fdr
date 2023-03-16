@@ -13,6 +13,8 @@ pool:
 variables:
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+  GRAALVM_VERSION: '22.3.0'
+  MAVEN_VERSION: '3.8.9'
 
 stages:
   - stage: Test
@@ -30,6 +32,25 @@ stages:
                 maven
               path: $(MAVEN_CACHE_FOLDER)
             displayName: Cache Maven local repo
+
+          - script: |
+              echo "Install GraalVM"
+              cd /tmp
+              curl -o GraalVM.tar.gz -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$(GRAALVM_VERSION)/graalvm-ce-java17-linux-amd64-$(GRAALVM_VERSION).tar.gz
+              tar -xzf GraalVM.tar.gz
+              export PATH=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin:$PATH
+              export JAVA_HOME=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)
+              java -version
+            displayName: Install GraalVM
+
+          - script: "wget http://www-eu.apache.org/dist/maven/maven-3/$(MAVEN_VERSION)/binaries/apache-maven-$(MAVEN_VERSION)-bin.zip"
+            displayName: Download Maven
+
+          - task: ExtractFiles@1
+            displayName: Extract Maven
+            inputs:
+              archiveFilePatterns: 'apache-maven-$(MAVEN_VERSION)-bin.zip'
+              destinationFolder: '$(build.sourcesdirectory)/maven'
 
           - task: SonarCloudPrepare@1
             displayName: 'Prepare SonarCloud analysis configuration'
@@ -51,9 +72,11 @@ stages:
               publishJUnitResults: true
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
               codeCoverageToolOption: 'JaCoCo'
-              javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.11'
-              mavenVersionOption: 'Default'
+              javaHomeOption: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
+              jdkDirectory: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
+              mavenVersionOption: 'Path'
+              mavenDirectory: '$(build.sourcesdirectory)/maven/apache-maven-$(MAVEN_VERSION)'
+              mavenSetM2Home: true
               mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
               mavenAuthenticateFeed: false
               effectivePomSkip: false
