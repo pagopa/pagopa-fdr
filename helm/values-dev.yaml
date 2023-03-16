@@ -79,3 +79,6 @@ fdr:
       - interval: 5s
         targetPort: 8080
         path: /q/metrics
+microservice-chart:
+  image:
+    tag: 1.0.0-SNAPSHOT
