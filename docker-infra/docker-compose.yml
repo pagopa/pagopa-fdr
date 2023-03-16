@@ -106,7 +106,7 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: quarkus
+      POSTGRES_DB: fdr
     ports:
       - "5432:5432"
     networks:

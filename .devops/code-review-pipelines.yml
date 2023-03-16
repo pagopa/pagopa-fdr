@@ -34,7 +34,7 @@ stages:
             displayName: Cache Maven local repo
 
           - script: |
-              echo "Install GraalVM"
+              echo "Install GraalVM $(GRAALVM_VERSION) - JAVA 17"
               cd /tmp
               curl -o GraalVM.tar.gz -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$(GRAALVM_VERSION)/graalvm-ce-java17-linux-amd64-$(GRAALVM_VERSION).tar.gz
               tar -xzf GraalVM.tar.gz
@@ -47,7 +47,7 @@ stages:
               export JAVA_HOME=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)
               export PATH=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin:$PATH
               java -version
-            displayName: Install GraalVM
+            displayName: Install GraalVM $(GRAALVM_VERSION) - JAVA 17
 
           - task: SonarCloudPrepare@1
             displayName: 'Prepare SonarCloud analysis configuration'
