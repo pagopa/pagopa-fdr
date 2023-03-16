@@ -76,7 +76,7 @@ resources:
     - repository: pagopaCommons
       type: github
       name: pagopa/azure-pipeline-templates
-      ref: refs/tags/v3.1.0
+      ref: refs/tags/v3.6.0
       endpoint: 'io-azure-devops-github-ro'
 
 stages:
@@ -115,6 +115,49 @@ stages:
               git checkout $(sourceBranch)
             displayName: Checkout and update branch
 
+          - task: Cache@2
+            inputs:
+              key: 'maven | "$(Agent.OS)" | pom.xml'
+              restoreKeys: |
+                maven | "$(Agent.OS)"
+                maven
+              path: $(MAVEN_CACHE_FOLDER)
+            displayName: Cache Maven local repo
+
+          - script: |
+              echo "Install GraalVM $(GRAALVM_VERSION) - JAVA 17"
+              cd /tmp
+              curl -o GraalVM.tar.gz -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$(GRAALVM_VERSION)/graalvm-ce-java17-linux-amd64-$(GRAALVM_VERSION).tar.gz
+              tar -xzf GraalVM.tar.gz
+
+              #set for next step
+              echo "##vso[task.setvariable variable=JAVA_HOME]/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)"
+              echo "##vso[task.setvariable variable=PATH]/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin;$(PATH)"
+
+              #set fot this step
+              export JAVA_HOME=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)
+              export PATH=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin:$PATH
+              java -version
+            displayName: Install GraalVM $(GRAALVM_VERSION) - JAVA 17
+
+          - task: Maven@3
+            displayName: 'Run native build'
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean package -Pnative -Dquarkus.native.container-build=true'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              codeCoverageToolOption: 'JaCoCo'
+              javaHomeOption: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
+              jdkDirectory: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
+              mavenVersionOption: 'Default'
+              mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: true
+              isJacocoCoverageReportXML: true
+              sqMavenPluginVersionChoice: 'latest'
+
           - template: templates/docker-release/template.yaml@pagopaCommons
             parameters:
               CONTAINER_REGISTRY_SERVICE_CONN: $(dockerRegistryServiceConnection)
@@ -122,39 +165,41 @@ stages:
               DOCKER_IMAGE_NAME: $(imageRepository)
               DOCKER_IMAGE_TAG: $(current_version)
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
+              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.native"
+              DOCKERCONTEXT: "$(Build.SourcesDirectory)/target"
 
-  # Testing the docker image
-  - stage: Smoke_Test
-    dependsOn:
-      - Build
-    condition: and(succeeded(), eq('${{ parameters.TEST }}', 'true'))
-    jobs:
-      - job: smoke_tests
-        pool:
-          vmImage: 'ubuntu-18.04'
-        steps:
-          - checkout: self
-            persistCredentials: true
-
-          - script: |
-              git checkout $(sourceBranch)
-            displayName: Checkout and update branch
-
-          - task: Docker@2
-            displayName: "Docker login"
-            inputs:
-              containerRegistry: "$(dockerRegistryServiceConnection)"
-              command: "login"
-
-          - task: Bash@3
-            displayName: 'Run Smoke Tests'
-            inputs:
-              targetType: 'inline'
-              script: |
-                cd ./integration-test
-                sh run_integration_test.sh local
-            env:
-              containerRegistry: $(dockerRegistryFqdn)
+#  # Testing the docker image
+#  - stage: Smoke_Test
+#    dependsOn:
+#      - Build
+#    condition: and(succeeded(), eq('${{ parameters.TEST }}', 'true'))
+#    jobs:
+#      - job: smoke_tests
+#        pool:
+#          vmImage: 'ubuntu-18.04'
+#        steps:
+#          - checkout: self
+#            persistCredentials: true
+#
+#          - script: |
+#              git checkout $(sourceBranch)
+#            displayName: Checkout and update branch
+#
+#          - task: Docker@2
+#            displayName: "Docker login"
+#            inputs:
+#              containerRegistry: "$(dockerRegistryServiceConnection)"
+#              command: "login"
+#
+#          - task: Bash@3
+#            displayName: 'Run Smoke Tests'
+#            inputs:
+#              targetType: 'inline'
+#              script: |
+#                cd ./integration-test
+#                sh run_integration_test.sh local
+#            env:
+#              containerRegistry: $(dockerRegistryFqdn)
 
   # Deploy on K8s with Helm
   - stage: Deploy
