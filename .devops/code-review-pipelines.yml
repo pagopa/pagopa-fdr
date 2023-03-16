@@ -14,7 +14,7 @@ variables:
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
   GRAALVM_VERSION: '22.3.0'
-  MAVEN_VERSION: '3.8.6'
+  MAVEN_VERSION: '3.8.8'
 
 stages:
   - stage: Test
@@ -43,14 +43,16 @@ stages:
               java -version
             displayName: Install GraalVM
 
-          - script: "wget http://www-eu.apache.org/dist/maven/maven-3/$(MAVEN_VERSION)/binaries/apache-maven-$(MAVEN_VERSION)-bin.zip"
-            displayName: Download Maven
+          - script: |
+              echo "Install Maven"
+              cd /tmp
+              curl -o Maven.tar.gz -L https://dlcdn.apache.org/maven/maven-3/$(MAVEN_VERSION)/binaries/apache-maven-$(MAVEN_VERSION)-bin.tar.gz
+              tar -xzf Maven.tar.gz
+              export PATH=/tmp/apache-maven-$(MAVEN_VERSION)/bin:$PATH
+              export MAVEN_HOME=/tmp/apache-maven-$(MAVEN_VERSION)
+              mvn -version
+            displayName: Install Maven
 
-          - task: ExtractFiles@1
-            displayName: Extract Maven
-            inputs:
-              archiveFilePatterns: 'apache-maven-$(MAVEN_VERSION)-bin.zip'
-              destinationFolder: '$(build.sourcesdirectory)/maven'
 
           - task: SonarCloudPrepare@1
             displayName: 'Prepare SonarCloud analysis configuration'
@@ -75,7 +77,7 @@ stages:
               javaHomeOption: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               jdkDirectory: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
               mavenVersionOption: 'Path'
-              mavenDirectory: '$(build.sourcesdirectory)/maven/apache-maven-$(MAVEN_VERSION)'
+              mavenDirectory: '/tmp/apache-maven-$(MAVEN_VERSION)'
               mavenSetM2Home: true
               mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
               mavenAuthenticateFeed: false
