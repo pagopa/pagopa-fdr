@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FruitDto {
 
-    private String name;
-    private String description;
+  private String name;
+  private String description;
 }
