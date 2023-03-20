@@ -2,9 +2,8 @@ package it.gov.pagopa.fdr.exception;
 
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppUtil;
-import org.jboss.resteasy.reactive.RestResponse;
-
 import java.util.ResourceBundle;
+import org.jboss.resteasy.reactive.RestResponse;
 
 public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
 

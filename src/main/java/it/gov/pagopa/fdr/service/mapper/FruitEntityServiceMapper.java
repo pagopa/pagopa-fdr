@@ -2,11 +2,10 @@ package it.gov.pagopa.fdr.service.mapper;
 
 import it.gov.pagopa.fdr.repository.entity.Fruit;
 import it.gov.pagopa.fdr.service.dto.FruitDto;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.CDI)
 public interface FruitEntityServiceMapper {

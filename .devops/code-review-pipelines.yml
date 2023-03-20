@@ -41,7 +41,7 @@ stages:
               #set for next step
               echo "##vso[task.setvariable variable=JAVA_HOME]/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)"
               echo "##vso[task.setvariable variable=PATH]/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin;$(PATH)"
-      
+              
               #set fot this step
               export JAVA_HOME=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)
               export PATH=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin:$PATH

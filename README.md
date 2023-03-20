@@ -5,9 +5,11 @@
 Manage FDR ( aka "Flussi di Rendicontazione" ) exchanged between PSP and EC
 
 ---
+
 ## Api Documentation 📖
 
-See the [OpenApi 3 here.](https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi.json)
+See
+the [OpenApi 3 here.](https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi.json)
 
 In local env typing following url on browser for ui interface:
 
@@ -20,6 +22,7 @@ or that for `json` version ```http://localhost:8080/q/openapi?format=json```
 ---
 
 ## Technology Stack 📚
+
 - Java 17 Runtime Environment GraalVM CE
 - [Quarkus](https://quarkus.io/)
 - quarkus-resteasy-reactive
@@ -38,12 +41,16 @@ or that for `json` version ```http://localhost:8080/q/openapi?format=json```
 - mapstruct
 
 ---
+
 ## Running the infrastructure 🚀
+
 Requirements:
+
 - docker (v20.10.23)
 - docker-compose (v2.15.1)
 
 This docker-compose run:
+
 - ELK
     - elasticsearch
     - logstash
@@ -56,7 +63,8 @@ This docker-compose run:
     - otel-collector
     - [jaeger](http://localhost:16686/)
 - DB
-    - Postgres (jdbc: ```jdbc:postgresql://postgres:5432/quarkus```, user: ```admin```, password: ```admin```)
+    - Postgres (jdbc: ```jdbc:postgresql://postgres:5432/quarkus```, user: ```admin```,
+      password: ```admin```)
 
 ```shell script
 sh run-local-infra.sh
@@ -65,18 +73,22 @@ sh run-local-infra.sh
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
+
 ```shell script
 ./mvnw compile quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
-
+> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only
+> at http://localhost:8080/q/dev/.
 
 ## Creating a native executable
+
 You can create a native executable using:
+
 ```shell script
 sh build-and-run.sh build
 ```
+
 for run use ```sh build-and-run.sh run```
 
 ---
@@ -96,7 +108,9 @@ Typing `mvn clean verify`
 ---
 
 ## Contributors 👥
+
 Made with ❤️ by PagoPa S.p.A.
 
 ### Mainteiners
+
 See `CODEOWNERS` file

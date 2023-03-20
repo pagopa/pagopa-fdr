@@ -113,8 +113,8 @@ services:
       - infra
 
 volumes:
-  prometheus_data: {}
-  grafana_data: {}
+  prometheus_data: { }
+  grafana_data: { }
 networks:
   infra:
     driver: bridge

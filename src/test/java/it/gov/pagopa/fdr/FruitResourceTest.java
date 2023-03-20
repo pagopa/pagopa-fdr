@@ -1,13 +1,7 @@
 package it.gov.pagopa.fdr;
 
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.MediaType;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 @QuarkusTest
 public class FruitResourceTest {
 
