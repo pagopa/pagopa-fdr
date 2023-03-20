@@ -74,8 +74,9 @@ jobs:
       - name: Formatting
         uses: axel-op/googlejavaformat-action@v3
         with:
-          files-excluded: ".mvn/**"
-          args: "--set-exit-if-changed"
+          args: "--set-exit-if-changed --replace"
+      - name: Print diffs
+        run: git --no-pager diff --exit-code
 
       - uses: actions/github-script@v6.3.3
         if: always()
