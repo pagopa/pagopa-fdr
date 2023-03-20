@@ -13,9 +13,6 @@ changelog:
     - title: Exciting New Features 🎉
       labels:
         - minor
-    - title: Exciting New Features 🎉
-      labels:
-        - minor
     - title: Other Changes
       labels:
         - "*"
