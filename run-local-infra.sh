@@ -5,7 +5,7 @@ docker compose down --remove-orphans --volumes
 docker compose up -d
 cd ..
 
-sleep 15
+sleep 20
 
 echo ""
 echo ""
