@@ -74,6 +74,7 @@ jobs:
       - name: Formatting
         uses: axel-op/googlejavaformat-action@v3
         with:
+          files-excluded: ".mvn/**/*.java"
           args: "--set-exit-if-changed"
 
       - uses: actions/github-script@v6.3.3
