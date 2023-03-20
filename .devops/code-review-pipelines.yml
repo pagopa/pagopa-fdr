@@ -13,7 +13,7 @@ pool:
 variables:
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
-  GRAALVM_VERSION: '22.3.0'
+  GRAALVM_VERSION: '22.3.1'
 
 stages:
   - stage: Test

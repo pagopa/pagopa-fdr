@@ -41,7 +41,7 @@ variables:
   nameSpace: '$(K8S_NAMESPACE)'
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
-  GRAALVM_VERSION: '22.3.0'
+  GRAALVM_VERSION: '22.3.1'
 
   ${{ if eq(parameters['ENV'], 'dev') }}:
     dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)

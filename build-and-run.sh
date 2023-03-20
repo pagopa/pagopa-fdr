@@ -3,7 +3,7 @@
 action=$1
 
 if [ -z "$action" ]; then
-  echo "Missed action: <build|run|export|test_curl>"
+  echo "Missed action: <build|run|generate_openapi|test_curl>"
   exit 0
 fi
 
@@ -24,13 +24,12 @@ run () {
   docker run -i --rm --network=dev-env_infra -p 8080:8080 $REPO:$version-$conf
 }
 
-exportOpenAPIJson () {
+generate_openapi () {
   conf=$1
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
-  echo "Export OpenAPI JSON [$version] [$conf]"
+  echo "Generate OpenAPI JSON [$version] [$conf]"
   docker run -i -d --name exportopenapifdr --rm -p 8080:8080 $REPO:$version-$conf
 
-  echo "Export OpenAPI"
   curl http://localhost:8080/q/openapi?format=json > openapi/openapi.json
   docker rm -f exportopenapifdr
 }
@@ -45,7 +44,7 @@ test_curl () {
   curl localhost:8080/q/openapi
 }
 
-if echo "build run export test_curl" | grep -w $action > /dev/null; then
+if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; then
   if [ $action = "build" ]; then
     build docker
   elif [ $action = "run" ]; then
@@ -55,7 +54,7 @@ if echo "build run export test_curl" | grep -w $action > /dev/null; then
     run docker
   elif [ $action = "export" ]; then
     build openapi
-    exportOpenAPIJson openapi
+    generate_openapi openapi
   else
     test_curl
   fi
