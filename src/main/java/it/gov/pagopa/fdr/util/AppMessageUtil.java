@@ -9,32 +9,32 @@ import java.util.ResourceBundle;
 public class AppMessageUtil {
   private static final Locale defaultLocale = new Locale("en");
 
-  public static ResourceBundle getBundle(Locale locale) {
+  private static ResourceBundle getBundle(Locale locale) {
     if (locale == null) {
       locale = Optional.of(Locale.getDefault()).orElse(defaultLocale);
     }
     return ResourceBundle.getBundle("messages", locale);
   }
 
-  public static String getMessage(String messageKey) {
+  public static String getMessage(String messageKey, Locale locale) {
     String message = "messageKey not found !!!";
     try {
-      message = getBundle(null).getString(messageKey);
+      message = getBundle(locale).getString(messageKey);
     } catch (Exception e) {
       Log.error(String.format("Error while getting message for messageKey %s", messageKey), e);
     }
     return message;
   }
 
-  public static String getMessage(String messageKey, Locale locale) {
-    return getBundle(locale).getString(messageKey);
-  }
-
-  public static String getMessage(String messageKey, Object... messageArguments) {
-    return getMessage(messageKey, messageArguments, null);
+  public static String getMessage(String messageKey) {
+    return getMessage(messageKey, (Locale) null);
   }
 
   public static String getMessage(String messageKey, Locale locale, Object... messageArguments) {
-    return MessageFormat.format(getBundle(locale).getString(messageKey), messageArguments);
+    return MessageFormat.format(getMessage(messageKey, locale), messageArguments);
+  }
+
+  public static String getMessage(String messageKey, Object... messageArguments) {
+    return getMessage(messageKey, null, messageArguments);
   }
 }

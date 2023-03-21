@@ -12,10 +12,10 @@ public class InfoResource {
 
   @Inject Logger log;
 
-  @ConfigProperty(name = "quarkus.application.name", defaultValue = "app")
+  @ConfigProperty(name = "app.name", defaultValue = "app")
   String name;
 
-  @ConfigProperty(name = "quarkus.application.version", defaultValue = "0.0.0")
+  @ConfigProperty(name = "app.version", defaultValue = "0.0.0")
   String version;
 
   @ConfigProperty(name = "app.environment", defaultValue = "local")
