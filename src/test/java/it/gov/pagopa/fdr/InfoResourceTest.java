@@ -11,6 +11,6 @@ public class InfoResourceTest {
 
   @Test
   public void testHelloEndpoint() {
-    given().when().get("/info").then().statusCode(200).body("name", containsString("FDR"));
+    given().when().get("/info").then().statusCode(200).body("name", containsString("app"));
   }
 }
