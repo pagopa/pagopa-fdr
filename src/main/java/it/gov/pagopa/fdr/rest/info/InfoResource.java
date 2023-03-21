@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.rest.info;
 
 import it.gov.pagopa.fdr.rest.info.response.Info;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,8 +24,13 @@ public class InfoResource {
 
   @GET
   public Info hello() {
-    log.infof("Info %s [%s:$s]", environment, name, version);
+    log.infof("Info %s [%s:%s]", environment, name, version);
 
-    return Info.builder().name(name).version(version).environment(environment).build();
+    return Info.builder()
+        .name(name)
+        .version(version)
+        .environment(environment)
+        .description(AppMessageUtil.getMessage("app.description"))
+        .build();
   }
 }

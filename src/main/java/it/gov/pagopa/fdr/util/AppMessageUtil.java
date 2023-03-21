@@ -13,7 +13,17 @@ public class AppMessageUtil {
     if (locale == null) {
       locale = Optional.of(Locale.getDefault()).orElse(defaultLocale);
     }
-    return ResourceBundle.getBundle("messages", locale);
+    ResourceBundle bundle = null;
+    try {
+      bundle = ResourceBundle.getBundle("messages", locale);
+    } catch (Exception e) {
+      Log.debug(
+          String.format(
+              "Not found bundle message_%s.properties. Load default messages_%s.properties",
+              locale, defaultLocale));
+      bundle = ResourceBundle.getBundle("messages", defaultLocale);
+    }
+    return bundle;
   }
 
   public static String getMessage(String messageKey, Locale locale) {
