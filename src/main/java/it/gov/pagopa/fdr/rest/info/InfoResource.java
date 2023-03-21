@@ -24,7 +24,7 @@ public class InfoResource {
 
   @GET
   public Info hello() {
-    log.infof("Info %s [%s:%s]", environment, name, version);
+    log.infof("Info environment: [%s] - name: [%s] - version: [%s]", environment, name, version);
 
     return Info.builder()
         .name(name)

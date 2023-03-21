@@ -31,7 +31,7 @@ public class AppMessageUtil {
     try {
       message = getBundle(locale).getString(messageKey);
     } catch (Exception e) {
-      Log.error(String.format("Error while getting message for messageKey %s", messageKey), e);
+      Log.error(String.format("Error while getting message for messageKey [%s]", messageKey), e);
     }
     return message;
   }
