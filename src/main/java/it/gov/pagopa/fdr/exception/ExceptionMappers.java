@@ -19,16 +19,18 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    ErrorResponse.ErrorMessage errorMessage =
-        new ErrorResponse.ErrorMessage(codeMessage.message(appEx.getArgs()));
-    ErrorResponse errorResponse =
-        new ErrorResponse(
-            status.getStatusCode(),
-            status.getReasonPhrase(),
-            codeMessage.errorCode(),
-            errorMessage);
-
-    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
+    return RestResponse.status(
+        codeMessage.httpStatus(),
+        ErrorResponse.builder()
+            .httpStatusCode(status.getStatusCode())
+            .httpStatusDescription(status.getReasonPhrase())
+            .appErrorCode(codeMessage.errorCode())
+            .errors(
+                List.of(
+                    ErrorResponse.ErrorMessage.builder()
+                        .message(codeMessage.message(appEx.getArgs()))
+                        .build()))
+            .build());
   }
 
   @ServerExceptionMapper
@@ -40,42 +42,45 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    ErrorResponse.ErrorMessage errorMessage =
-        new ErrorResponse.ErrorMessage(codeMessage.message(appEx.getArgs()));
-    ErrorResponse errorResponse =
-        new ErrorResponse(
-            errorId,
-            status.getStatusCode(),
-            status.getReasonPhrase(),
-            codeMessage.errorCode(),
-            errorMessage);
-
-    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
+    return RestResponse.status(
+        codeMessage.httpStatus(),
+        ErrorResponse.builder()
+            .errorId(errorId)
+            .httpStatusCode(status.getStatusCode())
+            .httpStatusDescription(status.getReasonPhrase())
+            .appErrorCode(codeMessage.errorCode())
+            .errors(
+                List.of(
+                    ErrorResponse.ErrorMessage.builder()
+                        .message(codeMessage.message(appEx.getArgs()))
+                        .build()))
+            .build());
   }
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapException(
       ConstraintViolationException constraintViolationException) {
+
     AppException appEx =
         new AppException(constraintViolationException, AppErrorCodeMessageEnum.BAD_REQUEST);
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    List<ErrorResponse.ErrorMessage> errorMessages =
-        constraintViolationException.getConstraintViolations().stream()
-            .map(
-                constraintViolation ->
-                    new ErrorResponse.ErrorMessage(
-                        constraintViolation.getPropertyPath().toString(),
-                        constraintViolation.getMessage()))
-            .collect(Collectors.toList());
-    ErrorResponse errorResponse =
-        new ErrorResponse(
-            status.getStatusCode(),
-            status.getReasonPhrase(),
-            codeMessage.errorCode(),
-            errorMessages);
-
-    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
+    return RestResponse.status(
+        codeMessage.httpStatus(),
+        ErrorResponse.builder()
+            .httpStatusCode(status.getStatusCode())
+            .httpStatusDescription(status.getReasonPhrase())
+            .appErrorCode(codeMessage.errorCode())
+            .errors(
+                constraintViolationException.getConstraintViolations().stream()
+                    .map(
+                        constraintViolation ->
+                            ErrorResponse.ErrorMessage.builder()
+                                .path(constraintViolation.getPropertyPath().toString())
+                                .message(constraintViolation.getMessage())
+                                .build())
+                    .collect(Collectors.toList()))
+            .build());
   }
 }

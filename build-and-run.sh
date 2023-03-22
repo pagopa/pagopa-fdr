@@ -21,7 +21,7 @@ run () {
   conf=$1
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Run version [$version] [$conf]"
-  docker run -i --rm --network=dev-env_infra -p 8080:8080 $REPO:$version-$conf
+  docker run -i --rm --network=docker-infra_infra -p 8080:8080 $REPO:$version-$conf
 }
 
 generate_openapi () {

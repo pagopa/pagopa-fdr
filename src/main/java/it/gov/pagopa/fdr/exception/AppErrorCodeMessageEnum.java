@@ -5,10 +5,10 @@ import it.gov.pagopa.fdr.util.AppMessageUtil;
 import org.jboss.resteasy.reactive.RestResponse;
 
 public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
-  ERROR("0500", "System.error", RestResponse.Status.INTERNAL_SERVER_ERROR),
-  BAD_REQUEST("0400", "Bad.request", RestResponse.Status.BAD_REQUEST),
-  FRUIT_BAD_REQUEST("0600", "Fruit.name.notMapped", RestResponse.Status.BAD_REQUEST),
-  FRUIT_NOT_FOUND("0601", "Fruit.name.notFound", RestResponse.Status.NOT_FOUND);
+  ERROR("0500", "system.error", RestResponse.Status.INTERNAL_SERVER_ERROR),
+  BAD_REQUEST("0400", "bad.request", RestResponse.Status.BAD_REQUEST),
+  FRUIT_BAD_REQUEST("0600", "fruit.name.notMapped", RestResponse.Status.BAD_REQUEST),
+  FRUIT_NOT_FOUND("0601", "fruit.name.notFound", RestResponse.Status.NOT_FOUND);
 
   private final String errorCode;
   private final String errorMessageKey;

@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FruitAddRequest {
-    @NotEmpty(message = "{Fruit.name.required}")
-    private String name;
+  @NotEmpty(message = "{fruit.name.required}")
+  private String name;
 
     private String description;
 }
