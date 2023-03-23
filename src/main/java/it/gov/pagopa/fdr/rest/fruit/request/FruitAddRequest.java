@@ -14,5 +14,5 @@ public class FruitAddRequest {
   @NotEmpty(message = "{fruit.name.required}")
   private String name;
 
-    private String description;
+  private String description;
 }

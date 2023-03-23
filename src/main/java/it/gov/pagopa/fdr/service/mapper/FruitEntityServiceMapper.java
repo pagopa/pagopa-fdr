@@ -10,10 +10,11 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = MappingConstants.ComponentModel.CDI)
 public interface FruitEntityServiceMapper {
 
-    FruitEntityServiceMapper INSTANCE = Mappers.getMapper(FruitEntityServiceMapper.class);
+  FruitEntityServiceMapper INSTANCE = Mappers.getMapper(FruitEntityServiceMapper.class);
 
-    FruitDto toFruitDto(Fruit fruit);
-    Fruit toFruit(FruitDto fruit);
+  FruitDto toFruitDto(Fruit fruit);
 
-    List<FruitDto> toFruitDtoList(List<Fruit> fruit);
+  Fruit toFruit(FruitDto fruit);
+
+  List<FruitDto> toFruitDtoList(List<Fruit> fruit);
 }
