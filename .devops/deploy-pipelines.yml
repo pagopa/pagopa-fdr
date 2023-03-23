@@ -203,20 +203,20 @@ stages:
                         yq -i ".appVersion = \"$(deploy_version)\"" "$CHART_FILE"
                       fi
 
-                - task: CopyFiles@2
-                  displayName: 'Copy helm files to: $(Build.ArtifactStagingDirectory)/helm-evaluated'
-                  inputs:
-                    contents: |
-                      helm/Chart.yaml
-                      helm/values-${{ parameters['ENV'] }}.yaml
-                    targetFolder: $(Build.ArtifactStagingDirectory)/helm-evaluated
-                - publish: $(Build.ArtifactStagingDirectory)/helm-evaluated
-                  displayName: "Publish $(Build.ArtifactStagingDirectory)/helm-evaluated"
-                  artifact: $(deploy_version)_helm_${{ parameters['ENV'] }}
-
-                - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
-                  parameters:
-                    DEPLOY_VERSION: $(deploy_version)
+#                - task: CopyFiles@2
+#                  displayName: 'Copy helm files to: $(Build.ArtifactStagingDirectory)/helm-evaluated'
+#                  inputs:
+#                    contents: |
+#                      helm/Chart.yaml
+#                      helm/values-${{ parameters['ENV'] }}.yaml
+#                    targetFolder: $(Build.ArtifactStagingDirectory)/helm-evaluated
+#                - publish: $(Build.ArtifactStagingDirectory)/helm-evaluated
+#                  displayName: "Publish $(Build.ArtifactStagingDirectory)/helm-evaluated"
+#                  artifact: $(deploy_version)_helm_${{ parameters['ENV'] }}
+#
+#                - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
+#                  parameters:
+#                    DEPLOY_VERSION: $(deploy_version)
 
                 - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
                   parameters:
