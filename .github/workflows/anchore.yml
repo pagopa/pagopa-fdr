@@ -24,7 +24,7 @@ permissions:
   contents: read
 
 env:
-  DOCKERFILE: src/main/docker/Dockerfile.native
+  DOCKERFILE: src/main/docker/Dockerfile.multistage
 
 jobs:
   Anchore-Build-Scan:
@@ -36,16 +36,6 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
-
-      - uses: graalvm/setup-graalvm@v1
-        with:
-          version: '22.3.1'
-          java-version: '17'
-          components: 'native-image'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build with Maven
-        run: ./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dmaven.test.skip=true
 
       - name: Build the Docker image
         run: docker build . --file ${{ env.DOCKERFILE }} --tag localbuild/testimage:latest
