@@ -214,9 +214,9 @@ stages:
 #                  displayName: "Publish $(Build.ArtifactStagingDirectory)/helm-evaluated"
 #                  artifact: $(deploy_version)_helm_${{ parameters['ENV'] }}
 #
-#                - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
-#                  parameters:
-#                    DEPLOY_VERSION: $(deploy_version)
+                - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
+                  parameters:
+                    DEPLOY_VERSION: $(deploy_version)
 
                 - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
                   parameters:
