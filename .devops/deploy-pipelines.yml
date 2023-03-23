@@ -111,7 +111,6 @@ stages:
       - job: "build"
         steps:
           - checkout: self
-            clean: true
             persistCredentials: true
 
           - script: |
@@ -240,6 +239,7 @@ stages:
 #        steps:
 #          - checkout: self
 #            persistCredentials: true
+#            clean: true
 #
 #          - script: |
 #              git checkout $(sourceBranch)
