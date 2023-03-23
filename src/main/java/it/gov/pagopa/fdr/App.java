@@ -24,14 +24,13 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                           schema = @Schema(implementation = ErrorResponse.class),
                           example =
                               "{\n"
-                                  + "    \"errorId\": \"2f4dfc8f-4512-4549-ba9c-0c2156144a1e\",\n"
+                                  + "    \"errorId\": \"50905466-1881-457b-b42f-fb7b2bfb1610\",\n"
                                   + "    \"httpStatusCode\": 500,\n"
                                   + "    \"httpStatusDescription\": \"Internal Server Error\",\n"
                                   + "    \"appErrorCode\": \"FDR-0500\",\n"
                                   + "    \"errors\": [\n"
                                   + "        {\n"
-                                  + "            \"message\": \"An unexpected error has occurred."
-                                  + " Please contact support.\"\n"
+                                  + "            \"message\": \"An unexpected error has occurred. Please contact support.\"\n"
                                   + "        }\n"
                                   + "    ]\n"
                                   + "}")),
@@ -42,7 +41,19 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                   content =
                       @Content(
                           mediaType = MediaType.APPLICATION_JSON,
-                          schema = @Schema(implementation = ErrorResponse.class)))
+                          schema = @Schema(implementation = ErrorResponse.class),
+                          example =
+                              "{\n"
+                                  + "    \"httpStatusCode\": 400,\n"
+                                  + "    \"httpStatusDescription\": \"Bad Request\",\n"
+                                  + "    \"appErrorCode\": \"FDR-0400\",\n"
+                                  + "    \"errors\": [\n"
+                                  + "        {\n"
+                                  + "            \"path\": \"<detail.path.if-exist>\",\n"
+                                  + "            \"message\": \"<detail.message>\"\n"
+                                  + "        }\n"
+                                  + "    ]\n"
+                                  + "}"))
             }),
     info = @Info(title = "FDR - Flussi di Rendicontazione", version = "0.0.0-SNAPSHOT"))
 public class App extends Application {}

@@ -40,10 +40,7 @@ public class FruitResource {
   @WithSpan(kind = SERVER)
   public FruitDto get(@SpanAttribute(value = "name") String name) {
     log.infof("get fruit %s", name);
-    if ("fake".equals(name))
-      throw new IllegalStateException("Forcing error that handle successfully");
-    else if ("fake2".equals(name))
-      throw new AppException(AppErrorCodeMessageEnum.FRUIT_BAD_REQUEST, "fake2");
+    fruitService.validate(FruitAddRequest.builder().name(name).build());
     return fruitService.findFruit(name);
   }
 

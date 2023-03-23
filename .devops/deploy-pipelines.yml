@@ -110,21 +110,22 @@ stages:
     jobs:
       - job: "build"
         steps:
-          - checkout: self
-            persistCredentials: true
-
-          - script: |
-              git checkout $(sourceBranch)
-            displayName: Checkout and update branch
-
-          - template: templates/docker-release/template.yaml@pagopaCommons
-            parameters:
-              CONTAINER_REGISTRY_SERVICE_CONN: $(dockerRegistryServiceConnection)
-              CONTAINER_REGISTRY_FQDN: $(dockerRegistryFqdn)
-              DOCKER_IMAGE_NAME: $(imageRepository)
-              DOCKER_IMAGE_TAG: $(current_version)
-              FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
-              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage"
+          - checkout: none
+#          - checkout: self
+#            persistCredentials: true
+#
+#          - script: |
+#              git checkout $(sourceBranch)
+#            displayName: Checkout and update branch
+#
+#          - template: templates/docker-release/template.yaml@pagopaCommons
+#            parameters:
+#              CONTAINER_REGISTRY_SERVICE_CONN: $(dockerRegistryServiceConnection)
+#              CONTAINER_REGISTRY_FQDN: $(dockerRegistryFqdn)
+#              DOCKER_IMAGE_NAME: $(imageRepository)
+#              DOCKER_IMAGE_TAG: $(current_version)
+#              FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
+#              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage"
 
 #  # Testing the docker image
 #  - stage: Smoke_Test
@@ -202,6 +203,10 @@ stages:
                         yq -i ".version = \"$(deploy_version)\"" "$CHART_FILE"
                         yq -i ".appVersion = \"$(deploy_version)\"" "$CHART_FILE"
                       fi
+
+                - publish: helm
+                  displayName: "Publish helm folder"
+                  artifact: helm
 
                 - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
                   parameters:

@@ -7,12 +7,14 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.entity.Fruit;
+import it.gov.pagopa.fdr.rest.fruit.request.FruitAddRequest;
 import it.gov.pagopa.fdr.service.dto.FruitDto;
 import it.gov.pagopa.fdr.service.mapper.FruitEntityServiceMapper;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 @ApplicationScoped
 public class FruitService {
@@ -21,6 +23,14 @@ public class FruitService {
 
   public List<FruitDto> list() {
     return mapper.toFruitDtoList(Fruit.listAll());
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validate(@Valid FruitAddRequest fruitAddRequest) {
+    if ("fake".equals(fruitAddRequest.getName()))
+      throw new IllegalStateException("Forcing error that handle successfully");
+    else if ("fake2".equals(fruitAddRequest.getName()))
+      throw new AppException(AppErrorCodeMessageEnum.FRUIT_BAD_REQUEST, "fake2");
   }
 
   @WithSpan(kind = SERVER)

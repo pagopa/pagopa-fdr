@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
+import it.gov.pagopa.fdr.util.AppDefaultMsg;import it.gov.pagopa.fdr.util.AppMessageUtil;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -13,6 +14,8 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 public class ExceptionMappers {
 
   @Inject Logger log;
+
+  @Inject AppDefaultMsg msg;
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapException(AppException appEx) {
@@ -78,7 +81,8 @@ public class ExceptionMappers {
                         constraintViolation ->
                             ErrorResponse.ErrorMessage.builder()
                                 .path(constraintViolation.getPropertyPath().toString())
-                                .message(constraintViolation.getMessage())
+                                .message(
+                                    AppMessageUtil.getMessage(constraintViolation.getMessage()))
                                 .build())
                     .collect(Collectors.toList()))
             .build());
