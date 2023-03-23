@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FruitDeleteRequest {
+public class FruitGetRequest {
   @NotEmpty(message = "fruit.name.required")
   @Length(min = 2, max = 3, message = "{msg:fruit_name_length({name},2,3)}")
   private String name;

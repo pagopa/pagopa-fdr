@@ -1,12 +1,12 @@
 package it.gov.pagopa.fdr.exception;
 
 import it.gov.pagopa.fdr.rest.model.ErrorResponse;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
-import it.gov.pagopa.fdr.util.AppDefaultMsg;import it.gov.pagopa.fdr.util.AppMessageUtil;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;

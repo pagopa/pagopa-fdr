@@ -30,7 +30,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + "    \"appErrorCode\": \"FDR-0500\",\n"
                                   + "    \"errors\": [\n"
                                   + "        {\n"
-                                  + "            \"message\": \"An unexpected error has occurred. Please contact support.\"\n"
+                                  + "            \"message\": \"An unexpected error has occurred."
+                                  + " Please contact support.\"\n"
                                   + "        }\n"
                                   + "    ]\n"
                                   + "}")),

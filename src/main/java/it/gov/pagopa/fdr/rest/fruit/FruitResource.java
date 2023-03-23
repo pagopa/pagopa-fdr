@@ -4,8 +4,6 @@ import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.rest.fruit.mapper.FruitRestServiceMapper;
 import it.gov.pagopa.fdr.rest.fruit.request.FruitAddRequest;
 import it.gov.pagopa.fdr.rest.fruit.request.FruitDeleteRequest;
