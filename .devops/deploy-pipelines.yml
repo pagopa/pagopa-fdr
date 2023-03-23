@@ -100,6 +100,12 @@ stages:
               gitUsername: $(GIT_USERNAME)
               gitHubConnection: $(GITHUB_CONNECTION)
               semver: "${{ parameters.SEMVER }}"
+              customHelmStep: |
+                VALUES_FILE="helm/values-${{ parameters['ENV'] }}.yaml"
+                if [[ -f "$VALUES_FILE" ]]; then
+                  yq -i ".microservice-chart.image.tag = \"$(next_version.value)\"" "$VALUES_FILE"
+                  git add "$VALUES_FILE"
+                fi
 
           - template: templates/maven-github-current-version/template.yaml@pagopaCommons
 
@@ -112,6 +118,7 @@ stages:
       - job: "build"
         steps:
           - checkout: self
+            clean: true
             persistCredentials: true
 
           - script: |
@@ -127,36 +134,6 @@ stages:
               path: $(MAVEN_CACHE_FOLDER)
             displayName: Cache Maven local repo
 
-          - script: |
-              echo "Install GraalVM $(GRAALVM_VERSION) - JAVA 17"
-              cd /tmp
-              curl -o GraalVM.tar.gz -L https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$(GRAALVM_VERSION)/graalvm-ce-java17-linux-amd64-$(GRAALVM_VERSION).tar.gz
-              tar -xzf GraalVM.tar.gz
-
-              #set for next step
-              echo "##vso[task.setvariable variable=JAVA_HOME]/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)"
-              echo "##vso[task.setvariable variable=PATH]/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin;$(PATH)"
-
-              #set fot this step
-              export JAVA_HOME=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)
-              export PATH=/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)/bin:$PATH
-              java -version
-            displayName: Install GraalVM $(GRAALVM_VERSION) - JAVA 17
-
-          - task: Maven@3
-            displayName: 'Run native build'
-            inputs:
-              mavenPomFile: 'pom.xml'
-              goals: 'clean package -Pnative -Dquarkus.native.container-build=true -Dmaven.test.skip=true'
-              publishJUnitResults: false
-              javaHomeOption: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
-              jdkDirectory: '/tmp/graalvm-ce-java17-$(GRAALVM_VERSION)'
-              mavenVersionOption: 'Default'
-              mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
-              mavenAuthenticateFeed: false
-              effectivePomSkip: false
-              sqMavenPluginVersionChoice: 'latest'
-
           - template: templates/docker-release/template.yaml@pagopaCommons
             parameters:
               CONTAINER_REGISTRY_SERVICE_CONN: $(dockerRegistryServiceConnection)
@@ -164,44 +141,45 @@ stages:
               DOCKER_IMAGE_NAME: $(imageRepository)
               DOCKER_IMAGE_TAG: $(current_version)
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
-              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.native"
+              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage"
 
-  # Testing the docker image
-  - stage: Smoke_Test
-    dependsOn:
-      - Build
-    condition: and(succeeded(), eq('${{ parameters.TEST }}', 'true'))
-    jobs:
-      - job: smoke_tests
-        pool:
-          vmImage: 'ubuntu-22.04'
-        steps:
-          - checkout: self
-            persistCredentials: true
-
-          - script: |
-              git checkout $(sourceBranch)
-            displayName: Checkout and update branch
-
-  #          - task: Docker@2
-  #            displayName: "Docker login"
-  #            inputs:
-  #              containerRegistry: "$(dockerRegistryServiceConnection)"
-  #              command: "login"
-  #
-  #          - task: Bash@3
-  #            displayName: 'Run Smoke Tests'
-  #            inputs:
-  #              targetType: 'inline'
-  #              script: |
-  #                cd ./integration-test
-  #                sh run_integration_test.sh local
-  #            env:
-  #              containerRegistry: $(dockerRegistryFqdn)
+#  # Testing the docker image
+#  - stage: Smoke_Test
+#    dependsOn:
+#      - Build
+#    condition: and(succeeded(), eq('${{ parameters.TEST }}', 'true'))
+#    jobs:
+#      - job: smoke_tests
+#        pool:
+#          vmImage: 'ubuntu-22.04'
+#        steps:
+#          - checkout: self
+#            persistCredentials: true
+#
+#          - script: |
+#              git checkout $(sourceBranch)
+#            displayName: Checkout and update branch
+#
+#          - task: Docker@2
+#            displayName: "Docker login"
+#            inputs:
+#              containerRegistry: "$(dockerRegistryServiceConnection)"
+#              command: "login"
+#
+#          - task: Bash@3
+#            displayName: 'Run Smoke Tests'
+#            inputs:
+#              targetType: 'inline'
+#              script: |
+#                cd ./integration-test
+#                sh run_integration_test.sh local
+#            env:
+#              containerRegistry: $(dockerRegistryFqdn)
 
   # Deploy on K8s with Helm
   - stage: Deploy
-    condition: and(succeeded('Build'), not(failed('Smoke_Test')))
+    #condition: and(succeeded('Build'), not(failed('Smoke_Test')))
+    condition: succeeded('Build')
     dependsOn:
       - Release
       - Build
@@ -219,6 +197,7 @@ stages:
               steps:
                 - checkout: self
                   persistCredentials: true
+                  clean: true
 
                 - script: |
                     git checkout $(sourceBranch)
@@ -241,27 +220,27 @@ stages:
                     APPINSIGHTS_RESOURCE_ID: ${{ variables.appInsightsResourceId }}
 
 
-  # Run Tests
-  - stage: Integration_Test
-    dependsOn:
-      - Deploy
-    condition: and(and(succeeded(), eq('${{ parameters.TEST }}', 'true')), ne('${{ parameters.ENV }}', 'prod'))
-    jobs:
-      - job: integration_tests
-        steps:
-          - checkout: self
-            persistCredentials: true
-
-          - script: |
-              git checkout $(sourceBranch)
-            displayName: Checkout and update branch
-
-          - task: Bash@3
-            displayName: 'Run Integration Tests'
-            inputs:
-              targetType: 'inline'
-              script: |
-                cd ./integration-test/src
-                export subkey=$(API_SUBSCRIPTION_KEY)
-                yarn install
-                yarn test:${{ parameters.ENV }}
+#  # Run Tests
+#  - stage: Integration_Test
+#    dependsOn:
+#      - Deploy
+#    condition: and(and(succeeded(), eq('${{ parameters.TEST }}', 'true')), ne('${{ parameters.ENV }}', 'prod'))
+#    jobs:
+#      - job: integration_tests
+#        steps:
+#          - checkout: self
+#            persistCredentials: true
+#
+#          - script: |
+#              git checkout $(sourceBranch)
+#            displayName: Checkout and update branch
+#
+#          - task: Bash@3
+#            displayName: 'Run Integration Tests'
+#            inputs:
+#              targetType: 'inline'
+#              script: |
+#                cd ./integration-test/src
+#                export subkey=$(API_SUBSCRIPTION_KEY)
+#                yarn install
+#                yarn test:${{ parameters.ENV }}

@@ -13,8 +13,8 @@ build () {
   conf=$1
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Build version [$version] [$conf]"
-  ./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
-  docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
+  #./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
+  docker build -f src/main/docker/Dockerfile.multistage -t $REPO:$version-$conf .
 }
 
 run () {
