@@ -32,36 +32,29 @@ public class InfoResource {
 
   @Operation(summary = "Get info of FDR")
   @APIResponses(
-    value = {
-      @APIResponse(
-        responseCode = "200",
-        description = "OK",
-        content =
-            @Content(
-              mediaType = MediaType.APPLICATION_JSON,
-              schema = @Schema(implementation = Info.class)
-            )
-      ),
-      @APIResponse(
-        responseCode = "500",
-        description = "Internal Server Error",
-        content =
-            @Content(
-              mediaType = MediaType.APPLICATION_JSON,
-              schema = @Schema(implementation = ErrorResponse.class)
-            )
-      ),
-      @APIResponse(
-        responseCode = "400",
-        description = "Bad Request",
-        content =
-            @Content(
-              mediaType = MediaType.APPLICATION_JSON,
-              schema = @Schema(implementation = ErrorResponse.class)
-            )
-      )
-    }
-  )
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = Info.class))),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class)))
+      })
   @Produces(MediaType.APPLICATION_JSON)
   @GET
   public Info hello() {
