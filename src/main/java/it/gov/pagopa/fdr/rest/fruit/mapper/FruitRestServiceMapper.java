@@ -9,8 +9,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = MappingConstants.ComponentModel.CDI)
 public interface FruitRestServiceMapper {
 
-    FruitRestServiceMapper INSTANCE = Mappers.getMapper(FruitRestServiceMapper.class);
+  FruitRestServiceMapper INSTANCE = Mappers.getMapper(FruitRestServiceMapper.class);
 
-    FruitDto toFruitDto(FruitAddRequest fruitRequest);
-
+  FruitDto toFruitDto(FruitAddRequest fruitRequest);
 }

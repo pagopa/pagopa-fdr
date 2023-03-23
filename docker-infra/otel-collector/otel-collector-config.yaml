@@ -25,9 +25,9 @@ extensions:
   health_check:
 
 service:
-  extensions: [health_check]
+  extensions: [ health_check ]
   pipelines:
     traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [jaeger, otlphttp/elastic]
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [ jaeger, otlphttp/elastic ]

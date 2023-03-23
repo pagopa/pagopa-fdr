@@ -2,71 +2,41 @@ package it.gov.pagopa.fdr.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@EqualsAndHashCode
-@JsonPropertyOrder({"errorId","httpStatusCode","httpStatusDescription","appErrorCode","errors"})
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonPropertyOrder({"errorId", "httpStatusCode", "httpStatusDescription", "appErrorCode", "errors"})
+@RegisterForReflection
 public class ErrorResponse {
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String errorId;
+
+  private int httpStatusCode;
+  private String httpStatusDescription;
+
+  private String appErrorCode;
+  private List<ErrorMessage> errors;
+
+  @Builder
+  @Data
+  @AllArgsConstructor
+  @NoArgsConstructor
+  @JsonPropertyOrder({"path", "message"})
+  @RegisterForReflection
+  public static class ErrorMessage {
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final String errorId;
+    private String path;
 
-    private final int httpStatusCode;
-    private final String httpStatusDescription;
-
-    private final String appErrorCode;
-    private final List<ErrorMessage> errors;
-
-    public ErrorResponse(String errorId, int httpStatusCode, String httpStatusDescription, String appErrorCode, ErrorMessage errorMessage) {
-        this.errorId = errorId;
-        this.httpStatusCode = httpStatusCode;
-        this.httpStatusDescription = httpStatusDescription;
-        this.appErrorCode = appErrorCode;
-        this.errors = List.of(errorMessage);
-    }
-
-    public ErrorResponse(int httpStatusCode, String httpStatusDescription, String appErrorCode, ErrorMessage errorMessage) {
-        this.errorId = null;
-        this.httpStatusCode = httpStatusCode;
-        this.httpStatusDescription = httpStatusDescription;
-        this.appErrorCode = appErrorCode;
-        this.errors = List.of(errorMessage);
-    }
-
-    public ErrorResponse(int httpStatusCode, String httpStatusDescription, String appErrorCode, List<ErrorMessage> errorMessages) {
-        this.errorId = null;
-        this.httpStatusCode = httpStatusCode;
-        this.httpStatusDescription = httpStatusDescription;
-        this.appErrorCode = appErrorCode;
-        this.errors = errorMessages;
-    }
-
-
-
-
-    @Getter
-    @EqualsAndHashCode
-    @JsonPropertyOrder({"path","message"})
-    public static class ErrorMessage {
-
-        @JsonInclude(JsonInclude.Include.NON_NULL)
-        private final String path;
-        private final String message;
-
-        public ErrorMessage(String path, String message) {
-            this.path = path;
-            this.message = message;
-        }
-
-        public ErrorMessage(String message) {
-            this.path = null;
-            this.message = message;
-        }
-
-    }
-
+    private String message;
+  }
 }
