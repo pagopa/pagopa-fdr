@@ -204,8 +204,15 @@ stages:
                         yq -i ".appVersion = \"$(deploy_version)\"" "$CHART_FILE"
                       fi
 
-                - publish: helm
-                  displayName: "Publish helm folder"
+                - task: CopyFiles@2
+                  displayName: 'Copy helm files to: $(Build.ArtifactStagingDirectory)/helm-evaluated'
+                  inputs:
+                    contents: |
+                      helm/Chart.yaml
+                      helm/values-${{ parameters['ENV'] }}.yaml
+                    targetFolder: $(Build.ArtifactStagingDirectory)/helm-evaluated
+                - publish: $(Build.ArtifactStagingDirectory)/helm-evaluated
+                  displayName: "Publish $(Build.ArtifactStagingDirectory)/helm-evaluated"
                   artifact: helm
 
                 - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons

@@ -15,8 +15,6 @@ public class ExceptionMappers {
 
   @Inject Logger log;
 
-  @Inject AppDefaultMsg msg;
-
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapException(AppException appEx) {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();

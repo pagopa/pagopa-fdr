@@ -8,6 +8,7 @@ import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.entity.Fruit;
 import it.gov.pagopa.fdr.rest.fruit.request.FruitAddRequest;
+import it.gov.pagopa.fdr.rest.fruit.request.FruitDeleteRequest;
 import it.gov.pagopa.fdr.service.dto.FruitDto;
 import it.gov.pagopa.fdr.service.mapper.FruitEntityServiceMapper;
 import java.util.List;
@@ -26,12 +27,23 @@ public class FruitService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validate(@Valid FruitAddRequest fruitAddRequest) {
+  public void validateGet(String name) {
+    if ("fake".equals(name))
+      throw new IllegalStateException("Forcing error that handle successfully");
+    else if ("fake2".equals(name))
+      throw new AppException(AppErrorCodeMessageEnum.FRUIT_BAD_REQUEST, "fake2");
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validateAdd(@Valid FruitAddRequest fruitAddRequest) {
     if ("fake".equals(fruitAddRequest.getName()))
       throw new IllegalStateException("Forcing error that handle successfully");
     else if ("fake2".equals(fruitAddRequest.getName()))
       throw new AppException(AppErrorCodeMessageEnum.FRUIT_BAD_REQUEST, "fake2");
   }
+
+  @WithSpan(kind = SERVER)
+  public void validateDelete(@Valid FruitDeleteRequest fruitDeleteRequest) {}
 
   @WithSpan(kind = SERVER)
   public FruitDto findFruit(@SpanAttribute(value = "name") String name) {
