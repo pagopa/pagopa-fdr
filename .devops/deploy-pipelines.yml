@@ -194,13 +194,13 @@ stages:
                     script: |
                       VALUES_FILE="helm/values-${{ parameters['ENV'] }}.yaml"
                       if [[ -f "$VALUES_FILE" ]]; then
-                        yq -i ".microservice-chart.image.tag = \"$(next_version.value)\"" "$VALUES_FILE"
+                        yq -i ".microservice-chart.image.tag = \"$(deploy_version)\"" "$VALUES_FILE"
                       fi
                       
                       CHART_FILE="helm/Chart.yaml"
                       if [[ -f "$CHART_FILE" ]]; then
-                        yq -i ".version = \"$(next_version.value)\"" "$CHART_FILE"
-                        yq -i ".appVersion = \"$(next_version.value)\"" "$CHART_FILE"
+                        yq -i ".version = \"$(deploy_version)\"" "$CHART_FILE"
+                        yq -i ".appVersion = \"$(deploy_version)\"" "$CHART_FILE"
                       fi
 
                 - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
