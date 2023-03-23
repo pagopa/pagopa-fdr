@@ -1,5 +1,6 @@
 {
-  "name": "your-project-name", // TODO: set your name
+  "name": "your-project-name",
+  // TODO: set your name
   "license": "MIT",
   "version": "1.0.0",
   "scripts": {

@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Info {
-    private String name;
-    private String version;
-    private String environment;
+  private String name;
+  private String version;
+  private String environment;
+
+  private String description;
 }
