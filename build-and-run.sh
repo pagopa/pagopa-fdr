@@ -14,7 +14,8 @@ build () {
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Build version [$version] [$conf]"
   #./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
-  docker build -f src/main/docker/Dockerfile.multistage -t $REPO:$version-$conf .
+  #docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
+  docker build -f src/main/docker/Dockerfile.multistage --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
 }
 
 run () {
@@ -29,7 +30,6 @@ generate_openapi () {
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Generate OpenAPI JSON [$version] [$conf]"
   docker run -i -d --name exportopenapifdr --rm -p 8080:8080 $REPO:$version-$conf
-
   curl http://localhost:8080/q/openapi?format=json > openapi/openapi.json
   docker rm -f exportopenapifdr
 }
@@ -52,7 +52,7 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
     echo "# REQUIRED: run-local-infra.sh"
     echo "###########"
     run docker
-  elif [ $action = "export" ]; then
+  elif [ $action = "generate_openapi" ]; then
     build openapi
     generate_openapi openapi
   else

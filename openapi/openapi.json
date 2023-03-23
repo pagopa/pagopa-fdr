@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "FDR - Flussi di rendicontazione (dev)",
+    "title": "FDR - Flussi di rendicontazione (local)",
     "description": "Questo microservizio � usato per storicizzare e servire i flussi di rendicontazione tra EC e PSP",
     "termsOfService": "Your terms here",
     "contact": {
@@ -15,12 +15,6 @@
     },
     "version": "1.0.0-SNAPSHOT"
   },
-  "servers": [
-    {
-      "url": "${host}/apiconfig/api/v1",
-      "description": "Generated server url"
-    }
-  ],
   "paths": {
     "/fruits": {
       "get": {
@@ -201,6 +195,9 @@
             "type": "string"
           },
           "environment": {
+            "type": "string"
+          },
+          "description": {
             "type": "string"
           }
         }

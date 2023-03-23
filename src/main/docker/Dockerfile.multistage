@@ -7,7 +7,8 @@ USER quarkus
 WORKDIR /code
 RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
 COPY src /code/src
-RUN ./mvnw package -Pnative
+ARG QUARKUS_PROFILE
+RUN ./mvnw package -Pnative -Dquarkus.profile=$QUARKUS_PROFILE
 
 ## Stage 2 : create the docker final image
 FROM quay.io/quarkus/quarkus-micro-image:2.0
