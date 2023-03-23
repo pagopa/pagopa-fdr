@@ -100,20 +100,13 @@ stages:
               gitUsername: $(GIT_USERNAME)
               gitHubConnection: $(GITHUB_CONNECTION)
               semver: "${{ parameters.SEMVER }}"
-              customHelmStep: |
-                VALUES_FILE="helm/values-${{ parameters['ENV'] }}.yaml"
-                if [[ -f "$VALUES_FILE" ]]; then
-                  yq -i ".microservice-chart.image.tag = \"$(next_version.value)\"" "$VALUES_FILE"
-                  git add "$VALUES_FILE"
-                fi
-
-          - template: templates/maven-github-current-version/template.yaml@pagopaCommons
+              skipHelmStep: true
 
   # Build and Push Docker Image
   - stage: Build
     dependsOn: Release
     variables:
-      current_version: $[ stageDependencies.Release.make_release.outputs['current_version.value'] ]
+      current_version: $[ stageDependencies.Release.make_release.outputs['next_version.value'] ]
     jobs:
       - job: "build"
         steps:
@@ -185,7 +178,7 @@ stages:
       - Build
       #- Smoke_Test
     variables:
-      deploy_version: $[ stageDependencies.Release.make_release.outputs['current_version.value'] ]
+      deploy_version: $[ stageDependencies.Release.make_release.outputs['next_version.value'] ]
     jobs:
       - deployment: "deploy"
         pool:
@@ -202,6 +195,23 @@ stages:
                 - script: |
                     git checkout $(sourceBranch)
                   displayName: Checkout and update branch
+
+                - task: Bash@3
+                  displayName: Update Version Helm
+                  name: update_version_helm
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      VALUES_FILE="helm/values-${{ parameters['ENV'] }}.yaml"
+                      if [[ -f "$VALUES_FILE" ]]; then
+                        yq -i ".microservice-chart.image.tag = \"$(next_version.value)\"" "$VALUES_FILE"
+                      fi
+                      
+                      CHART_FILE="helm/Chart.yaml"
+                      if [[ -f "$CHART_FILE" ]]; then
+                        yq -i ".version = \"$(next_version.value)\"" "$CHART_FILE"
+                        yq -i ".appVersion = \"$(next_version.value)\"" "$CHART_FILE"
+                      fi
 
                 - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
                   parameters:
