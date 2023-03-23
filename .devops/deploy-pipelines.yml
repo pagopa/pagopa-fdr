@@ -110,22 +110,21 @@ stages:
     jobs:
       - job: "build"
         steps:
-          - checkout: none
-#          - checkout: self
-#            persistCredentials: true
-#
-#          - script: |
-#              git checkout $(sourceBranch)
-#            displayName: Checkout and update branch
-#
-#          - template: templates/docker-release/template.yaml@pagopaCommons
-#            parameters:
-#              CONTAINER_REGISTRY_SERVICE_CONN: $(dockerRegistryServiceConnection)
-#              CONTAINER_REGISTRY_FQDN: $(dockerRegistryFqdn)
-#              DOCKER_IMAGE_NAME: $(imageRepository)
-#              DOCKER_IMAGE_TAG: $(current_version)
-#              FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
-#              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage"
+          - checkout: self
+            persistCredentials: true
+
+          - script: |
+              git checkout $(sourceBranch)
+            displayName: Checkout and update branch
+
+          - template: templates/docker-release/template.yaml@pagopaCommons
+            parameters:
+              CONTAINER_REGISTRY_SERVICE_CONN: $(dockerRegistryServiceConnection)
+              CONTAINER_REGISTRY_FQDN: $(dockerRegistryFqdn)
+              DOCKER_IMAGE_NAME: $(imageRepository)
+              DOCKER_IMAGE_TAG: $(current_version)
+              FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
+              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage"
 
 #  # Testing the docker image
 #  - stage: Smoke_Test
@@ -213,7 +212,7 @@ stages:
                     targetFolder: $(Build.ArtifactStagingDirectory)/helm-evaluated
                 - publish: $(Build.ArtifactStagingDirectory)/helm-evaluated
                   displayName: "Publish $(Build.ArtifactStagingDirectory)/helm-evaluated"
-                  artifact: helm
+                  artifact: $(deploy_version)_helm_${{ parameters['ENV'] }}
 
                 - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
                   parameters:
