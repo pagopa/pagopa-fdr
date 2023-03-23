@@ -115,11 +115,6 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-narayana-jta</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jacoco</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   <build>
     <plugins>
