@@ -15,7 +15,6 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 
 @ApplicationScoped
 public class FruitService {
@@ -35,15 +34,25 @@ public class FruitService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validateAdd(@Valid FruitAddRequest fruitAddRequest) {
-    if ("fake".equals(fruitAddRequest.getName()))
-      throw new IllegalStateException("Forcing error that handle successfully");
-    else if ("fake2".equals(fruitAddRequest.getName()))
-      throw new AppException(AppErrorCodeMessageEnum.FRUIT_BAD_REQUEST, "fake2");
+  public void validateAdd(FruitAddRequest fruitAddRequest) {
+
+    //    Set<AppException> appExceptions = new HashSet<>();
+    //
+    //    Set<ErrorMessage> errorMessages = violations.stream().map(a -> ErrorMessage.builder()
+    //        .path(a.getPropertyPath().toString())
+    //        .message(a.getMessage())
+    //        .build())
+    //        .collect(Collectors.toSet());
+    //
+    //    if ("fake".equals(fruitAddRequest.getName()))
+    //      throw new IllegalStateException("Forcing error that handle successfully");
+    //    else if ("fake2".equals(fruitAddRequest.getName()))
+    //      appExceptions.add(new AppException(AppErrorCodeMessageEnum.FRUIT_BAD_REQUEST, "fake2"));
+
   }
 
   @WithSpan(kind = SERVER)
-  public void validateDelete(@Valid FruitDeleteRequest fruitDeleteRequest) {}
+  public void validateDelete(FruitDeleteRequest fruitDeleteRequest) {}
 
   @WithSpan(kind = SERVER)
   public FruitDto findFruit(@SpanAttribute(value = "name") String name) {

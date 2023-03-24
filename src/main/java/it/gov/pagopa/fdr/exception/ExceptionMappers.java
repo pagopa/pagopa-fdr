@@ -80,7 +80,9 @@ public class ExceptionMappers {
                             ErrorResponse.ErrorMessage.builder()
                                 .path(constraintViolation.getPropertyPath().toString())
                                 .message(
-                                    AppMessageUtil.getMessage(constraintViolation.getMessage()))
+                                    AppMessageUtil.getMessage(
+                                        constraintViolation.getMessage(),
+                                        constraintViolation.getInvalidValue()))
                                 .build())
                     .collect(Collectors.toList()))
             .build());
