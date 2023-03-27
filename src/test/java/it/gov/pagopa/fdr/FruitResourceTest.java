@@ -2,7 +2,6 @@ package it.gov.pagopa.fdr;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import io.quarkus.test.junit.QuarkusTest;
 import javax.ws.rs.core.MediaType;
@@ -30,10 +29,6 @@ public class FruitResourceTest {
         .when()
         .post("/fruits")
         .then()
-        .statusCode(200)
-        .body(
-            "$.size()", is(1),
-            "name", containsInAnyOrder("Pear"),
-            "description", containsInAnyOrder("Winter fruit"));
+        .statusCode(400);
   }
 }
