@@ -4,8 +4,6 @@ import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.rest.fruit.mapper.FruitRestServiceMapper;
 import it.gov.pagopa.fdr.rest.fruit.request.FruitAddRequest;
 import it.gov.pagopa.fdr.rest.fruit.request.FruitDeleteRequest;
@@ -13,7 +11,6 @@ import it.gov.pagopa.fdr.service.FruitService;
 import it.gov.pagopa.fdr.service.dto.FruitDto;
 import java.util.List;
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -40,22 +37,21 @@ public class FruitResource {
   @WithSpan(kind = SERVER)
   public FruitDto get(@SpanAttribute(value = "name") String name) {
     log.infof("get fruit %s", name);
-    if ("fake".equals(name))
-      throw new IllegalStateException("Forcing error that handle successfully");
-    else if ("fake2".equals(name))
-      throw new AppException(AppErrorCodeMessageEnum.FRUIT_BAD_REQUEST, "fake2");
+    fruitService.validateGet(name);
     return fruitService.findFruit(name);
   }
 
   @POST
-  public List<FruitDto> add(@Valid FruitAddRequest fruitAddRequest) {
+  public List<FruitDto> add(FruitAddRequest fruitAddRequest) {
     log.infof("add fruit %s", fruitAddRequest.getName());
+    fruitService.validateAdd(fruitAddRequest);
     return fruitService.add(mapper.toFruitDto(fruitAddRequest));
   }
 
   @DELETE
   public List<FruitDto> delete(FruitDeleteRequest fruitDeleteRequest) {
     log.infof("delete fruit %s", fruitDeleteRequest.getName());
+    fruitService.validateDelete(fruitDeleteRequest);
     return fruitService.delete(fruitDeleteRequest.getName());
   }
 }

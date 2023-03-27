@@ -1,10 +1,12 @@
 package it.gov.pagopa.fdr.exception;
 
 import it.gov.pagopa.fdr.rest.model.ErrorResponse;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -78,9 +80,22 @@ public class ExceptionMappers {
                         constraintViolation ->
                             ErrorResponse.ErrorMessage.builder()
                                 .path(constraintViolation.getPropertyPath().toString())
-                                .message(constraintViolation.getMessage())
+                                .message(convertMessageKey(constraintViolation))
                                 .build())
                     .collect(Collectors.toList()))
             .build());
+  }
+
+  private String convertMessageKey(ConstraintViolation constraintViolation) {
+    String originalMessageKey = constraintViolation.getMessage();
+
+    if (!originalMessageKey.contains("|")) {
+      return AppMessageUtil.getMessage(originalMessageKey);
+    } else {
+      String[] messageToEvaluateSplit = originalMessageKey.split("\\|", 2);
+      String messageKey = messageToEvaluateSplit[0];
+      String[] args = messageToEvaluateSplit[1].split("\\|");
+      return AppMessageUtil.getMessage(messageKey, args);
+    }
   }
 }

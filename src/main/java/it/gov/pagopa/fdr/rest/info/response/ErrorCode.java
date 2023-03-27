@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.fruit.request;
+package it.gov.pagopa.fdr.rest.info.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FruitDeleteRequest {
-
-  private String name;
-
+public class ErrorCode {
+  private String code;
   private String description;
 }
