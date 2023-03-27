@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.model;
+package it.gov.pagopa.fdr.rest.exceptionMapper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

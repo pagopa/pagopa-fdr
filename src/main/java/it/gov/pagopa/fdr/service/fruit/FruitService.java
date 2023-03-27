@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service;
+package it.gov.pagopa.fdr.service.fruit;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
@@ -9,8 +9,8 @@ import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.entity.Fruit;
 import it.gov.pagopa.fdr.rest.fruit.request.FruitAddRequest;
 import it.gov.pagopa.fdr.rest.fruit.request.FruitDeleteRequest;
-import it.gov.pagopa.fdr.service.dto.FruitDto;
-import it.gov.pagopa.fdr.service.mapper.FruitEntityServiceMapper;
+import it.gov.pagopa.fdr.service.fruit.dto.FruitDto;
+import it.gov.pagopa.fdr.service.fruit.mapper.FruitEntityServiceMapper;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

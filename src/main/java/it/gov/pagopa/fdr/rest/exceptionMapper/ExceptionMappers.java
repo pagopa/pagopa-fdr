@@ -1,6 +1,8 @@
-package it.gov.pagopa.fdr.exception;
+package it.gov.pagopa.fdr.rest.exceptionMapper;
 
-import it.gov.pagopa.fdr.rest.model.ErrorResponse;
+import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.exception.AppErrorCodeMessageInterface;
+import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import java.util.List;
 import java.util.UUID;

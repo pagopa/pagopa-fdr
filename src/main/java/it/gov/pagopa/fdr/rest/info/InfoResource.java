@@ -19,26 +19,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 
 @Path("/info")
-@Tag(name = "info", description = "Info operations.")
-// @APIResponses(
-//    value = {
-//    @APIResponse(
-//        name = "InternalServerError",
-//        responseCode = "500",
-//        description = "Internal Server Error",
-//        content =
-//        @Content(
-//            mediaType = MediaType.APPLICATION_JSON,
-//            schema = @Schema(implementation = ErrorResponse.class))),
-//    @APIResponse(
-//        name = "BadRequest",
-//        responseCode = "400",
-//        description = "Bad Request",
-//        content =
-//        @Content(
-//            mediaType = MediaType.APPLICATION_JSON,
-//            schema = @Schema(implementation = ErrorResponse.class)))
-// })
+@Tag(name = "Info", description = "Info operations")
 public class InfoResource {
 
   @Inject Logger log;

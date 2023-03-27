@@ -1,7 +1,7 @@
-package it.gov.pagopa.fdr.service.mapper;
+package it.gov.pagopa.fdr.service.fruit.mapper;
 
 import it.gov.pagopa.fdr.repository.entity.Fruit;
-import it.gov.pagopa.fdr.service.dto.FruitDto;
+import it.gov.pagopa.fdr.service.fruit.dto.FruitDto;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;

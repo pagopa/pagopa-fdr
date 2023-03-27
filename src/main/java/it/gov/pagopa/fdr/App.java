@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr;
 
-import it.gov.pagopa.fdr.rest.model.ErrorResponse;
+import it.gov.pagopa.fdr.rest.exceptionMapper.ErrorResponse;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Components;
