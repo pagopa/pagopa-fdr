@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -59,6 +61,11 @@ public class ExceptionMappers {
                         .message(codeMessage.message(appEx.getArgs()))
                         .build()))
             .build());
+  }
+
+  @ServerExceptionMapper
+  public Response mapException(WebApplicationException webApplicationException) {
+    return webApplicationException.getResponse();
   }
 
   @ServerExceptionMapper
