@@ -6,7 +6,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
+import org.hibernate.validator.resourceloading.PlatformResourceBundleLocator;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -67,6 +72,15 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
+    Validator v =
+        Validation.byDefaultProvider()
+            .configure()
+            .messageInterpolator(
+                new ResourceBundleMessageInterpolator(
+                    new PlatformResourceBundleLocator("messages")))
+            .buildValidatorFactory()
+            .getValidator();
+
     return RestResponse.status(
         codeMessage.httpStatus(),
         ErrorResponse.builder()
@@ -79,12 +93,22 @@ public class ExceptionMappers {
                         constraintViolation ->
                             ErrorResponse.ErrorMessage.builder()
                                 .path(constraintViolation.getPropertyPath().toString())
-                                .message(
-                                    AppMessageUtil.getMessage(
-                                        constraintViolation.getMessage(),
-                                        constraintViolation.getInvalidValue()))
+                                .message(convertMessageKey(constraintViolation))
                                 .build())
                     .collect(Collectors.toList()))
             .build());
+  }
+
+  private String convertMessageKey(ConstraintViolation constraintViolation) {
+    String originalMessageKey = constraintViolation.getMessage();
+
+    if (!originalMessageKey.contains("|")) {
+      return AppMessageUtil.getMessage(originalMessageKey);
+    } else {
+      String[] messageToEvaluateSplit = originalMessageKey.split("\\|", 2);
+      String messageKey = messageToEvaluateSplit[0];
+      String[] args = messageToEvaluateSplit[1].split("\\|");
+      return AppMessageUtil.getMessage(messageKey, args);
+    }
   }
 }

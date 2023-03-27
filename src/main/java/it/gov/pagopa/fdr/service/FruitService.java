@@ -15,11 +15,15 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class FruitService {
 
   @Inject FruitEntityServiceMapper mapper;
+
+  @Inject Logger log;
 
   public List<FruitDto> list() {
     return mapper.toFruitDtoList(Fruit.listAll());
@@ -34,7 +38,8 @@ public class FruitService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validateAdd(FruitAddRequest fruitAddRequest) {
+  public void validateAdd(@Valid FruitAddRequest fruitAddRequest) {
+    log.infof("Validate fruit [%s]", fruitAddRequest.getName());
 
     //    Set<AppException> appExceptions = new HashSet<>();
     //
