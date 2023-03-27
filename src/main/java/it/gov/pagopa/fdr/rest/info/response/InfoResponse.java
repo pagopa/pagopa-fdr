@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.rest.info.response;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@RegisterForReflection
-public class Info {
+public class InfoResponse {
   private String name;
   private String version;
   private String environment;
@@ -20,4 +18,13 @@ public class Info {
   private String description;
 
   private List<ErrorCode> errorCodes;
+
+  @Builder
+  @Data
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class ErrorCode {
+    private String code;
+    private String description;
+  }
 }

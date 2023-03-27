@@ -1,8 +1,7 @@
 package it.gov.pagopa.fdr.rest.info;
 
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.rest.info.response.ErrorCode;
-import it.gov.pagopa.fdr.rest.info.response.Info;
+import it.gov.pagopa.fdr.rest.info.response.InfoResponse;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import java.util.Arrays;
 import javax.inject.Inject;
@@ -64,14 +63,14 @@ public class InfoResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = Info.class)))
+                    schema = @Schema(implementation = InfoResponse.class)))
       })
   @Produces(MediaType.APPLICATION_JSON)
   @GET
-  public Info hello() {
+  public InfoResponse hello() {
     log.infof("Info environment: [%s] - name: [%s] - version: [%s]", environment, name, version);
 
-    return Info.builder()
+    return InfoResponse.builder()
         .name(name)
         .version(version)
         .environment(environment)
@@ -80,7 +79,7 @@ public class InfoResource {
             Arrays.stream(AppErrorCodeMessageEnum.values())
                 .map(
                     errorCode ->
-                        ErrorCode.builder()
+                        InfoResponse.ErrorCode.builder()
                             .code(errorCode.errorCode())
                             .description(errorCode.message())
                             .build())
