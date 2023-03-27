@@ -1,7 +1,10 @@
 package it.gov.pagopa.fdr.rest.info;
 
+import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.rest.info.response.ErrorCode;
 import it.gov.pagopa.fdr.rest.info.response.Info;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
+import java.util.Arrays;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -73,6 +76,15 @@ public class InfoResource {
         .version(version)
         .environment(environment)
         .description(AppMessageUtil.getMessage("app.description"))
+        .errorCodes(
+            Arrays.stream(AppErrorCodeMessageEnum.values())
+                .map(
+                    errorCode ->
+                        ErrorCode.builder()
+                            .code(errorCode.errorCode())
+                            .description(errorCode.message())
+                            .build())
+                .toList())
         .build();
   }
 }

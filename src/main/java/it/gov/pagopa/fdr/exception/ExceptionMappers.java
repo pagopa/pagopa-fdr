@@ -8,10 +8,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
-import org.hibernate.validator.resourceloading.PlatformResourceBundleLocator;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -71,15 +67,6 @@ public class ExceptionMappers {
         new AppException(constraintViolationException, AppErrorCodeMessageEnum.BAD_REQUEST);
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
-
-    Validator v =
-        Validation.byDefaultProvider()
-            .configure()
-            .messageInterpolator(
-                new ResourceBundleMessageInterpolator(
-                    new PlatformResourceBundleLocator("messages")))
-            .buildValidatorFactory()
-            .getValidator();
 
     return RestResponse.status(
         codeMessage.httpStatus(),

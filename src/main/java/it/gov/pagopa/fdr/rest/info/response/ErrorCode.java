@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.rest.info.response;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,12 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Info {
-  private String name;
-  private String version;
-  private String environment;
-
+public class ErrorCode {
+  private String code;
   private String description;
-
-  private List<ErrorCode> errorCodes;
 }

@@ -40,20 +40,6 @@ public class FruitService {
   @WithSpan(kind = SERVER)
   public void validateAdd(@Valid FruitAddRequest fruitAddRequest) {
     log.infof("Validate fruit [%s]", fruitAddRequest.getName());
-
-    //    Set<AppException> appExceptions = new HashSet<>();
-    //
-    //    Set<ErrorMessage> errorMessages = violations.stream().map(a -> ErrorMessage.builder()
-    //        .path(a.getPropertyPath().toString())
-    //        .message(a.getMessage())
-    //        .build())
-    //        .collect(Collectors.toSet());
-    //
-    //    if ("fake".equals(fruitAddRequest.getName()))
-    //      throw new IllegalStateException("Forcing error that handle successfully");
-    //    else if ("fake2".equals(fruitAddRequest.getName()))
-    //      appExceptions.add(new AppException(AppErrorCodeMessageEnum.FRUIT_BAD_REQUEST, "fake2"));
-
   }
 
   @WithSpan(kind = SERVER)
