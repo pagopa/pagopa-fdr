@@ -1,13 +1,13 @@
 package it.gov.pagopa.fdr.rest.download.response;
 
+import java.io.File;
+import javax.ws.rs.core.MediaType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jboss.resteasy.reactive.PartType;
 import org.jboss.resteasy.reactive.RestForm;
-import javax.ws.rs.core.MediaType;
-import java.io.File;
 
 @Builder
 @Data
