@@ -15,7 +15,7 @@ build () {
   echo "Build version [$version] [$conf]"
   #./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
   #docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
-  docker build -f src/main/docker/Dockerfile.multistage --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
+  docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
 }
 
 run () {
