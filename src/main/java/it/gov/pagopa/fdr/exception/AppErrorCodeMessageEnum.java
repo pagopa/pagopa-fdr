@@ -7,8 +7,9 @@ import org.jboss.resteasy.reactive.RestResponse;
 public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   ERROR("0500", "system.error", RestResponse.Status.INTERNAL_SERVER_ERROR),
   BAD_REQUEST("0400", "bad.request", RestResponse.Status.BAD_REQUEST),
-  FRUIT_BAD_REQUEST("0600", "fruit.name.notMapped", RestResponse.Status.BAD_REQUEST),
-  FRUIT_NOT_FOUND("0601", "fruit.name.notFound", RestResponse.Status.NOT_FOUND);
+
+  UPLOAD_CLOSE_PARTIAL_CHUNK_FLOW_NOT_FOUND(
+      "0701", "upload.close-chunk.flow.notFound", RestResponse.Status.NOT_FOUND);
 
   private final String errorCode;
   private final String errorMessageKey;

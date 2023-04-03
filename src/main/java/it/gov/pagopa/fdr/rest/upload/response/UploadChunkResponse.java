@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UploadResponse {
+public class UploadChunkResponse {
   private String idFlow;
   private Instant received;
+
+  private int numberOfChunk = 1;
+  private int totChunk = 1;
 }

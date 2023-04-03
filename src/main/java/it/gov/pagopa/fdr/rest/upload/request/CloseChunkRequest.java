@@ -7,4 +7,4 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 @SuperBuilder
 @Jacksonized
-public class UploadRequest extends AbstractUpload {}
+public class CloseChunkRequest extends AbstractUpload {}
