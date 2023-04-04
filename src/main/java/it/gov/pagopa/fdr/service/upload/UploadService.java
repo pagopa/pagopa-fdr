@@ -14,6 +14,7 @@ import it.gov.pagopa.fdr.service.upload.dto.FlowDto;
 import it.gov.pagopa.fdr.service.upload.dto.FlowDtoStatusEnum;
 import it.gov.pagopa.fdr.service.upload.mapper.FlowEntityServiceMapper;
 import it.gov.pagopa.fdr.util.AppFileUtil;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Optional;
@@ -45,8 +46,11 @@ public class UploadService {
 
   @WithSpan(kind = SERVER)
   public void moveFile(Path source, Path target, Path targetDirectory) {
-    log.debugf("Create directory [%s]", targetDirectory.toString());
-    AppFileUtil.createDirectoryIfNotExist(targetDirectory);
+    boolean existDirectory = Files.exists(targetDirectory);
+    if (!existDirectory) {
+      log.debugf("Create directory [%s]", targetDirectory.toString());
+      AppFileUtil.createDirectory(targetDirectory);
+    }
 
     log.debugf("Moving file from [%s] to [%s]", source.toString(), target.toString());
     AppFileUtil.moveFile(source, target);

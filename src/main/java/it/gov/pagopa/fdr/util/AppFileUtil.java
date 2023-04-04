@@ -17,15 +17,12 @@ public class AppFileUtil {
     }
   }
 
-  public static void createDirectoryIfNotExist(Path targetDirectory) {
-    boolean existDirectory = Files.exists(targetDirectory);
-    if (!existDirectory) {
-      try {
-        Files.createDirectory(targetDirectory);
-      } catch (IOException e) {
-        Log.errorf(e, "Directory [%s] not created", targetDirectory.toString());
-        throw new RuntimeException(e);
-      }
+  public static void createDirectory(Path targetDirectory) {
+    try {
+      Files.createDirectory(targetDirectory);
+    } catch (IOException e) {
+      Log.errorf(e, "Directory [%s] not created", targetDirectory.toString());
+      throw new RuntimeException(e);
     }
   }
 }
