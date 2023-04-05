@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UploadResponse {
-  private String idFlow;
+  private String id;
   private Instant received;
 }

@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 public class FlowDto {
 
   public Instant received;
+
+  public Instant date;
+  public String idPsp;
   public String idFlow;
   public String fileName;
   public long fileSize;

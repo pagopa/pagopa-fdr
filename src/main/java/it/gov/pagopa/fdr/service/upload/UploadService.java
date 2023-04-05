@@ -64,8 +64,8 @@ public class UploadService {
   @WithSpan(kind = SERVER)
   public void validateUploadChunk(UploadChunkRequest uploadChunkRequest) {}
 
-  public void save(FlowDto flowDto) {
-    log.debugf("Save data on DB, idFlow: [%s]", flowDto.getIdFlow());
+  public String save(FlowDto flowDto) {
+    log.debugf("Save data on DB");
 
     Instant now = Instant.now();
 
@@ -82,17 +82,18 @@ public class UploadService {
     flow.flowFiles.add(mapper.toFlowFile(flowDto));
 
     flow.persist();
+    return flow.id.toString();
   }
 
-  public void updateStatus(String idFlow, FlowDtoStatusEnum status) {
-    log.debugf("Update status idFlow: [%s]", idFlow);
+  public void updateStatus(String id, FlowDtoStatusEnum status) {
+    log.debugf("Update status id: [%s]", id);
 
-    Optional<Flow> byIdOptional = Flow.findByIdOptional(idFlow);
+    Optional<Flow> byIdOptional = Flow.findByIdOptional(id);
     Flow flow =
         byIdOptional.orElseThrow(
             () ->
                 new AppException(
-                    AppErrorCodeMessageEnum.UPLOAD_CLOSE_PARTIAL_CHUNK_FLOW_NOT_FOUND, idFlow));
+                    AppErrorCodeMessageEnum.UPLOAD_CLOSE_PARTIAL_CHUNK_FLOW_NOT_FOUND, id));
 
     flow.status = FlowStatusEnum.TO_VALIDATE;
 

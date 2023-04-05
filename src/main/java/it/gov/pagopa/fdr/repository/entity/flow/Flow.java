@@ -11,6 +11,8 @@ public class Flow extends PanacheMongoEntity {
   public Instant created;
   public Instant updated;
 
+  public Instant date;
+  public String idPsp;
   public String idFlow;
 
   public long totChunk;

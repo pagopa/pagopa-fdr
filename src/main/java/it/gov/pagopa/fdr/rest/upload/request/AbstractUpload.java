@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.rest.upload.request;
 
+import it.gov.pagopa.fdr.util.CheckInstantFormat;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -10,8 +10,16 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @SuperBuilder
 public abstract class AbstractUpload {
 
-  @Size(min = 2, max = 35, message = "upload.id-flow.length.size|${validatedValue}|{min}|{max}")
+  @NotNull(message = "upload.date.not-null")
+  @Schema(example = "2023-04-05T09:21:37.810533Z")
+  @CheckInstantFormat(message = "upload.date.format|${validatedValue}|{pattern}")
+  private String date;
+
+  @NotNull(message = "upload.idPsp.not-null")
+  @Schema(example = "60000000001")
+  private String idPsp;
+
   @NotNull(message = "upload.id-flow.not-null")
-  @Schema(example = "2023-01-3060000000001-1173")
+  @Schema(example = "1173")
   private String idFlow;
 }

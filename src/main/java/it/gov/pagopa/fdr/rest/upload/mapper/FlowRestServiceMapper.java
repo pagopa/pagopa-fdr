@@ -22,6 +22,8 @@ public interface FlowRestServiceMapper {
       String path,
       FlowDtoStatusEnum status) {
     return FlowDto.builder()
+        .date(Instant.parse(uploadRequest.getDate()))
+        .idPsp(uploadRequest.getIdPsp())
         .idFlow(uploadRequest.getIdFlow())
         .received(now)
         .fileName(fileName)
@@ -41,6 +43,8 @@ public interface FlowRestServiceMapper {
       String path,
       FlowDtoStatusEnum status) {
     return FlowDto.builder()
+        .date(Instant.parse(uploadChunkRequest.getDate()))
+        .idPsp(uploadChunkRequest.getIdPsp())
         .idFlow(uploadChunkRequest.getIdFlow())
         .received(now)
         .fileName(fileName)

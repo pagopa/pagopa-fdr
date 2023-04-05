@@ -85,12 +85,19 @@ public class ExceptionMappers {
             .appErrorCode(codeMessage.errorCode())
             .errors(
                 constraintViolationException.getConstraintViolations().stream()
+                    .sorted(
+                        (a, b) ->
+                            b.getPropertyPath()
+                                .toString()
+                                .compareTo(a.getPropertyPath().toString()))
                     .map(
-                        constraintViolation ->
-                            ErrorResponse.ErrorMessage.builder()
-                                .path(constraintViolation.getPropertyPath().toString())
-                                .message(convertMessageKey(constraintViolation))
-                                .build())
+                        constraintViolation -> {
+                          log.info(constraintViolation.getPropertyPath().toString());
+                          return ErrorResponse.ErrorMessage.builder()
+                              .path(constraintViolation.getPropertyPath().toString())
+                              .message(convertMessageKey(constraintViolation))
+                              .build();
+                        })
                     .collect(Collectors.toList()))
             .build());
   }

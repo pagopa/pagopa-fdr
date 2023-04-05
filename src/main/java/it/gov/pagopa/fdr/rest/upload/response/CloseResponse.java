@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CloseResponse {
-  private String idFlow;
+  private String id;
 }

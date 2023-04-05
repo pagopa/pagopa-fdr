@@ -69,18 +69,21 @@ public class UploadResource {
       @RestForm("file") @NotNull(message = "upload.file.not-null") FileUpload file,
       @RestForm("metadata")
           @PartType(MediaType.APPLICATION_JSON)
-          @NotNull(message = "upload.upload-request.not-null")
+          @NotNull(message = "upload.metadata.not-null")
           @Valid
           UploadRequest uploadRequest) {
 
     Instant now = Instant.now();
+    String date = uploadRequest.getDate();
+    String idPsp = uploadRequest.getIdPsp();
     String idFlow = uploadRequest.getIdFlow();
     String fileName = file.fileName();
+
     long fileSize = file.size();
 
     log.infof(
-        "Upload file - id-flow: [%s], file-name: [%s], file-size: [%d]",
-        idFlow, fileName, fileSize);
+        "Upload file - file-name: [%s], file-size: [%d], date: [%s], idPsp: [%s], id-flow: [%s]",
+        fileName, fileSize, date, idPsp, idFlow);
 
     // validation
     uploadService.validateUploadRequest(uploadRequest);
@@ -91,14 +94,15 @@ public class UploadResource {
         file.filePath(), Paths.get(targetPath), Paths.get(appUploadWorkingDirectory));
 
     // save metadata and status on DB
-    uploadService.save(
-        mapper.toFlowDto(
-            uploadRequest, now, fileName, fileSize, targetPath, FlowDtoStatusEnum.TO_VALIDATE));
+    String id =
+        uploadService.save(
+            mapper.toFlowDto(
+                uploadRequest, now, fileName, fileSize, targetPath, FlowDtoStatusEnum.TO_VALIDATE));
 
     // notify uploaded to async process of validate
     uploadService.notifyUpload(idFlow);
 
-    return UploadResponse.builder().idFlow(idFlow).received(now).build();
+    return UploadResponse.builder().id(id).received(now).build();
   }
 
   @Operation(summary = "Upload flow chunk")
@@ -120,14 +124,16 @@ public class UploadResource {
   @POST
   @Path("/chunk")
   public UploadChunkResponse uploadChunk(
-      @RestForm("file") @NotNull(message = "upload.file-chunk.not-null") FileUpload file,
+      @RestForm("file") @NotNull(message = "upload.file.not-null") FileUpload file,
       @RestForm("metadata")
           @PartType(MediaType.APPLICATION_JSON)
-          @NotNull(message = "upload.upload-chunk-request.not-null")
+          @NotNull(message = "upload.metadata.not-null")
           @Valid
           UploadChunkRequest uploadChunkRequest) {
 
     Instant now = Instant.now();
+    String date = uploadChunkRequest.getDate();
+    String idPsp = uploadChunkRequest.getIdPsp();
     String idFlow = uploadChunkRequest.getIdFlow();
     String fileName = file.fileName();
     long fileSize = file.size();
@@ -135,8 +141,9 @@ public class UploadResource {
     int totChunk = uploadChunkRequest.getTotChunk();
 
     log.infof(
-        "Upload chunk file - id-flow: [%s], file-name: [%s], file-size: [%d], chunk: [%d/%d]",
-        idFlow, fileName, fileSize, numberOfChunk, totChunk);
+        "Upload chunk file - file-name: [%s], file-size: [%d], date: [%s], idPsp: [%s], id-flow:"
+            + " [%s], chunk: [%d/%d]",
+        fileName, fileSize, date, idPsp, idFlow, numberOfChunk, totChunk);
 
     // validation
     uploadService.validateUploadChunkRequest(uploadChunkRequest);
@@ -147,38 +154,52 @@ public class UploadResource {
         file.filePath(), Paths.get(targetPath), Paths.get(appUploadChunkDirectory));
 
     // save on DB metadata and status
-    uploadService.save(
-        mapper.toFlowDto(
-            uploadChunkRequest,
-            now,
-            fileName,
-            fileSize,
-            targetPath,
-            FlowDtoStatusEnum.PARTIAL_LOADED));
+    String id =
+        uploadService.save(
+            mapper.toFlowDto(
+                uploadChunkRequest,
+                now,
+                fileName,
+                fileSize,
+                targetPath,
+                FlowDtoStatusEnum.PARTIAL_LOADED));
 
     return UploadChunkResponse.builder()
-        .idFlow(idFlow)
+        .id(id)
         .received(now)
         .numberOfChunk(numberOfChunk)
         .totChunk(totChunk)
         .build();
   }
 
+  @Operation(summary = "Close flow chunk")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/BadRequest"),
+        @APIResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = CloseResponse.class)))
+      })
   @POST
   @Path("/close-chunk")
   public CloseResponse closeChunk(CloseChunkRequest closeChunkRequest) {
-    String idFlow = closeChunkRequest.getIdFlow();
+    String id = closeChunkRequest.getId();
 
     // validation
     uploadService.validateCloseChunkRequest(closeChunkRequest);
 
     // save on DB metadata and status
-    uploadService.updateStatus(idFlow, FlowDtoStatusEnum.TO_VALIDATE);
+    uploadService.updateStatus(id, FlowDtoStatusEnum.TO_VALIDATE);
 
     // notify uploaded to async process of validate
-    uploadService.notifyUpload(idFlow);
+    uploadService.notifyUpload(id);
 
-    return CloseResponse.builder().idFlow(idFlow).build();
+    return CloseResponse.builder().id(id).build();
   }
 
   // only for define openapi request

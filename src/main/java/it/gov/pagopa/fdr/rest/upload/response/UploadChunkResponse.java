@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UploadChunkResponse {
-  private String idFlow;
+  private String id;
   private Instant received;
 
   private int numberOfChunk = 1;
