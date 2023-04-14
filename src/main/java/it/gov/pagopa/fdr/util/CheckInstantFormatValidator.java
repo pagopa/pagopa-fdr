@@ -1,20 +1,15 @@
 package it.gov.pagopa.fdr.util;
 
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
+import io.quarkus.logging.Log;
+import java.time.Instant;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class CheckInstantFormatValidator
     implements ConstraintValidator<CheckInstantFormat, String> {
 
-  private String pattern;
-  private String timezone;
-
   @Override
   public void initialize(CheckInstantFormat constraintAnnotation) {
-    this.pattern = constraintAnnotation.pattern();
-    this.timezone = constraintAnnotation.timezone();
     ConstraintValidator.super.initialize(constraintAnnotation);
   }
 
@@ -25,12 +20,10 @@ public class CheckInstantFormatValidator
     }
 
     try {
-      SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-      sdf.setTimeZone(TimeZone.getTimeZone(timezone));
-      sdf.parse(value);
+      Instant.parse(value);
       return true;
     } catch (Exception e) {
-      e.printStackTrace();
+      Log.debugf("Instant validator error with value [%s]", value, e);
       return false;
     }
   }

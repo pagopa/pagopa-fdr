@@ -8,8 +8,7 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   ERROR("0500", "system.error", RestResponse.Status.INTERNAL_SERVER_ERROR),
   BAD_REQUEST("0400", "bad.request", RestResponse.Status.BAD_REQUEST),
 
-  UPLOAD_CLOSE_PARTIAL_CHUNK_FLOW_NOT_FOUND(
-      "0701", "upload.close-chunk.flow.notFound", RestResponse.Status.NOT_FOUND);
+  REPORTING_FLOW_NOT_FOUND("0701", "reporting-flow.notFound", RestResponse.Status.NOT_FOUND);
 
   private final String errorCode;
   private final String errorMessageKey;

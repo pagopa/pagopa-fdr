@@ -20,8 +20,4 @@ public @interface CheckInstantFormat {
   Class<?>[] groups() default {};
 
   Class<? extends Payload>[] payload() default {};
-
-  String pattern() default "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'";
-
-  String timezone() default "UTC";
 }
