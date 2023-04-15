@@ -5,11 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Builder
-@Jacksonized
 public class ReportingFlowDto {
 
   public String reportingFlow;

@@ -1,15 +1,17 @@
 package it.gov.pagopa.fdr.util;
 
 import io.quarkus.logging.Log;
-import java.time.Instant;
+import java.util.Arrays;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class CheckInstantFormatValidator
-    implements ConstraintValidator<CheckInstantFormat, String> {
+public class OrSizeValidator implements ConstraintValidator<OrSize, String> {
+
+  private int[] lengths;
 
   @Override
-  public void initialize(CheckInstantFormat constraintAnnotation) {
+  public void initialize(OrSize constraintAnnotation) {
+    this.lengths = constraintAnnotation.lengths();
     ConstraintValidator.super.initialize(constraintAnnotation);
   }
 
@@ -20,10 +22,9 @@ public class CheckInstantFormatValidator
     }
 
     try {
-      Instant.parse(value);
-      return true;
+      return Arrays.stream(lengths).anyMatch(a -> a == value.length());
     } catch (Exception e) {
-      Log.debugf("CheckInstantFormatValidator error with value [%s]", value, e);
+      Log.debugf("OrSize error with value [%s]", value, e);
       return false;
     }
   }

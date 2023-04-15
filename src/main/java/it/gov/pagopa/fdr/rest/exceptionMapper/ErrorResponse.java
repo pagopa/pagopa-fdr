@@ -7,12 +7,13 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.jackson.Jacksonized;
 
+@Getter
 @Builder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Jacksonized
 @JsonPropertyOrder({"errorId", "httpStatusCode", "httpStatusDescription", "appErrorCode", "errors"})
 @RegisterForReflection
 public class ErrorResponse {

@@ -62,7 +62,7 @@ public class ReportingFlowResource {
       })
   @POST
   public CreateResponse create(
-      @NotNull(message = "reporting-flow.create.req.not-null") @Valid CreateRequest createRequest) {
+      @NotNull(message = "reporting-flow.create.req.notNull") @Valid CreateRequest createRequest) {
 
     log.infof("Create reporting [%s]", createRequest.getReportingFlow());
 
