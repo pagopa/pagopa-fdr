@@ -27,5 +27,6 @@ public class InfoResponse {
   public static class ErrorCode {
     private String code;
     private String description;
+    private int statusCode;
   }
 }

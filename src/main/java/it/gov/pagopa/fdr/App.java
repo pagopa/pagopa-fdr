@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr;
 
 import it.gov.pagopa.fdr.rest.exceptionMapper.ErrorResponse;
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Components;
@@ -54,7 +55,28 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + "            \"message\": \"<detail.message>\"\n"
                                   + "        }\n"
                                   + "    ]\n"
+                                  + "}")),
+              @APIResponse(
+                  name = "ReportingFlowNotFound",
+                  responseCode = "404",
+                  description = "Reporting flow not found",
+                  content =
+                      @Content(
+                          mediaType = MediaType.APPLICATION_JSON,
+                          schema = @Schema(implementation = ErrorResponse.class),
+                          example =
+                              "{\n"
+                                  + "    \"httpStatusCode\": 404,\n"
+                                  + "    \"httpStatusDescription\": \"Not Found\",\n"
+                                  + "    \"appErrorCode\": \"FDR-0701\",\n"
+                                  + "    \"errors\": [\n"
+                                  + "        {\n"
+                                  + "            \"message\": \"Reporting Flow id [<flow-id>] not"
+                                  + " found\"\n"
+                                  + "        }\n"
+                                  + "    ]\n"
                                   + "}"))
             }),
     info = @Info(title = "FDR - Flussi di Rendicontazione", version = "0.0.0-SNAPSHOT"))
+@ApplicationPath("/api")
 public class App extends Application {}

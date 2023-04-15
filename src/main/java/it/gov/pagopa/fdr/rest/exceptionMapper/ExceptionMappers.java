@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.UnexpectedTypeException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import org.jboss.logging.Logger;
@@ -21,7 +22,12 @@ public class ExceptionMappers {
   @Inject Logger log;
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapException(AppException appEx) {
+  public Response mapWebApplicationException(WebApplicationException webApplicationException) {
+    return webApplicationException.getResponse();
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapAppException(AppException appEx) {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
@@ -40,11 +46,16 @@ public class ExceptionMappers {
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapException(Throwable throwable) {
-    String errorId = UUID.randomUUID().toString();
-    log.errorf(throwable, "Exception not managed - errorId[%s]", errorId);
+  public RestResponse<ErrorResponse> mapUnexpectedTypeException(UnexpectedTypeException exception) {
+    return mapThrowable(exception);
+  }
 
-    AppException appEx = new AppException(throwable, AppErrorCodeMessageEnum.ERROR);
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapThrowable(Throwable exception) {
+    String errorId = UUID.randomUUID().toString();
+    log.errorf(exception, "Exception not managed - errorId[%s]", errorId);
+
+    AppException appEx = new AppException(exception, AppErrorCodeMessageEnum.ERROR);
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
@@ -64,12 +75,7 @@ public class ExceptionMappers {
   }
 
   @ServerExceptionMapper
-  public Response mapException(WebApplicationException webApplicationException) {
-    return webApplicationException.getResponse();
-  }
-
-  @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapException(
+  public RestResponse<ErrorResponse> mapConstraintViolationException(
       ConstraintViolationException constraintViolationException) {
 
     AppException appEx =

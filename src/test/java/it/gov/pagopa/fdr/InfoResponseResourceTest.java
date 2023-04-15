@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class InfoResponseResourceTest {
 
   @Test
-  public void testHelloEndpoint() {
-    given().when().get("/info").then().statusCode(200).body("name", equalTo("pagopa-fdr"));
+  public void testInfoEndpoint() {
+    given().when().get("/api/info").then().statusCode(200).body("name", equalTo("pagopa-fdr"));
   }
 }

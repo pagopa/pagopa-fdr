@@ -40,7 +40,7 @@ public class InfoResource {
         @APIResponse(ref = "#/components/responses/BadRequest"),
         @APIResponse(
             responseCode = "200",
-            description = "OK",
+            description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
@@ -63,6 +63,7 @@ public class InfoResource {
                         InfoResponse.ErrorCode.builder()
                             .code(errorCode.errorCode())
                             .description(errorCode.message())
+                            .statusCode(errorCode.httpStatus().getStatusCode())
                             .build())
                 .toList())
         .build();

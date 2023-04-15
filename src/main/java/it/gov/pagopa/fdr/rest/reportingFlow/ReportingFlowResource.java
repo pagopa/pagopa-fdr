@@ -32,8 +32,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 
-@Path("/reporting-flow")
 @Tag(name = "Reporting Flow", description = "Reporting Flow operations")
+@Path("/reporting-flow")
 @Consumes("application/json")
 @Produces("application/json")
 public class ReportingFlowResource {
@@ -52,9 +52,10 @@ public class ReportingFlowResource {
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
         @APIResponse(ref = "#/components/responses/BadRequest"),
+        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
         @APIResponse(
             responseCode = "200",
-            description = "OK",
+            description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
