@@ -1,9 +1,10 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
-import it.gov.pagopa.fdr.util.CheckInstantFormat;
-import it.gov.pagopa.fdr.util.OrSize;
+import it.gov.pagopa.fdr.util.validation.OrSize;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
@@ -21,12 +22,13 @@ public class ReportingFlow {
   private String reportingFlow;
 
   @NotNull(message = "reporting-flow.create.dateReportingFlow.notNull ")
-  @CheckInstantFormat(
-      message = "reporting-flow.create.dateReportingFlow.checkInstantFormat|${validatedValue}")
   @Schema(example = "2023-04-05T09:21:37.810000Z")
-  private String dateReportingFlow;
+  private Instant dateReportingFlow;
 
+  @NotNull(message = "reporting-flow.create.sender.notNull")
+  @Valid
   private Sender sender;
+
   private Receiver receiver;
 
   @NotNull(message = "reporting-flow.create.regulation.notNull")
@@ -35,10 +37,8 @@ public class ReportingFlow {
   private String regulation;
 
   @NotNull(message = "reporting-flow.create.dateRegulation.notNull")
-  @CheckInstantFormat(
-      message = "reporting-flow.create.dateRegulation.checkInstantFormat|${validatedValue}")
   @Schema(example = "2023-04-03T12:00:30.900000Z")
-  private String dateRegulation;
+  private Instant dateRegulation;
 
   @Schema(example = "UNCRITMMXXX")
   private Optional<

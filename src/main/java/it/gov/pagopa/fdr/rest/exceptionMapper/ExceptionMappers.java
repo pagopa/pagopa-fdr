@@ -1,12 +1,16 @@
 package it.gov.pagopa.fdr.rest.exceptionMapper;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageInterface;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -28,6 +32,102 @@ public class ExceptionMappers {
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapAppException(AppException appEx) {
+    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    RestResponse.Status status = codeMessage.httpStatus();
+
+    return RestResponse.status(
+        codeMessage.httpStatus(),
+        ErrorResponse.builder()
+            .httpStatusCode(status.getStatusCode())
+            .httpStatusDescription(status.getReasonPhrase())
+            .appErrorCode(codeMessage.errorCode())
+            .errors(
+                List.of(
+                    ErrorResponse.ErrorMessage.builder()
+                        .message(codeMessage.message(appEx.getArgs()))
+                        .build()))
+            .build());
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapInvalidFormatException(
+      InvalidFormatException invalidFormatException) {
+
+    String field =
+        invalidFormatException.getPath().stream()
+            .map(a -> a.getFieldName())
+            .collect(Collectors.joining("."));
+    String currentValue = invalidFormatException.getValue().toString();
+    AppException appEx = null;
+    try {
+      Class<?> target = Class.forName(invalidFormatException.getTargetType().getName());
+      if (target.isEnum()) {
+        Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) target;
+        List<String> accepted =
+            Stream.of(enumClass.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
+        appEx =
+            new AppException(
+                invalidFormatException,
+                AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_ENUM,
+                field,
+                currentValue,
+                accepted);
+      } else if (target.isAssignableFrom(Instant.class)) {
+        appEx =
+            new AppException(
+                invalidFormatException,
+                AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_INSTANT,
+                field,
+                currentValue);
+      } else {
+        appEx =
+            new AppException(
+                invalidFormatException,
+                AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON,
+                field,
+                currentValue);
+      }
+
+    } catch (ClassNotFoundException e) {
+      appEx =
+          new AppException(
+              invalidFormatException,
+              AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON,
+              field,
+              currentValue);
+    }
+
+    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    RestResponse.Status status = codeMessage.httpStatus();
+
+    return RestResponse.status(
+        codeMessage.httpStatus(),
+        ErrorResponse.builder()
+            .httpStatusCode(status.getStatusCode())
+            .httpStatusDescription(status.getReasonPhrase())
+            .appErrorCode(codeMessage.errorCode())
+            .errors(
+                List.of(
+                    ErrorResponse.ErrorMessage.builder()
+                        .message(codeMessage.message(appEx.getArgs()))
+                        .build()))
+            .build());
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapMismatchedInputException(
+      MismatchedInputException mismatchedInputException) {
+
+    String field =
+        mismatchedInputException.getPath().stream()
+            .map(a -> a.getFieldName())
+            .collect(Collectors.joining("."));
+    AppException appEx =
+        new AppException(
+            mismatchedInputException,
+            AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_DESERIALIZE_ERROR,
+            field);
+
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 

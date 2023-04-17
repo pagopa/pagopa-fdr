@@ -8,6 +8,14 @@ import org.jboss.resteasy.reactive.RestResponse.Status;
 public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   ERROR("0500", "system.error", RestResponse.Status.INTERNAL_SERVER_ERROR),
   BAD_REQUEST("0400", "bad.request", RestResponse.Status.BAD_REQUEST),
+  BAD_REQUEST_INPUT_JSON("0401", "bad.request.inputJson", RestResponse.Status.BAD_REQUEST),
+  BAD_REQUEST_INPUT_JSON_INSTANT(
+      "0402", "bad.request.inputJson.instant", RestResponse.Status.BAD_REQUEST),
+  BAD_REQUEST_INPUT_JSON_ENUM(
+      "0403", "bad.request.inputJson.enum", RestResponse.Status.BAD_REQUEST),
+
+  BAD_REQUEST_INPUT_JSON_DESERIALIZE_ERROR(
+      "0404", "bad.request.inputJson.deserialize", RestResponse.Status.BAD_REQUEST),
 
   REPORTING_FLOW_NOT_FOUND("0701", "reporting-flow.notFound", RestResponse.Status.NOT_FOUND),
   REPORTING_FLOW_ID_INVALID("0702", "reporting-flow.idInvalid", Status.BAD_REQUEST);

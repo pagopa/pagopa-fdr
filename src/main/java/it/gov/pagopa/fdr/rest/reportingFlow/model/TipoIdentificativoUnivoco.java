@@ -1,13 +1,12 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
+
+@Getter
+@Jacksonized
 public enum TipoIdentificativoUnivoco {
-  PERSONA_GIURIDICA("G"),
-  CODICE_ABI("A"),
-  CODICE_BIC("B");
-
-  private final String value;
-
-  TipoIdentificativoUnivoco(String value) {
-    this.value = value;
-  }
+  PERSONA_GIURIDICA,
+  CODICE_ABI,
+  CODICE_BIC;
 }

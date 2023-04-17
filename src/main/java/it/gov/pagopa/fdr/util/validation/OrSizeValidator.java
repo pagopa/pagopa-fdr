@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.util.validation;
 
 import io.quarkus.logging.Log;
 import java.util.Arrays;

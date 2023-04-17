@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.util.validation;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
