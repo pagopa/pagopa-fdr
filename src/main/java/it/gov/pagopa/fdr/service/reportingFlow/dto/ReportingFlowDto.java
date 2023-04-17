@@ -3,11 +3,11 @@ package it.gov.pagopa.fdr.service.reportingFlow.dto;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
+@SuperBuilder
 public class ReportingFlowDto {
 
   public String reportingFlow;

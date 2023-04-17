@@ -1,15 +1,18 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.response;
 
-import lombok.Builder;
+import java.util.List;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Getter
-@Builder
+@SuperBuilder
 @Jacksonized
-public class CreateResponse {
+public class GetAllResponse {
 
-  @Schema(example = "643accaa4733f71aea4c71bf")
-  private String id;
+  @Schema(example = "1")
+  private int tot;
+
+  private List<GetResponse> reportingFlows;
 }

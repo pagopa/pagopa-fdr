@@ -14,15 +14,15 @@ public class ReportingFlow extends PanacheMongoEntity {
   public String reportingFlow;
   public Instant dateReportingFlow;
 
-  private Sender sender;
-  private Receiver receiver;
+  public Sender sender;
+  public Receiver receiver;
 
-  private String regulation;
-  private Instant dateRegulation;
+  public String regulation;
+  public Instant dateRegulation;
 
-  private Optional<String> bicCodePouringBank;
+  public Optional<String> bicCodePouringBank;
 
-  private List<Pagamento> payments;
+  public List<Pagamento> payments;
 
   public ReportingFlowStatusEnum status;
 }

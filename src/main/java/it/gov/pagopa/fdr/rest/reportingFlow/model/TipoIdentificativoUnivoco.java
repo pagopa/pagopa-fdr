@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.reportingFlow.request.model;
+package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
 public enum TipoIdentificativoUnivoco {
   PERSONA_GIURIDICA("G"),

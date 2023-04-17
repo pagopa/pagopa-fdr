@@ -8,5 +8,5 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class ModifyPaymentResponse {
-  public String id;
+  private String id;
 }

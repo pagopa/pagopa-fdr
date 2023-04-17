@@ -75,6 +75,26 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + " found\"\n"
                                   + "        }\n"
                                   + "    ]\n"
+                                  + "}")),
+              @APIResponse(
+                  name = "ReportingFlowIdInvalid",
+                  responseCode = "400",
+                  description = "Reporting flow id is invalid",
+                  content =
+                      @Content(
+                          mediaType = MediaType.APPLICATION_JSON,
+                          schema = @Schema(implementation = ErrorResponse.class),
+                          example =
+                              "{\n"
+                                  + "    \"httpStatusCode\": 400,\n"
+                                  + "    \"httpStatusDescription\": \"Bad Request\",\n"
+                                  + "    \"appErrorCode\": \"FDR-0702\",\n"
+                                  + "    \"errors\": [\n"
+                                  + "        {\n"
+                                  + "            \"message\": \"Reporting Flow id [<flow-id>] is"
+                                  + " invalid\"\n"
+                                  + "        }\n"
+                                  + "    ]\n"
                                   + "}"))
             }),
     info = @Info(title = "FDR - Flussi di Rendicontazione", version = "0.0.0-SNAPSHOT"))

@@ -14,7 +14,17 @@ public class ReportingFlowValidationService {
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public void validateCreateRequest(CreateRequest createRequest) {
-    log.debug("Validate createRequest");
+  public void validateCreate(CreateRequest createRequest) {
+    log.debug("Validate create");
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validateGet(String id) {
+    log.debug("Validate get");
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validateGetAllByEc(String idEc) {
+    log.debug("Validate get all by ec");
   }
 }

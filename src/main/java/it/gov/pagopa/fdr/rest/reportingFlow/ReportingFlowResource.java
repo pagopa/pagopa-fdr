@@ -1,24 +1,20 @@
 package it.gov.pagopa.fdr.rest.reportingFlow;
 
 import it.gov.pagopa.fdr.rest.reportingFlow.mapper.ReportingFlowDtoServiceMapper;
-import it.gov.pagopa.fdr.rest.reportingFlow.request.ConfirmRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.request.DeleteRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.request.ModifyPaymentRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.response.ConfirmResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.CreateResponse;
-import it.gov.pagopa.fdr.rest.reportingFlow.response.DeleteResponse;
-import it.gov.pagopa.fdr.rest.reportingFlow.response.ModifyPaymentResponse;
+import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
+import it.gov.pagopa.fdr.rest.reportingFlow.response.GetResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.validation.ReportingFlowValidationService;
 import it.gov.pagopa.fdr.service.reportingFlow.ReportingFlowService;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
+import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -46,7 +42,7 @@ public class ReportingFlowResource {
 
   @Inject ReportingFlowService service;
 
-  @Operation(summary = "Create flow")
+  @Operation(summary = "Create reporting flow")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateRequest.class)))
   @APIResponses(
       value = {
@@ -68,73 +64,116 @@ public class ReportingFlowResource {
     log.infof("Create reporting [%s]", createRequest.getReportingFlow());
 
     // validation
-    validator.validateCreateRequest(createRequest);
+    validator.validateCreate(createRequest);
 
-    // save metadata and status on DB
+    // save on DB
     String id = service.save(mapper.toReportingFlowDto(createRequest));
 
     return CreateResponse.builder().id(id).build();
   }
 
-  @GET
-  @Path("/all-id-by-ec/{idEc}")
-  public CreateResponse getAll(
-      @PathParam("idEc") Long idEc,
-      @NotNull(message = "reporting-flow.load.req.not-null") @Valid CreateRequest loadRequest) {
-
-    return CreateResponse.builder().id("").build();
-  }
-
+  @Operation(summary = "Get reporting flow")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/BadRequest"),
+        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
+        @APIResponse(ref = "#/components/responses/ReportingFlowIdInvalid"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = GetResponse.class)))
+      })
   @GET
   @Path("/{id}")
-  public CreateResponse get(
-      @PathParam("id") Long id,
-      @NotNull(message = "reporting-flow.load.req.not-null") @Valid CreateRequest loadRequest) {
+  public GetResponse get(@PathParam("id") String id) {
+    log.infof("Get reporting by id [%s]", id);
 
-    return CreateResponse.builder().id("").build();
+    // validation
+    validator.validateGet(id);
+
+    // get from db
+    ReportingFlowGetDto byId = service.findById(id);
+
+    return mapper.toGetResponse(byId);
   }
 
-  @POST
-  @Path("/p/{id}/payments/add")
-  public ModifyPaymentResponse paymentAdd(
-      @PathParam("id") Long id,
-      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
-          ModifyPaymentRequest modifyPaymentRequest) {
-    return ModifyPaymentResponse.builder().id("").build();
+  @Operation(summary = "Get reporting flow")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/BadRequest"),
+        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = GetAllResponse.class)))
+      })
+  @GET
+  @Path("/all-id-by-ec/{idEc}")
+  public GetAllResponse getAllByEc(@PathParam("idEc") String idEc) {
+    log.infof("Get all reporting by idEc [%s]", idEc);
+
+    // validation
+    validator.validateGetAllByEc(idEc);
+
+    // get from db
+    List<ReportingFlowGetDto> reportingFlowGetDtos = service.findByIdEc(idEc);
+
+    return GetAllResponse.builder()
+        .tot(reportingFlowGetDtos.size())
+        .reportingFlows(reportingFlowGetDtos.stream().map(d -> mapper.toGetResponse(d)).toList())
+        .build();
   }
 
-  @PUT
-  @Path("/p/{id}/payments/update")
-  public ModifyPaymentResponse paymentUpdate(
-      @PathParam("id") Long id,
-      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
-          ModifyPaymentRequest modifyPaymentRequest) {
-    return ModifyPaymentResponse.builder().id("").build();
-  }
-
-  @DELETE
-  @Path("/p/{id}/payments/delete")
-  public ModifyPaymentResponse paymentDelete(
-      @PathParam("id") Long id,
-      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
-          ModifyPaymentRequest modifyPaymentRequest) {
-    return ModifyPaymentResponse.builder().id("").build();
-  }
-
-  @DELETE
-  @Path("/p/{id}/delete")
-  public DeleteResponse delete(
-      @PathParam("id") Long id,
-      @NotNull(message = "reporting-flow.delete.req.not-null") @Valid DeleteRequest deleteRequest) {
-    return DeleteResponse.builder().id("").build();
-  }
-
-  @PUT
-  @Path("/p/{id}/confirm")
-  public ConfirmResponse confirm(
-      @PathParam("id") Long id,
-      @NotNull(message = "reporting-flow.confirm.req.not-null") @Valid
-          ConfirmRequest confirmRequest) {
-    return ConfirmResponse.builder().id("").build();
-  }
+  //  @POST
+  //  @Path("/p/{id}/payments/add")
+  //  public ModifyPaymentResponse paymentAdd(
+  //      @PathParam("id") Long id,
+  //      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
+  //          ModifyPaymentRequest modifyPaymentRequest) {
+  //    return ModifyPaymentResponse.builder().id("").build();
+  //  }
+  //
+  //  @PUT
+  //  @Path("/p/{id}/payments/update")
+  //  public ModifyPaymentResponse paymentUpdate(
+  //      @PathParam("id") Long id,
+  //      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
+  //          ModifyPaymentRequest modifyPaymentRequest) {
+  //    return ModifyPaymentResponse.builder().id("").build();
+  //  }
+  //
+  //  @DELETE
+  //  @Path("/p/{id}/payments/delete")
+  //  public ModifyPaymentResponse paymentDelete(
+  //      @PathParam("id") Long id,
+  //      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
+  //          ModifyPaymentRequest modifyPaymentRequest) {
+  //    return ModifyPaymentResponse.builder().id("").build();
+  //  }
+  //
+  //  @DELETE
+  //  @Path("/p/{id}/delete")
+  //  public DeleteResponse delete(
+  //      @PathParam("id") Long id,
+  //      @NotNull(message = "reporting-flow.delete.req.not-null") @Valid DeleteRequest
+  // deleteRequest) {
+  //    return DeleteResponse.builder().id("").build();
+  //  }
+  //
+  //  @PUT
+  //  @Path("/p/{id}/confirm")
+  //  public ConfirmResponse confirm(
+  //      @PathParam("id") Long id,
+  //      @NotNull(message = "reporting-flow.confirm.req.not-null") @Valid
+  //          ConfirmRequest confirmRequest) {
+  //    return ConfirmResponse.builder().id("").build();
+  //  }
 }

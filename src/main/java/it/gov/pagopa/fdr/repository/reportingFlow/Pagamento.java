@@ -7,10 +7,10 @@ import java.util.Optional;
 
 public class Pagamento {
 
-  private String identificativoUnivocoVersamento;
-  private String identificativoUnivocoRiscossione;
-  private Optional<BigInteger> indiceDatiSingoloPagamento;
-  private BigDecimal singoloImportoPagato;
-  private CodiceEsitoPagamento codiceEsitoSingoloPagamento;
-  private Instant dataEsitoSingoloPagamento;
+  public String identificativoUnivocoVersamento;
+  public String identificativoUnivocoRiscossione;
+  public Optional<BigInteger> indiceDatiSingoloPagamento;
+  public BigDecimal singoloImportoPagato;
+  public CodiceEsitoPagamento codiceEsitoSingoloPagamento;
+  public Instant dataEsitoSingoloPagamento;
 }

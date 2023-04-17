@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.reportingFlow.request.model;
+package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

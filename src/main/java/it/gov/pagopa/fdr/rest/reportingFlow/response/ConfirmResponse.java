@@ -8,5 +8,5 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class ConfirmResponse {
-  public String id;
+  private String id;
 }
