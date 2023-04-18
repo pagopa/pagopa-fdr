@@ -9,7 +9,9 @@ public class SenderDto {
 
   private TipoIdentificativoUnivocoDto type;
   private String id;
-  private String name;
+
+  public String idPsp;
+  public String namePsp;
 
   private String idBroker;
   private String idChannel;

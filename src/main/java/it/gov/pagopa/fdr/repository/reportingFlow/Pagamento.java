@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Optional;
+import lombok.Data;
 
+@Data
 public class Pagamento {
 
   public String identificativoUnivocoVersamento;

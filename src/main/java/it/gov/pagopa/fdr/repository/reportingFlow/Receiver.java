@@ -1,7 +1,11 @@
 package it.gov.pagopa.fdr.repository.reportingFlow;
 
+import lombok.Data;
+
+@Data
 public class Receiver {
 
-  public String id;
-  public String name;
+  private String id;
+  private String idEc;
+  private String nameEc;
 }

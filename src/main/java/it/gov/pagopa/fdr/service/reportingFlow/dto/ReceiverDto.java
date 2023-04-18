@@ -8,5 +8,6 @@ import lombok.Getter;
 public class ReceiverDto {
 
   private String id;
-  private String name;
+  private String idEc;
+  private String nameEc;
 }

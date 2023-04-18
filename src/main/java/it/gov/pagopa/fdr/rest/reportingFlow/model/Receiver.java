@@ -14,11 +14,16 @@ public class Receiver {
 
   @NotNull(message = "reporting-flow.create.receiver.id.notNull")
   @NotBlank(message = "reporting-flow.create.receiver.id.notBlank|${validatedValue}")
-  @Schema(example = "20000000001")
+  @Schema(example = "APPBIT2B")
   private String id;
 
-  @NotNull(message = "reporting-flow.create.receiver.name.notNull")
-  @NotBlank(message = "reporting-flow.create.receiver.name.notBlank|${validatedValue}")
+  @NotNull(message = "reporting-flow.create.receiver.idEc.notNull")
+  @NotBlank(message = "reporting-flow.create.receiver.idEc.notBlank|${validatedValue}")
+  @Schema(example = "20000000001")
+  private String idEc;
+
+  @NotNull(message = "reporting-flow.create.receiver.nameEc.notNull")
+  @NotBlank(message = "reporting-flow.create.receiver.nameEc.notBlank|${validatedValue}")
   @Schema(example = "Comune di xyz")
-  private String name;
+  private String nameEc;
 }

@@ -17,13 +17,18 @@ public class Sender {
 
   @NotNull(message = "reporting-flow.create.sender.id.notNull")
   @NotBlank(message = "reporting-flow.create.sender.id.notBlank|${validatedValue}")
-  @Schema(example = "60000000001")
+  @Schema(example = "SELBIT2B")
   private String id;
 
-  @NotNull(message = "reporting-flow.create.sender.name.notNull")
-  @NotBlank(message = "reporting-flow.create.sender.name.notBlank|${validatedValue}")
+  @NotNull(message = "reporting-flow.create.sender.idPsp.notNull")
+  @NotBlank(message = "reporting-flow.create.sender.idPsp.notBlank|${validatedValue}")
+  @Schema(example = "60000000001")
+  private String idPsp;
+
+  @NotNull(message = "reporting-flow.create.sender.namePsp.notNull")
+  @NotBlank(message = "reporting-flow.create.sender.namePsp.notBlank|${validatedValue}")
   @Schema(example = "Bank")
-  private String name;
+  private String namePsp;
 
   @NotNull(message = "reporting-flow.create.sender.idBroker.notNull")
   @NotBlank(message = "reporting-flow.create.sender.idBroker.notBlank|${validatedValue}")
