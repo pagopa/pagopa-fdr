@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
+import it.gov.pagopa.fdr.util.validation.ListSize;
 import it.gov.pagopa.fdr.util.validation.OrSize;
 import java.time.Instant;
 import java.util.List;
@@ -29,6 +30,8 @@ public class ReportingFlow {
   @Valid
   private Sender sender;
 
+  @NotNull(message = "reporting-flow.create.receiver.notNull")
+  @Valid
   private Receiver receiver;
 
   @NotNull(message = "reporting-flow.create.regulation.notNull")
@@ -49,5 +52,8 @@ public class ReportingFlow {
           String>
       bicCodePouringBank;
 
+  @NotNull(message = "reporting-flow.create.payments.notNull")
+  @ListSize(min = 1, max = 100, message = "reporting-flow.create.payments.listSize|{min}|{max}")
+  @Valid
   private List<Pagamento> payments;
 }

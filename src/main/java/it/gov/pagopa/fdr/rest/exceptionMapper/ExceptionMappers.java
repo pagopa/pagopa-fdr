@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.exceptionMapper;
 
+import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
@@ -8,6 +9,7 @@ import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,7 +57,8 @@ public class ExceptionMappers {
 
     String field =
         invalidFormatException.getPath().stream()
-            .map(a -> a.getFieldName())
+            .map(Reference::getFieldName)
+            .filter(Objects::nonNull)
             .collect(Collectors.joining("."));
     String currentValue = invalidFormatException.getValue().toString();
     AppException appEx = null;
@@ -120,7 +123,8 @@ public class ExceptionMappers {
 
     String field =
         mismatchedInputException.getPath().stream()
-            .map(a -> a.getFieldName())
+            .map(Reference::getFieldName)
+            .filter(Objects::nonNull)
             .collect(Collectors.joining("."));
     AppException appEx =
         new AppException(
@@ -198,7 +202,6 @@ public class ExceptionMappers {
                                 .compareTo(a.getPropertyPath().toString()))
                     .map(
                         constraintViolation -> {
-                          log.info(constraintViolation.getPropertyPath().toString());
                           return ErrorResponse.ErrorMessage.builder()
                               .path(constraintViolation.getPropertyPath().toString())
                               .message(convertMessageKey(constraintViolation))
