@@ -35,8 +35,16 @@ public class Pagamento {
   @Schema(example = "1")
   private Optional<BigInteger> indiceDatiSingoloPagamento;
 
-  @DecimalMin(value = "0.0", inclusive = false, message = "reporting-flow.create.payments.singoloImportoPagato.decimalMin|${validatedValue}|{value}")
-  @Digits(integer = Integer.MAX_VALUE, fraction = 2, message = "reporting-flow.create.payments.singoloImportoPagato.digits|${validatedValue}|{integer}|{fraction}")
+  @DecimalMin(
+      value = "0.0",
+      inclusive = false,
+      message =
+          "reporting-flow.create.payments.singoloImportoPagato.decimalMin|${validatedValue}|{value}")
+  @Digits(
+      integer = Integer.MAX_VALUE,
+      fraction = 2,
+      message =
+          "reporting-flow.create.payments.singoloImportoPagato.digits|${validatedValue}|{integer}|{fraction}")
   @Schema(example = "0.01")
   private BigDecimal singoloImportoPagato;
 
