@@ -4,7 +4,6 @@ import it.gov.pagopa.fdr.util.validation.ListSize;
 import it.gov.pagopa.fdr.util.validation.OrSize;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -44,13 +43,10 @@ public class ReportingFlow {
   private Instant dateRegulation;
 
   @Schema(example = "UNCRITMMXXX")
-  private Optional<
-          @OrSize(
-              lengths = {8, 11},
-              message =
-                  "reporting-flow.create.bicCodePouringBank.orSize|${validatedValue}|{lengths}")
-          String>
-      bicCodePouringBank;
+  @OrSize(
+      lengths = {8, 11},
+      message = "reporting-flow.create.bicCodePouringBank.orSize|${validatedValue}|{lengths}")
+  private String bicCodePouringBank;
 
   @NotNull(message = "reporting-flow.create.payments.notNull")
   @ListSize(min = 1, max = 100, message = "reporting-flow.create.payments.listSize|{min}|{max}")

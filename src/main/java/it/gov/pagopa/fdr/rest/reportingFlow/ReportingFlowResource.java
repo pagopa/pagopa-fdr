@@ -1,23 +1,27 @@
 package it.gov.pagopa.fdr.rest.reportingFlow;
 
 import it.gov.pagopa.fdr.rest.reportingFlow.mapper.ReportingFlowDtoServiceMapper;
+import it.gov.pagopa.fdr.rest.reportingFlow.model.ReportingFlow;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.CreateResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.validation.ReportingFlowValidationService;
 import it.gov.pagopa.fdr.service.reportingFlow.ReportingFlowService;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -98,7 +102,12 @@ public class ReportingFlowResource {
     // get from db
     ReportingFlowGetDto byId = service.findById(id);
 
-    return mapper.toGetResponse(byId);
+    ReportingFlow reportingFlow = mapper.toReportingFlow(byId);
+    return GetResponse.builder()
+        .id(byId.getId())
+        .status(mapper.toReportingFlowStatusEnum(byId.getStatus()))
+        .data(reportingFlow)
+        .build();
   }
 
   @Operation(summary = "Get reporting flow")
@@ -117,19 +126,22 @@ public class ReportingFlowResource {
       })
   @GET
   @Path("/all-id-by-ec/{idEc}")
-  public GetAllResponse getAllByEc(@PathParam("idEc") String idEc) {
+  public GetAllResponse getAllByEc(
+      @PathParam("idEc") String idEc,
+      @QueryParam("sort") @DefaultValue("_id") List<String> sortColumn,
+      @QueryParam("page") @DefaultValue("1") int pageNumber,
+      @QueryParam("size") @DefaultValue("50") int pageSize) {
+
     log.infof("Get all reporting by idEc [%s]", idEc);
 
     // validation
     validator.validateGetAllByEc(idEc);
 
     // get from db
-    List<ReportingFlowGetDto> reportingFlowGetDtos = service.findByIdEc(idEc);
+    ReportingFlowByIdEcDto reportingFlowByIdEcDto =
+        service.findByIdEc(idEc, pageNumber, pageSize, sortColumn);
 
-    return GetAllResponse.builder()
-        .tot(reportingFlowGetDtos.size())
-        .reportingFlows(reportingFlowGetDtos.stream().map(d -> mapper.toGetResponse(d)).toList())
-        .build();
+    return mapper.toGetAllResponse(reportingFlowByIdEcDto);
   }
 
   //  @POST

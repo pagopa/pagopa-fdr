@@ -4,7 +4,6 @@ import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 @MongoEntity(collection = "ReportingFlow")
 public class ReportingFlow extends PanacheMongoEntity {
@@ -20,7 +19,7 @@ public class ReportingFlow extends PanacheMongoEntity {
   public String regulation;
   public Instant dateRegulation;
 
-  public Optional<String> bicCodePouringBank;
+  public String bicCodePouringBank;
 
   public List<Pagamento> payments;
 

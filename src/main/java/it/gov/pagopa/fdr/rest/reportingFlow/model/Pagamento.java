@@ -1,9 +1,7 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.Instant;
-import java.util.Optional;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
@@ -33,7 +31,7 @@ public class Pagamento {
   private String identificativoUnivocoRiscossione;
 
   @Schema(example = "1")
-  private Optional<BigInteger> indiceDatiSingoloPagamento;
+  private Long indiceDatiSingoloPagamento;
 
   @DecimalMin(
       value = "0.0",
