@@ -12,10 +12,14 @@ import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlow;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowId;
+import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowNoPayment;
+import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowOnlyPayment;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.mapper.ReportingFlowServiceMapper;
 import java.time.Instant;
 import java.util.List;
@@ -38,21 +42,36 @@ public class ReportingFlowService {
 
     Instant now = Instant.now();
 
-    Optional<ReportingFlow> byIdOptional =
-        ReportingFlow.findByIdOptional(reportingFlowDto.getReportingFlow());
-    ReportingFlow flow =
-        byIdOptional.orElseGet(
-            () -> {
-              ReportingFlow reportingFlow = mapper.toReportingFlow(reportingFlowDto);
-              reportingFlow.created = now;
-              reportingFlow.updated = now;
-              return reportingFlow;
-            });
-    flow.updated = now;
-    flow.status = ReportingFlowStatusEnum.TO_VALIDATE;
+    ReportingFlow reportingFlow = mapper.toReportingFlow(reportingFlowDto);
+    reportingFlow.created = now;
+    reportingFlow.updated = now;
+    reportingFlow.status = ReportingFlowStatusEnum.NEW_LOAD;
 
-    flow.persist();
-    return flow.id.toString();
+    reportingFlow.persist();
+    return reportingFlow.id.toString();
+  }
+
+  @WithSpan(kind = SERVER)
+  public void addPayment(String id, AddPaymentDto addPaymentDto) {
+    log.debugf("Save add payment on DB");
+
+    Instant now = Instant.now();
+
+    if (!ObjectId.isValid(id)) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
+    }
+    ObjectId reportingFlowId = new ObjectId(id);
+
+    Optional<ReportingFlow> byIdOptional = ReportingFlow.findByIdOptional(reportingFlowId);
+    ReportingFlow flow =
+        byIdOptional.orElseThrow(
+            () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+
+    flow.payments.addAll(mapper.toPagamentos(addPaymentDto.getPayments()));
+    flow.updated = now;
+    flow.status = ReportingFlowStatusEnum.ADD_PAYMENT;
+
+    flow.update();
   }
 
   @WithSpan(kind = SERVER)
@@ -64,10 +83,32 @@ public class ReportingFlowService {
     }
     ObjectId reportingFlowId = new ObjectId(id);
 
-    Optional<ReportingFlow> reportingFlow = ReportingFlow.findByIdOptional(reportingFlowId);
+    Optional<ReportingFlowNoPayment> reportingFlow =
+        ReportingFlow.find("_id", reportingFlowId)
+            .project(ReportingFlowNoPayment.class)
+            .firstResultOptional();
 
     return reportingFlow
         .map(rf -> mapper.toReportingFlowGetDto(rf))
+        .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+  }
+
+  @WithSpan(kind = SERVER)
+  public ReportingFlowGetPaymentDto findPaymentById(String id) {
+    log.debugf("Get data from DB");
+
+    if (!ObjectId.isValid(id)) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
+    }
+    ObjectId reportingFlowId = new ObjectId(id);
+
+    Optional<ReportingFlowOnlyPayment> reportingFlow =
+        ReportingFlow.find("_id", reportingFlowId)
+            .project(ReportingFlowOnlyPayment.class)
+            .firstResultOptional();
+
+    return reportingFlow
+        .map(rf -> mapper.toReportingFlowGetPaymentDto(rf))
         .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
   }
 
@@ -97,18 +138,25 @@ public class ReportingFlowService {
 
   @WithSpan(kind = SERVER)
   public ReportingFlowByIdEcDto findByIdEc(
-      String idEc, int pageNumber, int pageSize, List<String> sortColumn) {
+      String idEc, String idPsp, int pageNumber, int pageSize, List<String> sortColumn) {
     log.debugf("Get all data from DB");
 
     Page page = Page.of(pageNumber - 1, pageSize);
     Sort sort = getSort(sortColumn);
 
-    PanacheQuery<ReportingFlowId> reportingFlowPanacheQuery =
-        ReportingFlow.find("receiver.idEc", sort, idEc).page(page).project(ReportingFlowId.class);
-    List<ReportingFlowId> reportingFlowIds = reportingFlowPanacheQuery.list();
+    PanacheQuery<ReportingFlow> reportingFlowPanacheQuery = null;
+    if (idPsp == null || idPsp.isBlank()) {
+      reportingFlowPanacheQuery = ReportingFlow.find("receiver.idEc", sort, idEc);
+    } else {
+      reportingFlowPanacheQuery =
+          ReportingFlow.find("receiver.idEc = ?1 and sender.idPsp = ?2", sort, idEc, idPsp);
+    }
+    PanacheQuery<ReportingFlowId> reportingFlowIdPanacheQuery =
+        reportingFlowPanacheQuery.page(page).project(ReportingFlowId.class);
+    List<ReportingFlowId> reportingFlowIds = reportingFlowIdPanacheQuery.list();
 
-    int totPage = reportingFlowPanacheQuery.pageCount();
-    long countReportingFlow = reportingFlowPanacheQuery.count();
+    int totPage = reportingFlowIdPanacheQuery.pageCount();
+    long countReportingFlow = reportingFlowIdPanacheQuery.count();
 
     return ReportingFlowByIdEcDto.builder()
         .metadata(
@@ -132,7 +180,7 @@ public class ReportingFlowService {
         byIdOptional.orElseThrow(
             () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
 
-    flow.status = ReportingFlowStatusEnum.TO_VALIDATE;
+    flow.status = ReportingFlowStatusEnum.CONFIRM;
 
     flow.persist();
   }

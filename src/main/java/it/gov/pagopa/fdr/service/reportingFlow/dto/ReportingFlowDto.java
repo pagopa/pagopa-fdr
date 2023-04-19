@@ -1,12 +1,11 @@
 package it.gov.pagopa.fdr.service.reportingFlow.dto;
 
 import java.time.Instant;
-import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
+@Builder
 public class ReportingFlowDto {
 
   public String reportingFlow;
@@ -19,6 +18,4 @@ public class ReportingFlowDto {
   private Instant dateRegulation;
 
   private String bicCodePouringBank;
-
-  private List<PagamentoDto> payments;
 }

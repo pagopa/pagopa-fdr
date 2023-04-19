@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.response;
 
-import it.gov.pagopa.fdr.rest.reportingFlow.model.ReportingFlow;
 import it.gov.pagopa.fdr.rest.reportingFlow.model.ReportingFlowStatusEnum;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Jacksonized
 public class GetResponse {
 
-  private ReportingFlow data;
+  private GetIdResponse data;
 
   @Schema(example = "643accaa4733f71aea4c71bf")
   private String id;

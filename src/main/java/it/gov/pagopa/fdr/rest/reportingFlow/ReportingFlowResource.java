@@ -1,15 +1,17 @@
 package it.gov.pagopa.fdr.rest.reportingFlow;
 
 import it.gov.pagopa.fdr.rest.reportingFlow.mapper.ReportingFlowDtoServiceMapper;
-import it.gov.pagopa.fdr.rest.reportingFlow.model.ReportingFlow;
+import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.CreateResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
-import it.gov.pagopa.fdr.rest.reportingFlow.response.GetResponse;
+import it.gov.pagopa.fdr.rest.reportingFlow.response.GetIdResponse;
+import it.gov.pagopa.fdr.rest.reportingFlow.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.validation.ReportingFlowValidationService;
 import it.gov.pagopa.fdr.service.reportingFlow.ReportingFlowService;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -19,11 +21,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -77,6 +81,39 @@ public class ReportingFlowResource {
     return CreateResponse.builder().id(id).build();
   }
 
+  @Operation(summary = "Add payments to reporting flow")
+  @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/BadRequest"),
+        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = Response.class)))
+      })
+  @PUT
+  @Path("/{id}/add-payment")
+  public Response addPayment(
+      @PathParam("id") String id,
+      @NotNull(message = "reporting-flow.create.req.notNull") @Valid
+          AddPaymentRequest addPaymentRequest) {
+
+    log.infof("Add payment to reporting flow [%s]", id);
+
+    // validation
+    validator.validateAddPayment(addPaymentRequest);
+
+    // save on DB
+    service.addPayment(id, mapper.toAddPaymentDto(addPaymentRequest));
+
+    return Response.ok().build();
+  }
+
   @Operation(summary = "Get reporting flow")
   @APIResponses(
       value = {
@@ -90,11 +127,11 @@ public class ReportingFlowResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetResponse.class)))
+                    schema = @Schema(implementation = GetIdResponse.class)))
       })
   @GET
   @Path("/{id}")
-  public GetResponse get(@PathParam("id") String id) {
+  public GetIdResponse get(@PathParam("id") String id) {
     log.infof("Get reporting by id [%s]", id);
 
     // validation
@@ -103,12 +140,50 @@ public class ReportingFlowResource {
     // get from db
     ReportingFlowGetDto byId = service.findById(id);
 
-    ReportingFlow reportingFlow = mapper.toReportingFlow(byId);
-    return GetResponse.builder()
-        .id(byId.getId())
-        .status(mapper.toReportingFlowStatusEnum(byId.getStatus()))
-        .data(reportingFlow)
-        .build();
+    return mapper.toGetIdResponse(byId);
+  }
+
+  @Operation(summary = "Get reporting flow")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/BadRequest"),
+        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
+        @APIResponse(ref = "#/components/responses/ReportingFlowIdInvalid"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = GetPaymentResponse.class)))
+      })
+  @GET
+  @Path("/{id}/payment")
+  public GetPaymentResponse getPayment(
+      @PathParam("id") String id,
+      @QueryParam("sort") @DefaultValue("_id,asc") List<String> sortColumn,
+      @QueryParam("page")
+          @DefaultValue("1")
+          @Min(
+              value = 1,
+              message = "reporting-flow.getAllByEc.pageNumber.min|${validatedValue}|{value}")
+          int pageNumber,
+      @QueryParam("size")
+          @DefaultValue("50")
+          @Min(
+              value = 1,
+              message = "reporting-flow.getAllByEc.pageSize.min|${validatedValue}|{value}")
+          int pageSize) {
+    log.infof("Get reporting by id [%s]", id);
+
+    // validation
+    validator.validateGet(id);
+
+    // get from db
+    ReportingFlowGetPaymentDto byId = service.findPaymentById(id);
+
+    return mapper.toGetPaymentResponse(byId);
   }
 
   @Operation(summary = "Get reporting flow")
@@ -129,6 +204,7 @@ public class ReportingFlowResource {
   @Path("/all-id-by-ec/{idEc}")
   public GetAllResponse getAllByEc(
       @PathParam("idEc") String idEc,
+      @QueryParam("idPsp") String idPsp,
       @QueryParam("sort") @DefaultValue("_id,asc") List<String> sortColumn,
       @QueryParam("page")
           @DefaultValue("1")
@@ -150,7 +226,7 @@ public class ReportingFlowResource {
 
     // get from db
     ReportingFlowByIdEcDto reportingFlowByIdEcDto =
-        service.findByIdEc(idEc, pageNumber, pageSize, sortColumn);
+        service.findByIdEc(idEc, idPsp, pageNumber, pageSize, sortColumn);
 
     return mapper.toGetAllResponse(reportingFlowByIdEcDto);
   }

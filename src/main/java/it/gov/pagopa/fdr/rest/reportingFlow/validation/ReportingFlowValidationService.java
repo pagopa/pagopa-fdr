@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.rest.reportingFlow.validation;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,6 +17,11 @@ public class ReportingFlowValidationService {
   @WithSpan(kind = SERVER)
   public void validateCreate(CreateRequest createRequest) {
     log.debug("Validate create");
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validateAddPayment(AddPaymentRequest addPaymentRequest) {
+    log.debug("Validate add payment");
   }
 
   @WithSpan(kind = SERVER)
