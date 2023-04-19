@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.response;
 
+import it.gov.pagopa.fdr.rest.reportingFlow.model.Metadata;
 import it.gov.pagopa.fdr.rest.reportingFlow.model.Pagamento;
 import java.util.List;
 import lombok.Builder;
@@ -12,6 +13,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Jacksonized
 public class GetPaymentResponse {
 
-  @Schema(example = "UNCRITMMXXX")
-  private List<Pagamento> payments;
+  private Metadata metadata;
+
+  @Schema(example = "100")
+  private long count;
+
+  private List<Pagamento> data;
 }

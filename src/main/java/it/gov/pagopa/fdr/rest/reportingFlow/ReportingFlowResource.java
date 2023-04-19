@@ -181,7 +181,7 @@ public class ReportingFlowResource {
     validator.validateGet(id);
 
     // get from db
-    ReportingFlowGetPaymentDto byId = service.findPaymentById(id);
+    ReportingFlowGetPaymentDto byId = service.findPaymentById(id, pageNumber, pageSize, sortColumn);
 
     return mapper.toGetPaymentResponse(byId);
   }

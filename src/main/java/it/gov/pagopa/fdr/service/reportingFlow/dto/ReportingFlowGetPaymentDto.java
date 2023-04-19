@@ -8,5 +8,9 @@ import lombok.Getter;
 @Builder
 public class ReportingFlowGetPaymentDto {
 
-  public List<PagamentoDto> payments;
+  private MetadataDto metadata;
+
+  private long count;
+
+  private List<PagamentoDto> data;
 }
