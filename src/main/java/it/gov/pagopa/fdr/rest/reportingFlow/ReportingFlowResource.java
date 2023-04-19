@@ -13,6 +13,7 @@ import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -128,9 +129,19 @@ public class ReportingFlowResource {
   @Path("/all-id-by-ec/{idEc}")
   public GetAllResponse getAllByEc(
       @PathParam("idEc") String idEc,
-      @QueryParam("sort") @DefaultValue("_id") List<String> sortColumn,
-      @QueryParam("page") @DefaultValue("1") int pageNumber,
-      @QueryParam("size") @DefaultValue("50") int pageSize) {
+      @QueryParam("sort") @DefaultValue("_id,asc") List<String> sortColumn,
+      @QueryParam("page")
+          @DefaultValue("1")
+          @Min(
+              value = 1,
+              message = "reporting-flow.getAllByEc.pageNumber.min|${validatedValue}|{value}")
+          int pageNumber,
+      @QueryParam("size")
+          @DefaultValue("50")
+          @Min(
+              value = 1,
+              message = "reporting-flow.getAllByEc.pageSize.min|${validatedValue}|{value}")
+          int pageSize) {
 
     log.infof("Get all reporting by idEc [%s]", idEc);
 
