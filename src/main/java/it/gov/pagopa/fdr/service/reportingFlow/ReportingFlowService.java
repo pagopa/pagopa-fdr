@@ -1,8 +1,8 @@
 package it.gov.pagopa.fdr.service.reportingFlow;
 
+import static com.mongodb.client.model.Sorts.ascending;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
-import com.mongodb.client.FindIterable;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
@@ -10,6 +10,7 @@ import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
+import it.gov.pagopa.fdr.repository.reportingFlow.Pagamento;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlow;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowId;
@@ -23,6 +24,7 @@ import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.mapper.ReportingFlowServiceMapper;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +72,12 @@ public class ReportingFlowService {
         byIdOptional.orElseThrow(
             () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
 
-    flow.payments.addAll(mapper.toPagamentos(addPaymentDto.getPayments()));
+    if (flow.payments == null) {
+      flow.payments = mapper.toPagamentos(addPaymentDto.getPayments());
+    } else {
+      flow.payments.addAll(mapper.toPagamentos(addPaymentDto.getPayments()));
+    }
+
     flow.updated = now;
     flow.status = ReportingFlowStatusEnum.ADD_PAYMENT;
 
@@ -97,34 +104,54 @@ public class ReportingFlowService {
   }
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowGetPaymentDto findPaymentById(
-      String id, int pageNumber, int pageSize, List<String> sortColumn) {
+  public ReportingFlowGetPaymentDto findPaymentById(String id, int pageNumber, int pageSize) {
     log.debugf("Get data from DB");
 
     if (!ObjectId.isValid(id)) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
     }
-    ObjectId reportingFlowId = new ObjectId(id);
 
-    Document find = new Document();
-    find.append("_id", new ObjectId(id));
+    Document find = new Document("_id", new ObjectId(id));
 
-    Document slice = new Document();
-    slice.append("$slice", Arrays.asList(0, 1));
+    int skip = (pageNumber - 1) * pageSize;
+
+    List<Object> obj = new ArrayList<>();
+    obj.add("$payments");
+    obj.add(new ArrayList<Pagamento>());
 
     Document projections = new Document();
-    projections.append("trick", 0);
-    projections.append("payments", slice);
+    projections.append("trick", 1);
+    projections.append("payments", new Document("$slice", Arrays.asList(skip, pageSize)));
+    projections.append("count", new Document("$size", new Document("$ifNull", obj)));
+    projections.append("sum", new Document("$sum", "$payments.singoloImportoPagato"));
 
-    FindIterable<ReportingFlowOnlyPayment> panacheMongoEntityBases =
-        ReportingFlow.mongoCollection().find(find, ReportingFlowOnlyPayment.class);
-    panacheMongoEntityBases.projection(projections);
-    Optional<ReportingFlowOnlyPayment> reportingFlow =
-        Optional.ofNullable(panacheMongoEntityBases.first());
+    ReportingFlowOnlyPayment reportingFlow =
+        Optional.ofNullable(
+                ReportingFlow.mongoCollection()
+                    .find(find, ReportingFlowOnlyPayment.class)
+                    .projection(projections)
+                    .sort(ascending("payments.identificativoUnivocoVersamento"))
+                    .first())
+            .orElseThrow(
+                () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
 
-    return reportingFlow
-        .map(rf -> mapper.toReportingFlowGetPaymentDto(rf))
-        .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+    long count = reportingFlow.count;
+    int totPage = (int) Math.ceil(count / (double) pageSize);
+
+    ReportingFlowGetPaymentDto reportingFlowGetPaymentDto =
+        ReportingFlowGetPaymentDto.builder()
+            .metadata(
+                MetadataDto.builder()
+                    .pageSize(pageSize)
+                    .pageNumber(pageNumber)
+                    .totPage(totPage)
+                    .build())
+            .count(count)
+            .sum(reportingFlow.sum)
+            .data(mapper.toPagamentoDtos(reportingFlow.payments))
+            .build();
+
+    return reportingFlowGetPaymentDto;
   }
 
   private Sort getSort(List<String> sortColumn) {
@@ -153,11 +180,11 @@ public class ReportingFlowService {
 
   @WithSpan(kind = SERVER)
   public ReportingFlowByIdEcDto findByIdEc(
-      String idEc, String idPsp, int pageNumber, int pageSize, List<String> sortColumn) {
+      String idEc, String idPsp, int pageNumber, int pageSize) {
     log.debugf("Get all data from DB");
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(sortColumn);
+    Sort sort = getSort(Arrays.asList("_id,asc"));
 
     PanacheQuery<ReportingFlow> reportingFlowPanacheQuery = null;
     if (idPsp == null || idPsp.isBlank()) {
@@ -179,7 +206,6 @@ public class ReportingFlowService {
                 .pageSize(pageSize)
                 .pageNumber(pageNumber)
                 .totPage(totPage)
-                .sortColumn(sortColumn)
                 .build())
         .count(countReportingFlow)
         .data(reportingFlowIds.stream().map(rf -> rf.id.toString()).toList())

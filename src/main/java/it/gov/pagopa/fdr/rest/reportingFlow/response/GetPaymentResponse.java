@@ -18,5 +18,8 @@ public class GetPaymentResponse {
   @Schema(example = "100")
   private long count;
 
+  @Schema(example = "100.90")
+  private double sum;
+
   private List<Pagamento> data;
 }

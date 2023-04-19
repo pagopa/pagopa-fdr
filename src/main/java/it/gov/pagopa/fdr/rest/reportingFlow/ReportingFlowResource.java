@@ -12,7 +12,6 @@ import it.gov.pagopa.fdr.service.reportingFlow.ReportingFlowService;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
-import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -162,7 +161,6 @@ public class ReportingFlowResource {
   @Path("/{id}/payment")
   public GetPaymentResponse getPayment(
       @PathParam("id") String id,
-      @QueryParam("sort") @DefaultValue("_id,asc") List<String> sortColumn,
       @QueryParam("page")
           @DefaultValue("1")
           @Min(
@@ -181,7 +179,7 @@ public class ReportingFlowResource {
     validator.validateGet(id);
 
     // get from db
-    ReportingFlowGetPaymentDto byId = service.findPaymentById(id, pageNumber, pageSize, sortColumn);
+    ReportingFlowGetPaymentDto byId = service.findPaymentById(id, pageNumber, pageSize);
 
     return mapper.toGetPaymentResponse(byId);
   }
@@ -205,7 +203,6 @@ public class ReportingFlowResource {
   public GetAllResponse getAllByEc(
       @PathParam("idEc") String idEc,
       @QueryParam("idPsp") String idPsp,
-      @QueryParam("sort") @DefaultValue("_id,asc") List<String> sortColumn,
       @QueryParam("page")
           @DefaultValue("1")
           @Min(
@@ -226,7 +223,7 @@ public class ReportingFlowResource {
 
     // get from db
     ReportingFlowByIdEcDto reportingFlowByIdEcDto =
-        service.findByIdEc(idEc, idPsp, pageNumber, pageSize, sortColumn);
+        service.findByIdEc(idEc, idPsp, pageNumber, pageSize);
 
     return mapper.toGetAllResponse(reportingFlowByIdEcDto);
   }
