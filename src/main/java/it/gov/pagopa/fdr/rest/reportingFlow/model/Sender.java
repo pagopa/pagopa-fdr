@@ -42,6 +42,6 @@ public class Sender {
 
   @NotNull(message = "reporting-flow.create.sender.password.notNull")
   @NotBlank(message = "reporting-flow.create.sender.password.notBlank|${validatedValue}")
-  @Schema(example = "1234567890")
+  @Schema(example = "1234567890", deprecated = true)
   private String password;
 }

@@ -37,7 +37,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + "    ]\n"
                                   + "}")),
               @APIResponse(
-                  name = "BadRequest",
+                  name = "ValidationBadRequest",
                   responseCode = "400",
                   description = "Bad Request",
                   content =
@@ -57,9 +57,29 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + "    ]\n"
                                   + "}")),
               @APIResponse(
-                  name = "ReportingFlowNotFound",
+                  name = "AppException400",
+                  responseCode = "400",
+                  description = "Default app exception for status 400",
+                  content =
+                      @Content(
+                          mediaType = MediaType.APPLICATION_JSON,
+                          schema = @Schema(implementation = ErrorResponse.class),
+                          example =
+                              "{\n"
+                                  + "    \"httpStatusCode\": 400,\n"
+                                  + "    \"httpStatusDescription\": \"Bad Request\",\n"
+                                  + "    \"appErrorCode\": \"FDR-0702\",\n"
+                                  + "    \"errors\": [\n"
+                                  + "        {\n"
+                                  + "            \"message\": \"Reporting Flow id [<flow-id>] is"
+                                  + " invalid found\"\n"
+                                  + "        }\n"
+                                  + "    ]\n"
+                                  + "}")),
+              @APIResponse(
+                  name = "AppException404",
                   responseCode = "404",
-                  description = "Reporting flow not found",
+                  description = "Default app exception for status 404",
                   content =
                       @Content(
                           mediaType = MediaType.APPLICATION_JSON,
@@ -76,26 +96,6 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + "        }\n"
                                   + "    ]\n"
                                   + "}")),
-              @APIResponse(
-                  name = "ReportingFlowIdInvalid",
-                  responseCode = "400",
-                  description = "Reporting flow id is invalid",
-                  content =
-                      @Content(
-                          mediaType = MediaType.APPLICATION_JSON,
-                          schema = @Schema(implementation = ErrorResponse.class),
-                          example =
-                              "{\n"
-                                  + "    \"httpStatusCode\": 400,\n"
-                                  + "    \"httpStatusDescription\": \"Bad Request\",\n"
-                                  + "    \"appErrorCode\": \"FDR-0702\",\n"
-                                  + "    \"errors\": [\n"
-                                  + "        {\n"
-                                  + "            \"message\": \"Reporting Flow id [<flow-id>] is"
-                                  + " invalid\"\n"
-                                  + "        }\n"
-                                  + "    ]\n"
-                                  + "}"))
             }),
     info = @Info(title = "FDR - Flussi di Rendicontazione", version = "0.0.0-SNAPSHOT"))
 @ApplicationPath("/api")

@@ -50,13 +50,16 @@ public class ReportingFlowResource {
 
   @Inject ReportingFlowService service;
 
-  @Operation(summary = "Create reporting flow")
+  @Operation(
+      summary = "Create reporting flow",
+      description = "Create new reporting flow and return id for add payment")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateRequest.class)))
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/BadRequest"),
-        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
+        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
@@ -69,7 +72,7 @@ public class ReportingFlowResource {
   public CreateResponse create(
       @NotNull(message = "reporting-flow.create.req.notNull") @Valid CreateRequest createRequest) {
 
-    log.infof("Create reporting [%s]", createRequest.getReportingFlow());
+    log.infof("Create reporting flow [%s]", createRequest.getReportingFlow());
 
     // validation
     validator.validateCreate(createRequest);
@@ -80,13 +83,16 @@ public class ReportingFlowResource {
     return CreateResponse.builder().id(id).build();
   }
 
-  @Operation(summary = "Add payments to reporting flow")
+  @Operation(
+      summary = "Add payments to reporting flow",
+      description = "Add payments to reporting flow")
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/BadRequest"),
-        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
+        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
@@ -113,13 +119,15 @@ public class ReportingFlowResource {
     return Response.ok().build();
   }
 
-  @Operation(summary = "Get reporting flow")
+  @Operation(
+      summary = "Get reporting flow",
+      description = "Get reporting flow by id but not payments")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/BadRequest"),
-        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
-        @APIResponse(ref = "#/components/responses/ReportingFlowIdInvalid"),
+        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
@@ -142,13 +150,15 @@ public class ReportingFlowResource {
     return mapper.toGetIdResponse(byId);
   }
 
-  @Operation(summary = "Get reporting flow")
+  @Operation(
+      summary = "Get payments of reporting flow",
+      description = "Get only payments of reporting flow by id paginated")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/BadRequest"),
-        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
-        @APIResponse(ref = "#/components/responses/ReportingFlowIdInvalid"),
+        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
@@ -184,12 +194,15 @@ public class ReportingFlowResource {
     return mapper.toGetPaymentResponse(byId);
   }
 
-  @Operation(summary = "Get reporting flow")
+  @Operation(
+      summary = "Get id of reporting flow",
+      description = "Get id of reporting flow by idEc and idPsp(optional param)")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/BadRequest"),
-        @APIResponse(ref = "#/components/responses/ReportingFlowNotFound"),
+        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
