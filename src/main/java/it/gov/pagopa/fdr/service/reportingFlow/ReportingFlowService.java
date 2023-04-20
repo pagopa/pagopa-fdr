@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.service.reportingFlow;
 
-import static com.mongodb.client.model.Sorts.ascending;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -10,7 +9,6 @@ import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.reportingFlow.Pagamento;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlow;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowId;
@@ -24,7 +22,6 @@ import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.mapper.ReportingFlowServiceMapper;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -111,31 +108,13 @@ public class ReportingFlowService {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
     }
 
-    Document find = new Document("_id", new ObjectId(id));
-
-    int skip = (pageNumber - 1) * pageSize;
-
-    List<Object> obj = new ArrayList<>();
-    obj.add("$payments");
-    obj.add(new ArrayList<Pagamento>());
-
-    Document projections = new Document();
-    projections.append("trick", 1);
-    projections.append("payments", new Document("$slice", Arrays.asList(skip, pageSize)));
-    projections.append("count", new Document("$size", new Document("$ifNull", obj)));
-    projections.append("sum", new Document("$sum", "$payments.singoloImportoPagato"));
-
-    ReportingFlowOnlyPayment reportingFlow =
-        Optional.ofNullable(
-                ReportingFlow.mongoCollection()
-                    .find(find, ReportingFlowOnlyPayment.class)
-                    .projection(projections)
-                    .sort(ascending("payments.identificativoUnivocoVersamento"))
-                    .first())
+    ReportingFlowOnlyPayment reportingFlowOnlyPayment =
+        getSlicePayment(id, pageNumber, pageSize)
             .orElseThrow(
                 () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+    ;
 
-    long count = reportingFlow.count;
+    long count = reportingFlowOnlyPayment.count;
     int totPage = (int) Math.ceil(count / (double) pageSize);
 
     ReportingFlowGetPaymentDto reportingFlowGetPaymentDto =
@@ -147,11 +126,51 @@ public class ReportingFlowService {
                     .totPage(totPage)
                     .build())
             .count(count)
-            .sum(reportingFlow.sum)
-            .data(mapper.toPagamentoDtos(reportingFlow.payments))
+            .sum(reportingFlowOnlyPayment.sum)
+            .data(mapper.toPagamentoDtos(reportingFlowOnlyPayment.payments))
             .build();
 
     return reportingFlowGetPaymentDto;
+  }
+
+  private Optional<ReportingFlowOnlyPayment> getSlicePayment(
+      String id, long pageNumber, long pageSize) {
+    long skip = (pageNumber - 1) * pageSize;
+    List<Document> aggregate =
+        Arrays.asList(
+            new Document("$match", new Document("_id", new ObjectId(id))),
+            new Document(
+                "$project",
+                new Document(
+                    "payments",
+                    new Document(
+                        "$sortArray",
+                        new Document(
+                                "input",
+                                new Document(
+                                    "$ifNull", Arrays.asList("$payments", Arrays.asList())))
+                            .append(
+                                "sortBy", new Document("identificativoUnivocoVersamento", 1L))))),
+            new Document(
+                "$addFields",
+                new Document("count", new Document("$size", "$payments"))
+                    .append(
+                        "sum",
+                        new Document(
+                            "$toDecimal", new Document("$sum", "$payments.singoloImportoPagato")))),
+            new Document(
+                "$project",
+                new Document("count", 1L)
+                    .append("sum", 1L)
+                    .append(
+                        "payments",
+                        new Document("$slice", Arrays.asList("$payments", skip, pageSize)))));
+
+    ReportingFlowOnlyPayment reportingFlowOnlyPayment =
+        ReportingFlow.mongoCollection()
+            .aggregate(aggregate, ReportingFlowOnlyPayment.class)
+            .first();
+    return Optional.ofNullable(reportingFlowOnlyPayment);
   }
 
   private Sort getSort(List<String> sortColumn) {

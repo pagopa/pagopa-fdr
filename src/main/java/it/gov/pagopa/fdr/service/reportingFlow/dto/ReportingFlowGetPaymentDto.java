@@ -11,7 +11,7 @@ public class ReportingFlowGetPaymentDto {
 
   private MetadataDto metadata;
 
-  private long count;
+  private Long count;
 
   private BigDecimal sum;
 

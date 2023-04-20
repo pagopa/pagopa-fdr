@@ -7,7 +7,7 @@ import java.util.List;
 public class ReportingFlowOnlyPayment {
 
   public List<Pagamento> payments;
-  public long count;
+  public Long count;
 
   public BigDecimal sum;
 }

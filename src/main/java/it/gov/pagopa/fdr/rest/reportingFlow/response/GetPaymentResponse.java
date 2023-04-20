@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.rest.reportingFlow.response;
 
 import it.gov.pagopa.fdr.rest.reportingFlow.model.Metadata;
 import it.gov.pagopa.fdr.rest.reportingFlow.model.Pagamento;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,10 +17,10 @@ public class GetPaymentResponse {
   private Metadata metadata;
 
   @Schema(example = "100")
-  private long count;
+  private Long count;
 
   @Schema(example = "100.90")
-  private double sum;
+  private BigDecimal sum;
 
   private List<Pagamento> data;
 }
