@@ -12,6 +12,8 @@ import org.bson.types.ObjectId;
 public class ReportingFlowNoPayment {
 
   public ObjectId id;
+
+  public Long revision;
   public Instant created;
   public Instant updated;
 

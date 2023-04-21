@@ -30,6 +30,11 @@ public class ReportingFlowValidationService {
   }
 
   @WithSpan(kind = SERVER)
+  public void validateDelete(String id) {
+    log.debug("Validate delete");
+  }
+
+  @WithSpan(kind = SERVER)
   public void validateGet(String id) {
     log.debug("Validate get");
   }

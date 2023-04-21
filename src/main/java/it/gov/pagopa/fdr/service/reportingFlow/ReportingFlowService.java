@@ -73,6 +73,7 @@ public class ReportingFlowService {
 
     reportingFlow.updated = now;
     reportingFlow.status = ReportingFlowStatusEnum.ADD_PAYMENT;
+    reportingFlow.revision = (reportingFlow.revision == null) ? 1L : reportingFlow.revision + 1;
     reportingFlow.update();
 
     ReportingFlowRevision reportingFlowRevision = getRevision(reportingFlow);
@@ -88,6 +89,23 @@ public class ReportingFlowService {
 
     reportingFlow.updated = now;
     reportingFlow.status = ReportingFlowStatusEnum.CONFIRM;
+    reportingFlow.revision = (reportingFlow.revision == null) ? 1L : reportingFlow.revision + 1;
+    reportingFlow.update();
+
+    ReportingFlowRevision reportingFlowRevision = getRevision(reportingFlow);
+    reportingFlowRevision.persist();
+  }
+
+  @WithSpan(kind = SERVER)
+  public void delete(String id) {
+    log.debugf("Delete reporting flow");
+    Instant now = Instant.now();
+
+    ReportingFlow reportingFlow = fetch(id, ReportingFlow.class);
+
+    reportingFlow.updated = now;
+    reportingFlow.status = ReportingFlowStatusEnum.DELETE;
+    reportingFlow.revision = (reportingFlow.revision == null) ? 1L : reportingFlow.revision + 1;
     reportingFlow.update();
 
     ReportingFlowRevision reportingFlowRevision = getRevision(reportingFlow);

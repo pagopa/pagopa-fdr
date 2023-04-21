@@ -12,7 +12,13 @@ public class ReportingFlowGetDto {
 
   public ReportingFlowStatusEnumDto status;
 
+  public Instant created;
+  public Instant updated;
+
+  public Long revision;
+
   public String reportingFlow;
+
   public Instant dateReportingFlow;
 
   private SenderDto sender;

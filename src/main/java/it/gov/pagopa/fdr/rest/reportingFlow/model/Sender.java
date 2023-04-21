@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import lombok.Builder;
@@ -39,6 +40,7 @@ public class Sender {
   @Schema(example = "80000000001")
   private String idChannel;
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   @Pattern(regexp = "^\\S+$")
   @Schema(example = "1234567890", deprecated = true)
   private String password;

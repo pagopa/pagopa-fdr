@@ -15,6 +15,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -114,6 +115,21 @@ public class ReportingFlowResource {
     return Response.ok().build();
   }
 
+  @Operation(summary = "Confirm reporting flow", description = "Confirm reporting flow")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = Response.class)))
+      })
   @PUT
   @Path("/{id}/confirm")
   public Response confirmReportingFlow(@PathParam("id") String id) {
@@ -125,6 +141,36 @@ public class ReportingFlowResource {
 
     // save on DB
     service.confirm(id);
+
+    return Response.ok().build();
+  }
+
+  @Operation(summary = "Delete reporting flow", description = "Delete reporting flow")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = Response.class)))
+      })
+  @DELETE
+  @Path("/{id}")
+  public Response deleteReportingFlow(@PathParam("id") String id) {
+
+    log.infof("Delete reporting flow [%s]", id);
+
+    // validation
+    validator.validateDelete(id);
+
+    // save on DB
+    service.delete(id);
 
     return Response.ok().build();
   }

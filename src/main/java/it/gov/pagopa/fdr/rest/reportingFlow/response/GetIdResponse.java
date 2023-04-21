@@ -20,6 +20,15 @@ public class GetIdResponse {
   @Schema(example = "643accaa4733f71aea4c71bf")
   public ReportingFlowStatusEnumDto status;
 
+  @Schema(example = "2023-04-05T09:21:37.810000Z")
+  public Instant created;
+
+  @Schema(example = "2023-04-05T09:21:37.810000Z")
+  public Instant updated;
+
+  @Schema(example = "1")
+  public Long revision;
+
   @Schema(example = "60000000001-1173")
   private String reportingFlow;
 
