@@ -1,12 +1,10 @@
 package it.gov.pagopa.fdr.repository.reportingFlow;
 
-import io.quarkus.mongodb.panache.common.MongoEntity;
+import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import java.time.Instant;
 import java.util.List;
 
-@MongoEntity(collection = "reporting_flow")
-public class ReportingFlow extends AbstractReportingFlow {
-
+public abstract class AbstractReportingFlow extends PanacheMongoEntity {
   public Long revision;
   public Instant created;
   public Instant updated;

@@ -49,12 +49,11 @@ public class ReportingFlowService {
 
     reportingFlow.updated = now;
     reportingFlow.status = ReportingFlowStatusEnum.NEW_LOAD;
-
-    reportingFlow.revision = 1L;
-    ReportingFlowRevision reportingFlowRevision = mapper.toReportingFlowRevision(reportingFlow);
-
-    reportingFlowRevision.persist();
+    reportingFlow.revision = (reportingFlow.revision == null) ? 1L : reportingFlow.revision + 1;
     reportingFlow.persist();
+
+    ReportingFlowRevision reportingFlowRevision = getRevision(reportingFlow);
+    reportingFlowRevision.persist();
 
     return reportingFlow.id.toString();
   }
@@ -74,12 +73,10 @@ public class ReportingFlowService {
 
     reportingFlow.updated = now;
     reportingFlow.status = ReportingFlowStatusEnum.ADD_PAYMENT;
-
-    reportingFlow.revision = reportingFlow.revision + 1;
-    ReportingFlowRevision reportingFlowRevision = mapper.toReportingFlowRevision(reportingFlow);
-
-    reportingFlowRevision.persist();
     reportingFlow.update();
+
+    ReportingFlowRevision reportingFlowRevision = getRevision(reportingFlow);
+    reportingFlowRevision.persist();
   }
 
   @WithSpan(kind = SERVER)
@@ -91,12 +88,10 @@ public class ReportingFlowService {
 
     reportingFlow.updated = now;
     reportingFlow.status = ReportingFlowStatusEnum.CONFIRM;
-
-    reportingFlow.revision = reportingFlow.revision + 1;
-    ReportingFlowRevision reportingFlowRevision = mapper.toReportingFlowRevision(reportingFlow);
-
-    reportingFlowRevision.persist();
     reportingFlow.update();
+
+    ReportingFlowRevision reportingFlowRevision = getRevision(reportingFlow);
+    reportingFlowRevision.persist();
   }
 
   @WithSpan(kind = SERVER)
@@ -242,5 +237,12 @@ public class ReportingFlowService {
 
     return Optional.ofNullable(reportingFlowOnlyPayment)
         .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+  }
+
+  private ReportingFlowRevision getRevision(ReportingFlow reportingFlow) {
+    ReportingFlowRevision reportingFlowRevision = mapper.toReportingFlowRevision(reportingFlow);
+    reportingFlowRevision.reportingFlowId = reportingFlowRevision.id;
+    reportingFlowRevision.id = null;
+    return reportingFlowRevision;
   }
 }
