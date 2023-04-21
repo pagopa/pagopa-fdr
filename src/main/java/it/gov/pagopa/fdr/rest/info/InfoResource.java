@@ -37,7 +37,6 @@ public class InfoResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/BadRequest"),
         @APIResponse(
             responseCode = "200",
             description = "Success",

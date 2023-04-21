@@ -7,6 +7,9 @@ import java.util.List;
 
 @MongoEntity(collection = "ReportingFlow")
 public class ReportingFlow extends PanacheMongoEntity {
+
+  public List<ReportingFlow> history;
+  public Long revision;
   public Instant created;
   public Instant updated;
 

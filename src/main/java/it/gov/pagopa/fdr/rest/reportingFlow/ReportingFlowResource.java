@@ -9,13 +9,11 @@ import it.gov.pagopa.fdr.rest.reportingFlow.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.validation.ReportingFlowValidationService;
 import it.gov.pagopa.fdr.service.reportingFlow.ReportingFlowService;
-import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
-import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
-import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -69,8 +67,7 @@ public class ReportingFlowResource {
                     schema = @Schema(implementation = CreateResponse.class)))
       })
   @POST
-  public CreateResponse create(
-      @NotNull(message = "reporting-flow.create.req.notNull") @Valid CreateRequest createRequest) {
+  public CreateResponse createReportingFlow(@NotNull @Valid CreateRequest createRequest) {
 
     log.infof("Create reporting flow [%s]", createRequest.getReportingFlow());
 
@@ -103,10 +100,8 @@ public class ReportingFlowResource {
       })
   @PUT
   @Path("/{id}/add-payment")
-  public Response addPayment(
-      @PathParam("id") String id,
-      @NotNull(message = "reporting-flow.create.req.notNull") @Valid
-          AddPaymentRequest addPaymentRequest) {
+  public Response addPaymentToReportingFlow(
+      @PathParam("id") String id, @NotNull @Valid AddPaymentRequest addPaymentRequest) {
 
     log.infof("Add payment to reporting flow [%s]", id);
 
@@ -115,6 +110,21 @@ public class ReportingFlowResource {
 
     // save on DB
     service.addPayment(id, mapper.toAddPaymentDto(addPaymentRequest));
+
+    return Response.ok().build();
+  }
+
+  @PUT
+  @Path("/{id}/confirm")
+  public Response confirmReportingFlow(@PathParam("id") String id) {
+
+    log.infof("Confirm reporting flow [%s]", id);
+
+    // validation
+    validator.validateConfirm(id);
+
+    // save on DB
+    service.confirm(id);
 
     return Response.ok().build();
   }
@@ -138,16 +148,14 @@ public class ReportingFlowResource {
       })
   @GET
   @Path("/{id}")
-  public GetIdResponse get(@PathParam("id") String id) {
-    log.infof("Get reporting by id [%s]", id);
+  public GetIdResponse getReportingFlowNotPayments(@PathParam("id") String id) {
+    log.infof("Get reporting flow by id [%s]", id);
 
     // validation
     validator.validateGet(id);
 
     // get from db
-    ReportingFlowGetDto byId = service.findById(id);
-
-    return mapper.toGetIdResponse(byId);
+    return mapper.toGetIdResponse(service.findById(id));
   }
 
   @Operation(
@@ -169,29 +177,19 @@ public class ReportingFlowResource {
       })
   @GET
   @Path("/{id}/payment")
-  public GetPaymentResponse getPayment(
+  public GetPaymentResponse getReportingFlowOnlyPayments(
       @PathParam("id") String id,
-      @QueryParam("page")
-          @DefaultValue("1")
-          @Min(
-              value = 1,
-              message = "reporting-flow.getAllByEc.pageNumber.min|${validatedValue}|{value}")
-          int pageNumber,
-      @QueryParam("size")
-          @DefaultValue("50")
-          @Min(
-              value = 1,
-              message = "reporting-flow.getAllByEc.pageSize.min|${validatedValue}|{value}")
-          int pageSize) {
-    log.infof("Get reporting by id [%s]", id);
+      @QueryParam("page") @DefaultValue("1") @Min(value = 1) int pageNumber,
+      @QueryParam("size") @DefaultValue("50") @Min(value = 1) int pageSize) {
+    log.infof(
+        "Get payment of reporting flow by id [%s] - page: [%s], pageSize: [%s]",
+        id, pageNumber, pageSize);
 
     // validation
     validator.validateGet(id);
 
     // get from db
-    ReportingFlowGetPaymentDto byId = service.findPaymentById(id, pageNumber, pageSize);
-
-    return mapper.toGetPaymentResponse(byId);
+    return mapper.toGetPaymentResponse(service.findPaymentById(id, pageNumber, pageSize));
   }
 
   @Operation(
@@ -213,76 +211,21 @@ public class ReportingFlowResource {
       })
   @GET
   @Path("/all-id-by-ec/{idEc}")
-  public GetAllResponse getAllByEc(
+  public GetAllResponse getReportingFlowOnlyId(
       @PathParam("idEc") String idEc,
-      @QueryParam("idPsp") String idPsp,
-      @QueryParam("page")
-          @DefaultValue("1")
-          @Min(
-              value = 1,
-              message = "reporting-flow.getAllByEc.pageNumber.min|${validatedValue}|{value}")
-          int pageNumber,
-      @QueryParam("size")
-          @DefaultValue("50")
-          @Min(
-              value = 1,
-              message = "reporting-flow.getAllByEc.pageSize.min|${validatedValue}|{value}")
-          int pageSize) {
+      @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
+      @QueryParam("page") @DefaultValue("1") @Min(value = 1) int pageNumber,
+      @QueryParam("size") @DefaultValue("50") @Min(value = 1) int pageSize) {
 
-    log.infof("Get all reporting by idEc [%s]", idEc);
+    log.infof(
+        "Get id of reporting flow by idEc [%s], idPsp [%s] - page: [%s], pageSize: [%s]",
+        idEc, idPsp, pageNumber, pageSize);
 
     // validation
-    validator.validateGetAllByEc(idEc);
+    validator.validateGetAllByEc(idEc, idPsp);
 
     // get from db
-    ReportingFlowByIdEcDto reportingFlowByIdEcDto =
-        service.findByIdEc(idEc, idPsp, pageNumber, pageSize);
 
-    return mapper.toGetAllResponse(reportingFlowByIdEcDto);
+    return mapper.toGetAllResponse(service.findByIdEc(idEc, idPsp, pageNumber, pageSize));
   }
-
-  //  @POST
-  //  @Path("/p/{id}/payments/add")
-  //  public ModifyPaymentResponse paymentAdd(
-  //      @PathParam("id") Long id,
-  //      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
-  //          ModifyPaymentRequest modifyPaymentRequest) {
-  //    return ModifyPaymentResponse.builder().id("").build();
-  //  }
-  //
-  //  @PUT
-  //  @Path("/p/{id}/payments/update")
-  //  public ModifyPaymentResponse paymentUpdate(
-  //      @PathParam("id") Long id,
-  //      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
-  //          ModifyPaymentRequest modifyPaymentRequest) {
-  //    return ModifyPaymentResponse.builder().id("").build();
-  //  }
-  //
-  //  @DELETE
-  //  @Path("/p/{id}/payments/delete")
-  //  public ModifyPaymentResponse paymentDelete(
-  //      @PathParam("id") Long id,
-  //      @NotNull(message = "reporting-flow.modify.req.not-null") @Valid
-  //          ModifyPaymentRequest modifyPaymentRequest) {
-  //    return ModifyPaymentResponse.builder().id("").build();
-  //  }
-  //
-  //  @DELETE
-  //  @Path("/p/{id}/delete")
-  //  public DeleteResponse delete(
-  //      @PathParam("id") Long id,
-  //      @NotNull(message = "reporting-flow.delete.req.not-null") @Valid DeleteRequest
-  // deleteRequest) {
-  //    return DeleteResponse.builder().id("").build();
-  //  }
-  //
-  //  @PUT
-  //  @Path("/p/{id}/confirm")
-  //  public ConfirmResponse confirm(
-  //      @PathParam("id") Long id,
-  //      @NotNull(message = "reporting-flow.confirm.req.not-null") @Valid
-  //          ConfirmRequest confirmRequest) {
-  //    return ConfirmResponse.builder().id("").build();
-  //  }
 }

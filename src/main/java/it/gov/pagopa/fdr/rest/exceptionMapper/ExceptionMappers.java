@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.rest.exceptionMapper;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -29,6 +31,13 @@ public class ExceptionMappers {
 
   @ServerExceptionMapper
   public Response mapWebApplicationException(WebApplicationException webApplicationException) {
+    if (webApplicationException.getCause() instanceof JsonMappingException) {
+      return mapJsonMappingException((JsonMappingException) webApplicationException.getCause())
+          .toResponse();
+    } else if (webApplicationException.getCause() instanceof JsonParseException) {
+      return mapJsonParseException((JsonParseException) webApplicationException.getCause())
+          .toResponse();
+    }
     return webApplicationException.getResponse();
   }
 
@@ -51,10 +60,60 @@ public class ExceptionMappers {
             .build());
   }
 
+  private RestResponse<ErrorResponse> mapJsonMappingException(
+      JsonMappingException jsonMappingException) {
+    // quando jackson riesce a parsare il messaggio perchè non formato json valido
+
+    AppException appEx =
+        new AppException(
+            jsonMappingException, AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT);
+
+    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    RestResponse.Status status = codeMessage.httpStatus();
+
+    return RestResponse.status(
+        codeMessage.httpStatus(),
+        ErrorResponse.builder()
+            .httpStatusCode(status.getStatusCode())
+            .httpStatusDescription(status.getReasonPhrase())
+            .appErrorCode(codeMessage.errorCode())
+            .errors(
+                List.of(
+                    ErrorResponse.ErrorMessage.builder()
+                        .message(codeMessage.message(appEx.getArgs()))
+                        .build()))
+            .build());
+  }
+
+  private RestResponse<ErrorResponse> mapJsonParseException(JsonParseException jsonParseException) {
+    // quando jackson riesce a parsare il messaggio perchè non formato json valido
+
+    AppException appEx =
+        new AppException(
+            jsonParseException, AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT);
+
+    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    RestResponse.Status status = codeMessage.httpStatus();
+
+    return RestResponse.status(
+        codeMessage.httpStatus(),
+        ErrorResponse.builder()
+            .httpStatusCode(status.getStatusCode())
+            .httpStatusDescription(status.getReasonPhrase())
+            .appErrorCode(codeMessage.errorCode())
+            .errors(
+                List.of(
+                    ErrorResponse.ErrorMessage.builder()
+                        .message(codeMessage.message(appEx.getArgs()))
+                        .build()))
+            .build());
+  }
+
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapInvalidFormatException(
       InvalidFormatException invalidFormatException) {
-
+    // quando jackson riesce a parsare il messaggio per popolare il bean ma i valori NON sono
+    // corretti
     String field =
         invalidFormatException.getPath().stream()
             .map(Reference::getFieldName)
@@ -120,7 +179,7 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapMismatchedInputException(
       MismatchedInputException mismatchedInputException) {
-
+    // quando jackson NON riesce a parsare il messaggio per popolare il bean
     String field =
         mismatchedInputException.getPath().stream()
             .map(Reference::getFieldName)
@@ -213,14 +272,14 @@ public class ExceptionMappers {
 
   private String convertMessageKey(ConstraintViolation constraintViolation) {
     String originalMessageKey = constraintViolation.getMessage();
-
-    if (!originalMessageKey.contains("|")) {
-      return AppMessageUtil.getMessage(originalMessageKey);
-    } else {
-      String[] messageToEvaluateSplit = originalMessageKey.split("\\|", 2);
-      String messageKey = messageToEvaluateSplit[0];
-      String[] args = messageToEvaluateSplit[1].split("\\|");
-      return AppMessageUtil.getMessage(messageKey, args);
-    }
+    //    return originalMessageKey;
+    //    if (!originalMessageKey.contains("|")) {
+    return AppMessageUtil.getMessage(originalMessageKey);
+    //    } else {
+    //      String[] messageToEvaluateSplit = originalMessageKey.split("\\|", 2);
+    //      String messageKey = messageToEvaluateSplit[0];
+    //      String[] args = messageToEvaluateSplit[1].split("\\|");
+    //      return AppMessageUtil.getMessage(messageKey, args);
+    //    }
   }
 }

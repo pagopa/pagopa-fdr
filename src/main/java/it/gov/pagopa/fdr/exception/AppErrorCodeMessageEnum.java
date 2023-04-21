@@ -16,6 +16,8 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
 
   BAD_REQUEST_INPUT_JSON_DESERIALIZE_ERROR(
       "0404", "bad.request.inputJson.deserialize", RestResponse.Status.BAD_REQUEST),
+  BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT(
+      "0405", "bad.request.inputJson.notValidJsonFormat", RestResponse.Status.BAD_REQUEST),
 
   REPORTING_FLOW_NOT_FOUND("0701", "reporting-flow.notFound", RestResponse.Status.NOT_FOUND),
   REPORTING_FLOW_ID_INVALID("0702", "reporting-flow.idInvalid", Status.BAD_REQUEST);

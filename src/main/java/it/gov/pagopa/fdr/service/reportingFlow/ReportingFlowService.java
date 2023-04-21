@@ -82,6 +82,36 @@ public class ReportingFlowService {
   }
 
   @WithSpan(kind = SERVER)
+  public void confirm(String id) {
+    log.debugf("Confirm reporting flow");
+
+    Instant now = Instant.now();
+
+    if (!ObjectId.isValid(id)) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
+    }
+    ObjectId reportingFlowId = new ObjectId(id);
+
+    Optional<ReportingFlow> byIdOptional = ReportingFlow.findByIdOptional(reportingFlowId);
+    ReportingFlow flow =
+        byIdOptional.orElseThrow(
+            () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+
+    flow.updated = now;
+    flow.status = ReportingFlowStatusEnum.CONFIRM;
+
+    //    ReportingFlow deepCopy = (ReportingFlow) SerializationUtils.clone(flow);
+    //    deepCopy.history = null;
+    //    if (flow.history == null) {
+    //      flow.history = Collections.singletonList(deepCopy);
+    //    } else {
+    //      flow.history.add(deepCopy);
+    //    }
+
+    flow.update();
+  }
+
+  @WithSpan(kind = SERVER)
   public ReportingFlowGetDto findById(String id) {
     log.debugf("Get data from DB");
 
@@ -229,19 +259,5 @@ public class ReportingFlowService {
         .count(countReportingFlow)
         .data(reportingFlowIds.stream().map(rf -> rf.id.toString()).toList())
         .build();
-  }
-
-  @WithSpan(kind = SERVER)
-  public void confirm(String id) {
-    log.debugf("Update status id: [%s]", id);
-
-    Optional<ReportingFlow> byIdOptional = ReportingFlow.findByIdOptional(id);
-    ReportingFlow flow =
-        byIdOptional.orElseThrow(
-            () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
-
-    flow.status = ReportingFlowStatusEnum.CONFIRM;
-
-    flow.persist();
   }
 }

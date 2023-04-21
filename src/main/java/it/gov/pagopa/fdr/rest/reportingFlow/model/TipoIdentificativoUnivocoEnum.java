@@ -5,7 +5,7 @@ import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Jacksonized
-public enum TipoIdentificativoUnivoco {
+public enum TipoIdentificativoUnivocoEnum {
   PERSONA_GIURIDICA,
   CODICE_ABI,
   CODICE_BIC;

@@ -25,12 +25,17 @@ public class ReportingFlowValidationService {
   }
 
   @WithSpan(kind = SERVER)
+  public void validateConfirm(String id) {
+    log.debug("Validate confirm");
+  }
+
+  @WithSpan(kind = SERVER)
   public void validateGet(String id) {
     log.debug("Validate get");
   }
 
   @WithSpan(kind = SERVER)
-  public void validateGetAllByEc(String idEc) {
+  public void validateGetAllByEc(String idEc, String idPsp) {
     log.debug("Validate get all by ec");
   }
 }

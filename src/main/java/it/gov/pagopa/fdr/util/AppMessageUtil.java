@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.util;
 
-import io.quarkus.logging.Log;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Optional;
@@ -32,8 +31,7 @@ public class AppMessageUtil {
     try {
       return getBundle(locale).getString(messageKey);
     } catch (Exception e) {
-      Log.error(String.format("Error while getting message for messageKey [%s]", messageKey), e);
-      return String.format("messageKey [%s] not found !!!", messageKey);
+      return messageKey;
     }
   }
 }

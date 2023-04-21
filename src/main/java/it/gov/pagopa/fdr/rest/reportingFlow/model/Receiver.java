@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
@@ -12,18 +12,17 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Jacksonized
 public class Receiver {
 
-  @NotNull(message = "reporting-flow.create.receiver.id.notNull")
-  @NotBlank(message = "reporting-flow.create.receiver.id.notBlank|${validatedValue}")
+  @NotNull
+  @Pattern(regexp = "^\\w+$")
   @Schema(example = "APPBIT2B")
   private String id;
 
-  @NotNull(message = "reporting-flow.create.receiver.idEc.notNull")
-  @NotBlank(message = "reporting-flow.create.receiver.idEc.notBlank|${validatedValue}")
+  @NotNull
+  @Pattern(regexp = "^\\w+$")
   @Schema(example = "20000000001")
   private String idEc;
 
-  @NotNull(message = "reporting-flow.create.receiver.nameEc.notNull")
-  @NotBlank(message = "reporting-flow.create.receiver.nameEc.notBlank|${validatedValue}")
+  @NotNull
   @Schema(example = "Comune di xyz")
   private String nameEc;
 }
