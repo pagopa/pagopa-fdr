@@ -10,6 +10,7 @@ import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlow;
+import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowRevision;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowId;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowNoPayment;
@@ -41,108 +42,77 @@ public class ReportingFlowService {
   @WithSpan(kind = SERVER)
   public String save(ReportingFlowDto reportingFlowDto) {
     log.debugf("Save data on DB");
-
     Instant now = Instant.now();
 
     ReportingFlow reportingFlow = mapper.toReportingFlow(reportingFlowDto);
     reportingFlow.created = now;
+
     reportingFlow.updated = now;
     reportingFlow.status = ReportingFlowStatusEnum.NEW_LOAD;
 
+    reportingFlow.revision = 1L;
+    ReportingFlowRevision reportingFlowRevision = mapper.toReportingFlowRevision(reportingFlow);
+
+    reportingFlowRevision.persist();
     reportingFlow.persist();
+
     return reportingFlow.id.toString();
   }
 
   @WithSpan(kind = SERVER)
   public void addPayment(String id, AddPaymentDto addPaymentDto) {
     log.debugf("Save add payment on DB");
-
     Instant now = Instant.now();
 
-    if (!ObjectId.isValid(id)) {
-      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
-    }
-    ObjectId reportingFlowId = new ObjectId(id);
+    ReportingFlow reportingFlow = fetch(id, ReportingFlow.class);
 
-    Optional<ReportingFlow> byIdOptional = ReportingFlow.findByIdOptional(reportingFlowId);
-    ReportingFlow flow =
-        byIdOptional.orElseThrow(
-            () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
-
-    if (flow.payments == null) {
-      flow.payments = mapper.toPagamentos(addPaymentDto.getPayments());
+    if (reportingFlow.payments == null) {
+      reportingFlow.payments = mapper.toPagamentos(addPaymentDto.getPayments());
     } else {
-      flow.payments.addAll(mapper.toPagamentos(addPaymentDto.getPayments()));
+      reportingFlow.payments.addAll(mapper.toPagamentos(addPaymentDto.getPayments()));
     }
 
-    flow.updated = now;
-    flow.status = ReportingFlowStatusEnum.ADD_PAYMENT;
+    reportingFlow.updated = now;
+    reportingFlow.status = ReportingFlowStatusEnum.ADD_PAYMENT;
 
-    flow.update();
+    reportingFlow.revision = reportingFlow.revision + 1;
+    ReportingFlowRevision reportingFlowRevision = mapper.toReportingFlowRevision(reportingFlow);
+
+    reportingFlowRevision.persist();
+    reportingFlow.update();
   }
 
   @WithSpan(kind = SERVER)
   public void confirm(String id) {
     log.debugf("Confirm reporting flow");
-
     Instant now = Instant.now();
 
-    if (!ObjectId.isValid(id)) {
-      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
-    }
-    ObjectId reportingFlowId = new ObjectId(id);
+    ReportingFlow reportingFlow = fetch(id, ReportingFlow.class);
 
-    Optional<ReportingFlow> byIdOptional = ReportingFlow.findByIdOptional(reportingFlowId);
-    ReportingFlow flow =
-        byIdOptional.orElseThrow(
-            () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+    reportingFlow.updated = now;
+    reportingFlow.status = ReportingFlowStatusEnum.CONFIRM;
 
-    flow.updated = now;
-    flow.status = ReportingFlowStatusEnum.CONFIRM;
+    reportingFlow.revision = reportingFlow.revision + 1;
+    ReportingFlowRevision reportingFlowRevision = mapper.toReportingFlowRevision(reportingFlow);
 
-    //    ReportingFlow deepCopy = (ReportingFlow) SerializationUtils.clone(flow);
-    //    deepCopy.history = null;
-    //    if (flow.history == null) {
-    //      flow.history = Collections.singletonList(deepCopy);
-    //    } else {
-    //      flow.history.add(deepCopy);
-    //    }
-
-    flow.update();
+    reportingFlowRevision.persist();
+    reportingFlow.update();
   }
 
   @WithSpan(kind = SERVER)
   public ReportingFlowGetDto findById(String id) {
     log.debugf("Get data from DB");
 
-    if (!ObjectId.isValid(id)) {
-      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
-    }
-    ObjectId reportingFlowId = new ObjectId(id);
+    ReportingFlowNoPayment reportingFlowNoPayment = fetch(id, ReportingFlowNoPayment.class);
 
-    Optional<ReportingFlowNoPayment> reportingFlow =
-        ReportingFlow.find("_id", reportingFlowId)
-            .project(ReportingFlowNoPayment.class)
-            .firstResultOptional();
-
-    return reportingFlow
-        .map(rf -> mapper.toReportingFlowGetDto(rf))
-        .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+    return mapper.toReportingFlowGetDto(reportingFlowNoPayment);
   }
 
   @WithSpan(kind = SERVER)
   public ReportingFlowGetPaymentDto findPaymentById(String id, int pageNumber, int pageSize) {
     log.debugf("Get data from DB");
 
-    if (!ObjectId.isValid(id)) {
-      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
-    }
-
-    ReportingFlowOnlyPayment reportingFlowOnlyPayment =
-        getSlicePayment(id, pageNumber, pageSize)
-            .orElseThrow(
-                () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
-    ;
+    ReportingFlowOnlyPayment reportingFlowOnlyPayment = fetchSlicePayment(id, pageNumber, pageSize);
 
     long count = reportingFlowOnlyPayment.count;
     int totPage = (int) Math.ceil(count / (double) pageSize);
@@ -161,70 +131,6 @@ public class ReportingFlowService {
             .build();
 
     return reportingFlowGetPaymentDto;
-  }
-
-  private Optional<ReportingFlowOnlyPayment> getSlicePayment(
-      String id, long pageNumber, long pageSize) {
-    long skip = (pageNumber - 1) * pageSize;
-    List<Document> aggregate =
-        Arrays.asList(
-            new Document("$match", new Document("_id", new ObjectId(id))),
-            new Document(
-                "$project",
-                new Document(
-                    "payments",
-                    new Document(
-                        "$sortArray",
-                        new Document(
-                                "input",
-                                new Document(
-                                    "$ifNull", Arrays.asList("$payments", Arrays.asList())))
-                            .append(
-                                "sortBy", new Document("identificativoUnivocoVersamento", 1L))))),
-            new Document(
-                "$addFields",
-                new Document("count", new Document("$size", "$payments"))
-                    .append(
-                        "sum",
-                        new Document(
-                            "$toDecimal", new Document("$sum", "$payments.singoloImportoPagato")))),
-            new Document(
-                "$project",
-                new Document("count", 1L)
-                    .append("sum", 1L)
-                    .append(
-                        "payments",
-                        new Document("$slice", Arrays.asList("$payments", skip, pageSize)))));
-
-    ReportingFlowOnlyPayment reportingFlowOnlyPayment =
-        ReportingFlow.mongoCollection()
-            .aggregate(aggregate, ReportingFlowOnlyPayment.class)
-            .first();
-    return Optional.ofNullable(reportingFlowOnlyPayment);
-  }
-
-  private Sort getSort(List<String> sortColumn) {
-    Sort sort = Sort.empty();
-    if (sortColumn != null && sortColumn.size() > 0) {
-      sortColumn.stream()
-          .filter(s -> s.replace(",", "").isBlank())
-          .forEach(
-              a -> {
-                String[] split = a.split(",");
-                String column = split[0].trim();
-                String direction = split[1].trim();
-                if (!column.isBlank()) {
-                  if (direction.equalsIgnoreCase("asc")) {
-                    sort.and(column, Direction.Ascending);
-                  } else if (direction.equalsIgnoreCase("desc")) {
-                    sort.and(column, Direction.Descending);
-                  } else {
-                    sort.and(column);
-                  }
-                }
-              });
-    }
-    return sort;
   }
 
   @WithSpan(kind = SERVER)
@@ -259,5 +165,88 @@ public class ReportingFlowService {
         .count(countReportingFlow)
         .data(reportingFlowIds.stream().map(rf -> rf.id.toString()).toList())
         .build();
+  }
+
+  private Sort getSort(List<String> sortColumn) {
+    Sort sort = Sort.empty();
+    if (sortColumn != null && sortColumn.size() > 0) {
+      sortColumn.stream()
+          .filter(s -> s.replace(",", "").isBlank())
+          .forEach(
+              a -> {
+                String[] split = a.split(",");
+                String column = split[0].trim();
+                String direction = split[1].trim();
+                if (!column.isBlank()) {
+                  if (direction.equalsIgnoreCase("asc")) {
+                    sort.and(column, Direction.Ascending);
+                  } else if (direction.equalsIgnoreCase("desc")) {
+                    sort.and(column, Direction.Descending);
+                  } else {
+                    sort.and(column);
+                  }
+                }
+              });
+    }
+    return sort;
+  }
+
+  private ObjectId getObjectId(String id) {
+    if (!ObjectId.isValid(id)) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_ID_INVALID, id);
+    }
+    return new ObjectId(id);
+  }
+
+  private <T> T fetch(String id, Class<T> clazz) {
+    ObjectId objectId = getObjectId(id);
+    Optional<T> reportingFlowOptional =
+        ReportingFlow.find("_id", objectId).project(clazz).firstResultOptional();
+    T reportingFlow =
+        reportingFlowOptional.orElseThrow(
+            () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
+    return reportingFlow;
+  }
+
+  private ReportingFlowOnlyPayment fetchSlicePayment(String id, long pageNumber, long pageSize) {
+    ObjectId objectId = getObjectId(id);
+    long skip = (pageNumber - 1) * pageSize;
+    List<Document> aggregate =
+        Arrays.asList(
+            new Document("$match", new Document("_id", objectId)),
+            new Document(
+                "$project",
+                new Document(
+                    "payments",
+                    new Document(
+                        "$sortArray",
+                        new Document(
+                                "input",
+                                new Document(
+                                    "$ifNull", Arrays.asList("$payments", Arrays.asList())))
+                            .append(
+                                "sortBy", new Document("identificativoUnivocoVersamento", 1L))))),
+            new Document(
+                "$addFields",
+                new Document("count", new Document("$size", "$payments"))
+                    .append(
+                        "sum",
+                        new Document(
+                            "$toDecimal", new Document("$sum", "$payments.singoloImportoPagato")))),
+            new Document(
+                "$project",
+                new Document("count", 1L)
+                    .append("sum", 1L)
+                    .append(
+                        "payments",
+                        new Document("$slice", Arrays.asList("$payments", skip, pageSize)))));
+
+    ReportingFlowOnlyPayment reportingFlowOnlyPayment =
+        ReportingFlow.mongoCollection()
+            .aggregate(aggregate, ReportingFlowOnlyPayment.class)
+            .first();
+
+    return Optional.ofNullable(reportingFlowOnlyPayment)
+        .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
   }
 }
