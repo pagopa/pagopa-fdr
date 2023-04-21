@@ -117,20 +117,17 @@ public class ReportingFlowService {
     long count = reportingFlowOnlyPayment.count;
     int totPage = (int) Math.ceil(count / (double) pageSize);
 
-    ReportingFlowGetPaymentDto reportingFlowGetPaymentDto =
-        ReportingFlowGetPaymentDto.builder()
-            .metadata(
-                MetadataDto.builder()
-                    .pageSize(pageSize)
-                    .pageNumber(pageNumber)
-                    .totPage(totPage)
-                    .build())
-            .count(count)
-            .sum(reportingFlowOnlyPayment.sum)
-            .data(mapper.toPagamentoDtos(reportingFlowOnlyPayment.payments))
-            .build();
-
-    return reportingFlowGetPaymentDto;
+    return ReportingFlowGetPaymentDto.builder()
+        .metadata(
+            MetadataDto.builder()
+                .pageSize(pageSize)
+                .pageNumber(pageNumber)
+                .totPage(totPage)
+                .build())
+        .count(count)
+        .sum(reportingFlowOnlyPayment.sum)
+        .data(mapper.toPagamentoDtos(reportingFlowOnlyPayment.payments))
+        .build();
   }
 
   @WithSpan(kind = SERVER)
@@ -139,9 +136,9 @@ public class ReportingFlowService {
     log.debugf("Get all data from DB");
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(Arrays.asList("_id,asc"));
+    Sort sort = getSort(List.of("_id,asc"));
 
-    PanacheQuery<ReportingFlow> reportingFlowPanacheQuery = null;
+    PanacheQuery<ReportingFlow> reportingFlowPanacheQuery;
     if (idPsp == null || idPsp.isBlank()) {
       reportingFlowPanacheQuery = ReportingFlow.find("receiver.idEc", sort, idEc);
     } else {
@@ -202,10 +199,8 @@ public class ReportingFlowService {
     ObjectId objectId = getObjectId(id);
     Optional<T> reportingFlowOptional =
         ReportingFlow.find("_id", objectId).project(clazz).firstResultOptional();
-    T reportingFlow =
-        reportingFlowOptional.orElseThrow(
-            () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
-    return reportingFlow;
+    return reportingFlowOptional.orElseThrow(
+        () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
   }
 
   private ReportingFlowOnlyPayment fetchSlicePayment(String id, long pageNumber, long pageSize) {
@@ -222,8 +217,7 @@ public class ReportingFlowService {
                         "$sortArray",
                         new Document(
                                 "input",
-                                new Document(
-                                    "$ifNull", Arrays.asList("$payments", Arrays.asList())))
+                                new Document("$ifNull", Arrays.asList("$payments", List.of())))
                             .append(
                                 "sortBy", new Document("identificativoUnivocoVersamento", 1L))))),
             new Document(
