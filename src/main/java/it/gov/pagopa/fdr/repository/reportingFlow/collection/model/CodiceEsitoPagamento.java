@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.reportingFlow;
+package it.gov.pagopa.fdr.repository.reportingFlow.collection.model;
 
 public enum CodiceEsitoPagamento {
   PAGAMENTO_ESEGUITO,

@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.info.response;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
+@JsonPropertyOrder({"name", "version", "environment", "description", "errorCodes"})
 public class InfoResponse {
   @Schema(example = "pagopa-fdr")
   private String name;

@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.repository.reportingFlow.projection;
 
-import it.gov.pagopa.fdr.repository.reportingFlow.Pagamento;
+import it.gov.pagopa.fdr.repository.reportingFlow.collection.model.Pagamento;
 import java.math.BigDecimal;
 import java.util.List;
 

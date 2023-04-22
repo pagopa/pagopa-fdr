@@ -271,7 +271,6 @@ public class ReportingFlowResource {
     validator.validateGetAllByEc(idEc, idPsp);
 
     // get from db
-
     return mapper.toGetAllResponse(service.findByIdEc(idEc, idPsp, pageNumber, pageSize));
   }
 }

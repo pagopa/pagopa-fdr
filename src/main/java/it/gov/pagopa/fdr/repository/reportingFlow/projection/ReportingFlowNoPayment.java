@@ -1,10 +1,10 @@
 package it.gov.pagopa.fdr.repository.reportingFlow.projection;
 
 import io.quarkus.mongodb.panache.common.ProjectionFor;
-import it.gov.pagopa.fdr.repository.reportingFlow.Receiver;
-import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlow;
-import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.repository.reportingFlow.Sender;
+import it.gov.pagopa.fdr.repository.reportingFlow.collection.ReportingFlow;
+import it.gov.pagopa.fdr.repository.reportingFlow.collection.model.Receiver;
+import it.gov.pagopa.fdr.repository.reportingFlow.collection.model.ReportingFlowStatusEnum;
+import it.gov.pagopa.fdr.repository.reportingFlow.collection.model.Sender;
 import java.time.Instant;
 import org.bson.types.ObjectId;
 

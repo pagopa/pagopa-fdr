@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.reportingFlow;
+package it.gov.pagopa.fdr.repository.reportingFlow.collection.model;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import java.time.Instant;
