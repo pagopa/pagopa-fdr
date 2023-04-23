@@ -14,33 +14,33 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
-public class Pagamento {
+public class Payment {
 
   @NotNull
   @Pattern(regexp = "^\\w+$")
   @Schema(example = "abcdefg")
-  private String identificativoUnivocoVersamento;
+  private String iuv;
 
   @NotNull
   @Pattern(regexp = "^\\w+$")
   @Schema(example = "abcdefg")
-  private String identificativoUnivocoRiscossione;
+  private String iur;
 
   @NotNull
   @Schema(example = "1")
-  private Long indiceDatiSingoloPagamento;
+  private Long index;
 
   @NotNull
   @DecimalMin(value = "0.0", inclusive = false)
   @Digits(integer = Integer.MAX_VALUE, fraction = 2)
   @Schema(example = "0.01")
-  private BigDecimal singoloImportoPagato;
+  private BigDecimal payed;
 
   @NotNull
   @Schema(example = "PAGAMENTO_ESEGUITO")
-  private CodiceEsitoPagamentoEnum codiceEsitoSingoloPagamento;
+  private PaymentStatus status;
 
   @NotNull
   @Schema(example = "2023-02-03T12:00:30.900000Z")
-  private Instant dataEsitoSingoloPagamento;
+  private Instant payedDate;
 }

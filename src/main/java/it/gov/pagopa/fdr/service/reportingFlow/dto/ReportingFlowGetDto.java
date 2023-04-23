@@ -8,24 +8,25 @@ import lombok.Getter;
 @Builder
 public class ReportingFlowGetDto {
 
-  public String id;
+  public Long revision;
+
+  public Instant created;
+
+  public Instant updated;
 
   public ReportingFlowStatusEnumDto status;
 
-  public Instant created;
-  public Instant updated;
+  private String reportingFlowName;
 
-  public Long revision;
-
-  public String reportingFlow;
-
-  public Instant dateReportingFlow;
+  private Instant reportingFlowDate;
 
   private SenderDto sender;
+
   private ReceiverDto receiver;
 
   private String regulation;
-  private Instant dateRegulation;
+
+  private Instant regulationDate;
 
   private String bicCodePouringBank;
 }

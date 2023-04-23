@@ -1,11 +1,10 @@
 package it.gov.pagopa.fdr.util.validation;
 
+import it.gov.pagopa.fdr.rest.reportingFlow.model.Payment;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class ListSizeValidator
-    implements ConstraintValidator<
-        ListSize, java.util.List<it.gov.pagopa.fdr.rest.reportingFlow.model.Pagamento>> {
+public class ListSizeValidator implements ConstraintValidator<ListSize, java.util.List<Payment>> {
 
   private int min;
   private int max;
@@ -18,9 +17,7 @@ public class ListSizeValidator
   }
 
   @Override
-  public boolean isValid(
-      java.util.List<it.gov.pagopa.fdr.rest.reportingFlow.model.Pagamento> value,
-      ConstraintValidatorContext context) {
+  public boolean isValid(java.util.List<Payment> value, ConstraintValidatorContext context) {
     if (value == null) {
       return true;
     }

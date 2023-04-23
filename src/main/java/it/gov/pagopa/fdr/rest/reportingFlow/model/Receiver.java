@@ -20,9 +20,9 @@ public class Receiver {
   @NotNull
   @Pattern(regexp = "^\\w+$")
   @Schema(example = "20000000001")
-  private String idEc;
+  private String ecId;
 
   @NotNull
   @Schema(example = "Comune di xyz")
-  private String nameEc;
+  private String ecName;
 }

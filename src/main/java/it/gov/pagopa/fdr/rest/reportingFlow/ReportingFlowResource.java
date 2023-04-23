@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.rest.reportingFlow;
 import it.gov.pagopa.fdr.rest.reportingFlow.mapper.ReportingFlowDtoServiceMapper;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.response.CreateResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetPaymentResponse;
@@ -65,20 +64,20 @@ public class ReportingFlowResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = CreateResponse.class)))
+                    schema = @Schema(implementation = Response.class)))
       })
   @POST
-  public CreateResponse createReportingFlow(@NotNull @Valid CreateRequest createRequest) {
+  public Response createReportingFlow(@NotNull @Valid CreateRequest createRequest) {
 
-    log.infof("Create reporting flow [%s]", createRequest.getReportingFlow());
+    log.infof("Create reporting flow [%s]", createRequest.getReportingFlowName());
 
     // validation
     validator.validateCreate(createRequest);
 
     // save on DB
-    String id = service.save(mapper.toReportingFlowDto(createRequest));
+    service.save(mapper.toReportingFlowDto(createRequest));
 
-    return CreateResponse.builder().id(id).build();
+    return Response.ok().build();
   }
 
   @Operation(
@@ -161,16 +160,16 @@ public class ReportingFlowResource {
                     schema = @Schema(implementation = Response.class)))
       })
   @DELETE
-  @Path("/{id}")
-  public Response deleteReportingFlow(@PathParam("id") String id) {
+  @Path("/{reportingFlowName}")
+  public Response deleteReportingFlow(@PathParam("reportingFlowName") String reportingFlowName) {
 
-    log.infof("Delete reporting flow [%s]", id);
+    log.infof("Delete reporting flow [%s]", reportingFlowName);
 
     // validation
-    validator.validateDelete(id);
+    validator.validateDelete(reportingFlowName);
 
     // save on DB
-    service.delete(id);
+    service.deleteByReportingFlowName(reportingFlowName);
 
     return Response.ok().build();
   }
@@ -193,15 +192,16 @@ public class ReportingFlowResource {
                     schema = @Schema(implementation = GetIdResponse.class)))
       })
   @GET
-  @Path("/{id}")
-  public GetIdResponse getReportingFlowNotPayments(@PathParam("id") String id) {
-    log.infof("Get reporting flow by id [%s]", id);
+  @Path("/{reportingFlowName}")
+  public GetIdResponse getReportingFlowNotPayments(
+      @PathParam("reportingFlowName") String reportingFlowName) {
+    log.infof("Get reporting flow by reportingFlowName [%s]", reportingFlowName);
 
     // validation
-    validator.validateGet(id);
+    validator.validateGet(reportingFlowName);
 
     // get from db
-    return mapper.toGetIdResponse(service.findById(id));
+    return mapper.toGetIdResponse(service.findByReportingFlowName(reportingFlowName));
   }
 
   @Operation(

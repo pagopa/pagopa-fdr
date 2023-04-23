@@ -8,14 +8,17 @@ import lombok.Getter;
 @Builder
 public class ReportingFlowDto {
 
-  public String reportingFlow;
-  public Instant dateReportingFlow;
+  private String reportingFlowName;
+
+  private Instant reportingFlowDate;
 
   private SenderDto sender;
+
   private ReceiverDto receiver;
 
   private String regulation;
-  private Instant dateRegulation;
+
+  private Instant regulationDate;
 
   private String bicCodePouringBank;
 }

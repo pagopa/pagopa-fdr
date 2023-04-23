@@ -13,7 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Jacksonized
 public class Sender {
 
-  @NotNull private TipoIdentificativoUnivocoEnum type;
+  @NotNull private SenderType type;
 
   @NotNull
   @Pattern(regexp = "^\\w+$")
@@ -23,22 +23,22 @@ public class Sender {
   @NotNull
   @Pattern(regexp = "^\\w+$")
   @Schema(example = "60000000001")
-  private String idPsp;
+  private String pspId;
 
   @NotNull
   @Pattern(regexp = "^\\S+$")
   @Schema(example = "Bank")
-  private String namePsp;
+  private String pspName;
 
   @NotNull
   @Pattern(regexp = "^\\w+$")
   @Schema(example = "70000000001")
-  private String idBroker;
+  private String brokerId;
 
   @NotNull
   @Pattern(regexp = "^\\w+$")
   @Schema(example = "80000000001")
-  private String idChannel;
+  private String channelId;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   @Pattern(regexp = "^\\S+$")

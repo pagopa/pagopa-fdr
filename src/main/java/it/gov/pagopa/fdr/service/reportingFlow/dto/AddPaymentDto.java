@@ -8,5 +8,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class AddPaymentDto {
 
-  private List<PagamentoDto> payments;
+  private List<PaymentDto> payments;
 }

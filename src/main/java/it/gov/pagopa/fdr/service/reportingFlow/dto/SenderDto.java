@@ -7,13 +7,17 @@ import lombok.Getter;
 @Builder
 public class SenderDto {
 
-  private TipoIdentificativoUnivocoDto type;
+  private SenderTypeDto type;
+
   private String id;
 
-  public String idPsp;
-  public String namePsp;
+  private String pspId;
 
-  private String idBroker;
-  private String idChannel;
+  private String pspName;
+
+  private String brokerId;
+
+  private String channelId;
+
   private String password;
 }

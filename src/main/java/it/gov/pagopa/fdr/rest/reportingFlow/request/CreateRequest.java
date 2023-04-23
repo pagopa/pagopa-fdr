@@ -18,11 +18,11 @@ public class CreateRequest {
   @NotNull
   @Pattern(regexp = "^\\S+$")
   @Schema(example = "60000000001-1173")
-  private String reportingFlow;
+  private String reportingFlowName;
 
   @NotNull
   @Schema(example = "2023-04-05T09:21:37.810000Z")
-  private Instant dateReportingFlow;
+  private Instant reportingFlowDate;
 
   @NotNull @Valid private Sender sender;
 
@@ -34,7 +34,7 @@ public class CreateRequest {
 
   @NotNull
   @Schema(example = "2023-04-03T12:00:30.900000Z")
-  private Instant dateRegulation;
+  private Instant regulationDate;
 
   @Schema(example = "UNCRITMMXXX")
   @Pattern(regexp = "^(\\w{8}|\\w{11})$")

@@ -15,5 +15,5 @@ public class ReportingFlowGetPaymentDto {
 
   private BigDecimal sum;
 
-  private List<PagamentoDto> data;
+  private List<PaymentDto> data;
 }

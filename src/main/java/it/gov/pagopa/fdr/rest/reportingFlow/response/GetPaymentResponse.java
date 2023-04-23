@@ -1,7 +1,8 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.response;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import it.gov.pagopa.fdr.rest.reportingFlow.model.Metadata;
-import it.gov.pagopa.fdr.rest.reportingFlow.model.Pagamento;
+import it.gov.pagopa.fdr.rest.reportingFlow.model.Payment;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
+@JsonPropertyOrder({"metadata", "count", "sum", "data"})
 public class GetPaymentResponse {
 
   private Metadata metadata;
@@ -22,5 +24,5 @@ public class GetPaymentResponse {
   @Schema(example = "100.90")
   private BigDecimal sum;
 
-  private List<Pagamento> data;
+  private List<Payment> data;
 }
