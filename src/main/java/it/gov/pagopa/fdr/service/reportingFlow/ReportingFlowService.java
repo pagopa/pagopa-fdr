@@ -3,14 +3,22 @@ package it.gov.pagopa.fdr.service.reportingFlow;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import io.quarkus.mongodb.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowEntity;
+import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentEntity;
+import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentRevisionEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowRevisionEntity;
+import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowPaymentStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowIdNameProjection;
+import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowNameProjection;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.AddPaymentDto;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
@@ -47,48 +55,54 @@ public class ReportingFlowService {
         (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
     reportingFlowEntity.persist();
 
-    ReportingFlowRevisionEntity reportingFlowRevision = getRevision(reportingFlowEntity);
+    ReportingFlowRevisionEntity reportingFlowRevision =
+        mapper.toReportingFlowRevision(reportingFlowEntity);
     reportingFlowRevision.persist();
   }
 
   @WithSpan(kind = SERVER)
-  public void addPayment(String id, AddPaymentDto addPaymentDto) {
+  public void addPayment(String reportingFlowName, AddPaymentDto addPaymentDto) {
     log.debugf("Save add payment on DB");
     Instant now = Instant.now();
 
-    //    ReportingFlowEntity reportingFlowEntity = fetch(id, ReportingFlowEntity.class);
+    ReportingFlowIdNameProjection reportingFlowEntity =
+        retrieve(reportingFlowName, ReportingFlowIdNameProjection.class);
 
-    //    if (reportingFlowEntity.payments == null) {
-    //      reportingFlowEntity.payments = mapper.toPagamentos(addPaymentDto.getPayments());
-    //    } else {
-    //      reportingFlowEntity.payments.addAll(mapper.toPagamentos(addPaymentDto.getPayments()));
-    //    }
+    List<ReportingFlowPaymentEntity> payments =
+        mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
+    payments.forEach(
+        p -> {
+          p.created = now;
 
-    //    reportingFlowEntity.updated = now;
-    //    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.ADD_PAYMENT;
-    //    reportingFlowEntity.revision = (reportingFlowEntity.revision == null) ? 1L :
-    // reportingFlowEntity.revision + 1;
-    //    reportingFlowEntity.update();
+          p.updated = now;
+          p.status = ReportingFlowPaymentStatusEnumEntity.ADD;
+          p.revision = (p.revision == null) ? 1L : p.revision + 1;
+          p.reporting_flow_id = reportingFlowEntity.id;
+          p.reporting_flow_name = reportingFlowEntity.reporting_flow_name;
+        });
+    ReportingFlowPaymentEntity.persist(payments);
 
-    //    ReportingFlowRevisionEntity reportingFlowRevision = getRevision(reportingFlowEntity);
-    //    reportingFlowRevision.persist();
+    List<ReportingFlowPaymentRevisionEntity> reportingFlowPaymentRevisionEntity =
+        mapper.toReportingFlowPaymentRevisionEntityList(payments);
+    ReportingFlowPaymentRevisionEntity.persist(reportingFlowPaymentRevisionEntity);
   }
 
   @WithSpan(kind = SERVER)
-  public void confirm(String id) {
+  public void confirmByReportingFlowName(String reportingFlowName) {
     log.debugf("Confirm reporting flow");
-    //    Instant now = Instant.now();
-    //
-    //    ReportingFlowEntity reportingFlowEntity = fetch(id, ReportingFlowEntity.class);
-    //
-    //    reportingFlowEntity.updated = now;
-    //    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CONFIRMED;
-    //    reportingFlowEntity.revision =
-    //        (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
-    //    reportingFlowEntity.update();
-    //
-    //    ReportingFlowRevisionEntity reportingFlowRevision = getRevision(reportingFlowEntity);
-    //    reportingFlowRevision.persist();
+    Instant now = Instant.now();
+
+    ReportingFlowEntity reportingFlowEntity = retrieve(reportingFlowName);
+
+    reportingFlowEntity.updated = now;
+    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CONFIRMED;
+    reportingFlowEntity.revision =
+        (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
+    reportingFlowEntity.update();
+
+    ReportingFlowRevisionEntity reportingFlowRevision =
+        mapper.toReportingFlowRevision(reportingFlowEntity);
+    reportingFlowRevision.persist();
   }
 
   @WithSpan(kind = SERVER)
@@ -104,7 +118,8 @@ public class ReportingFlowService {
         (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
     reportingFlowEntity.update();
 
-    ReportingFlowRevisionEntity reportingFlowRevision = getRevision(reportingFlowEntity);
+    ReportingFlowRevisionEntity reportingFlowRevision =
+        mapper.toReportingFlowRevision(reportingFlowEntity);
     reportingFlowRevision.persist();
   }
 
@@ -144,35 +159,34 @@ public class ReportingFlowService {
       String idEc, String idPsp, int pageNumber, int pageSize) {
     log.debugf("Get all data from DB");
 
-    //    Page page = Page.of(pageNumber - 1, pageSize);
-    //    Sort sort = getSort(List.of("_id,asc"));
-    //
-    //    PanacheQuery<ReportingFlowEntity> reportingFlowPanacheQuery;
-    //    if (idPsp == null || idPsp.isBlank()) {
-    //      reportingFlowPanacheQuery = ReportingFlowEntity.find("receiver.idEc", sort, idEc);
-    //    } else {
-    //      reportingFlowPanacheQuery =
-    //          ReportingFlowEntity.find(
-    //              "receiver.idEc = ?1 and sender.idPsp = ?2", sort, idEc, idPsp);
-    //    }
-    //    PanacheQuery<ReportingFlowId> reportingFlowIdPanacheQuery =
-    //        reportingFlowPanacheQuery.page(page).project(ReportingFlowId.class);
-    //    List<ReportingFlowId> reportingFlowIds = reportingFlowIdPanacheQuery.list();
-    //
-    //    int totPage = reportingFlowIdPanacheQuery.pageCount();
-    //    long countReportingFlow = reportingFlowIdPanacheQuery.count();
-    //
-    //    return ReportingFlowByIdEcDto.builder()
-    //        .metadata(
-    //            MetadataDto.builder()
-    //                .pageSize(pageSize)
-    //                .pageNumber(pageNumber)
-    //                .totPage(totPage)
-    //                .build())
-    //        .count(countReportingFlow)
-    //        .data(reportingFlowIds.stream().map(rf -> rf.id.toString()).toList())
-    //        .build();
-    return null;
+    Page page = Page.of(pageNumber - 1, pageSize);
+    Sort sort = getSort(List.of("_id,asc"));
+
+    PanacheQuery<ReportingFlowEntity> reportingFlowPanacheQuery;
+    if (idPsp == null || idPsp.isBlank()) {
+      reportingFlowPanacheQuery = ReportingFlowEntity.find("receiver.ec_id", sort, idEc);
+    } else {
+      reportingFlowPanacheQuery =
+          ReportingFlowEntity.find("receiver.ec_id = ?1 and sender.psp_id = ?2", sort, idEc, idPsp);
+    }
+    PanacheQuery<ReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
+        reportingFlowPanacheQuery.page(page).project(ReportingFlowNameProjection.class);
+    List<ReportingFlowNameProjection> reportingFlowIds =
+        reportingFlowNameProjectionPanacheQuery.list();
+
+    int totPage = reportingFlowNameProjectionPanacheQuery.pageCount();
+    long countReportingFlow = reportingFlowNameProjectionPanacheQuery.count();
+
+    return ReportingFlowByIdEcDto.builder()
+        .metadata(
+            MetadataDto.builder()
+                .pageSize(pageSize)
+                .pageNumber(pageNumber)
+                .totPage(totPage)
+                .build())
+        .count(countReportingFlow)
+        .data(reportingFlowIds.stream().map(rf -> rf.reporting_flow_name).toList())
+        .build();
   }
 
   private Sort getSort(List<String> sortColumn) {
@@ -200,23 +214,31 @@ public class ReportingFlowService {
   }
 
   private void abortIfExist(String reportingFlowName) {
-    if (getByReportingFlowName(reportingFlowName).isPresent()) {
+    if (getByReportingFlowName(reportingFlowName, ReportingFlowEntity.class).isPresent()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST, reportingFlowName);
     }
   }
 
   private ReportingFlowEntity retrieve(String reportingFlowName) {
-    return getByReportingFlowName(reportingFlowName)
+    return getByReportingFlowName(reportingFlowName, ReportingFlowEntity.class)
         .orElseThrow(
             () ->
                 new AppException(
                     AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
   }
 
-  private Optional<ReportingFlowEntity> getByReportingFlowName(String reportingFlowName) {
+  private <T> T retrieve(String reportingFlowName, Class<T> clazz) {
+    return getByReportingFlowName(reportingFlowName, clazz)
+        .orElseThrow(
+            () ->
+                new AppException(
+                    AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+  }
+
+  private <T> Optional<T> getByReportingFlowName(String reportingFlowName, Class<T> clazz) {
     return ReportingFlowEntity.find("reporting_flow_name", reportingFlowName)
-        .project(ReportingFlowEntity.class)
+        .project(clazz)
         .firstResultOptional();
   }
 
@@ -271,7 +293,4 @@ public class ReportingFlowService {
   // id));
   //  }
 
-  private ReportingFlowRevisionEntity getRevision(ReportingFlowEntity reportingFlowEntity) {
-    return mapper.toReportingFlowRevision(reportingFlowEntity);
-  }
 }

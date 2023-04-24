@@ -34,13 +34,13 @@ public class Payment {
   @DecimalMin(value = "0.0", inclusive = false)
   @Digits(integer = Integer.MAX_VALUE, fraction = 2)
   @Schema(example = "0.01")
-  private BigDecimal payed;
+  private BigDecimal pay;
 
   @NotNull
   @Schema(example = "PAGAMENTO_ESEGUITO")
-  private PaymentStatus status;
+  private PaymentStatus payStatus;
 
   @NotNull
   @Schema(example = "2023-02-03T12:00:30.900000Z")
-  private Instant payedDate;
+  private Instant payDate;
 }

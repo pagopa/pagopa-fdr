@@ -1,13 +1,14 @@
 package it.gov.pagopa.fdr.service.reportingFlow.mapper;
 
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowEntity;
+import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentEntity;
+import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentRevisionEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowRevisionEntity;
 import it.gov.pagopa.fdr.rest.reportingFlow.model.Payment;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import java.util.List;
-import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -30,13 +31,20 @@ public interface ReportingFlowServiceMapper {
   @Mapping(source = "bicCodePouringBank", target = "bic_code_pouring_bank")
   ReportingFlowEntity toReportingFlow(ReportingFlowDto reportingFlowDto);
 
-  List<Payment> toPagamentos(List<PaymentDto> pagamentoDto);
+  @Mapping(source = "payStatus", target = "pay_status")
+  @Mapping(source = "payDate", target = "pay_date")
+  ReportingFlowPaymentEntity toReportingFlowPaymentEntity(PaymentDto paymentDto);
+
+  List<ReportingFlowPaymentEntity> toReportingFlowPaymentEntityList(List<PaymentDto> paymentDto);
 
   List<PaymentDto> toPagamentoDtos(List<Payment> pagamentos);
 
+  @Mapping(source = "id", target = "reporting_flow_id")
+  @Mapping(target = "id", ignore = true)
   ReportingFlowRevisionEntity toReportingFlowRevision(ReportingFlowEntity reportingFlowEntity);
 
-  default String toGetResponse(ObjectId reportingFlowGetDto) {
-    return reportingFlowGetDto.toString();
-  }
+  @Mapping(source = "id", target = "reporting_flow_payment_id")
+  @Mapping(target = "id", ignore = true)
+  List<ReportingFlowPaymentRevisionEntity> toReportingFlowPaymentRevisionEntityList(
+      List<ReportingFlowPaymentEntity> payment);
 }

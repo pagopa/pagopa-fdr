@@ -99,17 +99,18 @@ public class ReportingFlowResource {
                     schema = @Schema(implementation = Response.class)))
       })
   @PUT
-  @Path("/{id}/add-payment")
+  @Path("/{reportingFlowName}/add-payment")
   public Response addPaymentToReportingFlow(
-      @PathParam("id") String id, @NotNull @Valid AddPaymentRequest addPaymentRequest) {
+      @PathParam("reportingFlowName") String reportingFlowName,
+      @NotNull @Valid AddPaymentRequest addPaymentRequest) {
 
-    log.infof("Add payment to reporting flow [%s]", id);
+    log.infof("Add payment to reporting flow [%s]", reportingFlowName);
 
     // validation
     validator.validateAddPayment(addPaymentRequest);
 
     // save on DB
-    service.addPayment(id, mapper.toAddPaymentDto(addPaymentRequest));
+    service.addPayment(reportingFlowName, mapper.toAddPaymentDto(addPaymentRequest));
 
     return Response.ok().build();
   }
@@ -130,16 +131,16 @@ public class ReportingFlowResource {
                     schema = @Schema(implementation = Response.class)))
       })
   @PUT
-  @Path("/{id}/confirm")
-  public Response confirmReportingFlow(@PathParam("id") String id) {
+  @Path("/{reportingFlowName}/confirm")
+  public Response confirmReportingFlow(@PathParam("reportingFlowName") String reportingFlowName) {
 
-    log.infof("Confirm reporting flow [%s]", id);
+    log.infof("Confirm reporting flow [%s]", reportingFlowName);
 
     // validation
-    validator.validateConfirm(id);
+    validator.validateConfirm(reportingFlowName);
 
     // save on DB
-    service.confirm(id);
+    service.confirmByReportingFlowName(reportingFlowName);
 
     return Response.ok().build();
   }
