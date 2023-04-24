@@ -223,20 +223,21 @@ public class ReportingFlowResource {
                     schema = @Schema(implementation = GetPaymentResponse.class)))
       })
   @GET
-  @Path("/{id}/payment")
+  @Path("/{reportingFlowName}/payment")
   public GetPaymentResponse getReportingFlowOnlyPayments(
-      @PathParam("id") String id,
+      @PathParam("reportingFlowName") String reportingFlowName,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) int pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) int pageSize) {
     log.infof(
         "Get payment of reporting flow by id [%s] - page: [%s], pageSize: [%s]",
-        id, pageNumber, pageSize);
+        reportingFlowName, pageNumber, pageSize);
 
     // validation
-    validator.validateGet(id);
+    validator.validateGet(reportingFlowName);
 
     // get from db
-    return mapper.toGetPaymentResponse(service.findPaymentById(id, pageNumber, pageSize));
+    return mapper.toGetPaymentResponse(
+        service.findPaymentById(reportingFlowName, pageNumber, pageSize));
   }
 
   @Operation(

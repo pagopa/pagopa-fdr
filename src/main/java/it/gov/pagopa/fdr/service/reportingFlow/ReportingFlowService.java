@@ -17,6 +17,7 @@ import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowPaymentStat
 import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowIdNameProjection;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowNameProjection;
+import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowPaymentComputedFieldProjection;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
@@ -25,10 +26,12 @@ import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.mapper.ReportingFlowServiceMapper;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import org.bson.Document;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -131,27 +134,27 @@ public class ReportingFlowService {
   }
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowGetPaymentDto findPaymentById(String id, int pageNumber, int pageSize) {
+  public ReportingFlowGetPaymentDto findPaymentById(
+      String reportingFlowName, int pageNumber, int pageSize) {
     log.debugf("Get data from DB");
 
-    //    ReportingFlowOnlyPayment reportingFlowOnlyPayment = fetchSlicePayment(id, pageNumber,
-    // pageSize);
-    //
-    //    long count = reportingFlowOnlyPayment.count;
-    //    int totPage = (int) Math.ceil(count / (double) pageSize);
-    //
-    //    return ReportingFlowGetPaymentDto.builder()
-    //        .metadata(
-    //            MetadataDto.builder()
-    //                .pageSize(pageSize)
-    //                .pageNumber(pageNumber)
-    //                .totPage(totPage)
-    //                .build())
-    //        .count(count)
-    //        .sum(reportingFlowOnlyPayment.sum)
-    //        .data(mapper.toPagamentoDtos(reportingFlowOnlyPayment.payments))
-    //        .build();
-    return null;
+    ReportingFlowPaymentComputedFieldProjection sliceOfPayment =
+        getSliceOfPayment(reportingFlowName, pageNumber, pageSize);
+
+    long count = sliceOfPayment.count;
+    int totPage = (int) Math.ceil(count / (double) pageSize);
+
+    return ReportingFlowGetPaymentDto.builder()
+        .metadata(
+            MetadataDto.builder()
+                .pageSize(pageSize)
+                .pageNumber(pageNumber)
+                .totPage(totPage)
+                .build())
+        .count(count)
+        .sum(sliceOfPayment.sum)
+        .data(mapper.toPagamentoDtos(sliceOfPayment.data))
+        .build();
   }
 
   @WithSpan(kind = SERVER)
@@ -171,6 +174,7 @@ public class ReportingFlowService {
     }
     PanacheQuery<ReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
         reportingFlowPanacheQuery.page(page).project(ReportingFlowNameProjection.class);
+
     List<ReportingFlowNameProjection> reportingFlowIds =
         reportingFlowNameProjectionPanacheQuery.list();
 
@@ -242,55 +246,60 @@ public class ReportingFlowService {
         .firstResultOptional();
   }
 
-  //  private <T> T fetch(String id, Class<T> clazz) {
-  //    Optional<T> reportingFlowOptional =
-  //        ReportingFlowEntity.find("_id", id).project(clazz).firstResultOptional();
-  //    return reportingFlowOptional.orElseThrow(
-  //        () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, id));
-  //  }
+  private ReportingFlowPaymentComputedFieldProjection getSliceOfPayment(
+      String reportingFlowName, long pageNumber, long pageSize) {
+    long skip = (pageNumber - 1) * pageSize;
+    List<Document> aggregate =
+        Arrays.asList(
+            new Document("$match", new Document("reporting_flow_name", reportingFlowName)),
+            new Document(
+                "$group",
+                new Document("_id", "$reporting_flow_name")
+                    .append(
+                        "data",
+                        new Document(
+                            "$addToSet",
+                            new Document("_id", "$_id")
+                                .append("created", "$created")
+                                .append("index", "$index")
+                                .append("iur", "$iur")
+                                .append("iuv", "$iuv")
+                                .append("pay", "$pay")
+                                .append("pay_date", "$pay_date")
+                                .append("pay_status", "$pay_status")
+                                .append("revision", "$revision")
+                                .append("reporting_flow_id", "$reporting_flow_id")
+                                .append("reporting_flow_name", "$reporting_flow_name")
+                                .append("status", "$status")
+                                .append("updated", "$updated")))
+                    .append("count", new Document("$sum", 1L))
+                    .append("sum", new Document("$sum", "$pay"))),
+            new Document(
+                "$project",
+                new Document("_id", 0L)
+                    .append(
+                        "data",
+                        new Document(
+                            "$slice",
+                            Arrays.asList(
+                                new Document(
+                                    "$sortArray",
+                                    new Document("input", "$data")
+                                        .append("sortBy", new Document("index", 1L))),
+                                skip,
+                                pageSize)))
+                    .append("count", 1L)
+                    .append("sum", 1L)));
 
-  //  private ReportingFlowOnlyPayment fetchSlicePayment(String id, long pageNumber, long pageSize)
-  // {
-  //    long skip = (pageNumber - 1) * pageSize;
-  //    List<Document> aggregate =
-  //        Arrays.asList(
-  //            new Document("$match", new Document("_id", objectId)),
-  //            new Document(
-  //                "$project",
-  //                new Document(
-  //                    "payments",
-  //                    new Document(
-  //                        "$sortArray",
-  //                        new Document(
-  //                                "input",
-  //                                new Document("$ifNull", Arrays.asList("$payments", List.of())))
-  //                            .append(
-  //                                "sortBy", new Document("identificativoUnivocoVersamento",
-  // 1L))))),
-  //            new Document(
-  //                "$addFields",
-  //                new Document("count", new Document("$size", "$payments"))
-  //                    .append(
-  //                        "sum",
-  //                        new Document(
-  //                            "$toDecimal", new Document("$sum",
-  // "$payments.singoloImportoPagato")))),
-  //            new Document(
-  //                "$project",
-  //                new Document("count", 1L)
-  //                    .append("sum", 1L)
-  //                    .append(
-  //                        "payments",
-  //                        new Document("$slice", Arrays.asList("$payments", skip, pageSize)))));
-  //
-  //    ReportingFlowOnlyPayment reportingFlowOnlyPayment =
-  //        ReportingFlowEntity.mongoCollection()
-  //            .aggregate(aggregate, ReportingFlowOnlyPayment.class)
-  //            .first();
-  //
-  //    return Optional.ofNullable(reportingFlowOnlyPayment)
-  //        .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
-  // id));
-  //  }
+    ReportingFlowPaymentComputedFieldProjection reportingFlowPaymentComputedFieldProjection =
+        ReportingFlowPaymentEntity.mongoCollection()
+            .aggregate(aggregate, ReportingFlowPaymentComputedFieldProjection.class)
+            .first();
 
+    return Optional.ofNullable(reportingFlowPaymentComputedFieldProjection)
+        .orElseThrow(
+            () ->
+                new AppException(
+                    AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+  }
 }

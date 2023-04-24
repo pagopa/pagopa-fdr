@@ -4,7 +4,6 @@ import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentRevisionEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowRevisionEntity;
-import it.gov.pagopa.fdr.rest.reportingFlow.model.Payment;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
@@ -37,7 +36,7 @@ public interface ReportingFlowServiceMapper {
 
   List<ReportingFlowPaymentEntity> toReportingFlowPaymentEntityList(List<PaymentDto> paymentDto);
 
-  List<PaymentDto> toPagamentoDtos(List<Payment> pagamentos);
+  List<PaymentDto> toPagamentoDtos(List<ReportingFlowPaymentEntity> paymentEntities);
 
   @Mapping(source = "id", target = "reporting_flow_id")
   @Mapping(target = "id", ignore = true)
