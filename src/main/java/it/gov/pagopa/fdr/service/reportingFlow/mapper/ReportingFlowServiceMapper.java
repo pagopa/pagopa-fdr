@@ -11,6 +11,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.CDI)
@@ -29,6 +30,9 @@ public interface ReportingFlowServiceMapper {
   @Mapping(source = "regulationDate", target = "regulation_date")
   @Mapping(source = "bicCodePouringBank", target = "bic_code_pouring_bank")
   ReportingFlowEntity toReportingFlow(ReportingFlowDto reportingFlowDto);
+
+  void updateReportingFlowEntity(
+      @MappingTarget ReportingFlowEntity reportingFlowEntity, ReportingFlowDto reportingFlowDto);
 
   @Mapping(source = "payStatus", target = "pay_status")
   @Mapping(source = "payDate", target = "pay_date")

@@ -15,7 +15,7 @@ import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentRevisionEn
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowRevisionEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowPaymentStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowStatusEnumEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowIdNameProjection;
+import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowIdNameStatusProjection;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowNameProjection;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowPaymentComputedFieldProjection;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.AddPaymentDto;
@@ -47,16 +47,31 @@ public class ReportingFlowService {
     Instant now = Instant.now();
     String reportingFlowName = reportingFlowDto.getReportingFlowName();
 
-    abortIfExist(reportingFlowName);
+    Optional<ReportingFlowEntity> byReportingFlowName =
+        getByReportingFlowName(reportingFlowName, ReportingFlowEntity.class);
+    if (byReportingFlowName.isPresent()
+        && byReportingFlowName.get().status != ReportingFlowStatusEnumEntity.DELETED) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
+          reportingFlowName,
+          byReportingFlowName.get().status);
+    }
 
-    ReportingFlowEntity reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
-    reportingFlowEntity.created = now;
+    ReportingFlowEntity reportingFlowEntity = null;
+    if (byReportingFlowName.isPresent()) {
+      reportingFlowEntity = byReportingFlowName.get();
+      mapper.updateReportingFlowEntity(reportingFlowEntity, reportingFlowDto);
+    } else {
+      reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
+      reportingFlowEntity.created = now;
+    }
 
     reportingFlowEntity.updated = now;
     reportingFlowEntity.status = ReportingFlowStatusEnumEntity.NEW;
     reportingFlowEntity.revision =
         (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
-    reportingFlowEntity.persist();
+
+    reportingFlowEntity.persistOrUpdate();
 
     ReportingFlowRevisionEntity reportingFlowRevision =
         mapper.toReportingFlowRevision(reportingFlowEntity);
@@ -68,8 +83,15 @@ public class ReportingFlowService {
     log.debugf("Save add payment on DB");
     Instant now = Instant.now();
 
-    ReportingFlowIdNameProjection reportingFlowEntity =
-        retrieve(reportingFlowName, ReportingFlowIdNameProjection.class);
+    ReportingFlowIdNameStatusProjection reportingFlowEntity =
+        retrieve(reportingFlowName, ReportingFlowIdNameStatusProjection.class);
+    if (reportingFlowEntity.status != ReportingFlowStatusEnumEntity.NEW) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+          reportingFlowName,
+          reportingFlowEntity.status,
+          ReportingFlowStatusEnumEntity.NEW);
+    }
 
     List<ReportingFlowPaymentEntity> payments =
         mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
@@ -96,6 +118,14 @@ public class ReportingFlowService {
     Instant now = Instant.now();
 
     ReportingFlowEntity reportingFlowEntity = retrieve(reportingFlowName);
+    if (reportingFlowEntity.status != ReportingFlowStatusEnumEntity.NEW) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+          reportingFlowName,
+          reportingFlowEntity.status,
+          ReportingFlowStatusEnumEntity.NEW);
+    }
+    // TODO controllare che ci siano payment, capire se usare i computed fields
 
     reportingFlowEntity.updated = now;
     reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CONFIRMED;
@@ -167,10 +197,20 @@ public class ReportingFlowService {
 
     PanacheQuery<ReportingFlowEntity> reportingFlowPanacheQuery;
     if (idPsp == null || idPsp.isBlank()) {
-      reportingFlowPanacheQuery = ReportingFlowEntity.find("receiver.ec_id", sort, idEc);
+      reportingFlowPanacheQuery =
+          ReportingFlowEntity.find(
+              "status = ?1 and receiver.ec_id = ?2",
+              sort,
+              ReportingFlowStatusEnumEntity.CONFIRMED,
+              idEc);
     } else {
       reportingFlowPanacheQuery =
-          ReportingFlowEntity.find("receiver.ec_id = ?1 and sender.psp_id = ?2", sort, idEc, idPsp);
+          ReportingFlowEntity.find(
+              "status = ?1 and receiver.ec_id = ?2 and sender.psp_id = ?3",
+              sort,
+              ReportingFlowStatusEnumEntity.CONFIRMED,
+              idEc,
+              idPsp);
     }
     PanacheQuery<ReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
         reportingFlowPanacheQuery.page(page).project(ReportingFlowNameProjection.class);
@@ -215,13 +255,6 @@ public class ReportingFlowService {
               });
     }
     return sort;
-  }
-
-  private void abortIfExist(String reportingFlowName) {
-    if (getByReportingFlowName(reportingFlowName, ReportingFlowEntity.class).isPresent()) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST, reportingFlowName);
-    }
   }
 
   private ReportingFlowEntity retrieve(String reportingFlowName) {
