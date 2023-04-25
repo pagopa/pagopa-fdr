@@ -17,6 +17,7 @@ import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowPaymentStat
 import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowNameProjection;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.AddPaymentDto;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.DeletePaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
@@ -24,9 +25,11 @@ import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.mapper.ReportingFlowServiceMapper;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.jboss.logging.Logger;
@@ -46,8 +49,7 @@ public class ReportingFlowService {
 
     Optional<ReportingFlowEntity> byReportingFlowName =
         getByReportingFlowName(reportingFlowName, ReportingFlowEntity.class);
-    if (byReportingFlowName.isPresent()
-        && byReportingFlowName.get().status != ReportingFlowStatusEnumEntity.DELETED) {
+    if (byReportingFlowName.isPresent()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
           reportingFlowName,
@@ -129,6 +131,74 @@ public class ReportingFlowService {
   }
 
   @WithSpan(kind = SERVER)
+  public void deletePayment(String reportingFlowName, DeletePaymentDto deletePaymentDto) {
+    log.debugf("Delete payment on DB");
+    Instant now = Instant.now();
+
+    ReportingFlowEntity reportingFlowEntity = retrieve(reportingFlowName);
+    if (!(reportingFlowEntity.status == ReportingFlowStatusEnumEntity.NEW
+        || reportingFlowEntity.status == ReportingFlowStatusEnumEntity.ADD_PAYMENTS
+        || reportingFlowEntity.status == ReportingFlowStatusEnumEntity.DELETE_PAYMENTS)) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+          reportingFlowName,
+          reportingFlowEntity.status);
+    }
+
+    List<Long> indexList = deletePaymentDto.getIndexPayments();
+    if (indexList.size() != indexList.stream().distinct().toList().size()) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
+          reportingFlowName);
+    }
+
+    List<ReportingFlowPaymentEntity> paymentToDelete =
+        ReportingFlowPaymentEntity.find(
+                "reporting_flow_name = ?1 and status = ?2 and index in ?3",
+                reportingFlowName,
+                ReportingFlowPaymentStatusEnumEntity.ADD,
+                indexList)
+            .project(ReportingFlowPaymentEntity.class)
+            .list();
+    if (!paymentToDelete.stream()
+        .map(a -> a.index)
+        .collect(Collectors.toSet())
+        .containsAll(indexList)) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX, reportingFlowName);
+    }
+
+    ReportingFlowPaymentEntity.delete(
+        "reporting_flow_name = ?1 and status = ?2 and index in ?3",
+        reportingFlowName,
+        ReportingFlowPaymentStatusEnumEntity.ADD,
+        indexList);
+
+    setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.DELETE_PAYMENTS, now);
+    reportingFlowEntity.totPayments = reportingFlowEntity.totPayments - paymentToDelete.size();
+    reportingFlowEntity.sumPaymnents =
+        BigDecimal.valueOf(reportingFlowEntity.sumPaymnents)
+            .subtract(
+                BigDecimal.valueOf(
+                    paymentToDelete.stream()
+                        .map(a -> a.pay)
+                        .mapToDouble(Double::doubleValue)
+                        .sum()))
+            .doubleValue();
+    reportingFlowEntity.update();
+
+    setReportingFlowPaymentEntityList(
+        paymentToDelete, ReportingFlowPaymentStatusEnumEntity.DELETE, now, reportingFlowEntity);
+    List<ReportingFlowPaymentRevisionEntity> reportingFlowPaymentRevisionEntity =
+        mapper.toReportingFlowPaymentRevisionEntityList(paymentToDelete);
+    ReportingFlowPaymentRevisionEntity.persist(reportingFlowPaymentRevisionEntity);
+
+    ReportingFlowRevisionEntity reportingFlowRevision =
+        mapper.toReportingFlowRevision(reportingFlowEntity);
+    reportingFlowRevision.persist();
+  }
+
+  @WithSpan(kind = SERVER)
   public void confirmByReportingFlowName(String reportingFlowName) {
     log.debugf("Confirm reporting flow");
     Instant now = Instant.now();
@@ -163,10 +233,9 @@ public class ReportingFlowService {
     Instant now = Instant.now();
 
     ReportingFlowEntity reportingFlowEntity = retrieve(reportingFlowName);
+    reportingFlowEntity.delete();
 
     setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.DELETED, now);
-    reportingFlowEntity.update();
-
     ReportingFlowRevisionEntity reportingFlowRevision =
         mapper.toReportingFlowRevision(reportingFlowEntity);
     reportingFlowRevision.persist();
@@ -180,7 +249,7 @@ public class ReportingFlowService {
   }
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowGetPaymentDto findPaymentById(
+  public ReportingFlowGetPaymentDto findPaymentByReportingFlowName(
       String reportingFlowName, long pageNumber, long pageSize) {
     log.debugf("Get data from DB");
 
@@ -189,7 +258,7 @@ public class ReportingFlowService {
 
     PanacheQuery<ReportingFlowPaymentEntity> reportingFlowPaymentEntityPanacheQuery =
         ReportingFlowPaymentEntity.find(
-                "reporting_flow_name = ?1 and status = ?1",
+                "reporting_flow_name = ?1 and status = ?2",
                 sort,
                 reportingFlowName,
                 ReportingFlowPaymentStatusEnumEntity.ADD)

@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.rest.reportingFlow;
 import it.gov.pagopa.fdr.rest.reportingFlow.mapper.ReportingFlowDtoServiceMapper;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
+import it.gov.pagopa.fdr.rest.reportingFlow.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetPaymentResponse;
@@ -111,6 +112,41 @@ public class ReportingFlowResource {
 
     // save on DB
     service.addPayment(reportingFlowName, mapper.toAddPaymentDto(addPaymentRequest));
+
+    return Response.ok().build();
+  }
+
+  @Operation(
+      summary = "Delete payments to reporting flow",
+      description = "Delete payments to reporting flow")
+  @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = Response.class)))
+      })
+  @DELETE
+  @Path("/{reportingFlowName}/delete-payment")
+  public Response deletePaymentToReportingFlow(
+      @PathParam("reportingFlowName") String reportingFlowName,
+      @NotNull @Valid DeletePaymentRequest deletePaymentRequest) {
+
+    log.infof("Delete payment to reporting flow [%s]", reportingFlowName);
+
+    // validation
+    validator.validateDeletePayment(deletePaymentRequest);
+
+    // save on DB
+    service.deletePayment(reportingFlowName, mapper.toDeletePaymentDto(deletePaymentRequest));
 
     return Response.ok().build();
   }
@@ -237,7 +273,7 @@ public class ReportingFlowResource {
 
     // get from db
     return mapper.toGetPaymentResponse(
-        service.findPaymentById(reportingFlowName, pageNumber, pageSize));
+        service.findPaymentByReportingFlowName(reportingFlowName, pageNumber, pageSize));
   }
 
   @Operation(

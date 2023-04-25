@@ -5,6 +5,7 @@ import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
+import it.gov.pagopa.fdr.rest.reportingFlow.request.DeletePaymentRequest;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.jboss.logging.Logger;
@@ -22,6 +23,11 @@ public class ReportingFlowValidationService {
   @WithSpan(kind = SERVER)
   public void validateAddPayment(AddPaymentRequest addPaymentRequest) {
     log.debug("Validate add payment");
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validateDeletePayment(DeletePaymentRequest deletePaymentRequest) {
+    log.debug("Validate delete payment");
   }
 
   @WithSpan(kind = SERVER)

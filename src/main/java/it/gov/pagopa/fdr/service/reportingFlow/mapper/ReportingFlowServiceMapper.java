@@ -48,6 +48,9 @@ public interface ReportingFlowServiceMapper {
 
   @Mapping(source = "id", target = "reporting_flow_payment_id")
   @Mapping(target = "id", ignore = true)
+  ReportingFlowPaymentRevisionEntity toReportingFlowPaymentRevisionEntity(
+      ReportingFlowPaymentEntity payment);
+
   List<ReportingFlowPaymentRevisionEntity> toReportingFlowPaymentRevisionEntityList(
       List<ReportingFlowPaymentEntity> payment);
 }

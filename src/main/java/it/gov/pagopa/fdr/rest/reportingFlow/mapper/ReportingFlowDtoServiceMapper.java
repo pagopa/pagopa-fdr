@@ -4,10 +4,12 @@ import it.gov.pagopa.fdr.rest.reportingFlow.model.Metadata;
 import it.gov.pagopa.fdr.rest.reportingFlow.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
+import it.gov.pagopa.fdr.rest.reportingFlow.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.AddPaymentDto;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.DeletePaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowDto;
@@ -30,6 +32,8 @@ public interface ReportingFlowDtoServiceMapper {
   GetPaymentResponse toGetPaymentResponse(ReportingFlowGetPaymentDto reportingFlowGetDto);
 
   AddPaymentDto toAddPaymentDto(AddPaymentRequest addPaymentRequest);
+
+  DeletePaymentDto toDeletePaymentDto(DeletePaymentRequest deletePaymentRequest);
 
   ReportingFlowStatusEnum toReportingFlowStatusEnum(
       ReportingFlowStatusEnumDto reportingFlowStatusEnumDto);
