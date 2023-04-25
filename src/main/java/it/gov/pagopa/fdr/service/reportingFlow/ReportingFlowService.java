@@ -15,23 +15,20 @@ import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentRevisionEn
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowRevisionEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowPaymentStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowStatusEnumEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowIdNameStatusProjection;
 import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowNameProjection;
-import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowPaymentComputedFieldProjection;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.MetadataDto;
+import it.gov.pagopa.fdr.service.reportingFlow.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.reportingFlow.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.reportingFlow.mapper.ReportingFlowServiceMapper;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import org.bson.Document;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -57,21 +54,9 @@ public class ReportingFlowService {
           byReportingFlowName.get().status);
     }
 
-    ReportingFlowEntity reportingFlowEntity = null;
-    if (byReportingFlowName.isPresent()) {
-      reportingFlowEntity = byReportingFlowName.get();
-      mapper.updateReportingFlowEntity(reportingFlowEntity, reportingFlowDto);
-    } else {
-      reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
-      reportingFlowEntity.created = now;
-    }
-
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.NEW;
-    reportingFlowEntity.revision =
-        (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
-
-    reportingFlowEntity.persistOrUpdate();
+    ReportingFlowEntity reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
+    setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.NEW, now);
+    reportingFlowEntity.persist();
 
     ReportingFlowRevisionEntity reportingFlowRevision =
         mapper.toReportingFlowRevision(reportingFlowEntity);
@@ -83,33 +68,64 @@ public class ReportingFlowService {
     log.debugf("Save add payment on DB");
     Instant now = Instant.now();
 
-    ReportingFlowIdNameStatusProjection reportingFlowEntity =
-        retrieve(reportingFlowName, ReportingFlowIdNameStatusProjection.class);
-    if (reportingFlowEntity.status != ReportingFlowStatusEnumEntity.NEW) {
+    ReportingFlowEntity reportingFlowEntity = retrieve(reportingFlowName);
+    if (!(reportingFlowEntity.status == ReportingFlowStatusEnumEntity.NEW
+        || reportingFlowEntity.status == ReportingFlowStatusEnumEntity.ADD_PAYMENTS
+        || reportingFlowEntity.status == ReportingFlowStatusEnumEntity.DELETE_PAYMENTS)) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
-          reportingFlowEntity.status,
-          ReportingFlowStatusEnumEntity.NEW);
+          reportingFlowEntity.status);
     }
 
-    List<ReportingFlowPaymentEntity> payments =
-        mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
-    payments.forEach(
-        p -> {
-          p.created = now;
+    List<Long> indexList = addPaymentDto.getPayments().stream().map(PaymentDto::getIndex).toList();
+    if (indexList.size() != indexList.stream().distinct().toList().size()) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
+          reportingFlowName);
+    }
 
-          p.updated = now;
-          p.status = ReportingFlowPaymentStatusEnumEntity.ADD;
-          p.revision = (p.revision == null) ? 1L : p.revision + 1;
-          p.reporting_flow_id = reportingFlowEntity.id;
-          p.reporting_flow_name = reportingFlowEntity.reporting_flow_name;
-        });
-    ReportingFlowPaymentEntity.persist(payments);
+    List<ReportingFlowPaymentEntity> paymentIndexAlreadyExist =
+        ReportingFlowPaymentEntity.find(
+                "reporting_flow_name = ?1 and status = ?2 and index in ?3",
+                reportingFlowName,
+                ReportingFlowPaymentStatusEnumEntity.ADD,
+                indexList)
+            .project(ReportingFlowPaymentEntity.class)
+            .list();
+    if (paymentIndexAlreadyExist != null && paymentIndexAlreadyExist.size() > 0) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX, reportingFlowName);
+    }
+
+    List<ReportingFlowPaymentEntity> reportingFlowPaymentEntities =
+        mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
+    setReportingFlowPaymentEntityList(
+        reportingFlowPaymentEntities,
+        ReportingFlowPaymentStatusEnumEntity.ADD,
+        now,
+        reportingFlowEntity);
+    ReportingFlowPaymentEntity.persist(reportingFlowPaymentEntities);
+
+    setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.ADD_PAYMENTS, now);
+    reportingFlowEntity.totPayments =
+        reportingFlowEntity.totPayments + reportingFlowPaymentEntities.size();
+    reportingFlowEntity.sumPaymnents =
+        Double.sum(
+            reportingFlowEntity.sumPaymnents,
+            reportingFlowPaymentEntities.stream()
+                .map(a -> a.pay)
+                .mapToDouble(Double::doubleValue)
+                .sum());
+    reportingFlowEntity.update();
 
     List<ReportingFlowPaymentRevisionEntity> reportingFlowPaymentRevisionEntity =
-        mapper.toReportingFlowPaymentRevisionEntityList(payments);
+        mapper.toReportingFlowPaymentRevisionEntityList(reportingFlowPaymentEntities);
     ReportingFlowPaymentRevisionEntity.persist(reportingFlowPaymentRevisionEntity);
+
+    ReportingFlowRevisionEntity reportingFlowRevision =
+        mapper.toReportingFlowRevision(reportingFlowEntity);
+    reportingFlowRevision.persist();
   }
 
   @WithSpan(kind = SERVER)
@@ -118,19 +134,22 @@ public class ReportingFlowService {
     Instant now = Instant.now();
 
     ReportingFlowEntity reportingFlowEntity = retrieve(reportingFlowName);
-    if (reportingFlowEntity.status != ReportingFlowStatusEnumEntity.NEW) {
+    if (!(reportingFlowEntity.status == ReportingFlowStatusEnumEntity.ADD_PAYMENTS
+        || reportingFlowEntity.status == ReportingFlowStatusEnumEntity.DELETE_PAYMENTS)) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
-          reportingFlowEntity.status,
-          ReportingFlowStatusEnumEntity.NEW);
+          reportingFlowEntity.status);
     }
-    // TODO controllare che ci siano payment, capire se usare i computed fields
+    if (!(reportingFlowEntity.totPayments.intValue() > 0
+        && reportingFlowEntity.sumPaymnents.doubleValue() > 0)) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_NO_PAYMENT,
+          reportingFlowName,
+          reportingFlowEntity.status);
+    }
 
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CONFIRMED;
-    reportingFlowEntity.revision =
-        (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
+    setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.CONFIRMED, now);
     reportingFlowEntity.update();
 
     ReportingFlowRevisionEntity reportingFlowRevision =
@@ -145,10 +164,7 @@ public class ReportingFlowService {
 
     ReportingFlowEntity reportingFlowEntity = retrieve(reportingFlowName);
 
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.DELETED;
-    reportingFlowEntity.revision =
-        (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
+    setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.DELETED, now);
     reportingFlowEntity.update();
 
     ReportingFlowRevisionEntity reportingFlowRevision =
@@ -165,14 +181,24 @@ public class ReportingFlowService {
 
   @WithSpan(kind = SERVER)
   public ReportingFlowGetPaymentDto findPaymentById(
-      String reportingFlowName, int pageNumber, int pageSize) {
+      String reportingFlowName, long pageNumber, long pageSize) {
     log.debugf("Get data from DB");
 
-    ReportingFlowPaymentComputedFieldProjection sliceOfPayment =
-        getSliceOfPayment(reportingFlowName, pageNumber, pageSize);
+    Page page = Page.of((int) pageNumber - 1, (int) pageSize);
+    Sort sort = getSort(List.of("index,asc"));
 
-    long count = sliceOfPayment.count;
-    int totPage = (int) Math.ceil(count / (double) pageSize);
+    PanacheQuery<ReportingFlowPaymentEntity> reportingFlowPaymentEntityPanacheQuery =
+        ReportingFlowPaymentEntity.find(
+                "reporting_flow_name = ?1 and status = ?1",
+                sort,
+                reportingFlowName,
+                ReportingFlowPaymentStatusEnumEntity.ADD)
+            .page(page);
+
+    List<ReportingFlowPaymentEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
+
+    long totPage = Long.valueOf(reportingFlowPaymentEntityPanacheQuery.pageCount());
+    long countReportingFlowPayment = reportingFlowPaymentEntityPanacheQuery.count();
 
     return ReportingFlowGetPaymentDto.builder()
         .metadata(
@@ -181,18 +207,17 @@ public class ReportingFlowService {
                 .pageNumber(pageNumber)
                 .totPage(totPage)
                 .build())
-        .count(count)
-        .sum(sliceOfPayment.sum)
-        .data(mapper.toPagamentoDtos(sliceOfPayment.data))
+        .count(countReportingFlowPayment)
+        .data(mapper.toPagamentoDtos(list))
         .build();
   }
 
   @WithSpan(kind = SERVER)
   public ReportingFlowByIdEcDto findByIdEc(
-      String idEc, String idPsp, int pageNumber, int pageSize) {
+      String idEc, String idPsp, long pageNumber, long pageSize) {
     log.debugf("Get all data from DB");
 
-    Page page = Page.of(pageNumber - 1, pageSize);
+    Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = getSort(List.of("_id,asc"));
 
     PanacheQuery<ReportingFlowEntity> reportingFlowPanacheQuery;
@@ -218,7 +243,7 @@ public class ReportingFlowService {
     List<ReportingFlowNameProjection> reportingFlowIds =
         reportingFlowNameProjectionPanacheQuery.list();
 
-    int totPage = reportingFlowNameProjectionPanacheQuery.pageCount();
+    long totPage = Long.valueOf(reportingFlowNameProjectionPanacheQuery.pageCount());
     long countReportingFlow = reportingFlowNameProjectionPanacheQuery.count();
 
     return ReportingFlowByIdEcDto.builder()
@@ -265,74 +290,49 @@ public class ReportingFlowService {
                     AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
   }
 
-  private <T> T retrieve(String reportingFlowName, Class<T> clazz) {
-    return getByReportingFlowName(reportingFlowName, clazz)
-        .orElseThrow(
-            () ->
-                new AppException(
-                    AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
-  }
-
   private <T> Optional<T> getByReportingFlowName(String reportingFlowName, Class<T> clazz) {
     return ReportingFlowEntity.find("reporting_flow_name", reportingFlowName)
         .project(clazz)
         .firstResultOptional();
   }
 
-  private ReportingFlowPaymentComputedFieldProjection getSliceOfPayment(
-      String reportingFlowName, long pageNumber, long pageSize) {
-    long skip = (pageNumber - 1) * pageSize;
-    List<Document> aggregate =
-        Arrays.asList(
-            new Document("$match", new Document("reporting_flow_name", reportingFlowName)),
-            new Document(
-                "$group",
-                new Document("_id", "$reporting_flow_name")
-                    .append(
-                        "data",
-                        new Document(
-                            "$addToSet",
-                            new Document("_id", "$_id")
-                                .append("created", "$created")
-                                .append("index", "$index")
-                                .append("iur", "$iur")
-                                .append("iuv", "$iuv")
-                                .append("pay", "$pay")
-                                .append("pay_date", "$pay_date")
-                                .append("pay_status", "$pay_status")
-                                .append("revision", "$revision")
-                                .append("reporting_flow_id", "$reporting_flow_id")
-                                .append("reporting_flow_name", "$reporting_flow_name")
-                                .append("status", "$status")
-                                .append("updated", "$updated")))
-                    .append("count", new Document("$sum", 1L))
-                    .append("sum", new Document("$sum", "$pay"))),
-            new Document(
-                "$project",
-                new Document("_id", 0L)
-                    .append(
-                        "data",
-                        new Document(
-                            "$slice",
-                            Arrays.asList(
-                                new Document(
-                                    "$sortArray",
-                                    new Document("input", "$data")
-                                        .append("sortBy", new Document("index", 1L))),
-                                skip,
-                                pageSize)))
-                    .append("count", 1L)
-                    .append("sum", 1L)));
+  private void setReportingFlowEntity(
+      ReportingFlowEntity reportingFlowEntity, ReportingFlowStatusEnumEntity status, Instant now) {
+    reportingFlowEntity.created =
+        (reportingFlowEntity.created == null) ? now : reportingFlowEntity.created;
+    reportingFlowEntity.updated = now;
+    reportingFlowEntity.status = status;
+    reportingFlowEntity.revision =
+        (reportingFlowEntity.revision == null) ? 1L : reportingFlowEntity.revision + 1;
+    reportingFlowEntity.totPayments =
+        (reportingFlowEntity.totPayments == null) ? 0L : reportingFlowEntity.totPayments;
+    reportingFlowEntity.sumPaymnents =
+        (reportingFlowEntity.sumPaymnents == null)
+            ? Double.valueOf(0)
+            : reportingFlowEntity.sumPaymnents;
+  }
 
-    ReportingFlowPaymentComputedFieldProjection reportingFlowPaymentComputedFieldProjection =
-        ReportingFlowPaymentEntity.mongoCollection()
-            .aggregate(aggregate, ReportingFlowPaymentComputedFieldProjection.class)
-            .first();
-
-    return Optional.ofNullable(reportingFlowPaymentComputedFieldProjection)
-        .orElseThrow(
-            () ->
-                new AppException(
-                    AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+  private void setReportingFlowPaymentEntityList(
+      List<ReportingFlowPaymentEntity> reportingFlowPaymentEntities,
+      ReportingFlowPaymentStatusEnumEntity status,
+      Instant now,
+      ReportingFlowEntity reportingFlowEntity) {
+    reportingFlowPaymentEntities.stream()
+        .forEach(
+            reportingFlowPaymentEntity -> {
+              reportingFlowPaymentEntity.created =
+                  (reportingFlowPaymentEntity.created == null)
+                      ? now
+                      : reportingFlowPaymentEntity.created;
+              reportingFlowPaymentEntity.updated = now;
+              reportingFlowPaymentEntity.status = status;
+              reportingFlowPaymentEntity.revision =
+                  (reportingFlowPaymentEntity.revision == null)
+                      ? 1L
+                      : reportingFlowPaymentEntity.revision + 1;
+              reportingFlowPaymentEntity.reporting_flow_id = reportingFlowEntity.id;
+              reportingFlowPaymentEntity.reporting_flow_name =
+                  reportingFlowEntity.reporting_flow_name;
+            });
   }
 }

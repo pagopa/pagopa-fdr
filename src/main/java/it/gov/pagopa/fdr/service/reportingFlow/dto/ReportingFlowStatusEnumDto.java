@@ -2,7 +2,8 @@ package it.gov.pagopa.fdr.service.reportingFlow.dto;
 
 public enum ReportingFlowStatusEnumDto {
   NEW,
-  PAYMENT_ADDED,
+  ADD_PAYMENTS,
+  DELETE_PAYMENTS,
   CONFIRMED,
   DELETED;
 }

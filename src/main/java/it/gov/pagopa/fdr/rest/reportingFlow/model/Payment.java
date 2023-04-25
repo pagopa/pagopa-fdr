@@ -38,7 +38,7 @@ public class Payment {
 
   @NotNull
   @Schema(example = "PAGAMENTO_ESEGUITO")
-  private PaymentStatus payStatus;
+  private PaymentStatusEnum payStatus;
 
   @NotNull
   @Schema(example = "2023-02-03T12:00:30.900000Z")

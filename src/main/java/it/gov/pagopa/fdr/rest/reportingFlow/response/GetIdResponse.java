@@ -57,4 +57,10 @@ public class GetIdResponse {
 
   @Schema(example = "UNCRITMMXXX")
   private String bicCodePouringBank;
+
+  @Schema(example = "100")
+  public Long totPayments;
+
+  @Schema(example = "100.90")
+  public Double sumPaymnents;
 }

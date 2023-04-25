@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.service.reportingFlow.dto;
 
-public enum PaymentStatusDto {
+public enum PaymentStatusEnumDto {
   EXECUTED,
   REVOKED,
   NO_RPT;

@@ -29,4 +29,8 @@ public class ReportingFlowGetDto {
   private Instant regulationDate;
 
   private String bicCodePouringBank;
+
+  public Long totPayments;
+
+  public Double sumPaymnents;
 }

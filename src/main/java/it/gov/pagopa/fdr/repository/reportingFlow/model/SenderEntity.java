@@ -6,7 +6,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 @Data
 public class SenderEntity {
 
-  public SenderTypeEntity type;
+  public SenderTypeEnumEntity type;
 
   @BsonProperty("id")
   public String id;

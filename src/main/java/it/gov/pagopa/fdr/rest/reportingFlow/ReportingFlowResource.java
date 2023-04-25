@@ -226,8 +226,8 @@ public class ReportingFlowResource {
   @Path("/{reportingFlowName}/payment")
   public GetPaymentResponse getReportingFlowOnlyPayments(
       @PathParam("reportingFlowName") String reportingFlowName,
-      @QueryParam("page") @DefaultValue("1") @Min(value = 1) int pageNumber,
-      @QueryParam("size") @DefaultValue("50") @Min(value = 1) int pageSize) {
+      @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
+      @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
     log.infof(
         "Get payment of reporting flow by id [%s] - page: [%s], pageSize: [%s]",
         reportingFlowName, pageNumber, pageSize);
@@ -262,8 +262,8 @@ public class ReportingFlowResource {
   public GetAllResponse getReportingFlowOnlyId(
       @PathParam("idEc") String idEc,
       @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
-      @QueryParam("page") @DefaultValue("1") @Min(value = 1) int pageNumber,
-      @QueryParam("size") @DefaultValue("50") @Min(value = 1) int pageSize) {
+      @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
+      @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
 
     log.infof(
         "Get id of reporting flow by idEc [%s], idPsp [%s] - page: [%s], pageSize: [%s]",

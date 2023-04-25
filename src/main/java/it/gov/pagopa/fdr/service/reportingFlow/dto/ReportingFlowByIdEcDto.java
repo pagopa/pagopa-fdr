@@ -10,7 +10,7 @@ public class ReportingFlowByIdEcDto {
 
   private MetadataDto metadata;
 
-  private long count;
+  private Long count;
 
   private List<String> data;
 }

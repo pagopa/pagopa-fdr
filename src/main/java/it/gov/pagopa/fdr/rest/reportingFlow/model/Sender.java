@@ -13,7 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Jacksonized
 public class Sender {
 
-  @NotNull private SenderType type;
+  @NotNull private SenderTypeEnum type;
 
   @NotNull
   @Pattern(regexp = "^\\w+$")

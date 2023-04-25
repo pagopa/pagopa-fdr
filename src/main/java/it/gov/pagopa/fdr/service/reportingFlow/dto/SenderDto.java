@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class SenderDto {
 
-  private SenderTypeDto type;
+  private SenderTypeEnumDto type;
 
   private String id;
 

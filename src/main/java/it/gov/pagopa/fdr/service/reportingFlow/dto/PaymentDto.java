@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.service.reportingFlow.dto;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +14,9 @@ public class PaymentDto {
 
   private Long index;
 
-  private BigDecimal pay;
+  private Double pay;
 
-  private PaymentStatusDto payStatus;
+  private PaymentStatusEnumDto payStatus;
 
   private Instant payDate;
 }

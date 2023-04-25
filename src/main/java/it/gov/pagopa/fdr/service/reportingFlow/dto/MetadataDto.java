@@ -7,9 +7,9 @@ import lombok.Getter;
 @Builder
 public class MetadataDto {
 
-  private int pageSize;
+  private long pageSize;
 
-  private int pageNumber;
+  private long pageNumber;
 
-  private int totPage;
+  private long totPage;
 }

@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr.repository.reportingFlow.model;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
-import java.math.BigDecimal;
 import java.time.Instant;
 import org.bson.types.ObjectId;
 
@@ -14,9 +13,9 @@ public abstract class AbstractReportingFlowPaymentEntity extends PanacheMongoEnt
   public String iuv;
   public String iur;
   public Long index;
-  public BigDecimal pay;
+  public Double pay;
 
-  public PaymentStatusEntity pay_status;
+  public PaymentStatusEnumEntity pay_status;
 
   public Instant pay_date;
 

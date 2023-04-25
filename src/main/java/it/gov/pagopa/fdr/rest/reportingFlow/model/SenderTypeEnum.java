@@ -5,7 +5,7 @@ import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Jacksonized
-public enum SenderType {
+public enum SenderTypeEnum {
   LEGAL_PERSON,
   ABI_CODE,
   BIC_CODE;
