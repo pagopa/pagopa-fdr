@@ -2,6 +2,13 @@ package it.gov.pagopa.fdr.service.reportingFlow;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
+import com.mongodb.ReadConcern;
+import com.mongodb.ReadPreference;
+import com.mongodb.TransactionOptions;
+import com.mongodb.WriteConcern;
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.TransactionBody;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
@@ -63,6 +70,46 @@ public class ReportingFlowService {
     ReportingFlowRevisionEntity reportingFlowRevision =
         mapper.toReportingFlowRevision(reportingFlowEntity);
     reportingFlowRevision.persist();
+  }
+
+  private void pippo(
+      ReportingFlowEntity reportingFlowEntity, ReportingFlowRevisionEntity reportingFlowRevision) {
+    ClientSession clientSession = mongoClient.startSession();
+    clientSession.startTransaction();
+
+    TransactionOptions txnOptions =
+        TransactionOptions.builder()
+            .readPreference(ReadPreference.primary())
+            .readConcern(ReadConcern.LOCAL)
+            .writeConcern(WriteConcern.MAJORITY)
+            .build();
+
+    TransactionBody txnBody =
+        new TransactionBody<String>() {
+          public String execute() {
+            MongoCollection<ReportingFlowEntity> reportingFlowEntityMongoCollection =
+                ReportingFlowEntity.mongoCollection();
+            reportingFlowEntityMongoCollection.insertOne(clientSession, reportingFlowEntity);
+
+            MongoCollection<ReportingFlowRevisionEntity>
+                reportingFlowRevisionEntityMongoCollection =
+                    ReportingFlowRevisionEntity.mongoCollection();
+            reportingFlowRevisionEntityMongoCollection.insertOne(
+                clientSession, reportingFlowRevision);
+            return "";
+          }
+        };
+    try {
+      /*
+         Step 4: Use .withTransaction() to start a transaction,
+         execute the callback, and commit (or abort on error).
+      */
+      clientSession.withTransaction(txnBody, txnOptions);
+    } catch (RuntimeException e) {
+      // some error handling
+    } finally {
+      clientSession.close();
+    }
   }
 
   @WithSpan(kind = SERVER)

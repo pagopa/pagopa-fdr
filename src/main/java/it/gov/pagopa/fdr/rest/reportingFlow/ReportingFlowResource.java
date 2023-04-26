@@ -294,8 +294,8 @@ public class ReportingFlowResource {
                     schema = @Schema(implementation = GetAllResponse.class)))
       })
   @GET
-  @Path("/all-id-by-ec/{idEc}")
-  public GetAllResponse getReportingFlowOnlyId(
+  @Path("/confirmed-ids-by-ec/{idEc}")
+  public GetAllResponse getConfirmedReportingFlowByIdEc(
       @PathParam("idEc") String idEc,
       @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
