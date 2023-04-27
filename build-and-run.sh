@@ -15,11 +15,7 @@ build () {
   echo "Build version [$version] [$conf]"
   #./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
   #docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
-  if [ $conf = "openapi" ]; then
-    echo "1"#docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopa-fdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
-  else
-    docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
-  fi
+  docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
 }
 
 run () {
