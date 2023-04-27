@@ -7,5 +7,5 @@ import org.bson.types.ObjectId;
 @MongoEntity(collection = "reporting_flow_revision")
 public class ReportingFlowRevisionEntity extends AbstractReportingFlowEntity {
 
-  public ObjectId reporting_flow_id;
+  public ObjectId ref_reporting_flow_id;
 }

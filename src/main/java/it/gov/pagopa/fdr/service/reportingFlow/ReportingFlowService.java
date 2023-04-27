@@ -89,9 +89,8 @@ public class ReportingFlowService {
 
     List<ReportingFlowPaymentEntity> paymentIndexAlreadyExist =
         ReportingFlowPaymentEntity.find(
-                "reporting_flow_name = ?1 and status = ?2 and index in ?3",
+                "ref_reporting_flow_reporting_flow_name = ?1 and index in ?2",
                 reportingFlowName,
-                ReportingFlowPaymentStatusEnumEntity.ADD,
                 indexList)
             .project(ReportingFlowPaymentEntity.class)
             .list();
@@ -102,12 +101,6 @@ public class ReportingFlowService {
 
     List<ReportingFlowPaymentEntity> reportingFlowPaymentEntities =
         mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
-    setReportingFlowPaymentEntityList(
-        reportingFlowPaymentEntities,
-        ReportingFlowPaymentStatusEnumEntity.ADD,
-        now,
-        reportingFlowEntity);
-    ReportingFlowPaymentEntity.persist(reportingFlowPaymentEntities);
 
     setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.ADD_PAYMENTS, now);
     reportingFlowEntity.totPayments =
@@ -120,6 +113,13 @@ public class ReportingFlowService {
                 .mapToDouble(Double::doubleValue)
                 .sum());
     reportingFlowEntity.update();
+
+    setReportingFlowPaymentEntityList(
+        reportingFlowPaymentEntities,
+        ReportingFlowPaymentStatusEnumEntity.SUM,
+        now,
+        reportingFlowEntity);
+    ReportingFlowPaymentEntity.persist(reportingFlowPaymentEntities);
 
     List<ReportingFlowPaymentRevisionEntity> reportingFlowPaymentRevisionEntity =
         mapper.toReportingFlowPaymentRevisionEntityList(reportingFlowPaymentEntities);
@@ -154,9 +154,8 @@ public class ReportingFlowService {
 
     List<ReportingFlowPaymentEntity> paymentToDelete =
         ReportingFlowPaymentEntity.find(
-                "reporting_flow_name = ?1 and status = ?2 and index in ?3",
+                "ref_reporting_flow_reporting_flow_name = ?1 and index in ?2",
                 reportingFlowName,
-                ReportingFlowPaymentStatusEnumEntity.ADD,
                 indexList)
             .project(ReportingFlowPaymentEntity.class)
             .list();
@@ -169,9 +168,8 @@ public class ReportingFlowService {
     }
 
     ReportingFlowPaymentEntity.delete(
-        "reporting_flow_name = ?1 and status = ?2 and index in ?3",
+        "ref_reporting_flow_reporting_flow_name = ?1 and index in ?2",
         reportingFlowName,
-        ReportingFlowPaymentStatusEnumEntity.ADD,
         indexList);
 
     setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.DELETE_PAYMENTS, now);
@@ -188,7 +186,7 @@ public class ReportingFlowService {
     reportingFlowEntity.update();
 
     setReportingFlowPaymentEntityList(
-        paymentToDelete, ReportingFlowPaymentStatusEnumEntity.DELETE, now, reportingFlowEntity);
+        paymentToDelete, ReportingFlowPaymentStatusEnumEntity.SUBTRACT, now, reportingFlowEntity);
     List<ReportingFlowPaymentRevisionEntity> reportingFlowPaymentRevisionEntity =
         mapper.toReportingFlowPaymentRevisionEntityList(paymentToDelete);
     ReportingFlowPaymentRevisionEntity.persist(reportingFlowPaymentRevisionEntity);
@@ -232,8 +230,22 @@ public class ReportingFlowService {
     log.debugf("Delete reporting flow");
     Instant now = Instant.now();
 
+    List<ReportingFlowPaymentEntity> paymentToDelete =
+        ReportingFlowPaymentEntity.find(
+                "ref_reporting_flow_reporting_flow_name = ?1", reportingFlowName)
+            .project(ReportingFlowPaymentEntity.class)
+            .list();
+    ReportingFlowPaymentEntity.delete(
+        "ref_reporting_flow_reporting_flow_name = ?1", reportingFlowName);
+
     ReportingFlowEntity reportingFlowEntity = retrieve(reportingFlowName);
     reportingFlowEntity.delete();
+
+    setReportingFlowPaymentEntityList(
+        paymentToDelete, ReportingFlowPaymentStatusEnumEntity.DELETE, now, reportingFlowEntity);
+    List<ReportingFlowPaymentRevisionEntity> reportingFlowPaymentRevisionEntity =
+        mapper.toReportingFlowPaymentRevisionEntityList(paymentToDelete);
+    ReportingFlowPaymentRevisionEntity.persist(reportingFlowPaymentRevisionEntity);
 
     setReportingFlowEntity(reportingFlowEntity, ReportingFlowStatusEnumEntity.DELETED, now);
     ReportingFlowRevisionEntity reportingFlowRevision =
@@ -258,10 +270,10 @@ public class ReportingFlowService {
 
     PanacheQuery<ReportingFlowPaymentEntity> reportingFlowPaymentEntityPanacheQuery =
         ReportingFlowPaymentEntity.find(
-                "reporting_flow_name = ?1 and status = ?2",
+                "ref_reporting_flow_reporting_flow_name = ?1 and status = ?2",
                 sort,
                 reportingFlowName,
-                ReportingFlowPaymentStatusEnumEntity.ADD)
+                ReportingFlowPaymentStatusEnumEntity.SUM)
             .page(page);
 
     List<ReportingFlowPaymentEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
@@ -399,9 +411,10 @@ public class ReportingFlowService {
                   (reportingFlowPaymentEntity.revision == null)
                       ? 1L
                       : reportingFlowPaymentEntity.revision + 1;
-              reportingFlowPaymentEntity.reporting_flow_id = reportingFlowEntity.id;
-              reportingFlowPaymentEntity.reporting_flow_name =
+              reportingFlowPaymentEntity.ref_reporting_flow_id = reportingFlowEntity.id;
+              reportingFlowPaymentEntity.ref_reporting_flow_reporting_flow_name =
                   reportingFlowEntity.reporting_flow_name;
+              reportingFlowPaymentEntity.ref_reporting_flow_revision = reportingFlowEntity.revision;
             });
   }
 }

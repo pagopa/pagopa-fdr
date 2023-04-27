@@ -42,11 +42,11 @@ public interface ReportingFlowServiceMapper {
 
   List<PaymentDto> toPagamentoDtos(List<ReportingFlowPaymentEntity> paymentEntities);
 
-  @Mapping(source = "id", target = "reporting_flow_id")
+  @Mapping(source = "id", target = "ref_reporting_flow_id")
   @Mapping(target = "id", ignore = true)
   ReportingFlowRevisionEntity toReportingFlowRevision(ReportingFlowEntity reportingFlowEntity);
 
-  @Mapping(source = "id", target = "reporting_flow_payment_id")
+  @Mapping(source = "id", target = "ref_reporting_flow_payment_id")
   @Mapping(target = "id", ignore = true)
   ReportingFlowPaymentRevisionEntity toReportingFlowPaymentRevisionEntity(
       ReportingFlowPaymentEntity payment);
