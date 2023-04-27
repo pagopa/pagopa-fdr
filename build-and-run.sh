@@ -15,7 +15,11 @@ build () {
   echo "Build version [$version] [$conf]"
   #./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
   #docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
-  docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
+  if [ $conf = "openapi" ]; then
+    echo "1"#docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopa-fdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
+  else
+    docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
+  fi
 }
 
 run () {
@@ -30,6 +34,7 @@ generate_openapi () {
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Generate OpenAPI JSON [$version] [$conf]"
   docker run -i -d --name exportopenapifdr --rm -p 8080:8080 $REPO:$version-$conf
+  sleep 5
   curl http://localhost:8080/q/openapi?format=json > openapi/openapi.json
   docker rm -f exportopenapifdr
 }
