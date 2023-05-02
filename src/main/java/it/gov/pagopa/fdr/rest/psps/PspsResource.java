@@ -1,11 +1,11 @@
 package it.gov.pagopa.fdr.rest.psps;
 
-import it.gov.pagopa.fdr.rest.reportingFlow.mapper.ReportingFlowDtoServiceMapper;
-import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateFlowRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.request.DeletePaymentRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.validation.ReportingFlowValidationService;
-import it.gov.pagopa.fdr.service.reportingFlow.ReportingFlowService;
+import it.gov.pagopa.fdr.rest.psps.mapper.PspsResourceServiceMapper;
+import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
+import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
+import it.gov.pagopa.fdr.rest.psps.validation.PspsValidationService;
+import it.gov.pagopa.fdr.service.psps.PspsService;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -35,11 +35,11 @@ public class PspsResource {
 
   @Inject Logger log;
 
-  @Inject ReportingFlowValidationService validator;
+  @Inject PspsValidationService validator;
 
-  @Inject ReportingFlowDtoServiceMapper mapper;
+  @Inject PspsResourceServiceMapper mapper;
 
-  @Inject ReportingFlowService service;
+  @Inject PspsService service;
 
   @Operation(summary = "Create reporting flow", description = "Create new reporting flow")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))

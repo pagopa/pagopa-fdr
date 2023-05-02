@@ -1,11 +1,11 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
-import it.gov.pagopa.fdr.rest.reportingFlow.mapper.ReportingFlowDtoServiceMapper;
-import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
-import it.gov.pagopa.fdr.rest.reportingFlow.response.GetIdResponse;
-import it.gov.pagopa.fdr.rest.reportingFlow.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.rest.reportingFlow.validation.ReportingFlowValidationService;
-import it.gov.pagopa.fdr.service.reportingFlow.ReportingFlowService;
+import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
+import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.validation.OrganizationsValidationService;
+import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
 import javax.inject.Inject;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
@@ -33,11 +33,11 @@ public class OrganizationsResource {
 
   @Inject Logger log;
 
-  @Inject ReportingFlowValidationService validator;
+  @Inject OrganizationsValidationService validator;
 
-  @Inject ReportingFlowDtoServiceMapper mapper;
+  @Inject OrganizationsResourceServiceMapper mapper;
 
-  @Inject ReportingFlowService service;
+  @Inject OrganizationsService service;
 
   @Operation(
       summary = "Get all published reporting flow",
