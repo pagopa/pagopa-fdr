@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.rest.reportingFlow.model;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
@@ -34,7 +33,7 @@ public class Payment {
   @DecimalMin(value = "0.0", inclusive = false)
   @Digits(integer = Integer.MAX_VALUE, fraction = 2)
   @Schema(example = "0.01")
-  private BigDecimal pay;
+  private Double pay;
 
   @NotNull
   @Schema(example = "PAGAMENTO_ESEGUITO")

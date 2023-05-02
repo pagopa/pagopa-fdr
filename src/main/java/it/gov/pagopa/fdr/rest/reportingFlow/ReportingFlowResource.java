@@ -2,7 +2,7 @@ package it.gov.pagopa.fdr.rest.reportingFlow;
 
 import it.gov.pagopa.fdr.rest.reportingFlow.mapper.ReportingFlowDtoServiceMapper;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
+import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetIdResponse;
@@ -36,7 +36,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 
 @Tag(name = "Reporting Flow", description = "Reporting Flow operations")
-@Path("/reporting-flow")
+@Path("/psps/{psps}/flows")
 @Consumes("application/json")
 @Produces("application/json")
 public class ReportingFlowResource {
@@ -52,7 +52,7 @@ public class ReportingFlowResource {
   @Operation(
       summary = "Create reporting flow",
       description = "Create new reporting flow and return id for add payment")
-  @RequestBody(content = @Content(schema = @Schema(implementation = CreateRequest.class)))
+  @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -68,15 +68,16 @@ public class ReportingFlowResource {
                     schema = @Schema(implementation = Response.class)))
       })
   @POST
-  public Response createReportingFlow(@NotNull @Valid CreateRequest createRequest) {
+  public Response createReportingFlow(
+      @PathParam("psps") String psps, @NotNull @Valid CreateFlowRequest createFlowRequest) {
 
-    log.infof("Create reporting flow [%s]", createRequest.getReportingFlowName());
+    log.infof("Create reporting flow [%s]", createFlowRequest.getReportingFlowName());
 
     // validation
-    validator.validateCreate(createRequest);
+    validator.validateCreateFlow(psps, createFlowRequest);
 
     // save on DB
-    service.save(mapper.toReportingFlowDto(createRequest));
+    service.save(mapper.toReportingFlowDto(createFlowRequest));
 
     return Response.ok().build();
   }

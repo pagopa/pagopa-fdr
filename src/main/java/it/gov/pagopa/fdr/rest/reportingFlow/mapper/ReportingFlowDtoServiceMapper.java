@@ -3,7 +3,7 @@ package it.gov.pagopa.fdr.rest.reportingFlow.mapper;
 import it.gov.pagopa.fdr.rest.reportingFlow.model.Metadata;
 import it.gov.pagopa.fdr.rest.reportingFlow.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateRequest;
+import it.gov.pagopa.fdr.rest.reportingFlow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.reportingFlow.response.GetIdResponse;
@@ -25,7 +25,7 @@ public interface ReportingFlowDtoServiceMapper {
 
   ReportingFlowDtoServiceMapper INSTANCE = Mappers.getMapper(ReportingFlowDtoServiceMapper.class);
 
-  ReportingFlowDto toReportingFlowDto(CreateRequest createRequest);
+  ReportingFlowDto toReportingFlowDto(CreateFlowRequest createRequest);
 
   GetIdResponse toGetIdResponse(ReportingFlowGetDto reportingFlowGetDto);
 

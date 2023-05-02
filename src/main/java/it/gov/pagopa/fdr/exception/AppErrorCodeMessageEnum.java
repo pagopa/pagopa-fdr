@@ -22,13 +22,16 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   REPORTING_FLOW_ALREADY_EXIST(
       "0702", "reporting-flow.alreadyExist", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_WRONG_ACTION("0703", "reporting-flow.wrogAction", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_NO_PAYMENT("0704", "reporting-flow.noPayment", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_PSP_ID_NOT_MATCH(
+      "0704", "reporting-flow.pspId.notMatch", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST(
       "0705", "reporting-flow.sameIndexInSameRequest", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX(
       "0706", "reporting-flow.duplicateIndex", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX(
-      "0707", "reporting-flow.noMatchIndex", RestResponse.Status.BAD_REQUEST);
+      "0707", "reporting-flow.noMatchIndex", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_PAYMENT_PAYMENT_WRONG_IMPORT(
+      "0708", "reporting-flow.payment.wrongImport", RestResponse.Status.BAD_REQUEST);
   private final String errorCode;
   private final String errorMessageKey;
   private final RestResponse.Status httpStatus;

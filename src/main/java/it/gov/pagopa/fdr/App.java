@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr;
 
 import it.gov.pagopa.fdr.rest.exceptionMapper.ErrorResponse;
-import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Components;
@@ -98,5 +97,4 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + "}")),
             }),
     info = @Info(title = "FDR - Flussi di Rendicontazione", version = "0.0.0-SNAPSHOT"))
-@ApplicationPath("/api")
 public class App extends Application {}

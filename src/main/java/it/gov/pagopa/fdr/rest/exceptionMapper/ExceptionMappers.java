@@ -16,7 +16,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.UnexpectedTypeException;
 import javax.ws.rs.WebApplicationException;
@@ -32,11 +31,9 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public Response mapWebApplicationException(WebApplicationException webApplicationException) {
     if (webApplicationException.getCause() instanceof JsonMappingException) {
-      return mapJsonMappingException((JsonMappingException) webApplicationException.getCause())
-          .toResponse();
+      return mapJsonMappingException((JsonMappingException) webApplicationException.getCause());
     } else if (webApplicationException.getCause() instanceof JsonParseException) {
-      return mapJsonParseException((JsonParseException) webApplicationException.getCause())
-          .toResponse();
+      return mapJsonParseException((JsonParseException) webApplicationException.getCause());
     }
     return webApplicationException.getResponse();
   }
@@ -60,8 +57,7 @@ public class ExceptionMappers {
             .build());
   }
 
-  private RestResponse<ErrorResponse> mapJsonMappingException(
-      JsonMappingException jsonMappingException) {
+  private Response mapJsonMappingException(JsonMappingException jsonMappingException) {
     // quando jackson riesce a parsare il messaggio perchè non formato json valido
 
     AppException appEx =
@@ -71,21 +67,24 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    return RestResponse.status(
-        codeMessage.httpStatus(),
-        ErrorResponse.builder()
-            .httpStatusCode(status.getStatusCode())
-            .httpStatusDescription(status.getReasonPhrase())
-            .appErrorCode(codeMessage.errorCode())
-            .errors(
-                List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
-            .build());
+    return Response.status(codeMessage.httpStatus().getStatusCode())
+        .entity(
+            RestResponse.status(
+                codeMessage.httpStatus(),
+                ErrorResponse.builder()
+                    .httpStatusCode(status.getStatusCode())
+                    .httpStatusDescription(status.getReasonPhrase())
+                    .appErrorCode(codeMessage.errorCode())
+                    .errors(
+                        List.of(
+                            ErrorResponse.ErrorMessage.builder()
+                                .message(codeMessage.message(appEx.getArgs()))
+                                .build()))
+                    .build()))
+        .build();
   }
 
-  private RestResponse<ErrorResponse> mapJsonParseException(JsonParseException jsonParseException) {
+  private Response mapJsonParseException(JsonParseException jsonParseException) {
     // quando jackson riesce a parsare il messaggio perchè non formato json valido
 
     AppException appEx =
@@ -95,18 +94,21 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    return RestResponse.status(
-        codeMessage.httpStatus(),
-        ErrorResponse.builder()
-            .httpStatusCode(status.getStatusCode())
-            .httpStatusDescription(status.getReasonPhrase())
-            .appErrorCode(codeMessage.errorCode())
-            .errors(
-                List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
-            .build());
+    return Response.status(codeMessage.httpStatus().getStatusCode())
+        .entity(
+            RestResponse.status(
+                codeMessage.httpStatus(),
+                ErrorResponse.builder()
+                    .httpStatusCode(status.getStatusCode())
+                    .httpStatusDescription(status.getReasonPhrase())
+                    .appErrorCode(codeMessage.errorCode())
+                    .errors(
+                        List.of(
+                            ErrorResponse.ErrorMessage.builder()
+                                .message(codeMessage.message(appEx.getArgs()))
+                                .build()))
+                    .build()))
+        .build();
   }
 
   @ServerExceptionMapper
@@ -209,12 +211,12 @@ public class ExceptionMappers {
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapUnexpectedTypeException(UnexpectedTypeException exception) {
+  public Response mapUnexpectedTypeException(UnexpectedTypeException exception) {
     return mapThrowable(exception);
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapThrowable(Throwable exception) {
+  public Response mapThrowable(Throwable exception) {
     String errorId = UUID.randomUUID().toString();
     log.errorf(exception, "Exception not managed - errorId[%s]", errorId);
 
@@ -222,19 +224,22 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    return RestResponse.status(
-        codeMessage.httpStatus(),
-        ErrorResponse.builder()
-            .errorId(errorId)
-            .httpStatusCode(status.getStatusCode())
-            .httpStatusDescription(status.getReasonPhrase())
-            .appErrorCode(codeMessage.errorCode())
-            .errors(
-                List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
-            .build());
+    return Response.status(codeMessage.httpStatus().getStatusCode())
+        .entity(
+            RestResponse.status(
+                codeMessage.httpStatus(),
+                ErrorResponse.builder()
+                    .errorId(errorId)
+                    .httpStatusCode(status.getStatusCode())
+                    .httpStatusDescription(status.getReasonPhrase())
+                    .appErrorCode(codeMessage.errorCode())
+                    .errors(
+                        List.of(
+                            ErrorResponse.ErrorMessage.builder()
+                                .message(codeMessage.message(appEx.getArgs()))
+                                .build()))
+                    .build()))
+        .build();
   }
 
   @ServerExceptionMapper
@@ -263,23 +268,10 @@ public class ExceptionMappers {
                         constraintViolation -> {
                           return ErrorResponse.ErrorMessage.builder()
                               .path(constraintViolation.getPropertyPath().toString())
-                              .message(convertMessageKey(constraintViolation))
+                              .message(AppMessageUtil.getMessage(constraintViolation.getMessage()))
                               .build();
                         })
                     .collect(Collectors.toList()))
             .build());
-  }
-
-  private String convertMessageKey(ConstraintViolation constraintViolation) {
-    String originalMessageKey = constraintViolation.getMessage();
-    //    return originalMessageKey;
-    //    if (!originalMessageKey.contains("|")) {
-    return AppMessageUtil.getMessage(originalMessageKey);
-    //    } else {
-    //      String[] messageToEvaluateSplit = originalMessageKey.split("\\|", 2);
-    //      String messageKey = messageToEvaluateSplit[0];
-    //      String[] args = messageToEvaluateSplit[1].split("\\|");
-    //      return AppMessageUtil.getMessage(messageKey, args);
-    //    }
   }
 }

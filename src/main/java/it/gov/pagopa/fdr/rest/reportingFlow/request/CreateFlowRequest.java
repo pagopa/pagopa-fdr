@@ -14,7 +14,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
-public class CreateRequest {
+public class CreateFlowRequest {
   @NotNull
   @Pattern(regexp = "^\\S+$")
   @Schema(example = "60000000001-1173")
