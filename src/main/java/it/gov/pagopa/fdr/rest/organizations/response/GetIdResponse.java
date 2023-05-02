@@ -1,9 +1,9 @@
 package it.gov.pagopa.fdr.rest.organizations.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import it.gov.pagopa.fdr.rest.organizations.model.Receiver;
-import it.gov.pagopa.fdr.rest.organizations.model.Sender;
-import it.gov.pagopa.fdr.service.psps.dto.ReportingFlowStatusEnumDto;
+import it.gov.pagopa.fdr.rest.model.Receiver;
+import it.gov.pagopa.fdr.rest.model.Sender;
+import it.gov.pagopa.fdr.service.dto.ReportingFlowStatusEnumDto;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;

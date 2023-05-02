@@ -2,8 +2,8 @@ package it.gov.pagopa.fdr.service.organizations.mapper;
 
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentEntity;
-import it.gov.pagopa.fdr.service.organizations.dto.PaymentDto;
-import it.gov.pagopa.fdr.service.organizations.dto.ReportingFlowGetDto;
+import it.gov.pagopa.fdr.service.dto.PaymentDto;
+import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

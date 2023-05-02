@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.psps.dto;
+package it.gov.pagopa.fdr.service.dto;
 
 import java.time.Instant;
 import lombok.Builder;
@@ -6,15 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ReportingFlowGetDto {
-
-  public Long revision;
-
-  public Instant created;
-
-  public Instant updated;
-
-  public ReportingFlowStatusEnumDto status;
+public class ReportingFlowDto {
 
   private String reportingFlowName;
 
@@ -29,8 +21,4 @@ public class ReportingFlowGetDto {
   private Instant regulationDate;
 
   private String bicCodePouringBank;
-
-  public Long totPayments;
-
-  public Double sumPaymnents;
 }

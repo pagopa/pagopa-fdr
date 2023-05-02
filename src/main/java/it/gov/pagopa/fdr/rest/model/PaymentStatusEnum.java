@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.psps.model;
+package it.gov.pagopa.fdr.rest.model;
 
 public enum PaymentStatusEnum {
   EXECUTED,

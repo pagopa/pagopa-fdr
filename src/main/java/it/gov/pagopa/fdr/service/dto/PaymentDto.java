@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.organizations.dto;
+package it.gov.pagopa.fdr.service.dto;
 
 import java.time.Instant;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.psps.model;
+package it.gov.pagopa.fdr.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.validation.constraints.NotNull;

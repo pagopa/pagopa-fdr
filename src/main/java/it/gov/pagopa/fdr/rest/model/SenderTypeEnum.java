@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.psps.model;
+package it.gov.pagopa.fdr.rest.model;
 
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;

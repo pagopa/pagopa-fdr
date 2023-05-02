@@ -1,6 +1,6 @@
-package it.gov.pagopa.fdr.util.validation;
+package it.gov.pagopa.fdr.rest.validation;
 
-import it.gov.pagopa.fdr.rest.reportingFlow.model.Payment;
+import it.gov.pagopa.fdr.rest.model.Payment;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 

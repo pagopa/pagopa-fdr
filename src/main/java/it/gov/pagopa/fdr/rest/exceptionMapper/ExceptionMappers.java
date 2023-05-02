@@ -111,6 +111,7 @@ public class ExceptionMappers {
         .build();
   }
 
+  @SuppressWarnings("unchecked")
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapInvalidFormatException(
       InvalidFormatException invalidFormatException) {

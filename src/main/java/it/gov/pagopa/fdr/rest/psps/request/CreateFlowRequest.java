@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.rest.psps.request;
 
-import it.gov.pagopa.fdr.rest.psps.model.Receiver;
-import it.gov.pagopa.fdr.rest.psps.model.Sender;
+import it.gov.pagopa.fdr.rest.model.Receiver;
+import it.gov.pagopa.fdr.rest.model.Sender;
 import java.time.Instant;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

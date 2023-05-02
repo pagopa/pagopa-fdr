@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.psps.dto;
+package it.gov.pagopa.fdr.service.dto;
 
 import java.util.List;
 import lombok.Builder;

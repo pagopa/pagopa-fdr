@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.psps.dto;
+package it.gov.pagopa.fdr.service.dto;
 
 public enum PaymentStatusEnumDto {
   EXECUTED,

@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.psps.model;
+package it.gov.pagopa.fdr.rest.model;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;

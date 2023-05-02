@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.organizations.model;
+package it.gov.pagopa.fdr.rest.model;
 
 import java.time.Instant;
 import javax.validation.constraints.DecimalMin;
