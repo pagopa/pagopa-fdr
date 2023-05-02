@@ -32,12 +32,6 @@ public class PspsValidationService {
   @WithSpan(kind = SERVER)
   public void validateAddPayment(String psps, String fdr, AddPaymentRequest addPaymentRequest) {
     log.debug("Validate add payment");
-
-    long payment = addPaymentRequest.getPayments().stream().filter(a -> a.getPay() <= 0).count();
-    if (payment > 0) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_PAYMENT_WRONG_IMPORT, fdr);
-    }
   }
 
   @WithSpan(kind = SERVER)
