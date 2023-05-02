@@ -2,8 +2,8 @@ package it.gov.pagopa.fdr.rest.organizations.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import it.gov.pagopa.fdr.rest.model.Receiver;
+import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.model.Sender;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowStatusEnumDto;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class GetIdResponse {
   public Instant updated;
 
   @Schema(example = "643accaa4733f71aea4c71bf")
-  public ReportingFlowStatusEnumDto status;
+  public ReportingFlowStatusEnum status;
 
   @Schema(example = "60000000001-1173")
   private String reportingFlowName;
