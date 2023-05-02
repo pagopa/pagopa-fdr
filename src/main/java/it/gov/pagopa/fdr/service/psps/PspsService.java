@@ -134,7 +134,7 @@ public class PspsService {
                   reportingFlowPaymentEntity.ref_fdr_id = reportingFlowEntity.id;
                   reportingFlowPaymentEntity.ref_fdr_reporting_flow_name =
                       reportingFlowEntity.reporting_flow_name;
-                  return reportingFlowEntity;
+                  return reportingFlowPaymentEntity;
                 })
             .collect(Collectors.toList()));
   }
