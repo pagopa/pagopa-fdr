@@ -10,18 +10,15 @@ import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.ReportingFlowPaymentEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowPaymentStatusEnumEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowStatusEnumEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.projection.ReportingFlowNameProjection;
+import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentPublishEntity;
+import it.gov.pagopa.fdr.repository.reportingFlow.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.reportingFlow.projection.FdrPublishReportingFlowNameProjection;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.mapper.OrganizationsServiceServiceMapper;
 import java.util.List;
-import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.jboss.logging.Logger;
@@ -41,32 +38,25 @@ public class OrganizationsService {
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = getSort(List.of("_id,asc"));
 
-    PanacheQuery<ReportingFlowEntity> reportingFlowPanacheQuery;
+    PanacheQuery<FdrPublishEntity> reportingFlowPanacheQuery;
     if (pspId == null || pspId.isBlank()) {
       reportingFlowPanacheQuery =
-          ReportingFlowEntity.find(
-              "status = :status and receiver.ec_id = :ecId",
-              sort,
-              Parameters.with("status", ReportingFlowStatusEnumEntity.PUBLISHED)
-                  .and("ecId", ecId)
-                  .map());
+          FdrPublishEntity.find(
+              "receiver.ec_id = :ecId", sort, Parameters.with("ecId", ecId).map());
     } else {
       reportingFlowPanacheQuery =
-          ReportingFlowEntity.find(
-              "status = :status and receiver.ec_id = :ecId and sender.psp_id = :pspId",
+          FdrPublishEntity.find(
+              "receiver.ec_id = :ecId and sender.psp_id = :pspId",
               sort,
-              Parameters.with("status", ReportingFlowStatusEnumEntity.PUBLISHED)
-                  .and("ecId", ecId)
-                  .and("pspId", pspId)
-                  .map());
+              Parameters.with("ecId", ecId).and("pspId", pspId).map());
     }
-    PanacheQuery<ReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
-        reportingFlowPanacheQuery.page(page).project(ReportingFlowNameProjection.class);
+    PanacheQuery<FdrPublishReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
+        reportingFlowPanacheQuery.page(page).project(FdrPublishReportingFlowNameProjection.class);
 
-    List<ReportingFlowNameProjection> reportingFlowIds =
+    List<FdrPublishReportingFlowNameProjection> reportingFlowIds =
         reportingFlowNameProjectionPanacheQuery.list();
 
-    long totPage = Long.valueOf(reportingFlowNameProjectionPanacheQuery.pageCount());
+    long totPage = reportingFlowNameProjectionPanacheQuery.pageCount();
     long countReportingFlow = reportingFlowNameProjectionPanacheQuery.count();
 
     return ReportingFlowByIdEcDto.builder()
@@ -85,7 +75,18 @@ public class OrganizationsService {
   public ReportingFlowGetDto findByReportingFlowName(String reportingFlowName) {
     log.debugf("Get data from DB");
 
-    return mapper.toReportingFlowGetDto(retrieve(reportingFlowName));
+    FdrPublishEntity reportingFlowEntity =
+        FdrPublishEntity.find(
+                "reporting_flow_name = :flowName",
+                Parameters.with("flowName", reportingFlowName).map())
+            .project(FdrPublishEntity.class)
+            .firstResultOptional()
+            .orElseThrow(
+                () ->
+                    new AppException(
+                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+
+    return mapper.toReportingFlowGetDto(reportingFlowEntity);
   }
 
   @WithSpan(kind = SERVER)
@@ -96,15 +97,14 @@ public class OrganizationsService {
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = getSort(List.of("index,asc"));
 
-    PanacheQuery<ReportingFlowPaymentEntity> reportingFlowPaymentEntityPanacheQuery =
-        ReportingFlowPaymentEntity.find(
-                "ref_reporting_flow_reporting_flow_name = ?1 and status = ?2",
+    PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
+        FdrPaymentPublishEntity.find(
+                "ref_fdr_reporting_flow_name = :flowName ",
                 sort,
-                reportingFlowName,
-                ReportingFlowPaymentStatusEnumEntity.SUM)
+                Parameters.with("flowName", reportingFlowName).map())
             .page(page);
 
-    List<ReportingFlowPaymentEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
+    List<FdrPaymentPublishEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
 
     long totPage = Long.valueOf(reportingFlowPaymentEntityPanacheQuery.pageCount());
     long countReportingFlowPayment = reportingFlowPaymentEntityPanacheQuery.count();
@@ -143,20 +143,5 @@ public class OrganizationsService {
               });
     }
     return sort;
-  }
-
-  private ReportingFlowEntity retrieve(String reportingFlowName) {
-    return getByReportingFlowName(reportingFlowName, ReportingFlowEntity.class)
-        .orElseThrow(
-            () ->
-                new AppException(
-                    AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
-  }
-
-  private <T> Optional<T> getByReportingFlowName(String reportingFlowName, Class<T> clazz) {
-    return ReportingFlowEntity.find(
-            "reporting_flow_name = :flowName", Parameters.with("flowName", reportingFlowName).map())
-        .project(clazz)
-        .firstResultOptional();
   }
 }
