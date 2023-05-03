@@ -15,6 +15,6 @@ public class InfoResponseResourceTest {
 
   @Test
   public void testInfoEndpoint() {
-    given().when().get("/api/info").then().statusCode(200).body("name", equalTo(name));
+    given().when().get("/info").then().statusCode(200).body("name", equalTo(name));
   }
 }
