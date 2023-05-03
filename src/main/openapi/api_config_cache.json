@@ -7,7 +7,7 @@
     "version" : "0.0.1"
   },
   "servers" : [ {
-    "url": "${host}",
+    "url": "https://api.dev.platform.pagopa.it/api-config-cache/odev/v1",
     "description" : "Generated server url"
   } ],
   "paths" : {
