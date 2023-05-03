@@ -11,10 +11,10 @@ import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowStatusEnumDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.CDI)
+@Mapper(componentModel = ComponentModel.JAKARTA)
 public interface PspsResourceServiceMapper {
 
   PspsResourceServiceMapper INSTANCE = Mappers.getMapper(PspsResourceServiceMapper.class);

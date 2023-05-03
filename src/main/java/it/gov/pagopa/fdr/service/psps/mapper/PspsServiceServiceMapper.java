@@ -12,11 +12,10 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.CDI)
+@Mapper(componentModel = ComponentModel.JAKARTA)
 public interface PspsServiceServiceMapper {
 
   PspsServiceServiceMapper INSTANCE = Mappers.getMapper(PspsServiceServiceMapper.class);
@@ -31,18 +30,26 @@ public interface PspsServiceServiceMapper {
   @Mapping(source = "reportingFlowDate", target = "reporting_flow_date")
   @Mapping(source = "regulationDate", target = "regulation_date")
   @Mapping(source = "bicCodePouringBank", target = "bic_code_pouring_bank")
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "revision", ignore = true)
+  @Mapping(target = "created", ignore = true)
+  @Mapping(target = "updated", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "totPayments", ignore = true)
+  @Mapping(target = "sumPaymnents", ignore = true)
   FdrInsertEntity toReportingFlow(ReportingFlowDto reportingFlowDto);
-
-  void updateReportingFlowEntity(
-      @MappingTarget FdrInsertEntity reportingFlowEntity, ReportingFlowDto reportingFlowDto);
 
   @Mapping(source = "payStatus", target = "pay_status")
   @Mapping(source = "payDate", target = "pay_date")
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "revision", ignore = true)
+  @Mapping(target = "created", ignore = true)
+  @Mapping(target = "updated", ignore = true)
+  @Mapping(target = "ref_fdr_id", ignore = true)
+  @Mapping(target = "ref_fdr_reporting_flow_name", ignore = true)
   FdrPaymentInsertEntity toReportingFlowPaymentEntity(PaymentDto paymentDto);
 
   List<FdrPaymentInsertEntity> toReportingFlowPaymentEntityList(List<PaymentDto> paymentDto);
-
-  List<PaymentDto> toPagamentoDtos(List<FdrPaymentInsertEntity> paymentEntities);
 
   FdrPublishEntity toFdrPublishEntity(FdrInsertEntity fdrInsertEntity);
 

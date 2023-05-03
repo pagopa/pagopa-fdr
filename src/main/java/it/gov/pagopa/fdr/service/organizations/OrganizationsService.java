@@ -18,9 +18,9 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.mapper.OrganizationsServiceServiceMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

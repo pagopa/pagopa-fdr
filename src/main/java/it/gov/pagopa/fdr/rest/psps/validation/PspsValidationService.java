@@ -8,8 +8,8 @@ import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

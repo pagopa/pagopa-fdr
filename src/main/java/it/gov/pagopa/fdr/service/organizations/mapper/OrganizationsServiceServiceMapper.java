@@ -7,10 +7,10 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.CDI)
+@Mapper(componentModel = ComponentModel.JAKARTA)
 public interface OrganizationsServiceServiceMapper {
 
   OrganizationsServiceServiceMapper INSTANCE =
@@ -21,6 +21,10 @@ public interface OrganizationsServiceServiceMapper {
   @Mapping(source = "regulation_date", target = "regulationDate")
   @Mapping(source = "bic_code_pouring_bank", target = "bicCodePouringBank")
   ReportingFlowGetDto toReportingFlowGetDto(FdrPublishEntity reportingFlow);
+
+  @Mapping(source = "pay_status", target = "payStatus")
+  @Mapping(source = "pay_date", target = "payDate")
+  PaymentDto toPagamentoDto(FdrPaymentPublishEntity paymentEntity);
 
   List<PaymentDto> toPagamentoDtos(List<FdrPaymentPublishEntity> paymentEntities);
 }

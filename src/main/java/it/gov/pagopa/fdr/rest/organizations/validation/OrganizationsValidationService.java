@@ -3,8 +3,8 @@ package it.gov.pagopa.fdr.rest.organizations.validation;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

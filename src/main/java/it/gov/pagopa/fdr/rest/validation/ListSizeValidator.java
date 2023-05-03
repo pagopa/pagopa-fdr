@@ -1,8 +1,8 @@
 package it.gov.pagopa.fdr.rest.validation;
 
 import it.gov.pagopa.fdr.rest.model.Payment;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class ListSizeValidator implements ConstraintValidator<ListSize, java.util.List<Payment>> {
 

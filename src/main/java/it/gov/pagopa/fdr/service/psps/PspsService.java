@@ -19,14 +19,14 @@ import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

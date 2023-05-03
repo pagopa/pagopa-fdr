@@ -2,10 +2,10 @@ package it.gov.pagopa.fdr.rest.psps.request;
 
 import it.gov.pagopa.fdr.rest.model.Receiver;
 import it.gov.pagopa.fdr.rest.model.Sender;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;

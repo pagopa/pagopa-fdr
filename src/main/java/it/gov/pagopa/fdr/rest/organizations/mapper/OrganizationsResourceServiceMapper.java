@@ -9,10 +9,10 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.CDI)
+@Mapper(componentModel = ComponentModel.JAKARTA)
 public interface OrganizationsResourceServiceMapper {
 
   OrganizationsResourceServiceMapper INSTANCE =
