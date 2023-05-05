@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
+import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
@@ -24,6 +25,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
+import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 @Tag(name = "Organizations", description = "Get reporting flow operations")
 @Path("/organizations/{ec}/flows")
@@ -31,6 +33,7 @@ import org.jboss.logging.Logger;
 @Produces("application/json")
 public class OrganizationsResource {
 
+  @Inject Config config;
   @Inject Logger log;
 
   @Inject OrganizationsValidationService validator;
@@ -67,6 +70,7 @@ public class OrganizationsResource {
         "Get id of reporting flow by idEc [%s], idPsp [%s] - page: [%s], pageSize: [%s]",
         ec, idPsp, pageNumber, pageSize);
 
+    ConfigDataV1 configDataV1 = config.get();
     // validation
     validator.validateGetAllByEc(ec, idPsp);
 
