@@ -70,7 +70,6 @@ public class OrganizationsResource {
         "Get id of reporting flow by idEc [%s], idPsp [%s] - page: [%s], pageSize: [%s]",
         ec, idPsp, pageNumber, pageSize);
 
-    ConfigDataV1 configDataV1 = config.get();
     // validation
     validator.validateGetAllByEc(ec, idPsp);
 

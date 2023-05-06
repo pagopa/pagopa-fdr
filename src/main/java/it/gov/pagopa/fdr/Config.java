@@ -1,51 +1,41 @@
 package it.gov.pagopa.fdr;
 
-import io.quarkus.scheduler.Scheduled;
 import io.quarkus.scheduler.ScheduledExecution;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.Getter;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.api.NodeCacheApi;
-import org.openapi.quarkus.api_config_cache_json.model.CacheVersion;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
+// @Startup
 @ApplicationScoped
 public class Config {
 
   @PostConstruct
   public void init() {
-    cache = nodeCacheApi.cache();
-    log.infof("CACHE INIT. Version [%s]", cache.getVersion());
-    log.info(cache.hashCode());
+    ConfigDataV1 newCache = nodeCacheApi.cache();
+    log.debugf("CACHE INIT. Version [%s]", newCache.getVersion());
+    this.cache = newCache;
   }
 
-  private ConfigDataV1 cache = null;
+  @Getter ConfigDataV1 cache;
 
   @Inject Logger log;
   @Inject @RestClient NodeCacheApi nodeCacheApi;
 
-  public ConfigDataV1 get() {
-    return cache;
-  }
-
-  @Scheduled(cron = "{api_config_cache.cron.expr}")
-  void cronJobWithExpressionInConfig(ScheduledExecution execution) {
-    log.info(execution.getScheduledFireTime());
-    if (cache == null) {
-      throw new RuntimeException();
-    }
-
-    CacheVersion cacheVersion = nodeCacheApi.idV1();
-    if (!cacheVersion.getVersion().equals(cache.getVersion())) {
-      String oldVersion = cache.getVersion();
-      cache = nodeCacheApi.cache();
-      log.infof("CACHE UPDATED. Version  [%s] -> [%s]", oldVersion, cache.getVersion());
-      log.info(cache.hashCode());
+  // @Scheduled(cron = "{api_config_cache.cron.expr}")
+  void cronJobApiconfigCache(ScheduledExecution execution) {
+    log.infof("Schedule api-config-cache %s", execution.getScheduledFireTime());
+    String version = cache.getVersion();
+    String newVersion = nodeCacheApi.idV1().getVersion();
+    if (version.equals(newVersion)) {
+      log.debugf("CACHE NOT UPDATED. Version [%s]", cache.getVersion());
     } else {
-      log.infof("CACHE NOT UPDATED. Version [%s]", cache.getVersion());
-      log.info(cache.hashCode());
+      log.debugf("CACHE UPDATED. Version  [%s] -> [%s]", version, newVersion);
+      this.cache = nodeCacheApi.cache();
     }
   }
 }

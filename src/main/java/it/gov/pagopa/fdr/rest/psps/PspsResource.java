@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.rest.psps;
 
+import it.gov.pagopa.fdr.rest.exceptionMapper.ErrorResponse;
+import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
@@ -18,6 +20,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -26,9 +29,12 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.RestResponse;
+import java.net.URI;
+import java.util.List;
 
 @Tag(name = "PSP", description = "Psp operations")
-@Path("/psps/{psps}/flows")
+@Path("/psps/{psp}/flows")
 @Consumes("application/json")
 @Produces("application/json")
 public class PspsResource {
@@ -50,26 +56,30 @@ public class PspsResource {
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
-            responseCode = "200",
-            description = "Success",
+            responseCode = "201",
+            description = "Created",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = Response.class)))
+                    schema = @Schema(implementation = GenericResponse.class)))
       })
   @POST
-  public Response createFlow(
-      @PathParam("psps") String psps, @NotNull @Valid CreateFlowRequest createFlowRequest) {
+  public RestResponse<GenericResponse> createFlow(
+      @PathParam("psp") String psp, @NotNull @Valid CreateFlowRequest createFlowRequest) {
 
-    log.infof("Create reporting flow [%s]", createFlowRequest.getReportingFlowName());
+    String flowNme = createFlowRequest.getReportingFlowName();
+    log.infof("Create reporting flow [%s]", flowNme);
 
     // validation
-    validator.validateCreateFlow(psps, createFlowRequest);
+    validator.validateCreateFlow(psp, createFlowRequest);
 
     // save on DB
     service.save(mapper.toReportingFlowDto(createFlowRequest));
 
-    return Response.ok().build();
+    GenericResponse.builder().build();
+    return RestResponse.status(
+        Status.CREATED,
+            GenericResponse.builder().message(String.format("Flow [%s] saved",flowNme)).build());
   }
 
   @Operation(
@@ -88,24 +98,24 @@ public class PspsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = Response.class)))
+                    schema = @Schema(implementation = GenericResponse.class)))
       })
   @PUT
-  @Path("/{fdr}/payments")
-  public Response addPaymentToFlow(
-      @PathParam("psps") String psps,
+  @Path("/{fdr}/payments-add")
+  public GenericResponse addPaymentToFlow(
+      @PathParam("psp") String psp,
       @PathParam("fdr") String fdr,
       @NotNull @Valid AddPaymentRequest addPaymentRequest) {
 
     log.infof("Add payment to reporting flow [%s]", fdr);
 
     // validation
-    validator.validateAddPayment(psps, fdr, addPaymentRequest);
+    validator.validateAddPayment(psp, fdr, addPaymentRequest);
 
     // save on DB
-    service.addPayment(psps, fdr, mapper.toAddPaymentDto(addPaymentRequest));
+    service.addPayment(psp, fdr, mapper.toAddPaymentDto(addPaymentRequest));
 
-    return Response.ok().build();
+    return GenericResponse.builder().message(String.format("Flow [%s] payment added",fdr)).build();
   }
 
   @Operation(
@@ -124,24 +134,24 @@ public class PspsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = Response.class)))
+                    schema = @Schema(implementation = GenericResponse.class)))
       })
-  @DELETE
-  @Path("/{fdr}/payments")
-  public Response deletePaymentToReportingFlow(
-      @PathParam("psps") String psps,
+  @PUT
+  @Path("/{fdr}/payments-del")
+  public GenericResponse deletePaymentToReportingFlow(
+      @PathParam("psp") String psp,
       @PathParam("fdr") String fdr,
       @NotNull @Valid DeletePaymentRequest deletePaymentRequest) {
 
     log.infof("Delete payment to reporting flow [%s]", fdr);
 
     // validation
-    validator.validateDeletePayment(psps, fdr, deletePaymentRequest);
+    validator.validateDeletePayment(psp, fdr, deletePaymentRequest);
 
     // save on DB
-    service.deletePayment(psps, fdr, mapper.toDeletePaymentDto(deletePaymentRequest));
+    service.deletePayment(psp, fdr, mapper.toDeletePaymentDto(deletePaymentRequest));
 
-    return Response.ok().build();
+    return GenericResponse.builder().message(String.format("Flow [%s] payment deleted",fdr)).build();
   }
 
   @Operation(summary = "Publish reporting flow", description = "Publish reporting flow")
@@ -157,22 +167,22 @@ public class PspsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = Response.class)))
+                    schema = @Schema(implementation = GenericResponse.class)))
       })
   @POST
   @Path("/{fdr}/publish")
-  public Response publishReportingFlow(
-      @PathParam("psps") String psps, @PathParam("fdr") String fdr) {
+  public GenericResponse publishReportingFlow(
+      @PathParam("psp") String psp, @PathParam("fdr") String fdr) {
 
     log.infof("Publish reporting flow [%s]", fdr);
 
     // validation
-    validator.validatePublish(psps, fdr);
+    validator.validatePublish(psp, fdr);
 
     // save on DB
-    service.publishByReportingFlowName(psps, fdr);
+    service.publishByReportingFlowName(psp, fdr);
 
-    return Response.ok().build();
+    return GenericResponse.builder().message(String.format("Flow [%s] published",fdr)).build();
   }
 
   @Operation(summary = "Delete reporting flow", description = "Delete reporting flow")
@@ -188,21 +198,21 @@ public class PspsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = Response.class)))
+                    schema = @Schema(implementation = GenericResponse.class)))
       })
   @DELETE
   @Path("/{fdr}")
-  public Response deleteReportingFlow(
-      @PathParam("psps") String psps, @PathParam("fdr") String fdr) {
+  public GenericResponse deleteReportingFlow(
+      @PathParam("psp") String psp, @PathParam("fdr") String fdr) {
 
     log.infof("Delete reporting flow [%s]", fdr);
 
     // validation
-    validator.validateDelete(psps, fdr);
+    validator.validateDelete(psp, fdr);
 
     // save on DB
-    service.deleteByReportingFlowName(psps, fdr);
+    service.deleteByReportingFlowName(psp, fdr);
 
-    return Response.ok().build();
+    return GenericResponse.builder().message(String.format("Flow [%s] deleted",fdr)).build();
   }
 }

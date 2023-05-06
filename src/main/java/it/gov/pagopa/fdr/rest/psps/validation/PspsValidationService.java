@@ -18,35 +18,35 @@ public class PspsValidationService {
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public void validateCreateFlow(String psps, CreateFlowRequest createFlowRequest) {
+  public void validateCreateFlow(String psp, CreateFlowRequest createFlowRequest) {
     log.debug("Validate create");
-    if (!psps.equals(createFlowRequest.getSender().getPspId())) {
+    if (!psp.equals(createFlowRequest.getSender().getPspId())) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH,
           createFlowRequest.getReportingFlowName(),
           createFlowRequest.getSender().getPspId(),
-          psps);
+          psp);
     }
   }
 
   @WithSpan(kind = SERVER)
-  public void validateAddPayment(String psps, String fdr, AddPaymentRequest addPaymentRequest) {
+  public void validateAddPayment(String psp, String fdr, AddPaymentRequest addPaymentRequest) {
     log.debug("Validate add payment");
   }
 
   @WithSpan(kind = SERVER)
   public void validateDeletePayment(
-      String psps, String fdr, DeletePaymentRequest deletePaymentRequest) {
+      String psp, String fdr, DeletePaymentRequest deletePaymentRequest) {
     log.debug("Validate delete payment");
   }
 
   @WithSpan(kind = SERVER)
-  public void validatePublish(String psps, String fdr) {
+  public void validatePublish(String psp, String fdr) {
     log.debug("Validate publish");
   }
 
   @WithSpan(kind = SERVER)
-  public void validateDelete(String psps, String fdr) {
+  public void validateDelete(String psp, String fdr) {
     log.debug("Validate delete");
   }
 }
