@@ -30,16 +30,6 @@ public class ClientGZIPDecodingInterceptor implements ReaderInterceptor {
       GZIPInputStream is = new GZIPInputStream(old);
       context.setInputStream(is);
 
-      //      String text = new BufferedReader(
-      //          new InputStreamReader(is, StandardCharsets.UTF_8))
-      //          .lines()
-      //          .collect(Collectors.joining("\n"));
-      //
-      //      //System.out.println(text);
-      //      BufferedWriter writer = new BufferedWriter(new FileWriter("test.json"));
-      //      writer.write(text);
-      //      writer.close();
-
       Object response;
       try {
         response = context.proceed();

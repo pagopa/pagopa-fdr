@@ -2,6 +2,8 @@ package it.gov.pagopa.fdr.rest.model;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
@@ -16,16 +18,18 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class Payment {
 
   @NotNull
-  @Pattern(regexp = "^\\w+$")
+  @Pattern(regexp = "^(\\w{1,35})$")
   @Schema(example = "abcdefg")
   private String iuv;
 
   @NotNull
-  @Pattern(regexp = "^\\w+$")
+  @Pattern(regexp = "^(\\w{1,35})$")
   @Schema(example = "abcdefg")
   private String iur;
 
   @NotNull
+  @Min(value = 1)
+  @Max(value = 5)
   @Schema(example = "1")
   private Long index;
 
@@ -36,7 +40,7 @@ public class Payment {
   private Double pay;
 
   @NotNull
-  @Schema(example = "PAGAMENTO_ESEGUITO")
+  @Schema(example = "EXECUTED")
   private PaymentStatusEnum payStatus;
 
   @NotNull

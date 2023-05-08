@@ -8,8 +8,8 @@
   },
   "servers" : [ {
     "url" : "https://api.dev.platform.pagopa.it/api-config-cache/odev/v1",
-    "description" : "Generated server url"
-  } ],
+    "description" : "Api config cache oracle"
+  }],
   "paths" : {
     "/stakeholders/node/cache/schemas/v1" : {
       "get" : {

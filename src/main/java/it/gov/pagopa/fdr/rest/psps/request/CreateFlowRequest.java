@@ -16,7 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Jacksonized
 public class CreateFlowRequest {
   @NotNull
-  @Pattern(regexp = "^\\S+$")
+  @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
   @Schema(example = "60000000001-1173")
   private String reportingFlowName;
 
@@ -29,6 +29,7 @@ public class CreateFlowRequest {
   @NotNull @Valid private Receiver receiver;
 
   @NotNull
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "SEPA - Bonifico xzy")
   private String regulation;
 
@@ -37,6 +38,6 @@ public class CreateFlowRequest {
   private Instant regulationDate;
 
   @Schema(example = "UNCRITMMXXX")
-  @Pattern(regexp = "^(\\w{8}|\\w{11})$")
+  @Pattern(regexp = "^(\\w{1,35})$") // TODO non dovrebbe essere 5 numerici?
   private String bicCodePouringBank;
 }

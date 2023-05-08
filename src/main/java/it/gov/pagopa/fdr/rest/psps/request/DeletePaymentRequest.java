@@ -11,7 +11,9 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class DeletePaymentRequest {
+
+  // TODO mettere iuv+iur come key e farla mettere anche sulla collection
   @NotNull
-  @Size(min = 1, max = 100)
+  @Size(min = 1, max = 1000)
   private List<Long> indexPayments;
 }

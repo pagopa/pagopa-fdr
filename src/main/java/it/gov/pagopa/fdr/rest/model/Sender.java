@@ -16,32 +16,32 @@ public class Sender {
   @NotNull private SenderTypeEnum type;
 
   @NotNull
-  @Pattern(regexp = "^\\w+$")
+  @Pattern(regexp = "^(\\w{1,35})$")
   @Schema(example = "SELBIT2B")
   private String id;
 
   @NotNull
-  @Pattern(regexp = "^\\w+$")
+  @Pattern(regexp = "^(\\w{1,35})$")
   @Schema(example = "60000000001")
   private String pspId;
 
   @NotNull
-  @Pattern(regexp = "^\\S+$")
+  @Pattern(regexp = "^(.{3,70})$")
   @Schema(example = "Bank")
   private String pspName;
 
   @NotNull
-  @Pattern(regexp = "^\\w+$")
+  @Pattern(regexp = "^(\\w{1,35})$")
   @Schema(example = "70000000001")
   private String brokerId;
 
   @NotNull
-  @Pattern(regexp = "^\\w+$")
+  @Pattern(regexp = "^(\\w{1,35})$")
   @Schema(example = "80000000001")
   private String channelId;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  @Pattern(regexp = "^\\S+$")
+  @Pattern(regexp = "^(\\w{8,15})$")
   @Schema(example = "1234567890", deprecated = true)
   private String password;
 }

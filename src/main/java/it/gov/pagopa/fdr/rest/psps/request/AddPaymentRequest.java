@@ -14,7 +14,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class AddPaymentRequest {
   @NotNull
-  @Size(min = 1, max = 100)
+  @Size(min = 1, max = 1000)
   @Valid
   private List<Payment> payments;
 }

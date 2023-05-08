@@ -25,7 +25,6 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
-import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 @Tag(name = "Organizations", description = "Get reporting flow operations")
 @Path("/organizations/{ec}/flows")
@@ -65,6 +64,12 @@ public class OrganizationsResource {
       @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+
+    // TODO aggiungere date from to per leggere al massimo n (as is 30) giorni con limite di 90 e
+    // meglio mettere TTL sulla collections a 90 giorni
+
+    // TODO si potrebbe aggiungere un API per metterle in stato già letto da PA in modo da non
+    // ripresentarle ogni volta
 
     log.infof(
         "Get id of reporting flow by idEc [%s], idPsp [%s] - page: [%s], pageSize: [%s]",

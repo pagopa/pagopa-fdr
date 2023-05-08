@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.rest.psps;
 
-import it.gov.pagopa.fdr.rest.exceptionMapper.ErrorResponse;
+import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
@@ -19,7 +19,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -30,8 +29,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
-import java.net.URI;
-import java.util.List;
+import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 @Tag(name = "PSP", description = "Psp operations")
 @Path("/psps/{psp}/flows")
@@ -46,6 +44,8 @@ public class PspsResource {
   @Inject PspsResourceServiceMapper mapper;
 
   @Inject PspsService service;
+
+  @Inject Config config;
 
   @Operation(summary = "Create reporting flow", description = "Create new reporting flow")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
@@ -70,8 +70,9 @@ public class PspsResource {
     String flowNme = createFlowRequest.getReportingFlowName();
     log.infof("Create reporting flow [%s]", flowNme);
 
+    ConfigDataV1 configData = config.getClonedCache();
     // validation
-    validator.validateCreateFlow(psp, createFlowRequest);
+    validator.validateCreateFlow(psp, createFlowRequest, configData);
 
     // save on DB
     service.save(mapper.toReportingFlowDto(createFlowRequest));
@@ -79,7 +80,7 @@ public class PspsResource {
     GenericResponse.builder().build();
     return RestResponse.status(
         Status.CREATED,
-            GenericResponse.builder().message(String.format("Flow [%s] saved",flowNme)).build());
+        GenericResponse.builder().message(String.format("Flow [%s] saved", flowNme)).build());
   }
 
   @Operation(
@@ -115,7 +116,7 @@ public class PspsResource {
     // save on DB
     service.addPayment(psp, fdr, mapper.toAddPaymentDto(addPaymentRequest));
 
-    return GenericResponse.builder().message(String.format("Flow [%s] payment added",fdr)).build();
+    return GenericResponse.builder().message(String.format("Flow [%s] payment added", fdr)).build();
   }
 
   @Operation(
@@ -151,7 +152,9 @@ public class PspsResource {
     // save on DB
     service.deletePayment(psp, fdr, mapper.toDeletePaymentDto(deletePaymentRequest));
 
-    return GenericResponse.builder().message(String.format("Flow [%s] payment deleted",fdr)).build();
+    return GenericResponse.builder()
+        .message(String.format("Flow [%s] payment deleted", fdr))
+        .build();
   }
 
   @Operation(summary = "Publish reporting flow", description = "Publish reporting flow")
@@ -182,7 +185,7 @@ public class PspsResource {
     // save on DB
     service.publishByReportingFlowName(psp, fdr);
 
-    return GenericResponse.builder().message(String.format("Flow [%s] published",fdr)).build();
+    return GenericResponse.builder().message(String.format("Flow [%s] published", fdr)).build();
   }
 
   @Operation(summary = "Delete reporting flow", description = "Delete reporting flow")
@@ -213,6 +216,6 @@ public class PspsResource {
     // save on DB
     service.deleteByReportingFlowName(psp, fdr);
 
-    return GenericResponse.builder().message(String.format("Flow [%s] deleted",fdr)).build();
+    return GenericResponse.builder().message(String.format("Flow [%s] deleted", fdr)).build();
   }
 }

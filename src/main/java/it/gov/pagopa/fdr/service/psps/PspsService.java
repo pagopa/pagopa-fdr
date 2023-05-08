@@ -41,11 +41,12 @@ public class PspsService {
     log.debugf("Save data on DB");
     Instant now = Instant.now();
     String reportingFlowName = reportingFlowDto.getReportingFlowName();
+    String pspId = reportingFlowDto.getSender().getPspId();
 
     Optional<FdrInsertEntity> byReportingFlowName =
         FdrInsertEntity.find(
-                "reporting_flow_name = :flowName",
-                Parameters.with("flowName", reportingFlowName).map())
+                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
             .firstResultOptional();
 
     if (byReportingFlowName.isPresent()) {
@@ -57,16 +58,21 @@ public class PspsService {
 
     Optional<FdrPublishRevisionProjection> fdrPublishedByReportingFlowName =
         FdrPublishEntity.find(
-                "reporting_flow_name = :flowName",
-                Parameters.with("flowName", reportingFlowName).map())
+                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
             .project(FdrPublishRevisionProjection.class)
             .firstResultOptional();
+
+    // sono stati tolti i check con il vecchio FDR, vale solo che se arriva stesso flowNAme con
+    // stesso pspId si crea la rev2
 
     FdrInsertEntity reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
 
     reportingFlowEntity.created = now;
     reportingFlowEntity.updated = now;
     reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CREATED;
+    reportingFlowEntity.totPayments = 0L;
+    reportingFlowEntity.sumPaymnents = 0.0;
     reportingFlowEntity.revision =
         fdrPublishedByReportingFlowName.map(r -> r.revision + 1).orElse(1L);
     reportingFlowEntity.persist();
@@ -79,8 +85,8 @@ public class PspsService {
 
     FdrInsertEntity reportingFlowEntity =
         FdrInsertEntity.find(
-                "reporting_flow_name = :flowName",
-                Parameters.with("flowName", reportingFlowName).map())
+                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -96,6 +102,7 @@ public class PspsService {
           reportingFlowEntity.status);
     }
 
+    // TODO revedere con iuv+iur
     List<Long> indexList = addPaymentDto.getPayments().stream().map(PaymentDto::getIndex).toList();
     if (indexList.size() != indexList.stream().distinct().toList().size()) {
       throw new AppException(
@@ -134,6 +141,8 @@ public class PspsService {
                   reportingFlowPaymentEntity.ref_fdr_id = reportingFlowEntity.id;
                   reportingFlowPaymentEntity.ref_fdr_reporting_flow_name =
                       reportingFlowEntity.reporting_flow_name;
+                  reportingFlowPaymentEntity.ref_fdr_reporting_sender_psp_id =
+                      reportingFlowEntity.sender.pspId;
                   return reportingFlowPaymentEntity;
                 })
             .collect(Collectors.toList()));
@@ -147,8 +156,8 @@ public class PspsService {
 
     FdrInsertEntity reportingFlowEntity =
         FdrInsertEntity.find(
-                "reporting_flow_name = :flowName",
-                Parameters.with("flowName", reportingFlowName).map())
+                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -163,6 +172,7 @@ public class PspsService {
           reportingFlowEntity.status);
     }
 
+    // TODO rivedere con iuv+iur
     List<Long> indexList = deletePaymentDto.getIndexPayments();
     if (indexList.size() != indexList.stream().distinct().toList().size()) {
       throw new AppException(
@@ -205,8 +215,8 @@ public class PspsService {
 
     FdrInsertEntity reportingFlowEntity =
         FdrInsertEntity.find(
-                "reporting_flow_name = :flowName",
-                Parameters.with("flowName", reportingFlowName).map())
+                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -226,17 +236,19 @@ public class PspsService {
 
     List<FdrPaymentInsertEntity> paymentInsertEntities =
         FdrPaymentInsertEntity.find(
-                "ref_fdr_reporting_flow_name = :flowName",
-                Parameters.with("flowName", reportingFlowName).map())
+                "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id ="
+                    + " :pspId",
+                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
             .project(FdrPaymentInsertEntity.class)
             .list();
 
     if (reportingFlowEntity.revision > 1L) {
       FdrPublishEntity.delete(
-          "reporting_flow_name = :flowName", Parameters.with("flowName", reportingFlowName).map());
+          "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+          Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
       FdrPaymentPublishEntity.delete(
-          "ref_fdr_reporting_flow_name = :flowName",
-          Parameters.with("flowName", reportingFlowName).map());
+          "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
+          Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
     }
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(reportingFlowEntity);
     fdrPublishEntity.persist();
@@ -252,8 +264,8 @@ public class PspsService {
 
     reportingFlowEntity.delete();
     FdrPaymentInsertEntity.delete(
-        "ref_fdr_reporting_flow_name = :flowName",
-        Parameters.with("flowName", reportingFlowName).map());
+        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
+        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
   }
 
   @WithSpan(kind = SERVER)
@@ -263,8 +275,8 @@ public class PspsService {
 
     FdrInsertEntity reportingFlowEntity =
         FdrInsertEntity.find(
-                "reporting_flow_name = :flowName",
-                Parameters.with("flowName", reportingFlowName).map())
+                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -280,12 +292,12 @@ public class PspsService {
           reportingFlowEntity.status);
     }
 
-    reportingFlowEntity.delete();
     if (reportingFlowEntity.totPayments > 0L) {
       FdrPaymentInsertEntity.delete(
           "ref_fdr_reporting_flow_name = :flowName",
           Parameters.with("flowName", reportingFlowName).map());
     }
+    reportingFlowEntity.delete();
   }
 
   private static double addAndSum(

@@ -24,4 +24,5 @@ public abstract class AbstractReportingFlowPaymentEntity extends PanacheMongoEnt
 
   public ObjectId ref_fdr_id;
   public String ref_fdr_reporting_flow_name;
+  public String ref_fdr_reporting_sender_psp_id;
 }
