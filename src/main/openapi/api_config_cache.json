@@ -7,7 +7,7 @@
     "version" : "0.2.2"
   },
   "servers" : [ {
-    "url" : "https://api.dev.platform.pagopa.it/api-config-cache/odev/v1",
+    "url" : "https://api.dev.platform.pagopa.it/api-config-cache/odev/v1/fake",
     "description" : "Api config cache oracle"
   }],
   "paths" : {

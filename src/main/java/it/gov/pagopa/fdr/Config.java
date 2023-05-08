@@ -8,7 +8,12 @@ import io.quarkus.scheduler.ScheduledExecution;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.api.NodeCacheApi;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
@@ -17,8 +22,30 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 @ApplicationScoped
 public class Config {
 
+  @ConfigProperty(name = "adapter.api_config_cache.url")
+  String url;
+
+  @ConfigProperty(name = "adapter.api_config_cache.api-key-name")
+  String apiKeyName;
+
+  @ConfigProperty(name = "adapter.api_config_cache.api-key-value")
+  String apiKeyValue;
+
+  private NodeCacheApi nodeCacheApi;
+
   @PostConstruct
-  public void init() {
+  public void init() throws URISyntaxException {
+    nodeCacheApi =
+        RestClientBuilder.newBuilder()
+            .baseUri(new URI(url))
+            .register(
+                (ClientRequestFilter)
+                    context ->
+                        context
+                            .getHeaders()
+                            .put(apiKeyName, Collections.singletonList(apiKeyValue)))
+            .build(NodeCacheApi.class);
+
     ConfigDataV1 newCache = nodeCacheApi.cache();
     log.debugf("CACHE INIT. Version [%s]", newCache.getVersion());
     this.cache = newCache;
@@ -39,11 +66,12 @@ public class Config {
   }
 
   @Inject Logger log;
-  @Inject @RestClient NodeCacheApi nodeCacheApi;
+  //  @Inject @RestClient
+  //  NodeCacheApi nodeCacheApi;
 
   @Scheduled(cron = "{api_config_cache.cron.expr}")
   void cronJobApiconfigCache(ScheduledExecution execution) {
-    log.infof("Schedule api-config-cache %s", execution.getScheduledFireTime());
+    log.debugf("Schedule api-config-cache %s", execution.getScheduledFireTime());
     String version = cache.getVersion();
     String newVersion = nodeCacheApi.idV1().getVersion();
     if (version.equals(newVersion)) {
