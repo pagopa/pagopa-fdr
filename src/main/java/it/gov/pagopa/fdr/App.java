@@ -1,8 +1,8 @@
 package it.gov.pagopa.fdr;
 
 import it.gov.pagopa.fdr.rest.exceptionMapper.ErrorResponse;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Components;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
@@ -36,7 +36,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + "    ]\n"
                                   + "}")),
               @APIResponse(
-                  name = "BadRequest",
+                  name = "ValidationBadRequest",
                   responseCode = "400",
                   description = "Bad Request",
                   content =
@@ -54,7 +54,47 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                   + "            \"message\": \"<detail.message>\"\n"
                                   + "        }\n"
                                   + "    ]\n"
-                                  + "}"))
+                                  + "}")),
+              @APIResponse(
+                  name = "AppException400",
+                  responseCode = "400",
+                  description = "Default app exception for status 400",
+                  content =
+                      @Content(
+                          mediaType = MediaType.APPLICATION_JSON,
+                          schema = @Schema(implementation = ErrorResponse.class),
+                          example =
+                              "{\n"
+                                  + "    \"httpStatusCode\": 400,\n"
+                                  + "    \"httpStatusDescription\": \"Bad Request\",\n"
+                                  + "    \"appErrorCode\": \"FDR-0702\",\n"
+                                  + "    \"errors\": [\n"
+                                  + "        {\n"
+                                  + "            \"message\": \"Reporting Flow id [<flow-id>] is"
+                                  + " invalid found\"\n"
+                                  + "        }\n"
+                                  + "    ]\n"
+                                  + "}")),
+              @APIResponse(
+                  name = "AppException404",
+                  responseCode = "404",
+                  description = "Default app exception for status 404",
+                  content =
+                      @Content(
+                          mediaType = MediaType.APPLICATION_JSON,
+                          schema = @Schema(implementation = ErrorResponse.class),
+                          example =
+                              "{\n"
+                                  + "    \"httpStatusCode\": 404,\n"
+                                  + "    \"httpStatusDescription\": \"Not Found\",\n"
+                                  + "    \"appErrorCode\": \"FDR-0701\",\n"
+                                  + "    \"errors\": [\n"
+                                  + "        {\n"
+                                  + "            \"message\": \"Reporting Flow id [<flow-id>] not"
+                                  + " found\"\n"
+                                  + "        }\n"
+                                  + "    ]\n"
+                                  + "}")),
             }),
     info = @Info(title = "FDR - Flussi di Rendicontazione", version = "0.0.0-SNAPSHOT"))
 public class App extends Application {}

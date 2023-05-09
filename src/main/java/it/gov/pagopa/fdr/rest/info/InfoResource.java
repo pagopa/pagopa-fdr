@@ -3,12 +3,12 @@ package it.gov.pagopa.fdr.rest.info;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.rest.info.response.InfoResponse;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import java.util.Arrays;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -37,10 +37,9 @@ public class InfoResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/BadRequest"),
         @APIResponse(
             responseCode = "200",
-            description = "OK",
+            description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
@@ -63,6 +62,7 @@ public class InfoResource {
                         InfoResponse.ErrorCode.builder()
                             .code(errorCode.errorCode())
                             .description(errorCode.message())
+                            .statusCode(errorCode.httpStatus().getStatusCode())
                             .build())
                 .toList())
         .build();

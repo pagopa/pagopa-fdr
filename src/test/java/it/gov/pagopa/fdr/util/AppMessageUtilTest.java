@@ -10,9 +10,7 @@ public class AppMessageUtilTest {
 
   @Test
   public void resourceBundle() {
-    String str = AppMessageUtil.getMessage("fruit.name.length.size", "test", "test2", "test3");
-    assertEquals(
-        "Fruit name has an invalid value [test]. Expected min length [test2] max length [test3]",
-        str);
+    String str = AppMessageUtil.getMessage("app.description");
+    assertEquals("FDR - Flussi di rendicontazione", str);
   }
 }
