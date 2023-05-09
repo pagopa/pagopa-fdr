@@ -8,27 +8,22 @@ import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
-public class OrganizationsValidationService {
+public class InternalOrganizationsValidationService {
 
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public void validateGet(String fdr) {
+  public void validateGetInternal(String fdr) {
     log.debug("Validate get");
   }
 
   @WithSpan(kind = SERVER)
-  public void validateGetPayment(String fdr) {
+  public void validateGetPaymentInternal(String fdr) {
     log.debug("Validate get payment");
   }
 
   @WithSpan(kind = SERVER)
-  public void validateGetAllByEc(String idEc, String idPsp) {
-    log.debug("Validate get all by ec");
-  }
-
-  @WithSpan(kind = SERVER)
-  public void validateChangeReadFlag(String fdr) {
-    log.debug("Validate change read flag");
+  public void validateChangeInternalReadFlag(String fdr) {
+    log.debug("Validate change internal read flag");
   }
 }

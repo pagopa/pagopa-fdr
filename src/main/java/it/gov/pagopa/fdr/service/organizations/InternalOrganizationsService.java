@@ -17,7 +17,7 @@ import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
-import it.gov.pagopa.fdr.service.organizations.mapper.OrganizationsServiceServiceMapper;
+import it.gov.pagopa.fdr.service.organizations.mapper.InternalOrganizationsServiceServiceMapper;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,32 +26,25 @@ import java.util.List;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
-public class OrganizationsService {
+public class InternalOrganizationsService {
 
-  @Inject OrganizationsServiceServiceMapper mapper;
+  @Inject InternalOrganizationsServiceServiceMapper mapper;
 
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowByIdEcDto findByIdEc(
-      String ecId, String pspId, long pageNumber, long pageSize) {
+  public ReportingFlowByIdEcDto findByInternals(long pageNumber, long pageSize) {
     log.debugf("Get all data from DB");
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = AppDBUtil.getSort(List.of("_id,asc"));
 
-    PanacheQuery<FdrPublishEntity> reportingFlowPanacheQuery;
-    if (pspId == null || pspId.isBlank()) {
-      reportingFlowPanacheQuery =
-          FdrPublishEntity.find(
-              "receiver.ec_id = :ecId", sort, Parameters.with("ecId", ecId).map());
-    } else {
-      reportingFlowPanacheQuery =
-          FdrPublishEntity.find(
-              "receiver.ec_id = :ecId and sender.psp_id = :pspId",
-              sort,
-              Parameters.with("ecId", ecId).and("pspId", pspId).map());
-    }
+    PanacheQuery<FdrPublishEntity> reportingFlowPanacheQuery =
+        FdrPublishEntity.find(
+            "receiver.internal_ndp_read = :internalRead",
+            sort,
+            Parameters.with("internalRead", Boolean.TRUE).map());
+
     PanacheQuery<FdrPublishReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
         reportingFlowPanacheQuery.page(page).project(FdrPublishReportingFlowNameProjection.class);
 
@@ -82,7 +75,8 @@ public class OrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowGetDto findByReportingFlowName(String reportingFlowName, String pspId) {
+  public ReportingFlowGetDto findByReportingFlowNameInternals(
+      String reportingFlowName, String pspId) {
     log.debugf("Get data from DB");
 
     FdrPublishEntity reportingFlowEntity =
@@ -100,7 +94,7 @@ public class OrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowGetPaymentDto findPaymentByReportingFlowName(
+  public ReportingFlowGetPaymentDto findPaymentByReportingFlowNameInternals(
       String reportingFlowName, String pspId, long pageNumber, long pageSize) {
     log.debugf("Get data from DB");
 
@@ -109,8 +103,7 @@ public class OrganizationsService {
 
     PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
         FdrPaymentPublishEntity.find(
-                "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id ="
-                    + " :pspId",
+                "ref_fdr_reporting_flow_name = :flowName and sender.psp_id = :pspId",
                 sort,
                 Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
             .page(page);
@@ -133,7 +126,7 @@ public class OrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public void changeReadFlag(String ecId, String pspId, String reportingFlowName) {
+  public void changeInternalReadFlag(String pspId, String reportingFlowName) {
     log.debugf("Change read flag");
 
     Instant now = Instant.now();
@@ -148,7 +141,7 @@ public class OrganizationsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
     reportingFlowEntity.updated = now;
-    reportingFlowEntity.read = Boolean.TRUE;
+    reportingFlowEntity.internal_ndp_read = Boolean.TRUE;
     reportingFlowEntity.update();
   }
 }

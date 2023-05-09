@@ -7,4 +7,6 @@ import it.gov.pagopa.fdr.repository.reportingFlow.FdrPublishEntity;
 public class FdrPublishReportingFlowNameProjection {
 
   public String reporting_flow_name;
+
+  public Sender sender;
 }

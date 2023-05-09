@@ -6,11 +6,10 @@ import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceM
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.rest.organizations.validation.OrganizationsValidationService;
-import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
+import it.gov.pagopa.fdr.rest.organizations.validation.InternalOrganizationsValidationService;
+import it.gov.pagopa.fdr.service.organizations.InternalOrganizationsService;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -28,20 +27,20 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 
-@Tag(name = "Organizations", description = "Get reporting flow operations")
-@Path("/organizations/{ec}/flows")
+@Tag(name = "Internal Organizations", description = "Get reporting flow operations")
+@Path("/internal/organizations/ndp/flows")
 @Consumes("application/json")
 @Produces("application/json")
-public class OrganizationsResource {
+public class InternalOrganizationsResource {
 
   @Inject Config config;
   @Inject Logger log;
 
-  @Inject OrganizationsValidationService validator;
+  @Inject InternalOrganizationsValidationService internalValidator;
 
   @Inject OrganizationsResourceServiceMapper mapper;
 
-  @Inject OrganizationsService service;
+  @Inject InternalOrganizationsService internalService;
 
   @Operation(
       summary = "Get all published reporting flow",
@@ -62,26 +61,16 @@ public class OrganizationsResource {
       })
   @GET
   public GetAllResponse getAllPublishedFlow(
-      @PathParam("ec") String ec,
-      @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
 
-    // TODO aggiungere date from to per leggere al massimo n (as is 30) giorni con limite di 90 e
-    // meglio mettere TTL sulla collections a 90 giorni
-
-    // TODO si potrebbe aggiungere un API per metterle in stato già letto da PA in modo da non
-    // ripresentarle ogni volta
-
     log.infof(
-        "Get id of reporting flow by idEc [%s], idPsp [%s] - page: [%s], pageSize: [%s]",
-        ec, idPsp, pageNumber, pageSize);
+        "Get id of reporting flow by for ndp - page: [%s], pageSize: [%s]", pageNumber, pageSize);
 
     // validation
-    validator.validateGetAllByEc(ec, idPsp);
 
     // get from db
-    return mapper.toGetAllResponse(service.findByIdEc(ec, idPsp, pageNumber, pageSize));
+    return mapper.toGetAllResponse(internalService.findByInternals(pageNumber, pageSize));
   }
 
   @Operation(
@@ -104,14 +93,14 @@ public class OrganizationsResource {
   @GET
   @Path("/{fdr}/psps/{psp}")
   public GetIdResponse getReportingFlow(
-      @PathParam("ec") String ec, @PathParam("fdr") String fdr, @PathParam("psp") String psp) {
-    log.infof("Get reporting flow by reportingFlowName [%s]", fdr);
+      @PathParam("fdr") String fdr, @PathParam("psp") String psp) {
+    log.infof("Get reporting flow by reportingFlowName [%s] for ndp", fdr);
 
     // validation
-    validator.validateGet(fdr);
+    internalValidator.validateGetInternal(fdr);
 
     // get from db
-    return mapper.toGetIdResponse(service.findByReportingFlowName(fdr, psp));
+    return mapper.toGetIdResponse(internalService.findByReportingFlowNameInternals(fdr, psp));
   }
 
   @Operation(
@@ -134,7 +123,6 @@ public class OrganizationsResource {
   @GET
   @Path("/{fdr}/psps/{psp}/payments")
   public GetPaymentResponse getReportingFlowPayments(
-      @PathParam("ec") String ec,
       @PathParam("fdr") String fdr,
       @PathParam("psp") String psp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
@@ -144,16 +132,16 @@ public class OrganizationsResource {
         fdr, pageNumber, pageSize);
 
     // validation
-    validator.validateGetPayment(fdr);
+    internalValidator.validateGetPaymentInternal(fdr);
 
     // get from db
     return mapper.toGetPaymentResponse(
-        service.findPaymentByReportingFlowName(fdr, psp, pageNumber, pageSize));
+        internalService.findPaymentByReportingFlowNameInternals(fdr, psp, pageNumber, pageSize));
   }
 
   @Operation(
-      summary = "Change read flag of reporting flow",
-      description = "Change read flag of reporting flow")
+      summary = "Change internal read flag of reporting flow",
+      description = "Change internal read flag of reporting flow")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -170,17 +158,17 @@ public class OrganizationsResource {
       })
   @PUT
   @Path("/{fdr}/psps/{psp}/read")
-  public GenericResponse changeReadFlag(
-      @PathParam("ec") String ec, @PathParam("fdr") String fdr, @PathParam("psp") String psp) {
+  public GenericResponse changeInternalReadFlag(
+      @PathParam("fdr") String fdr, @PathParam("psp") String psp) {
     log.infof("Get payment of reporting flow by id [%s]", fdr);
 
     // validation
-    validator.validateChangeReadFlag(fdr);
+    internalValidator.validateChangeInternalReadFlag(fdr);
 
     // change on DB
-    service.changeReadFlag(ec, psp, fdr);
+    internalService.changeInternalReadFlag(fdr, psp);
 
     // get from db
-    return GenericResponse.builder().message(String.format("Flow [%s] read", fdr)).build();
+    return GenericResponse.builder().message(String.format("Flow [%s] internal read", fdr)).build();
   }
 }

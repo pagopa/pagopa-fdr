@@ -73,8 +73,6 @@ public class PspsService {
     reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CREATED;
     reportingFlowEntity.tot_payments = 0L;
     reportingFlowEntity.sum_paymnents = 0.0;
-    reportingFlowEntity.internal_ndp_read = Boolean.FALSE;
-    reportingFlowEntity.read = Boolean.FALSE;
     reportingFlowEntity.revision =
         fdrPublishedByReportingFlowName.map(r -> r.revision + 1).orElse(1L);
     reportingFlowEntity.persist();
@@ -253,7 +251,10 @@ public class PspsService {
           "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
           Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
     }
+
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(reportingFlowEntity);
+    fdrPublishEntity.internal_ndp_read = Boolean.FALSE;
+    fdrPublishEntity.read = Boolean.FALSE;
     fdrPublishEntity.persist();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
