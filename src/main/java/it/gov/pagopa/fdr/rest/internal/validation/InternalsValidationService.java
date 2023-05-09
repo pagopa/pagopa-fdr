@@ -15,5 +15,7 @@ public class InternalsValidationService {
   @WithSpan(kind = SERVER)
   public void validateGetAllByInternal(String app) {
     log.debug("Validate get all by internal");
+
+    // TODO validate if NDP
   }
 }

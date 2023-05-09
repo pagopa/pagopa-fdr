@@ -73,7 +73,7 @@ public class PspsService {
     reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CREATED;
     reportingFlowEntity.tot_payments = 0L;
     reportingFlowEntity.sum_paymnents = 0.0;
-    reportingFlowEntity.internal_read = Boolean.FALSE;
+    reportingFlowEntity.internal_ndp_read = Boolean.FALSE;
     reportingFlowEntity.read = Boolean.FALSE;
     reportingFlowEntity.revision =
         fdrPublishedByReportingFlowName.map(r -> r.revision + 1).orElse(1L);

@@ -26,7 +26,7 @@ public abstract class AbstractReportingFlowEntity extends PanacheMongoEntity {
 
   public Double sum_paymnents;
 
-  public Boolean internal_read;
+  public Boolean internal_ndp_read;
 
   public Boolean read;
 }

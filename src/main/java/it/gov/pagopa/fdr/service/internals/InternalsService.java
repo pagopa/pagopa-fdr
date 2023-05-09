@@ -34,7 +34,7 @@ public class InternalsService {
 
     PanacheQuery<FdrPublishEntity> reportingFlowPanacheQuery =
         FdrPublishEntity.find(
-            "receiver.internal_read = :internalRead",
+            "receiver.internal_ndp_read = :internalRead",
             sort,
             Parameters.with("internalRead", Boolean.TRUE).map());
 
