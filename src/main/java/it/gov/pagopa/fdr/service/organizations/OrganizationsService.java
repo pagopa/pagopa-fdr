@@ -7,7 +7,6 @@ import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
-import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentPublishEntity;
@@ -18,6 +17,7 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.mapper.OrganizationsServiceServiceMapper;
+import it.gov.pagopa.fdr.util.AppDBUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -36,7 +36,7 @@ public class OrganizationsService {
     log.debugf("Get all data from DB");
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
-    Sort sort = getSort(List.of("_id,asc"));
+    Sort sort = AppDBUtil.getSort(List.of("_id,asc"));
 
     PanacheQuery<FdrPublishEntity> reportingFlowPanacheQuery;
     if (pspId == null || pspId.isBlank()) {
@@ -95,7 +95,7 @@ public class OrganizationsService {
     log.debugf("Get data from DB");
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
-    Sort sort = getSort(List.of("index,asc"));
+    Sort sort = AppDBUtil.getSort(List.of("index,asc"));
 
     PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
         FdrPaymentPublishEntity.find(
@@ -119,29 +119,5 @@ public class OrganizationsService {
         .count(countReportingFlowPayment)
         .data(mapper.toPagamentoDtos(list))
         .build();
-  }
-
-  private Sort getSort(List<String> sortColumn) {
-    Sort sort = Sort.empty();
-    if (sortColumn != null && sortColumn.size() > 0) {
-      sortColumn.stream()
-          .filter(s -> s.replace(",", "").isBlank())
-          .forEach(
-              a -> {
-                String[] split = a.split(",");
-                String column = split[0].trim();
-                String direction = split[1].trim();
-                if (!column.isBlank()) {
-                  if (direction.equalsIgnoreCase("asc")) {
-                    sort.and(column, Direction.Ascending);
-                  } else if (direction.equalsIgnoreCase("desc")) {
-                    sort.and(column, Direction.Descending);
-                  } else {
-                    sort.and(column);
-                  }
-                }
-              });
-    }
-    return sort;
   }
 }

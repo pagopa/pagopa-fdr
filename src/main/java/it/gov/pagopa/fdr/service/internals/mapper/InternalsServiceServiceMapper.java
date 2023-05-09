@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.organizations.mapper;
+package it.gov.pagopa.fdr.service.internals.mapper;
 
 import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.reportingFlow.FdrPublishEntity;
@@ -11,10 +11,9 @@ import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = ComponentModel.JAKARTA)
-public interface OrganizationsServiceServiceMapper {
+public interface InternalsServiceServiceMapper {
 
-  OrganizationsServiceServiceMapper INSTANCE =
-      Mappers.getMapper(OrganizationsServiceServiceMapper.class);
+  InternalsServiceServiceMapper INSTANCE = Mappers.getMapper(InternalsServiceServiceMapper.class);
 
   @Mapping(source = "reporting_flow_name", target = "reportingFlowName")
   @Mapping(source = "reporting_flow_date", target = "reportingFlowDate")

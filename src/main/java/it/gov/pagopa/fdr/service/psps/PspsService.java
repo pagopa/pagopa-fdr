@@ -71,8 +71,10 @@ public class PspsService {
     reportingFlowEntity.created = now;
     reportingFlowEntity.updated = now;
     reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CREATED;
-    reportingFlowEntity.totPayments = 0L;
-    reportingFlowEntity.sumPaymnents = 0.0;
+    reportingFlowEntity.tot_payments = 0L;
+    reportingFlowEntity.sum_paymnents = 0.0;
+    reportingFlowEntity.internal_read = Boolean.FALSE;
+    reportingFlowEntity.read = Boolean.FALSE;
     reportingFlowEntity.revision =
         fdrPublishedByReportingFlowName.map(r -> r.revision + 1).orElse(1L);
     reportingFlowEntity.persist();
@@ -124,9 +126,10 @@ public class PspsService {
     List<FdrPaymentInsertEntity> reportingFlowPaymentEntities =
         mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
 
-    reportingFlowEntity.totPayments =
+    reportingFlowEntity.tot_payments =
         addAndSumCount(reportingFlowEntity, reportingFlowPaymentEntities);
-    reportingFlowEntity.sumPaymnents = addAndSum(reportingFlowEntity, reportingFlowPaymentEntities);
+    reportingFlowEntity.sum_paymnents =
+        addAndSum(reportingFlowEntity, reportingFlowPaymentEntities);
 
     reportingFlowEntity.updated = now;
     reportingFlowEntity.status = ReportingFlowStatusEnumEntity.INSERTED;
@@ -198,11 +201,11 @@ public class PspsService {
         "ref_fdr_reporting_flow_name = :flowName and index in :indexes",
         Parameters.with("flowName", reportingFlowName).and("indexes", indexList).map());
 
-    reportingFlowEntity.totPayments = deleteAndSumCount(reportingFlowEntity, paymentToDelete);
-    reportingFlowEntity.sumPaymnents = deleteAndSubtract(reportingFlowEntity, paymentToDelete);
+    reportingFlowEntity.tot_payments = deleteAndSumCount(reportingFlowEntity, paymentToDelete);
+    reportingFlowEntity.sum_paymnents = deleteAndSubtract(reportingFlowEntity, paymentToDelete);
     reportingFlowEntity.updated = now;
     reportingFlowEntity.status =
-        (reportingFlowEntity.sumPaymnents > 0)
+        (reportingFlowEntity.sum_paymnents > 0)
             ? ReportingFlowStatusEnumEntity.INSERTED
             : ReportingFlowStatusEnumEntity.CREATED;
     reportingFlowEntity.update();
@@ -292,7 +295,7 @@ public class PspsService {
           reportingFlowEntity.status);
     }
 
-    if (reportingFlowEntity.totPayments > 0L) {
+    if (reportingFlowEntity.tot_payments > 0L) {
       FdrPaymentInsertEntity.delete(
           "ref_fdr_reporting_flow_name = :flowName",
           Parameters.with("flowName", reportingFlowName).map());
@@ -304,7 +307,7 @@ public class PspsService {
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
     return Double.sum(
-        Objects.requireNonNullElseGet(reportingFlowEntity.sumPaymnents, () -> (double) 0),
+        Objects.requireNonNullElseGet(reportingFlowEntity.sum_paymnents, () -> (double) 0),
         reportingFlowPaymentEntities.stream()
             .map(a -> a.pay)
             .mapToDouble(Double::doubleValue)
@@ -314,7 +317,7 @@ public class PspsService {
   private static double deleteAndSubtract(
       FdrInsertEntity reportingFlowEntity, List<FdrPaymentInsertEntity> paymentToDelete) {
     return BigDecimal.valueOf(
-            Objects.requireNonNullElseGet(reportingFlowEntity.sumPaymnents, () -> (double) 0))
+            Objects.requireNonNullElseGet(reportingFlowEntity.sum_paymnents, () -> (double) 0))
         .subtract(
             BigDecimal.valueOf(
                 paymentToDelete.stream().map(a -> a.pay).mapToDouble(Double::doubleValue).sum()))
@@ -324,14 +327,14 @@ public class PspsService {
   private static long addAndSumCount(
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(reportingFlowEntity.totPayments, () -> (long) 0)
+    return Objects.requireNonNullElseGet(reportingFlowEntity.tot_payments, () -> (long) 0)
         + reportingFlowPaymentEntities.size();
   }
 
   private static long deleteAndSumCount(
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(reportingFlowEntity.totPayments, () -> (long) 0)
+    return Objects.requireNonNullElseGet(reportingFlowEntity.tot_payments, () -> (long) 0)
         - reportingFlowPaymentEntities.size();
   }
 }

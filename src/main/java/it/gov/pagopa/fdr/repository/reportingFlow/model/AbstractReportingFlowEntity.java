@@ -22,7 +22,11 @@ public abstract class AbstractReportingFlowEntity extends PanacheMongoEntity {
 
   public ReportingFlowStatusEnumEntity status;
 
-  public Long totPayments;
+  public Long tot_payments;
 
-  public Double sumPaymnents;
+  public Double sum_paymnents;
+
+  public Boolean internal_read;
+
+  public Boolean read;
 }
