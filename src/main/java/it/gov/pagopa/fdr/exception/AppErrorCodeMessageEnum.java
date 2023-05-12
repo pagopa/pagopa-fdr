@@ -30,25 +30,17 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
       "0706", "reporting-flow.duplicateIndex", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX(
       "0707", "reporting-flow.noMatchIndex", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_PSP_UNKNOWN(
-      "0708", "reporting-flow.pspId.unknown", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_PSP_NOT_ENABLED(
-      "0709", "reporting-flow.pspId.notEnabled", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_BROKER_UNKNOWN(
-      "0710", "reporting-flow.brokerId.unknown", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_BROKER_NOT_ENABLED(
-      "0711", "reporting-flow.brokerId.notEnabled", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_CHANNEL_UNKNOWN(
-      "0712", "reporting-flow.channelId.unknown", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_CHANNEL_NOT_ENABLED(
-      "0713", "reporting-flow.channelId.notEnabled", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_CHANNEL_BROKER_WRONG_CONFIG(
-      "0714", "reporting-flow.channel.broker.wrongConfig", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_CHANNEL_PSP_WRONG_CONFIG(
-      "0715", "reporting-flow.channel.psp.wrongConfig", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_EC_UNKNOWN("0716", "reporting-flow.ecId.unknown", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_EC_NOT_ENABLED(
-      "0717", "reporting-flow.ecId.notEnabled", RestResponse.Status.BAD_REQUEST),
+  PSP_UNKNOWN("0708", "pspId.unknown", RestResponse.Status.BAD_REQUEST),
+  PSP_NOT_ENABLED("0709", "pspId.notEnabled", RestResponse.Status.BAD_REQUEST),
+  BROKER_UNKNOWN("0710", "brokerId.unknown", RestResponse.Status.BAD_REQUEST),
+  BROKER_NOT_ENABLED("0711", "brokerId.notEnabled", RestResponse.Status.BAD_REQUEST),
+  CHANNEL_UNKNOWN("0712", "channelId.unknown", RestResponse.Status.BAD_REQUEST),
+  CHANNEL_NOT_ENABLED("0713", "channelId.notEnabled", RestResponse.Status.BAD_REQUEST),
+  CHANNEL_BROKER_WRONG_CONFIG(
+      "0714", "channel.broker.wrongConfig", RestResponse.Status.BAD_REQUEST),
+  CHANNEL_PSP_WRONG_CONFIG("0715", "channel.psp.wrongConfig", RestResponse.Status.BAD_REQUEST),
+  EC_UNKNOWN("0716", "ecId.unknown", RestResponse.Status.BAD_REQUEST),
+  EC_NOT_ENABLED("0717", "ecId.notEnabled", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_NAME_DATE_WRONG_FORMAT(
       "0718", "reporting-flow.name-date.wrongFormat", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_NAME_PSP_WRONG_FORMAT(

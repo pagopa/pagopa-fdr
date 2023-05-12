@@ -43,6 +43,7 @@ public class PspsService {
     String reportingFlowName = reportingFlowDto.getReportingFlowName();
     String pspId = reportingFlowDto.getSender().getPspId();
 
+    // TODO rivedere index  con fdr+psp
     Optional<FdrInsertEntity> byReportingFlowName =
         FdrInsertEntity.find(
                 "reporting_flow_name = :flowName and sender.psp_id = :pspId",

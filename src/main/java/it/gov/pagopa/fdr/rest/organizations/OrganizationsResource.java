@@ -27,6 +27,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
+import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 @Tag(name = "Organizations", description = "Get reporting flow operations")
 @Path("/organizations/{ec}/flows")
@@ -43,6 +44,12 @@ public class OrganizationsResource {
 
   @Inject OrganizationsService service;
 
+  // TODO in tutte le API bisogna fare dei check per identificare che il chiamante sia esattamente
+  // id messo nella richiesta o ci pensa nuova connettività/APIM??
+  /*TODO in tutte queste API vanno replicati tutti i controlli come nel vecchio? Ora ci sono solo
+   * i controlli sui campi in input altrimenti bisogna caricare tutto il resto dei campi utili solo a bloccare o no le richieste.
+   * Ha senso?
+   * */
   @Operation(
       summary = "Get all published reporting flow",
       description = "Get all published reporting flow by ec and idPsp(optional param)")
@@ -62,7 +69,7 @@ public class OrganizationsResource {
       })
   @GET
   public GetAllResponse getAllPublishedFlow(
-      @PathParam("ec") String ec,
+      @PathParam("ec") @Pattern(regexp = "^\\w{1,35}$") String ec,
       @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
@@ -77,8 +84,9 @@ public class OrganizationsResource {
         "Get id of reporting flow by idEc [%s], idPsp [%s] - page: [%s], pageSize: [%s]",
         ec, idPsp, pageNumber, pageSize);
 
+    ConfigDataV1 configData = config.getClonedCache();
     // validation
-    validator.validateGetAllByEc(ec, idPsp);
+    validator.validateGetAllByEc(ec, idPsp, configData);
 
     // get from db
     return mapper.toGetAllResponse(service.findByIdEc(ec, idPsp, pageNumber, pageSize));
