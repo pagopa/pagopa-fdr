@@ -67,14 +67,12 @@ public class PspResourceTest {
     QuarkusMock.installMockForType(serviceMock, PspsService.class);
   }
 
-
-
   @Test
   public void testPspOk() {
     String url = "/psps/%s/flows".formatted(pspCode);
-    String bodyFmt = template.formatted(reportingFlowName, pspCode, brokerCode, channelCode, ecCode);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode, brokerCode, channelCode, ecCode);
     String responseFmt = response.formatted(reportingFlowName);
-
 
     given()
         .body(bodyFmt)
@@ -85,14 +83,18 @@ public class PspResourceTest {
         .statusCode(201)
         .body(containsString(responseFmt));
   }
+
   @Test
   public void testPspKo() {
     String pspUnknown = "PSP_UNKNOWN";
 
     String url = "/psps/%s/flows".formatted(pspCode);
-    String bodyFmt = template.formatted(reportingFlowName, pspUnknown, brokerCode, channelCode, ecCode);
-    String responseFmt = """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0704","errors":[{"message":"Reporting flow [%s] have sender.pspId [%s] but not match with query param [pspLorenz]"}]}""".formatted(reportingFlowName, pspUnknown);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspUnknown, brokerCode, channelCode, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0704","errors":[{"message":"Reporting flow [%s] have sender.pspId [%s] but not match with query param [pspLorenz]"}]}"""
+            .formatted(reportingFlowName, pspUnknown);
 
     given()
         .body(bodyFmt)
@@ -104,7 +106,7 @@ public class PspResourceTest {
         .body(containsString(responseFmt));
   }
 
-  private static ConfigDataV1 getConfig(){
+  private static ConfigDataV1 getConfig() {
     PaymentServiceProvider paymentServiceProvider = new PaymentServiceProvider();
     paymentServiceProvider.setEnabled(true);
     paymentServiceProvider.setPspCode(pspCode);
