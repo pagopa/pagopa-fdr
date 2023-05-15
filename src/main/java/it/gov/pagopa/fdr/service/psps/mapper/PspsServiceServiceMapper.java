@@ -24,6 +24,8 @@ public interface PspsServiceServiceMapper {
   @Mapping(source = "reporting_flow_date", target = "reportingFlowDate")
   @Mapping(source = "regulation_date", target = "regulationDate")
   @Mapping(source = "bic_code_pouring_bank", target = "bicCodePouringBank")
+  @Mapping(source = "tot_payments", target = "totPayments")
+  @Mapping(source = "sum_paymnents", target = "sumPaymnents")
   ReportingFlowGetDto toReportingFlowGetDto(FdrInsertEntity reportingFlow);
 
   @Mapping(source = "reportingFlowName", target = "reporting_flow_name")
@@ -35,8 +37,10 @@ public interface PspsServiceServiceMapper {
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "updated", ignore = true)
   @Mapping(target = "status", ignore = true)
-  @Mapping(target = "totPayments", ignore = true)
-  @Mapping(target = "sumPaymnents", ignore = true)
+  @Mapping(target = "tot_payments", ignore = true)
+  @Mapping(target = "sum_paymnents", ignore = true)
+  @Mapping(target = "internal_ndp_read", ignore = true)
+  @Mapping(target = "read", ignore = true)
   FdrInsertEntity toReportingFlow(ReportingFlowDto reportingFlowDto);
 
   @Mapping(source = "payStatus", target = "pay_status")

@@ -41,32 +41,20 @@ public class PspsValidationService {
 
     PaymentServiceProvider paymentServiceProvider =
         Optional.ofNullable(configData.getPsps().get(pspId))
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_UNKNOWN,
-                        pspId,
-                        reportingFlowName));
+            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.PSP_UNKNOWN, pspId));
 
     if (!paymentServiceProvider.getEnabled()) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_NOT_ENABLED, pspId, reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.PSP_NOT_ENABLED, pspId);
     }
 
     // check broker
     String brokerId = createFlowRequest.getSender().getBrokerId();
     BrokerPsp brokerPsp =
         Optional.ofNullable(configData.getPspBrokers().get(brokerId))
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_BROKER_UNKNOWN,
-                        brokerId,
-                        reportingFlowName));
+            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.BROKER_UNKNOWN, brokerId));
 
     if (!brokerPsp.getEnabled()) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_BROKER_NOT_ENABLED, brokerId, reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.BROKER_NOT_ENABLED, brokerId);
     }
 
     // check channel
@@ -74,24 +62,16 @@ public class PspsValidationService {
     Channel channel =
         Optional.ofNullable(configData.getChannels().get(channelId))
             .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_CHANNEL_UNKNOWN,
-                        channelId,
-                        reportingFlowName));
+                () -> new AppException(AppErrorCodeMessageEnum.CHANNEL_UNKNOWN, channelId));
 
     if (!channel.getEnabled()) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_CHANNEL_NOT_ENABLED, channelId, reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED, channelId);
     }
 
     // check channel/broker
     if (!channel.getBrokerPspCode().equals(brokerPsp.getBrokerPspCode())) {
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_CHANNEL_BROKER_WRONG_CONFIG,
-          channelId,
-          brokerId,
-          reportingFlowName);
+          AppErrorCodeMessageEnum.CHANNEL_BROKER_WRONG_CONFIG, channelId, brokerId);
     }
 
     // check channel/psp
@@ -106,27 +86,17 @@ public class PspsValidationService {
                 .count()
             == 0;
     if (notExist) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_CHANNEL_PSP_WRONG_CONFIG,
-          channelId,
-          pspId,
-          reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.CHANNEL_PSP_WRONG_CONFIG, channelId, pspId);
     }
 
     // check ec
     String ecId = createFlowRequest.getReceiver().getEcId();
     CreditorInstitution ec =
         Optional.ofNullable(configData.getCreditorInstitutions().get(ecId))
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_EC_UNKNOWN,
-                        ecId,
-                        reportingFlowName));
+            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.EC_UNKNOWN, ecId));
 
     if (!ec.getEnabled()) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_EC_NOT_ENABLED, ecId, reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.EC_NOT_ENABLED, ecId);
     }
 
     // check reportingFlowName format

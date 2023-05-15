@@ -12,5 +12,5 @@ public class ReportingFlowByIdEcDto {
 
   private Long count;
 
-  private List<String> data;
+  private List<FlowDto> data;
 }

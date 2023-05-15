@@ -11,10 +11,10 @@ import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = ComponentModel.JAKARTA)
-public interface OrganizationsServiceServiceMapper {
+public interface InternalOrganizationsServiceServiceMapper {
 
-  OrganizationsServiceServiceMapper INSTANCE =
-      Mappers.getMapper(OrganizationsServiceServiceMapper.class);
+  InternalOrganizationsServiceServiceMapper INSTANCE =
+      Mappers.getMapper(InternalOrganizationsServiceServiceMapper.class);
 
   @Mapping(source = "reporting_flow_name", target = "reportingFlowName")
   @Mapping(source = "reporting_flow_date", target = "reportingFlowDate")
