@@ -241,14 +241,14 @@ stages:
                                   --set fdr.forceRedeploy=${{ parameters.FORCE_REDEPLOY }}
                                   --set fdr.canaryDelivery.ingress.weightPercent="${{ step }}"
   # Deploy stable
-#  - stage: deploy_fdr_stable
-#    displayName: "Deploy ${{ parameters.ENV }} stable"
-#    jobs:
-#      - job: get_release_version
-#        pool: $(WEU_poolImage)
-#        displayName: "Get Release Version"
-#        steps:
-#          - template: templates/maven-github-current-version/template.yaml@pagopaCommons
+  - stage: deploy_fdr_stable
+    displayName: "Deploy ${{ parameters.ENV }} stable"
+    jobs:
+      - job: get_release_version
+        pool: $(WEU_poolImage)
+        displayName: "Get Release Version"
+        steps:
+          - template: templates/maven-github-current-version/template.yaml@pagopaCommons
 #      - job: step_approval_stable
 #        pool: server
 #        dependsOn: get_release_version
