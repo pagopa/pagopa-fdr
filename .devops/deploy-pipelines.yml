@@ -245,7 +245,6 @@ stages:
     displayName: "Deploy ${{ parameters.ENV }} stable"
     jobs:
       - job: get_release_version
-        pool: $(WEU_poolImage)
         displayName: "Get Release Version"
         steps:
           - template: templates/maven-github-current-version/template.yaml@pagopaCommons
