@@ -170,7 +170,6 @@ stages:
             displayName: "Deploy ${{ parameters.ENV }} canary ${{ step }}%"
             jobs:
               - job: get_release_version
-                pool: $(WEU_poolImage)
                 displayName: "Get Release Version"
                 steps:
                   - template: templates/maven-github-current-version/template.yaml@pagopaCommons
@@ -241,137 +240,135 @@ stages:
                                   --set fdr.canaryDelivery.create="true"
                                   --set fdr.forceRedeploy=${{ parameters.FORCE_REDEPLOY }}
                                   --set fdr.canaryDelivery.ingress.weightPercent="${{ step }}"
-
-
   # Deploy stable
-  - stage: deploy_fdr_stable
-    displayName: "Deploy ${{ parameters.ENV }} stable"
-    jobs:
-      - job: get_release_version
-        pool: $(WEU_poolImage)
-        displayName: "Get Release Version"
-        steps:
-          - template: templates/maven-github-current-version/template.yaml@pagopaCommons
-      - job: step_approval_stable
-        pool: server
-        dependsOn: get_release_version
-        condition: ${{ in( parameters.ENV, 'prod', 'uat') }}
-        variables:
-          current_version: $[ dependencies.get_release_version.outputs['current_version.value'] ]
-        displayName: "Approval ${{ parameters.ENV }} stable"
-        timeoutInMinutes: 70
-        steps:
-          - task: ManualValidation@0
-            displayName: "Approval version $(current_version) ${{ parameters.ENV }} stable"
-            timeoutInMinutes: 60
-            inputs:
-              notifyUsers: |
-                $(APPROVE_NOTIFY_GROUP)
-                $(APPROVE_NOTIFY_ADMIN)
-              instructions: "Please approve or reject ${{ parameters.ENV }} $(current_version) stable deploy"
-              onTimeout: 'reject'
-      - ${{ if parameters.WEU }}:
-          - deployment: "Approved_${{ parameters.ENV }}_Deploy"
-            dependsOn:
-              - get_release_version
-              - step_approval_stable
-            condition: in(dependencies.step_approval_stable.result, 'Succeeded', 'Skipped')
-            variables:
-              current_version: $[ dependencies.get_release_version.outputs['current_version.value'] ]
-            displayName: "Deploy ${{ parameters.ENV }} WEU stable"
-            pool: $(WEU_poolImage)
-            environment: ${{ parameters['ENV'] }}
-            strategy:
-              runOnce:
-                deploy:
-                  steps:
-                    - checkout: self
-                      clean: true
-                      persistCredentials: true
-
-                    - task: Bash@3
-                      name: setup_helm_microservices_chart
-                      displayName: "Setup helm chart"
-                      inputs:
-                        targetType: "inline"
-                        script: |
-                          CHART_FILE="helm/Chart.yaml"
-                          if [[ -f "$CHART_FILE" ]]; then
-                            yq -i ".version = \"$(current_version)\"" "$CHART_FILE"
-                            yq -i ".appVersion = \"$(current_version)\"" "$CHART_FILE"
-                          fi
-                          helm dep build helm
-                        failOnStderr: true
-                    - bash: |
-                        echo "install WEU"
-                    - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
-                      parameters:
-                        DO_DEPLOY: true
-                        ENV: ${{ parameters['ENV'] }}
-                        KUBERNETES_SERVICE_CONN: ${{ variables.WEU_kubernetesServiceConnection }}
-                        NAMESPACE: "fdr"
-                        APP_NAME: $(appName)
-                        VALUE_FILE: $(WEU_value_file)
-                        DEPLOY_VERSION: $(current_version)
-                        APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                        APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
-                        CHART_PATH: "helm"
-                        ARGUMENTS: >-
-                          --set fdr.image.tag="$(current_version)"
-                          --set fdr.forceRedeploy=${{ parameters.FORCE_REDEPLOY }}
-                          --set-file fdr.configMapFromFile.logback\.xml="$(FILE_CONFIG_PATH_LOGBACK)"
-                          --set-file fdr.configMapFromFile.config-app\.conf="$(FILE_CONFIG_PATH_CONFIGAPP)"
-
-                    - ${{ if in( parameters.ENV, 'prod', 'uat') }}:
-                        - bash: |
-                            echo "uninstall WEU CANARY"
-                        - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
-                          parameters:
-                            COMMAND: "uninstall"
-                            DO_DEPLOY: true
-                            ENV: ${{ parameters['ENV'] }}
-                            KUBERNETES_SERVICE_CONN: ${{ variables.WEU_kubernetesServiceConnection }}
-                            NAMESPACE: "fdr"
-                            APP_NAME: "$(appName)-canary"
-                            VALUE_FILE: $(WEU_value_file)
-                            DEPLOY_VERSION: $(current_version)
-                            APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                            APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
-                            CHART_PATH: "helm"
-                            ARGUMENTS: "$(appName)-canary"
-
-  # uninstall canary id prod or uat
-  - ${{ if in( parameters.ENV, 'prod', 'uat') }}:
-      - stage: uninstall
-        displayName: "Uninstall ${{ parameters.ENV }} canary"
-        condition: and( ${{ in( parameters.ENV, 'prod', 'uat') }} ,failed())
-        jobs:
-          - deployment: "uninstall"
-            displayName: "Uninstall ${{ parameters.ENV }} canary"
-            pool: $(WEU_poolImage)
-            environment: ${{ parameters['ENV'] }}
-            strategy:
-              runOnce:
-                deploy:
-                  steps:
-                    - checkout: self
-                      clean: true
-                      persistCredentials: true
-
-                    - ${{ if and( parameters.WEU , in( parameters.ENV, 'prod', 'uat') ) }}:
-                        - bash: |
-                            echo "uninstall WEU CANARY"
-                        - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
-                          parameters:
-                            COMMAND: "uninstall"
-                            DO_DEPLOY: true
-                            ENV: ${{ parameters['ENV'] }}
-                            KUBERNETES_SERVICE_CONN: ${{ variables.WEU_kubernetesServiceConnection }}
-                            NAMESPACE: "fdr"
-                            APP_NAME: "$(appName)-canary"
-                            VALUE_FILE: $(WEU_value_file)
-                            DEPLOY_VERSION: $(current_version)
-                            APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                            APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
-                            CHART_PATH: "helm/fdr"
-                            ARGUMENTS: "$(appName)-canary"
+#  - stage: deploy_fdr_stable
+#    displayName: "Deploy ${{ parameters.ENV }} stable"
+#    jobs:
+#      - job: get_release_version
+#        pool: $(WEU_poolImage)
+#        displayName: "Get Release Version"
+#        steps:
+#          - template: templates/maven-github-current-version/template.yaml@pagopaCommons
+#      - job: step_approval_stable
+#        pool: server
+#        dependsOn: get_release_version
+#        condition: ${{ in( parameters.ENV, 'prod', 'uat') }}
+#        variables:
+#          current_version: $[ dependencies.get_release_version.outputs['current_version.value'] ]
+#        displayName: "Approval ${{ parameters.ENV }} stable"
+#        timeoutInMinutes: 70
+#        steps:
+#          - task: ManualValidation@0
+#            displayName: "Approval version $(current_version) ${{ parameters.ENV }} stable"
+#            timeoutInMinutes: 60
+#            inputs:
+#              notifyUsers: |
+#                $(APPROVE_NOTIFY_GROUP)
+#                $(APPROVE_NOTIFY_ADMIN)
+#              instructions: "Please approve or reject ${{ parameters.ENV }} $(current_version) stable deploy"
+#              onTimeout: 'reject'
+#      - ${{ if parameters.WEU }}:
+#          - deployment: "Approved_${{ parameters.ENV }}_Deploy"
+#            dependsOn:
+#              - get_release_version
+#              - step_approval_stable
+#            condition: in(dependencies.step_approval_stable.result, 'Succeeded', 'Skipped')
+#            variables:
+#              current_version: $[ dependencies.get_release_version.outputs['current_version.value'] ]
+#            displayName: "Deploy ${{ parameters.ENV }} WEU stable"
+#            pool: $(WEU_poolImage)
+#            environment: ${{ parameters['ENV'] }}
+#            strategy:
+#              runOnce:
+#                deploy:
+#                  steps:
+#                    - checkout: self
+#                      clean: true
+#                      persistCredentials: true
+#
+#                    - task: Bash@3
+#                      name: setup_helm_microservices_chart
+#                      displayName: "Setup helm chart"
+#                      inputs:
+#                        targetType: "inline"
+#                        script: |
+#                          CHART_FILE="helm/Chart.yaml"
+#                          if [[ -f "$CHART_FILE" ]]; then
+#                            yq -i ".version = \"$(current_version)\"" "$CHART_FILE"
+#                            yq -i ".appVersion = \"$(current_version)\"" "$CHART_FILE"
+#                          fi
+#                          helm dep build helm
+#                        failOnStderr: true
+#                    - bash: |
+#                        echo "install WEU"
+#                    - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
+#                      parameters:
+#                        DO_DEPLOY: true
+#                        ENV: ${{ parameters['ENV'] }}
+#                        KUBERNETES_SERVICE_CONN: ${{ variables.WEU_kubernetesServiceConnection }}
+#                        NAMESPACE: "fdr"
+#                        APP_NAME: $(appName)
+#                        VALUE_FILE: $(WEU_value_file)
+#                        DEPLOY_VERSION: $(current_version)
+#                        APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+#                        APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+#                        CHART_PATH: "helm"
+#                        ARGUMENTS: >-
+#                          --set fdr.image.tag="$(current_version)"
+#                          --set fdr.forceRedeploy=${{ parameters.FORCE_REDEPLOY }}
+#                          --set-file fdr.configMapFromFile.logback\.xml="$(FILE_CONFIG_PATH_LOGBACK)"
+#                          --set-file fdr.configMapFromFile.config-app\.conf="$(FILE_CONFIG_PATH_CONFIGAPP)"
+#
+#                    - ${{ if in( parameters.ENV, 'prod', 'uat') }}:
+#                        - bash: |
+#                            echo "uninstall WEU CANARY"
+#                        - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
+#                          parameters:
+#                            COMMAND: "uninstall"
+#                            DO_DEPLOY: true
+#                            ENV: ${{ parameters['ENV'] }}
+#                            KUBERNETES_SERVICE_CONN: ${{ variables.WEU_kubernetesServiceConnection }}
+#                            NAMESPACE: "fdr"
+#                            APP_NAME: "$(appName)-canary"
+#                            VALUE_FILE: $(WEU_value_file)
+#                            DEPLOY_VERSION: $(current_version)
+#                            APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+#                            APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+#                            CHART_PATH: "helm"
+#                            ARGUMENTS: "$(appName)-canary"
+#
+#  # uninstall canary id prod or uat
+#  - ${{ if in( parameters.ENV, 'prod', 'uat') }}:
+#      - stage: uninstall
+#        displayName: "Uninstall ${{ parameters.ENV }} canary"
+#        condition: and( ${{ in( parameters.ENV, 'prod', 'uat') }} ,failed())
+#        jobs:
+#          - deployment: "uninstall"
+#            displayName: "Uninstall ${{ parameters.ENV }} canary"
+#            pool: $(WEU_poolImage)
+#            environment: ${{ parameters['ENV'] }}
+#            strategy:
+#              runOnce:
+#                deploy:
+#                  steps:
+#                    - checkout: self
+#                      clean: true
+#                      persistCredentials: true
+#
+#                    - ${{ if and( parameters.WEU , in( parameters.ENV, 'prod', 'uat') ) }}:
+#                        - bash: |
+#                            echo "uninstall WEU CANARY"
+#                        - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
+#                          parameters:
+#                            COMMAND: "uninstall"
+#                            DO_DEPLOY: true
+#                            ENV: ${{ parameters['ENV'] }}
+#                            KUBERNETES_SERVICE_CONN: ${{ variables.WEU_kubernetesServiceConnection }}
+#                            NAMESPACE: "fdr"
+#                            APP_NAME: "$(appName)-canary"
+#                            VALUE_FILE: $(WEU_value_file)
+#                            DEPLOY_VERSION: $(current_version)
+#                            APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+#                            APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+#                            CHART_PATH: "helm/fdr"
+#                            ARGUMENTS: "$(appName)-canary"
