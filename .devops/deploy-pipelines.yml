@@ -315,8 +315,6 @@ stages:
                         ARGUMENTS: >-
                           --set fdr.image.tag="$(current_version)"
                           --set fdr.forceRedeploy=${{ parameters.FORCE_REDEPLOY }}
-                          --set-file fdr.configMapFromFile.logback\.xml="$(FILE_CONFIG_PATH_LOGBACK)"
-                          --set-file fdr.configMapFromFile.config-app\.conf="$(FILE_CONFIG_PATH_CONFIGAPP)"
 
                     - ${{ if in( parameters.ENV, 'prod', 'uat') }}:
                         - bash: |
