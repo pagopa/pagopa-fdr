@@ -14,7 +14,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.openapi.quarkus.api_config_cache_json.model.*;
+import org.openapi.quarkus.api_config_cache_json.model.BrokerPsp;
+import org.openapi.quarkus.api_config_cache_json.model.Channel;
+import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
+import org.openapi.quarkus.api_config_cache_json.model.CreditorInstitution;
+import org.openapi.quarkus.api_config_cache_json.model.PaymentServiceProvider;
+import org.openapi.quarkus.api_config_cache_json.model.PspChannelPaymentType;
 
 @QuarkusTest
 public class PspResourceTest {
@@ -27,7 +32,6 @@ public class PspResourceTest {
   private static String ecCode = "12345678900";
   private static String pspChannelPaymentTypeCode = "PAYPALL";
   private static Header header = new Header("Content-Type", "application/json");
-
 
   private static String template =
       """
