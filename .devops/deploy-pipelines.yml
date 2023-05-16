@@ -157,7 +157,7 @@ stages:
 
           - template: templates/docker-release/template.yaml@pagopaCommons
             parameters:
-              CONTAINER_REGISTRY_SERVICE_CONN: $(dockerRegistryServiceConnection)
+              CONTAINER_REGISTRY_SERVICE_CONN: $(WEU_dockerRegistryServiceConnection)
               CONTAINER_REGISTRY_FQDN: $(dockerRegistryFqdn)
               DOCKER_IMAGE_NAME: $(imageRepository)
               DOCKER_IMAGE_TAG: $(current_version)
