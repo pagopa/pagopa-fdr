@@ -28,6 +28,7 @@ public class PspResourceTest {
   private static String pspChannelPaymentTypeCode = "PAYPALL";
   private static Header header = new Header("Content-Type", "application/json");
 
+
   private static String template =
       """
       {
