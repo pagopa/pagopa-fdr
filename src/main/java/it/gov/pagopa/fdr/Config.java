@@ -15,7 +15,7 @@ import java.util.Collections;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.logging.Logger;
-import org.openapi.quarkus.api_config_cache_json.api.NodeCacheApi;
+import org.openapi.quarkus.api_config_cache_json.api.FdrCacheApi;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 @Startup
@@ -31,7 +31,7 @@ public class Config {
   @ConfigProperty(name = "adapter.api_config_cache.api-key-value")
   String apiKeyValue;
 
-  private NodeCacheApi nodeCacheApi;
+  private FdrCacheApi nodeCacheApi;
 
   @PostConstruct
   public void init() throws URISyntaxException {
@@ -44,9 +44,9 @@ public class Config {
                         context
                             .getHeaders()
                             .put(apiKeyName, Collections.singletonList(apiKeyValue)))
-            .build(NodeCacheApi.class);
+            .build(FdrCacheApi.class);
 
-    ConfigDataV1 newCache = nodeCacheApi.cache();
+    ConfigDataV1 newCache = nodeCacheApi.cache(null);
     log.debugf("CACHE INIT. Version [%s]", newCache.getVersion());
     this.cache = newCache;
   }
@@ -78,7 +78,7 @@ public class Config {
       log.debugf("CACHE NOT UPDATED. Version [%s]", cache.getVersion());
     } else {
       log.debugf("CACHE UPDATED. Version  [%s] -> [%s]", version, newVersion);
-      this.cache = nodeCacheApi.cache();
+      this.cache = nodeCacheApi.cache(null);
     }
   }
 }
