@@ -3,17 +3,13 @@ package it.gov.pagopa.fdr.rest.psps;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 
-import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.Header;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.service.psps.PspsService;
-import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
