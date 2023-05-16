@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -35,7 +34,7 @@ public class Config {
 
   //  @PostConstruct
   @SneakyThrows
-  public void init(){
+  public void init() {
     nodeCacheApi =
         RestClientBuilder.newBuilder()
             .baseUri(new URI(url))
