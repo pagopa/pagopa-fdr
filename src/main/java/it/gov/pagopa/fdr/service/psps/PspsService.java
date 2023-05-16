@@ -117,6 +117,7 @@ public class PspsService {
                 Parameters.with("flowName", reportingFlowName).and("indexes", indexList).map())
             .project(FdrPaymentInsertEntity.class)
             .list();
+
     if (paymentIndexAlreadyExist != null && paymentIndexAlreadyExist.size() > 0) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX, reportingFlowName);
