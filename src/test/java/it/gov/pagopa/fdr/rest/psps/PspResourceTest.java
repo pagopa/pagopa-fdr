@@ -10,6 +10,8 @@ import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,32 +35,32 @@ public class PspResourceTest {
   private static String pspChannelPaymentTypeCode = "PAYPALL";
   private static Header header = new Header("Content-Type", "application/json");
 
-  private static String template =
-      """
-      {
-        "reportingFlowName": "%s",
-        "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
-        "sender": {
-          "type": "LEGAL_PERSON",
-          "id": "SELBIT2B",
-          "pspId": "%s",
-          "pspName": "Bank",
-          "brokerId": "%s",
-          "channelId": "%s",
-          "password": "1234567890"
-        },
-        "receiver": {
-          "id": "APPBIT2B",
-          "ecId": "%s",
-          "ecName": "Comune di xyz"
-        },
-        "regulation": "SEPA - Bonifico xzy",
-        "regulationDate": "2023-04-03T12:00:30.900000Z",
-        "bicCodePouringBank": "UNCRITMMXXX"
-      }""";
+  private static String template = """
+        {
+          "reportingFlowName": "%s",
+          "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
+          "sender": {
+            "type": "LEGAL_PERSON",
+            "id": "SELBIT2B",
+            "pspId": "%s",
+            "pspName": "Bank",
+            "brokerId": "%s",
+            "channelId": "%s",
+            "password": "1234567890"
+          },
+          "receiver": {
+            "id": "APPBIT2B",
+            "ecId": "%s",
+            "ecName": "Comune di xyz"
+          },
+          "regulation": "SEPA - Bonifico xzy",
+          "regulationDate": "2023-04-03T12:00:30.900000Z",
+          "bicCodePouringBank": "UNCRITMMXXX"
+        }
+        """;
 
   String response = """
-      {"message":"Flow [2016-08-16pspLorenz-1176] saved"}""";
+      {"message":"Flow [%s] saved"}""";
 
   @InjectMock
   Config config;
@@ -78,10 +80,12 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create OK")
   public void testPspOk() {
+    RandomGenerator randomGenerator = new Random();
+    String flowName = reportingFlowName.substring(0, reportingFlowName.length()-4)+randomGenerator.nextInt(1111,9999);
     String url = "/psps/%s/flows".formatted(pspCode);
     String bodyFmt =
-        template.formatted(reportingFlowName, pspCode, brokerCode, channelCode, ecCode);
-    String responseFmt = response.formatted(reportingFlowName);
+        template.formatted(flowName, pspCode, brokerCode, channelCode, ecCode);
+    String responseFmt = response.formatted(flowName);
 
     given()
         .body(bodyFmt)
@@ -141,7 +145,7 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create KO FDR-0709")
   public void test_psp_KO_FDR0709() {
-
+    //TODO replicare la config sul mock json per far funzionare il test
 
     String url = "/psps/%s/flows".formatted(pspCodeNotEnabled);
     String bodyFmt =
