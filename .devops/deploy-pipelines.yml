@@ -164,7 +164,7 @@ stages:
               DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository) --build-arg QUARKUS_PROFILE=prod"
 
   # Deploy Canary if prod or uat
-  - ${{ if and( parameters.WEU , in( parameters.ENV, 'prod', 'uat') ) }}:
+  - ${{ if and( parameters.WEU , in( parameters.ENV, 'prod', 'uat' ,'dev') ) }}:
       - ${{ each step in split(variables.weight_steps, ',')}}:
           - stage: deploy_fdr_${{ step }}
             displayName: "Deploy ${{ parameters.ENV }} canary ${{ step }}%"
