@@ -12,5 +12,6 @@ cd ..
 #echo $changed_java_files
 #java -jar .cache/google-java-format-1.17.0-all-deps.jar --replace $changed_java_files
 
+## escludo le classi con il String text block perchè non ancora supportate da google java format
 java -jar .cache/google-java-format-1.17.0-all-deps.jar --replace $(find . -type f -name "*.java" ! -name "PspResourceTest.java")
 
