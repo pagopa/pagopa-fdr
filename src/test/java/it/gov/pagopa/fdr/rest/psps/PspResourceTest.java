@@ -5,13 +5,16 @@ import static org.hamcrest.Matchers.containsString;
 
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.Header;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.openapi.quarkus.api_config_cache_json.model.*;
@@ -55,16 +58,19 @@ public class PspResourceTest {
   String response = """
       {"message":"Flow [2016-08-16pspLorenz-1176] saved"}""";
 
-  @BeforeAll
-  public static void setup() throws URISyntaxException {
-    Config configMock = Mockito.mock(Config.class);
-    Mockito.doNothing().when(configMock).init();
-    Mockito.when(configMock.getClonedCache()).thenReturn(getConfig());
-    QuarkusMock.installMockForType(configMock, Config.class);
+  @InjectMock
+  Config config;
 
-    PspsService serviceMock = Mockito.mock(PspsService.class);
-    Mockito.doNothing().when(serviceMock).save(null);
-    QuarkusMock.installMockForType(serviceMock, PspsService.class);
+  @InjectMock
+  PspsService pspsService;
+
+
+  @BeforeEach
+  public void setup() {
+    Mockito.doNothing().when(config).init();
+    Mockito.when(config.getClonedCache()).thenReturn(getConfig());
+
+    Mockito.doNothing().when(pspsService).save(null);
   }
 
   @Test

@@ -102,7 +102,7 @@ services:
       - ${PWD}/mock/data:/usr/share/nginx/html/stakeholders/fdr/cache/schemas/v1/
       - ${PWD}/mock/nginx/:/etc/nginx/conf.d
     ports:
-      - 9090:9090
+      - 9091:9091
     networks:
       - infra
 
