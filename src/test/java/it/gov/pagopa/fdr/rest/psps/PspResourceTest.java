@@ -25,7 +25,6 @@ public class PspResourceTest {
   private static String brokerCode = "intLorenz";
   private static String channelCode = "canaleLorenz";
   private static String ecCode = "12345678900";
-
   private static String pspChannelPaymentTypeCode = "PAYPALL";
 
   private static Header header = new Header("Content-Type", "application/json");
