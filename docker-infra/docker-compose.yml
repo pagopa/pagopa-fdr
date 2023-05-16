@@ -95,6 +95,16 @@ services:
       - 27017:27017
     networks:
       - infra
+  mock:
+    image: nginx
+    restart: always
+    volumes:
+      - ${PWD}/mock/data:/usr/share/nginx/html/stakeholders/fdr/cache/schemas/v1/
+      - ${PWD}/mock/nginx/:/etc/nginx/conf.d
+    ports:
+      - 9090:9090
+    networks:
+      - infra
 
   mongo-express:
     image: mongo-express
