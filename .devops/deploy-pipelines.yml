@@ -316,7 +316,7 @@ stages:
                           --set fdr.image.tag="$(current_version)"
                           --set fdr.forceRedeploy=${{ parameters.FORCE_REDEPLOY }}
 
-                    - ${{ if in( parameters.ENV, 'prod', 'uat') }}:
+                    - ${{ if in( parameters.ENV, 'prod', 'uat' ,'dev') }}:
                         - bash: |
                             echo "uninstall WEU CANARY"
                         - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
