@@ -964,7 +964,7 @@
     "12345678900": {
       "creditor_institution_code": "12345678900",
       "enabled": true,
-      "business_name": "pa lorenz",
+      "business_name": "pa test",
       "description": null,
       "address": {
         "location": null,
@@ -19185,10 +19185,10 @@
       "description": "Intermediario non abilitato",
       "extended_fault_bean": false
     },
-    "intPaLorenz": {
-      "broker_code": "intPaLorenz",
+    "intPaTest": {
+      "broker_code": "intPaTest",
       "enabled": true,
-      "description": "intPaLorenz",
+      "description": "intPaTest",
       "extended_fault_bean": false
     },
     "55555555555": {
@@ -22502,8 +22502,8 @@
       "invio_rt_istantaneo": false,
       "primitive_version": 1
     },
-    "stazioneLorenz": {
-      "station_code": "stazioneLorenz",
+    "stazioneTest": {
+      "station_code": "stazioneTest",
       "enabled": true,
       "version": 1,
       "connection": {
@@ -22542,7 +22542,7 @@
         "target_port": null,
         "target_path": null
       },
-      "broker_code": "intPaLorenz",
+      "broker_code": "intPaTest",
       "proxy": null,
       "thread_number": 2,
       "timeouts": {
@@ -32434,9 +32434,9 @@
       "primitive_version": 1,
       "spontaneous_payment": false
     },
-    "stazioneLorenz_12345678900_null_1_12": {
+    "stazioneTest_12345678900_null_1_12": {
       "creditor_institution_code": "12345678900",
-      "station_code": "stazioneLorenz",
+      "station_code": "stazioneTest",
       "application_code": 1,
       "aux_digit": null,
       "segregation_code": 12,
@@ -39551,9 +39551,9 @@
       "primitive_version": 1,
       "spontaneous_payment": false
     },
-    "stazioneLorenz_88888888888_null_2_12": {
+    "stazioneTest_88888888888_null_2_12": {
       "creditor_institution_code": "88888888888",
-      "station_code": "stazioneLorenz",
+      "station_code": "stazioneTest",
       "application_code": 2,
       "aux_digit": null,
       "segregation_code": 12,
@@ -46508,17 +46508,17 @@
       "tax_code": "CFpspStress45",
       "vat_number": null
     },
-    "pspLorenz": {
-      "psp_code": "pspLorenz",
+    "pspTest": {
+      "psp_code": "pspTest",
       "enabled": true,
-      "description": "Lorenz-PSP",
-      "business_name": "Lorenz",
+      "description": "Test-PSP",
+      "business_name": "Test",
       "abi": "LLLLL",
       "bic": "bic",
       "my_bank_code": null,
       "digital_stamp": true,
       "agid_psp": false,
-      "tax_code": "CFpspLorenz",
+      "tax_code": "CFpspTest",
       "vat_number": null
     },
     "pspStress46": {
@@ -47240,8 +47240,8 @@
       "enabled": true,
       "extended_fault_bean": false
     },
-    "intLorenz": {
-      "broker_psp_code": "intLorenz",
+    "intTest": {
+      "broker_psp_code": "intTest",
       "description": "LLLLL",
       "enabled": true,
       "extended_fault_bean": false
@@ -48357,9 +48357,9 @@
       "channel_code": "noServizio",
       "payment_type": "AD"
     },
-    "pspLorenz_canaleLorenz_BP": {
-      "psp_code": "pspLorenz",
-      "channel_code": "canaleLorenz",
+    "pspTest_canaleTest_BP": {
+      "psp_code": "pspTest",
+      "channel_code": "canaleTest",
       "payment_type": "BP"
     },
     "WFESP_WFESP_06_ila_JIF": {
@@ -48412,9 +48412,9 @@
       "channel_code": "irraggiungibile",
       "payment_type": "BBT"
     },
-    "pspLorenz_canaleLorenz_AD": {
-      "psp_code": "pspLorenz",
-      "channel_code": "canaleLorenz",
+    "pspTest_canaleTest_AD": {
+      "psp_code": "pspTest",
+      "channel_code": "canaleTest",
       "payment_type": "AD"
     },
     "nodo-doc-dev_nodo-doc-dev-paypal_PPAL": {
@@ -48827,8 +48827,8 @@
       "channel_code": "canaleStressA61",
       "payment_type": "CP"
     },
-    "pspLorenz_mybankSvil_OBEP": {
-      "psp_code": "pspLorenz",
+    "pspTest_mybankSvil_OBEP": {
+      "psp_code": "pspTest",
       "channel_code": "mybankSvil",
       "payment_type": "OBEP"
     },
@@ -49042,8 +49042,8 @@
       "channel_code": "canaleStressA76",
       "payment_type": "CP"
     },
-    "pspLorenz_canaleSleep_PO": {
-      "psp_code": "pspLorenz",
+    "pspTest_canaleSleep_PO": {
+      "psp_code": "pspTest",
       "channel_code": "canaleSleep",
       "payment_type": "PO"
     },
@@ -49297,9 +49297,9 @@
       "channel_code": "canaleStress49",
       "payment_type": "PO"
     },
-    "pspLorenz_canaleLorenz_BBT": {
-      "psp_code": "pspLorenz",
-      "channel_code": "canaleLorenz",
+    "pspTest_canaleTest_BBT": {
+      "psp_code": "pspTest",
+      "channel_code": "canaleTest",
       "payment_type": "BBT"
     },
     "pspStress32_canaleStressA32_CP": {
@@ -49757,9 +49757,9 @@
       "channel_code": "nodo-doc-dev-bpay",
       "payment_type": "BPAY"
     },
-    "pspLorenz_canaleLorenz_PO": {
-      "psp_code": "pspLorenz",
-      "channel_code": "canaleLorenz",
+    "pspTest_canaleTest_PO": {
+      "psp_code": "pspTest",
+      "channel_code": "canaleTest",
       "payment_type": "PO"
     },
     "pspStress23_canaleStress23_PO": {
@@ -50172,8 +50172,8 @@
       "channel_code": "canaleStressA73",
       "payment_type": "CP"
     },
-    "pspLorenz_canaleSleep_BBT": {
-      "psp_code": "pspLorenz",
+    "pspTest_canaleSleep_BBT": {
+      "psp_code": "pspTest",
       "channel_code": "canaleSleep",
       "payment_type": "BBT"
     },
@@ -50227,9 +50227,9 @@
       "channel_code": "canaleStress22",
       "payment_type": "PO"
     },
-    "pspLorenz_canaleLorenz_OBEP": {
-      "psp_code": "pspLorenz",
-      "channel_code": "canaleLorenz",
+    "pspTest_canaleTest_OBEP": {
+      "psp_code": "pspTest",
+      "channel_code": "canaleTest",
       "payment_type": "OBEP"
     },
     "noServizio_noServizio_PO": {
@@ -50657,8 +50657,8 @@
       "channel_code": "canaleStress40",
       "payment_type": "PO"
     },
-    "pspLorenz_canaleSleep_OBEP": {
-      "psp_code": "pspLorenz",
+    "pspTest_canaleSleep_OBEP": {
+      "psp_code": "pspTest",
       "channel_code": "canaleSleep",
       "payment_type": "OBEP"
     },
@@ -50907,8 +50907,8 @@
       "channel_code": "canaleStress29",
       "payment_type": "PO"
     },
-    "pspLorenz_canaleSleep_AD": {
-      "psp_code": "pspLorenz",
+    "pspTest_canaleSleep_AD": {
+      "psp_code": "pspTest",
       "channel_code": "canaleSleep",
       "payment_type": "AD"
     },
@@ -51087,8 +51087,8 @@
       "channel_code": "80000000001_03",
       "payment_type": "PO"
     },
-    "pspLorenz_canaleSleep_BP": {
-      "psp_code": "pspLorenz",
+    "pspTest_canaleSleep_BP": {
+      "psp_code": "pspTest",
       "channel_code": "canaleSleep",
       "payment_type": "BP"
     },
@@ -51127,8 +51127,8 @@
       "channel_code": "canaleStressA86",
       "payment_type": "CP"
     },
-    "pspLorenz_canaleSleep_CP": {
-      "psp_code": "pspLorenz",
+    "pspTest_canaleSleep_CP": {
+      "psp_code": "pspTest",
       "channel_code": "canaleSleep",
       "payment_type": "CP"
     },
@@ -51332,9 +51332,9 @@
       "channel_code": "canaleStressA5",
       "payment_type": "CP"
     },
-    "pspLorenz_canaleLorenz_CP": {
-      "psp_code": "pspLorenz",
-      "channel_code": "canaleLorenz",
+    "pspTest_canaleTest_CP": {
+      "psp_code": "pspTest",
+      "channel_code": "canaleTest",
       "payment_type": "CP"
     },
     "pspStress64_canaleStressA64_CP": {
@@ -51728,8 +51728,8 @@
       "primitive_version": 1,
       "flag_psp_cp": false
     },
-    "canaleLorenz": {
-      "channel_code": "canaleLorenz",
+    "canaleTest": {
+      "channel_code": "canaleTest",
       "description": null,
       "enabled": true,
       "password": "password",
@@ -51738,7 +51738,7 @@
         "ip": "api.dev.platform.pagopa.it",
         "port": 443
       },
-      "broker_psp_code": "intLorenz",
+      "broker_psp_code": "intTest",
       "proxy": null,
       "service": {
         "path": "mock-psp-ndp/service/v1/mock",
@@ -51775,6 +51775,53 @@
       "agid": false,
       "primitive_version": 1,
       "flag_psp_cp": false
+    },
+    "canaleNotEnabled": {
+      "channel_code": "canaleNotEnabled",
+      "description": null,
+      "enabled": false,
+      "password": "password",
+      "connection": {
+        "protocol": "HTTP",
+        "ip": "localhost",
+        "port": 8087
+      },
+      "broker_psp_code": "intTest",
+      "proxy": null,
+      "service": {
+        "path": "FespPsp",
+        "target_host": null,
+        "target_port": null,
+        "target_path": null
+      },
+      "service_nmp": {
+        "path": null,
+        "target_host": null,
+        "target_port": null,
+        "target_path": null
+      },
+      "thread_number": 2,
+      "timeouts": {
+        "timeout_a": 20,
+        "timeout_b": 20,
+        "timeout_c": 20
+      },
+      "new_fault_code": true,
+      "redirect": {
+        "protocol": "HTTP",
+        "ip": "siapagopa.rf.gd",
+        "path": "psp",
+        "port": 80,
+        "query_string": null
+      },
+      "payment_model": "ATTIVATO_PRESSO_PSP",
+      "serv_plugin": "idPsp1",
+      "rt_push": true,
+      "recovery": false,
+      "digital_stamp": true,
+      "flag_io": false,
+      "agid": false,
+      "primitive_version": 1
     },
     "mybankSvil": {
       "channel_code": "mybankSvil",
@@ -59850,7 +59897,7 @@
         "ip": "api.dev.platform.pagopa.it",
         "port": 443
       },
-      "broker_psp_code": "intLorenz",
+      "broker_psp_code": "intTest",
       "proxy": null,
       "service": {
         "path": "mock-psp-ndp/service/v1/mock",

@@ -26,14 +26,21 @@ import org.openapi.quarkus.api_config_cache_json.model.PspChannelPaymentType;
 @QuarkusTest
 public class PspResourceTest {
 
-  private static String reportingFlowName = "2016-08-16pspLorenz-1176";
-  private static String pspCode = "pspLorenz";
-  private static String pspCodeNotEnabled = "pspNotEnabled";
-  private static String brokerCode = "intLorenz";
-  private static String channelCode = "canaleLorenz";
-  private static String ecCode = "12345678900";
-  private static String pspChannelPaymentTypeCode = "PAYPALL";
-  private static Header header = new Header("Content-Type", "application/json");
+  private static final String reportingFlowName = "2016-08-16pspTest-1176";
+  private static final String reportingFlowNamePspWrongFormat = "2016-08-16-psp-1176";
+  private static final String reportingFlowNameDateWrongFormat = "2016-aa-16pspTest-1176";
+  private static final String pspCode = "pspTest";
+  private static final String pspCode2 = "pspTest2";
+  private static final String pspCodeNotEnabled = "pspNotEnabled";
+  private static final String brokerCode = "intTest";
+  private static final String brokerCode2 = "intTest2";
+  private static final String brokerCodeNotEnabled = "intNotEnabled";
+  private static final String channelCode = "canaleTest";
+  private static final String channelCodeNotEnabled = "canaleNotEnabled";
+  private static final String ecCode = "12345678900";
+  private static final String ecCodeNotEnabled = "00987654321";
+  private static final String pspChannelPaymentTypeCode = "PAYPALL";
+  private static final Header header = new Header("Content-Type", "application/json");
 
   private static String template = """
         {
@@ -107,7 +114,7 @@ public class PspResourceTest {
         template.formatted(reportingFlowName, pspNotMatch, brokerCode, channelCode, ecCode);
     String responseFmt =
         """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0704","errors":[{"message":"Reporting flow [2016-08-16pspLorenz-1176] have sender.pspId [PSP_NOT_MATCH] but not match with query param [pspLorenz]"}]}""";
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0704","errors":[{"message":"Reporting flow [2016-08-16pspTest-1176] have sender.pspId [PSP_NOT_MATCH] but not match with query param [pspTest]"}]}""";
 
     given()
         .body(bodyFmt)
@@ -164,6 +171,214 @@ public class PspResourceTest {
         .body(containsString(responseFmt));
   }
 
+  @Test
+  @DisplayName("PSPS create KO FDR-0710")
+  public void test_brokerpsp_KO_FDR0710() {
+    String brokerPspUnknown = "BROKERPSP_UNKNOWN";
+
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode, brokerPspUnknown, channelCode, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0710","errors":[{"message":"Broker [BROKERPSP_UNKNOWN] unknown"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0711")
+  public void test_brokerpsp_KO_FDR0711() {
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode, brokerCodeNotEnabled, channelCode, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0711","errors":[{"message":"Broker [intNotEnabled] not enabled"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0712")
+  public void test_channel_KO_FDR0712() {
+    String channelUnknown = "CHANNEL_UNKNOWN";
+
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode, brokerCode, channelUnknown, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0712","errors":[{"message":"Channel [CHANNEL_UNKNOWN] unknown"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0713")
+  public void test_channel_KO_FDR0713() {
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode, brokerCode, channelCodeNotEnabled, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0713","errors":[{"message":"channelId.notEnabled"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0714")
+  public void test_channelBroker_KO_FDR0714() {
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode, brokerCode2, channelCode, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0714","errors":[{"message":"Channel [canaleTest] with broker [intTest2] not authorized"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0715")
+  public void test_channelPsp_KO_FDR0715() {
+    String url = "/psps/%s/flows".formatted(pspCode2);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode2, brokerCode, channelCode, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0715","errors":[{"message":"Channel [canaleTest] with psp [pspTest2] not authorized"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+//  EC_NOT_ENABLED("0717", "ecId.notEnabled", RestResponse.Status.BAD_REQUEST),
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0716")
+  public void test_ecId_KO_FDR0716() {
+    String ecUnknown = "EC_UNKNOWN";
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode, brokerCode, channelCode, ecUnknown);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0716","errors":[{"message":"Creditor institution [EC_UNKNOWN] unknown"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0717")
+  public void test_ecId_KO_FDR0717() {
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowName, pspCode, brokerCode, channelCode, ecCodeNotEnabled);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0717","errors":[{"message":"Creditor institution [00987654321] not enabled"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0718")
+  public void test_flowName_KO_FDR0718() {
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowNameDateWrongFormat, pspCode, brokerCode, channelCode, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0718","errors":[{"message":"Reporting flow [2016-aa-16pspTest-1176] has wrong date"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS create KO FDR-0719")
+  public void test_flowName_KO_FDR0719() {
+    String url = "/psps/%s/flows".formatted(pspCode);
+    String bodyFmt =
+        template.formatted(reportingFlowNamePspWrongFormat, pspCode, brokerCode, channelCode, ecCode);
+    String responseFmt =
+        """
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0719","errors":[{"message":"Reporting flow [2016-08-16-psp-1176] has wrong psp"}]}""";
+
+    given()
+        .body(bodyFmt)
+        .header(header)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .body(containsString(responseFmt));
+  }
+
+
   private static ConfigDataV1 getConfig() {
     PaymentServiceProvider paymentServiceProvider = new PaymentServiceProvider();
     paymentServiceProvider.setEnabled(true);
@@ -173,22 +388,45 @@ public class PspResourceTest {
     paymentServiceProviderNotEnabled.setEnabled(false);
     paymentServiceProviderNotEnabled.setPspCode(pspCodeNotEnabled);
 
+    PaymentServiceProvider paymentServiceProvider2 = new PaymentServiceProvider();
+    paymentServiceProvider2.setEnabled(true);
+    paymentServiceProvider2.setPspCode(pspCode2);
+
     Map<String, PaymentServiceProvider> psps = new LinkedHashMap<>();
     psps.put(pspCode, paymentServiceProvider);
+    psps.put(pspCode2, paymentServiceProvider2);
     psps.put(pspCodeNotEnabled, paymentServiceProviderNotEnabled);
 
     BrokerPsp brokerPsp = new BrokerPsp();
     brokerPsp.setEnabled(true);
     brokerPsp.setBrokerPspCode(brokerCode);
+
+    BrokerPsp brokerPsp2 = new BrokerPsp();
+    brokerPsp2.setEnabled(true);
+    brokerPsp2.setBrokerPspCode(brokerCode2);
+
+    BrokerPsp brokerPspNotEnabled = new BrokerPsp();
+    brokerPspNotEnabled.setEnabled(false);
+    brokerPspNotEnabled.setBrokerPspCode(brokerCodeNotEnabled);
+
     Map<String, BrokerPsp> pspBrokers = new LinkedHashMap<>();
     pspBrokers.put(brokerCode, brokerPsp);
+    pspBrokers.put(brokerCode2, brokerPsp2);
+    pspBrokers.put(brokerCodeNotEnabled, brokerPspNotEnabled);
 
     Channel channel = new Channel();
     channel.setEnabled(true);
     channel.setBrokerPspCode(brokerCode);
     channel.setChannelCode(channelCode);
+
+    Channel channelNotEnabled = new Channel();
+    channelNotEnabled.setEnabled(false);
+    channelNotEnabled.setBrokerPspCode(brokerCode);
+    channelNotEnabled.setChannelCode(channelCodeNotEnabled);
+
     Map<String, Channel> channels = new LinkedHashMap<>();
     channels.put(channelCode, channel);
+    channels.put(channelCodeNotEnabled, channelNotEnabled);
 
     PspChannelPaymentType pspChannelPaymentType = new PspChannelPaymentType();
     pspChannelPaymentType.setPspCode(pspCode);
@@ -197,9 +435,16 @@ public class PspResourceTest {
     pspChannelPaymentTypeLinkedHashMap.put(pspChannelPaymentTypeCode, pspChannelPaymentType);
 
     CreditorInstitution creditorInstitution = new CreditorInstitution();
+    creditorInstitution.setCreditorInstitutionCode(ecCode);
     creditorInstitution.setEnabled(true);
+
+    CreditorInstitution creditorInstitutionNotEnabled = new CreditorInstitution();
+    creditorInstitutionNotEnabled.setCreditorInstitutionCode(ecCodeNotEnabled);
+    creditorInstitutionNotEnabled.setEnabled(false);
+
     Map<String, CreditorInstitution> creditorInstitutionMap = new LinkedHashMap<>();
     creditorInstitutionMap.put(ecCode, creditorInstitution);
+    creditorInstitutionMap.put(ecCodeNotEnabled, creditorInstitutionNotEnabled);
 
     ConfigDataV1 configDataV1 = new ConfigDataV1();
     configDataV1.setPsps(psps);
