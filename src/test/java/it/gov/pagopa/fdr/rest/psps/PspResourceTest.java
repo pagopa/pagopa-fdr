@@ -42,6 +42,7 @@ public class PspResourceTest {
   private static final String pspChannelPaymentTypeCode = "PAYPALL";
   private static final Header header = new Header("Content-Type", "application/json");
 
+
   private static String template = """
         {
           "reportingFlowName": "%s",
