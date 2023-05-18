@@ -176,7 +176,7 @@ stages:
           - task: AzureKeyVault@2
             displayName: "Get secrets"
             inputs:
-              azureSubscription: $(WEU_kubernetesServiceConnection)
+              azureSubscription: $(AZURE_SERVICE_CONNECTION)
               keyVaultName: 'pagopa-fdr-kv'
               secretsFilter: 'api-config-cache-subscription-key-string'
 
