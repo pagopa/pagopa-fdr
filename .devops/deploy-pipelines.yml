@@ -87,6 +87,8 @@ variables:
   WEU_value_file: "helm/weu-${{ parameters['ENV'] }}/values-${{ parameters['ENV'] }}.yaml"
   NEU_value_file: "helm/neu-${{ parameters['ENV'] }}/values-${{ parameters['ENV'] }}.yaml"
 
+  API_CACHE_MOCK:
+
 
   ${{ if eq(parameters['ENV'], 'dev') }}:
     appName: 'fdr'
@@ -170,6 +172,13 @@ stages:
               git checkout $(sourceBranch)
             displayName: Checkout and update branch
 
+          - task: AzureKeyVault@2
+            displayName: "Get secrets"
+            inputs:
+              azureSubscription: $(WEU_kubernetesServiceConnection)
+              keyVaultName: 'pagopa-fdr-kv'
+              secretsFilter: 'api-config-cache-subscription-key-string'
+
           - template: templates/docker-release/template.yaml@pagopaCommons
             parameters:
               CONTAINER_REGISTRY_SERVICE_CONN: $(WEU_dockerRegistryServiceConnection)
@@ -178,7 +187,7 @@ stages:
               DOCKER_IMAGE_TAG: $(current_version)
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
               DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage"
-              DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository) --build-arg QUARKUS_PROFILE=prod"
+              DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository) --build-arg QUARKUS_PROFILE=prod --build-arg ADAPTER_API_CONFIG_CACHE_URL='https://api.dev.platform.pagopa.it/api-config-cache/p/v1' --build-arg ADAPTER_API_CONFIG_CACHE_KEY=$(api-config-cache-subscription-key-string)"
 
   # Deploy Canary if prod or uat
   - ${{ if and( parameters.WEU , in( parameters.ENV, 'prod', 'uat') ) }}:
