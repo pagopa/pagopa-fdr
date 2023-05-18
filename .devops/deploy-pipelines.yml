@@ -177,7 +177,7 @@ stages:
             displayName: "Get secrets"
             inputs:
               azureSubscription: $(AZURE_SERVICE_CONNECTION)
-              keyVaultName: 'pagopa-fdr-kv'
+              keyVaultName: 'pagopa-d-fdr-kv'
               secretsFilter: 'api-config-cache-subscription-key-string'
 
           - template: templates/docker-release/template.yaml@pagopaCommons
