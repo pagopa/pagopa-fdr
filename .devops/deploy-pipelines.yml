@@ -10,7 +10,7 @@ resources:
     - repository: pagopaCommons
       type: github
       name: pagopa/azure-pipeline-templates
-      ref: 3.10.0
+      ref: v3.10.0
       endpoint: 'io-azure-devops-github-ro'
 
 parameters:
