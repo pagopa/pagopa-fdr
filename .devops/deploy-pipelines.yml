@@ -145,6 +145,7 @@ stages:
                     git add "$VALUES_FILE"
                   fi
                 fi
+          - template: templates/maven-github-current-version/template.yaml@pagopaCommons
 
   # Build and Push Docker Image
   - stage: build
@@ -152,6 +153,8 @@ stages:
       displayName: "Build skipped"
     ${{ if not(parameters.SKIP_BUILD) }}:
       displayName: "Build"
+    variables:
+      current_version: $[ stageDependencies.release.make_release.outputs['current_version.value'] ]
     jobs:
       - job: build
         ${{ if parameters.SKIP_BUILD }}:
@@ -170,7 +173,7 @@ stages:
           - template: templates/docker-release/template.yaml@pagopaCommons
             parameters:
               CONTAINER_REGISTRY_SERVICE_CONN: $(WEU_dockerRegistryServiceConnection)
-              CONTAINER_REGISTRY_FQDN: $(dockerRegistryFqdn)
+              CONTAINER_REGISTRY_FQDN: $(WEU_dockerRegistryFqdn)
               DOCKER_IMAGE_NAME: $(imageRepository)
               DOCKER_IMAGE_TAG: $(current_version)
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
