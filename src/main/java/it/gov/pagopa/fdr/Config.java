@@ -2,24 +2,23 @@ package it.gov.pagopa.fdr;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.runtime.Startup;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.scheduler.ScheduledExecution;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
+import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.api.FdrCacheApi;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
-@Startup
+// @Startup
 @ApplicationScoped
+// @UnlessBuildProfile("test")
 public class Config {
 
   @ConfigProperty(name = "adapter.api_config_cache.url")
@@ -33,8 +32,9 @@ public class Config {
 
   private FdrCacheApi nodeCacheApi;
 
-  @PostConstruct
-  public void init() throws URISyntaxException {
+  //  @PostConstruct
+  @SneakyThrows
+  public void init() {
     nodeCacheApi =
         RestClientBuilder.newBuilder()
             .baseUri(new URI(url))
@@ -66,6 +66,7 @@ public class Config {
   }
 
   @Inject Logger log;
+
   //  @Inject @RestClient
   //  NodeCacheApi nodeCacheApi;
 

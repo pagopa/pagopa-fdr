@@ -10,7 +10,11 @@ repos:
         language_version: python3
         stages: [ commit ]
 
-#  - repo: https://github.com/maltzj/google-style-precommit-hook
-#    rev: b7e9e7fcba4a5aea463e72fe9964c14877bd8130
-#    hooks:
-#      - id: google-style-java
+  - repo: local
+    hooks:
+      - id: google-style-java
+        name: Google Java Code Style for Java
+        description: Formats code in Google's Java codestyle.
+        entry: ./format-code.sh
+        language: script
+        files: \.java$ # We don't technically need this, as the script will filter for us, but this will allow the hook to be skipped if no Java is changed.
