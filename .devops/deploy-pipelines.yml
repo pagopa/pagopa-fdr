@@ -92,6 +92,7 @@ variables:
 
   ${{ if eq(parameters['ENV'], 'dev') }}:
     appName: 'fdr'
+    AZURE_SERVICE_CONNECTION: '$(TF_APPINSIGHTS_SERVICE_CONN_DEV)'
     WEU_dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
     WEU_dockerRegistryFqdn: $(DEV_CONTAINER_NAMESPACE)
     WEU_kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
