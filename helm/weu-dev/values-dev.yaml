@@ -2,7 +2,7 @@ fdr:
   namespace: "fdr"
   image:
     repository: pagopadcommonacr.azurecr.io/pagopafdr
-    tag: 0.0.0-SNAPSHOT
+    tag: 1.0.0-SNAPSHOT
   readinessProbe:
     httpGet:
       path: /q/health/ready
