@@ -3,15 +3,25 @@ package it.gov.pagopa.fdr.rest.psps;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 
+import io.quarkiverse.mockserver.test.MockServerTestResource;
+import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
+import io.quarkus.panache.common.Parameters;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.Header;
+import io.restassured.internal.common.assertion.AssertParameter;
 import it.gov.pagopa.fdr.Config;
+import it.gov.pagopa.fdr.repository.reportingFlow.FdrInsertEntity;
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.random.RandomGenerator;
+
+import it.gov.pagopa.fdr.util.MongoResource;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +34,7 @@ import org.openapi.quarkus.api_config_cache_json.model.PaymentServiceProvider;
 import org.openapi.quarkus.api_config_cache_json.model.PspChannelPaymentType;
 
 @QuarkusTest
+@QuarkusTestResource(MockServerTestResource.class)
 public class PspResourceTest {
 
   private static final String reportingFlowName = "2016-08-16pspTest-1176";
@@ -39,7 +50,7 @@ public class PspResourceTest {
   private static final String channelCodeNotEnabled = "canaleNotEnabled";
   private static final String ecCode = "12345678900";
   private static final String ecCodeNotEnabled = "00987654321";
-  private static final String pspChannelPaymentTypeCode = "PAYPALL";
+  private static final String pspChannelPaymentTypeCode = "PAYPAL";
   private static final Header header = new Header("Content-Type", "application/json");
 
 
@@ -71,16 +82,13 @@ public class PspResourceTest {
       {"message":"Flow [%s] saved"}""";
 
   @InjectMock
-  Config config;
-
-  @InjectMock
   PspsService pspsService;
 
 
   @BeforeEach
   public void setup() {
-    Mockito.doNothing().when(config).init();
-    Mockito.when(config.getClonedCache()).thenReturn(getConfig());
+//    Mockito.doNothing().when(config).init();
+//    Mockito.when(config.getClonedCache()).thenReturn(getConfig());
 
     Mockito.doNothing().when(pspsService).save(null);
   }

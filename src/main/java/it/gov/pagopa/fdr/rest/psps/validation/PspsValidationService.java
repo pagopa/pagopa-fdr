@@ -75,17 +75,17 @@ public class PspsValidationService {
     }
 
     // check channel/psp
-    boolean notExist =
+    boolean exist =
         configData.getPspChannelPaymentTypes().entrySet().stream()
-                .filter(
-                    a -> {
-                      PspChannelPaymentType value = a.getValue();
-                      return value.getPspCode().equals(paymentServiceProvider.getPspCode())
-                          && value.getChannelCode().equals(channel.getChannelCode());
-                    })
-                .count()
-            == 0;
-    if (notExist) {
+            .filter(
+                a -> {
+                  PspChannelPaymentType value = a.getValue();
+                  return value.getPspCode().equals(paymentServiceProvider.getPspCode())
+                      && value.getChannelCode().equals(channel.getChannelCode());
+                })
+            .findAny()
+            .isPresent();
+    if (!exist) {
       throw new AppException(AppErrorCodeMessageEnum.CHANNEL_PSP_WRONG_CONFIG, channelId, pspId);
     }
 
