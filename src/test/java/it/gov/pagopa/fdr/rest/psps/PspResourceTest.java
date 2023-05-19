@@ -42,6 +42,7 @@ public class PspResourceTest {
   private static final String pspChannelPaymentTypeCode = "PAYPALL";
   private static final Header header = new Header("Content-Type", "application/json");
 
+  private static final String flowsUrl = "/psps/%s/flows";
 
   private static String template = """
         {
@@ -90,7 +91,7 @@ public class PspResourceTest {
   public void testPspOk() {
     RandomGenerator randomGenerator = new Random();
     String flowName = reportingFlowName.substring(0, reportingFlowName.length()-4)+randomGenerator.nextInt(1111,9999);
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(flowName, pspCode, brokerCode, channelCode, ecCode);
     String responseFmt = response.formatted(flowName);
@@ -110,7 +111,7 @@ public class PspResourceTest {
   public void test_psp_KO_FDR0704() {
     String pspNotMatch = "PSP_NOT_MATCH";
 
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowName, pspNotMatch, brokerCode, channelCode, ecCode);
     String responseFmt =
@@ -133,7 +134,7 @@ public class PspResourceTest {
 
     String pspUnknown = "PSP_UNKNOWN";
 
-    String url = "/psps/%s/flows".formatted(pspUnknown);
+    String url = flowsUrl.formatted(pspUnknown);
     String bodyFmt =
         template.formatted(reportingFlowName, pspUnknown, brokerCode, channelCode, ecCode);
     String responseFmt =
@@ -155,7 +156,7 @@ public class PspResourceTest {
   public void test_psp_KO_FDR0709() {
     //TODO replicare la config sul mock json per far funzionare il test
 
-    String url = "/psps/%s/flows".formatted(pspCodeNotEnabled);
+    String url = flowsUrl.formatted(pspCodeNotEnabled);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCodeNotEnabled, brokerCode, channelCode, ecCode);
     String responseFmt =
@@ -177,7 +178,7 @@ public class PspResourceTest {
   public void test_brokerpsp_KO_FDR0710() {
     String brokerPspUnknown = "BROKERPSP_UNKNOWN";
 
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCode, brokerPspUnknown, channelCode, ecCode);
     String responseFmt =
@@ -197,7 +198,7 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create KO FDR-0711")
   public void test_brokerpsp_KO_FDR0711() {
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCode, brokerCodeNotEnabled, channelCode, ecCode);
     String responseFmt =
@@ -219,7 +220,7 @@ public class PspResourceTest {
   public void test_channel_KO_FDR0712() {
     String channelUnknown = "CHANNEL_UNKNOWN";
 
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCode, brokerCode, channelUnknown, ecCode);
     String responseFmt =
@@ -239,7 +240,7 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create KO FDR-0713")
   public void test_channel_KO_FDR0713() {
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCode, brokerCode, channelCodeNotEnabled, ecCode);
     String responseFmt =
@@ -259,7 +260,7 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create KO FDR-0714")
   public void test_channelBroker_KO_FDR0714() {
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCode, brokerCode2, channelCode, ecCode);
     String responseFmt =
@@ -279,7 +280,7 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create KO FDR-0715")
   public void test_channelPsp_KO_FDR0715() {
-    String url = "/psps/%s/flows".formatted(pspCode2);
+    String url = flowsUrl.formatted(pspCode2);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCode2, brokerCode, channelCode, ecCode);
     String responseFmt =
@@ -296,13 +297,11 @@ public class PspResourceTest {
         .body(containsString(responseFmt));
   }
 
-//  EC_NOT_ENABLED("0717", "ecId.notEnabled", RestResponse.Status.BAD_REQUEST),
-
   @Test
   @DisplayName("PSPS create KO FDR-0716")
   public void test_ecId_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCode, brokerCode, channelCode, ecUnknown);
     String responseFmt =
@@ -322,7 +321,7 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create KO FDR-0717")
   public void test_ecId_KO_FDR0717() {
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCode, brokerCode, channelCode, ecCodeNotEnabled);
     String responseFmt =
@@ -342,7 +341,7 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create KO FDR-0718")
   public void test_flowName_KO_FDR0718() {
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowNameDateWrongFormat, pspCode, brokerCode, channelCode, ecCode);
     String responseFmt =
@@ -362,7 +361,7 @@ public class PspResourceTest {
   @Test
   @DisplayName("PSPS create KO FDR-0719")
   public void test_flowName_KO_FDR0719() {
-    String url = "/psps/%s/flows".formatted(pspCode);
+    String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         template.formatted(reportingFlowNamePspWrongFormat, pspCode, brokerCode, channelCode, ecCode);
     String responseFmt =

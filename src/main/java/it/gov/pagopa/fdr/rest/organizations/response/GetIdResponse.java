@@ -27,7 +27,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
   "receiver"
 })
 public class GetIdResponse {
-  @Schema(example = "2023-04-05T09:21:37.810000Z")
+  @Schema(example = "4")
   public Long revision;
 
   @Schema(example = "2023-04-03T12:00:30.900000Z")
@@ -36,7 +36,7 @@ public class GetIdResponse {
   @Schema(example = "2023-04-03T12:00:30.900000Z")
   public Instant updated;
 
-  @Schema(example = "643accaa4733f71aea4c71bf")
+  @Schema(example = "CREATED")
   public ReportingFlowStatusEnum status;
 
   @Schema(example = "60000000001-1173")
