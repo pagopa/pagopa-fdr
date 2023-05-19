@@ -153,8 +153,7 @@ public class OrganizationResourceTest {
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspUnknown, 10, 10);
     String responseFmt =
         """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0708","errors":[{"message":"Psp [PSP_UNKNOWN] unknown"}]}
-        """;
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0708","errors":[{"message":"Psp [PSP_UNKNOWN] unknown"}]}""";
     given().header(header).when().get(url).then().statusCode(400).body(containsString(responseFmt));
   }
 
@@ -164,8 +163,7 @@ public class OrganizationResourceTest {
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspCodeNotEnabled, 10, 10);
     String responseFmt =
         """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0709","errors":[{"message":"Psp [pspNotEnabled] not enabled"}]}
-        """;
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0709","errors":[{"message":"Psp [pspNotEnabled] not enabled"}]}""";
 
     given().header(header).when().get(url).then().statusCode(400).body(containsString(responseFmt));
   }
@@ -177,8 +175,7 @@ public class OrganizationResourceTest {
     String url = organizationFindByIdEcUrl.formatted(ecUnknown, pspCode, 10, 10);
     String responseFmt =
         """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0716","errors":[{"message":"Creditor institution [EC_UNKNOWN] unknown"}]}
-        """;
+        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0716","errors":[{"message":"Creditor institution [EC_UNKNOWN] unknown"}]}""";
 
     given().header(header).when().get(url).then().statusCode(400).body(containsString(responseFmt));
   }
