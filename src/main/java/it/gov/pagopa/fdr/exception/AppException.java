@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 public class AppException extends RuntimeException {
 
-  private final AppErrorCodeMessageInterface codeMessage;
+  private final transient AppErrorCodeMessageInterface codeMessage;
 
-  private final Object[] args;
+  private final transient Object[] args;
 
   public AppException(Throwable cause, AppErrorCodeMessageInterface codeMessage) {
     super(cause);

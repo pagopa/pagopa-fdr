@@ -4,7 +4,6 @@ import io.quarkus.runtime.Startup;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.net.URISyntaxException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -20,7 +19,7 @@ public class AppStartup {
   @Inject Config config;
 
   @PostConstruct
-  public void init() throws URISyntaxException {
+  public void init() {
     if ("test".equals(profile) || "openapi".equals(profile)) {
       log.info("NOT START CONFIG CLASS");
     } else {

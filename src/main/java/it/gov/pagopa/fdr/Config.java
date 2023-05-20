@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.scheduler.ScheduledExecution;
@@ -55,20 +54,12 @@ public class Config {
 
   ConfigDataV1 cache;
 
+  @SneakyThrows
   public ConfigDataV1 getClonedCache() {
-    try {
-      ConfigDataV1 deepCopy =
-          objectMapper.readValue(objectMapper.writeValueAsString(this.cache), ConfigDataV1.class);
-      return deepCopy;
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
+    return objectMapper.readValue(objectMapper.writeValueAsString(this.cache), ConfigDataV1.class);
   }
 
   @Inject Logger log;
-
-  //  @Inject @RestClient
-  //  NodeCacheApi nodeCacheApi;
 
   @Scheduled(cron = "{api_config_cache.cron.expr}")
   void cronJobApiconfigCache(ScheduledExecution execution) {

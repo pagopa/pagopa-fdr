@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.reportingFlow.model;
+package it.gov.pagopa.fdr.repository.fdr.model;
 
 public enum PaymentStatusEnumEntity {
   EXECUTED,

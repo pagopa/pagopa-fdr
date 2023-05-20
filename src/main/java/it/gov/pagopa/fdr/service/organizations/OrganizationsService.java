@@ -9,9 +9,9 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.projection.FdrPublishReportingFlowNameProjection;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishReportingFlowNameProjection;
 import it.gov.pagopa.fdr.service.dto.FlowDto;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
@@ -74,8 +74,8 @@ public class OrganizationsService {
                 .map(
                     rf ->
                         FlowDto.builder()
-                            .name(rf.reporting_flow_name)
-                            .pspId(rf.sender.pspId)
+                            .name(rf.getReportingFlowName())
+                            .pspId(rf.getSender().getPspId())
                             .build())
                 .toList())
         .build();
@@ -117,7 +117,7 @@ public class OrganizationsService {
 
     List<FdrPaymentPublishEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
 
-    long totPage = Long.valueOf(reportingFlowPaymentEntityPanacheQuery.pageCount());
+    long totPage = reportingFlowPaymentEntityPanacheQuery.pageCount();
     long countReportingFlowPayment = reportingFlowPaymentEntityPanacheQuery.count();
 
     return ReportingFlowGetPaymentDto.builder()
@@ -147,8 +147,8 @@ public class OrganizationsService {
                 () ->
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.read = Boolean.TRUE;
+    reportingFlowEntity.setUpdated(now);
+    reportingFlowEntity.setRead(Boolean.TRUE);
     reportingFlowEntity.update();
   }
 }
