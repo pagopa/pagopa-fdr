@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class Sender {
 
-  public String pspId;
+  private String pspId;
 }

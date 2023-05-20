@@ -96,8 +96,8 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.CREATED
-        || reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.INSERTED)) {
+    if (!(ReportingFlowStatusEnumEntity.CREATED == reportingFlowEntity.getStatus()
+        || ReportingFlowStatusEnumEntity.INSERTED == reportingFlowEntity.getStatus())) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
@@ -169,7 +169,7 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.INSERTED)) {
+    if (ReportingFlowStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
@@ -228,7 +228,7 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.INSERTED)) {
+    if (ReportingFlowStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
@@ -291,8 +291,8 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.CREATED
-        || reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.INSERTED)) {
+    if (!(ReportingFlowStatusEnumEntity.CREATED == reportingFlowEntity.getStatus()
+        || ReportingFlowStatusEnumEntity.INSERTED == reportingFlowEntity.getStatus())) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,

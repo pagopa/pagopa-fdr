@@ -74,8 +74,8 @@ public class OrganizationsService {
                 .map(
                     rf ->
                         FlowDto.builder()
-                            .name(rf.reporting_flow_name)
-                            .pspId(rf.sender.pspId)
+                            .name(rf.getReportingFlowName())
+                            .pspId(rf.getSender().getPspId())
                             .build())
                 .toList())
         .build();

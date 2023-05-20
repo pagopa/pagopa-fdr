@@ -2,11 +2,13 @@ package it.gov.pagopa.fdr.repository.fdr.projection;
 
 import io.quarkus.mongodb.panache.common.ProjectionFor;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import lombok.Data;
 
+@Data
 @ProjectionFor(FdrPublishEntity.class)
 public class FdrPublishReportingFlowNameProjection {
 
-  public String reporting_flow_name;
+  private String reportingFlowName;
 
-  public Sender sender;
+  private Sender sender;
 }
