@@ -8,5 +8,5 @@ import lombok.Data;
 @ProjectionFor(FdrPublishEntity.class)
 public class FdrPublishRevisionProjection {
 
-  public Long revision;
+  private Long revision;
 }

@@ -76,7 +76,7 @@ public class PspsService {
     reportingFlowEntity.setTotPayments(0L);
     reportingFlowEntity.setSumPaymnents(0.0);
     reportingFlowEntity.setRevision(
-        fdrPublishedByReportingFlowName.map(r -> r.revision + 1).orElse(1L));
+        fdrPublishedByReportingFlowName.map(r -> r.getRevision() + 1).orElse(1L));
     reportingFlowEntity.persist();
   }
 
