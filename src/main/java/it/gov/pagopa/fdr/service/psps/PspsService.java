@@ -73,8 +73,8 @@ public class PspsService {
     reportingFlowEntity.setCreated(now);
     reportingFlowEntity.setUpdated(now);
     reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.CREATED);
-    reportingFlowEntity.setTot_payments(0L);
-    reportingFlowEntity.setSum_paymnents(0.0);
+    reportingFlowEntity.setTotPayments(0L);
+    reportingFlowEntity.setSumPaymnents(0.0);
     reportingFlowEntity.setRevision(
         fdrPublishedByReportingFlowName.map(r -> r.revision + 1).orElse(1L));
     reportingFlowEntity.persist();
@@ -127,9 +127,9 @@ public class PspsService {
     List<FdrPaymentInsertEntity> reportingFlowPaymentEntities =
         mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
 
-    reportingFlowEntity.setTot_payments(
+    reportingFlowEntity.setTotPayments(
         addAndSumCount(reportingFlowEntity, reportingFlowPaymentEntities));
-    reportingFlowEntity.setSum_paymnents(
+    reportingFlowEntity.setSumPaymnents(
         addAndSum(reportingFlowEntity, reportingFlowPaymentEntities));
 
     reportingFlowEntity.setUpdated(now);
@@ -142,10 +142,10 @@ public class PspsService {
                 reportingFlowPaymentEntity -> {
                   reportingFlowPaymentEntity.setCreated(now);
                   reportingFlowPaymentEntity.setUpdated(now);
-                  reportingFlowPaymentEntity.setRef_fdr_id(reportingFlowEntity.id);
-                  reportingFlowPaymentEntity.setRef_fdr_reporting_flow_name(
-                      reportingFlowEntity.getReporting_flow_name());
-                  reportingFlowPaymentEntity.setRef_fdr_reporting_sender_psp_id(
+                  reportingFlowPaymentEntity.setRefFdrId(reportingFlowEntity.id);
+                  reportingFlowPaymentEntity.setRefFdrReportingFlowName(
+                      reportingFlowEntity.getReportingFlowName());
+                  reportingFlowPaymentEntity.setRefFdrReportingSenderPspId(
                       reportingFlowEntity.getSender().getPspId());
                   return reportingFlowPaymentEntity;
                 })
@@ -202,11 +202,11 @@ public class PspsService {
         "ref_fdr_reporting_flow_name = :flowName and index in :indexes",
         Parameters.with("flowName", reportingFlowName).and("indexes", indexList).map());
 
-    reportingFlowEntity.setTot_payments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
-    reportingFlowEntity.setSum_paymnents(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
+    reportingFlowEntity.setTotPayments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
+    reportingFlowEntity.setSumPaymnents(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
     reportingFlowEntity.setUpdated(now);
     reportingFlowEntity.setStatus(
-        (reportingFlowEntity.getSum_paymnents() > 0)
+        (reportingFlowEntity.getSumPaymnents() > 0)
             ? ReportingFlowStatusEnumEntity.INSERTED
             : ReportingFlowStatusEnumEntity.CREATED);
     reportingFlowEntity.update();
@@ -256,7 +256,7 @@ public class PspsService {
     }
 
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(reportingFlowEntity);
-    fdrPublishEntity.setInternal_ndp_read(Boolean.FALSE);
+    fdrPublishEntity.setInternalNdpRead(Boolean.FALSE);
     fdrPublishEntity.setRead(Boolean.FALSE);
     fdrPublishEntity.persist();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
@@ -299,7 +299,7 @@ public class PspsService {
           reportingFlowEntity.getStatus());
     }
 
-    if (reportingFlowEntity.getTot_payments() > 0L) {
+    if (reportingFlowEntity.getTotPayments() > 0L) {
       FdrPaymentInsertEntity.delete(
           "ref_fdr_reporting_flow_name = :flowName",
           Parameters.with("flowName", reportingFlowName).map());
@@ -311,7 +311,7 @@ public class PspsService {
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
     return Double.sum(
-        Objects.requireNonNullElseGet(reportingFlowEntity.getSum_paymnents(), () -> (double) 0),
+        Objects.requireNonNullElseGet(reportingFlowEntity.getSumPaymnents(), () -> (double) 0),
         reportingFlowPaymentEntities.stream()
             .map(AbstractReportingFlowPaymentEntity::getPay)
             .mapToDouble(Double::doubleValue)
@@ -321,7 +321,7 @@ public class PspsService {
   private static double deleteAndSubtract(
       FdrInsertEntity reportingFlowEntity, List<FdrPaymentInsertEntity> paymentToDelete) {
     return BigDecimal.valueOf(
-            Objects.requireNonNullElseGet(reportingFlowEntity.getSum_paymnents(), () -> (double) 0))
+            Objects.requireNonNullElseGet(reportingFlowEntity.getSumPaymnents(), () -> (double) 0))
         .subtract(
             BigDecimal.valueOf(
                 paymentToDelete.stream()
@@ -334,14 +334,14 @@ public class PspsService {
   private static long addAndSumCount(
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(reportingFlowEntity.getTot_payments(), () -> (long) 0)
+    return Objects.requireNonNullElseGet(reportingFlowEntity.getTotPayments(), () -> (long) 0)
         + reportingFlowPaymentEntities.size();
   }
 
   private static long deleteAndSumCount(
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(reportingFlowEntity.getTot_payments(), () -> (long) 0)
+    return Objects.requireNonNullElseGet(reportingFlowEntity.getTotPayments(), () -> (long) 0)
         - reportingFlowPaymentEntities.size();
   }
 }

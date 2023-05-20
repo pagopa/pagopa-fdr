@@ -4,6 +4,7 @@ import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -13,24 +14,35 @@ public abstract class AbstractReportingFlowEntity extends PanacheMongoEntity {
   private Instant created;
 
   private Instant updated;
-  private String reporting_flow_name;
-  private Instant reporting_flow_date;
+
+  @BsonProperty("reporting_flow_name")
+  private String reportingFlowName;
+
+  @BsonProperty("reporting_flow_date")
+  private Instant reportingFlowDate;
 
   private SenderEntity sender;
 
   private ReceiverEntity receiver;
 
   private String regulation;
-  private Instant regulation_date;
-  private String bic_code_pouring_bank;
+
+  @BsonProperty("regulation_date")
+  private Instant regulationDate;
+
+  @BsonProperty("bic_code_pouring_bank")
+  private String bicCodePouringBank;
 
   private ReportingFlowStatusEnumEntity status;
 
-  private Long tot_payments;
+  @BsonProperty("tot_payments")
+  private Long totPayments;
 
-  private Double sum_paymnents;
+  @BsonProperty("sum_paymnents")
+  private Double sumPaymnents;
 
-  private Boolean internal_ndp_read;
+  @BsonProperty("internal_ndp_read")
+  private Boolean internalNdpRead;
 
   private Boolean read;
 }

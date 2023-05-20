@@ -4,6 +4,7 @@ import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
 
 @Data
@@ -22,11 +23,18 @@ public abstract class AbstractReportingFlowPaymentEntity extends PanacheMongoEnt
   private Long index;
   private Double pay;
 
-  private PaymentStatusEnumEntity pay_status;
+  @BsonProperty("pay_status")
+  private PaymentStatusEnumEntity payStatus;
 
-  private Instant pay_date;
+  @BsonProperty("pay_date")
+  private Instant payDate;
 
-  private ObjectId ref_fdr_id;
-  private String ref_fdr_reporting_flow_name;
-  private String ref_fdr_reporting_sender_psp_id;
+  @BsonProperty("ref_fdr_id")
+  private ObjectId refFdrId;
+
+  @BsonProperty("ref_fdr_reporting_flow_name")
+  private String refFdrReportingFlowName;
+
+  @BsonProperty("ref_fdr_reporting_sender_psp_id")
+  private String refFdrReportingSenderPspId;
 }

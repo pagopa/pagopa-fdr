@@ -141,7 +141,7 @@ public class InternalOrganizationsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
     reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setInternal_ndp_read(Boolean.TRUE);
+    reportingFlowEntity.setInternalNdpRead(Boolean.TRUE);
     reportingFlowEntity.update();
   }
 }
