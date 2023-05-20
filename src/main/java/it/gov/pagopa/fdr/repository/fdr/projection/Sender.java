@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.reportingFlow.projection;
+package it.gov.pagopa.fdr.repository.fdr.projection;
 
 import lombok.Data;
 

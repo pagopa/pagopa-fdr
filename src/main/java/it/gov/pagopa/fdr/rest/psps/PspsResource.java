@@ -52,7 +52,6 @@ public class PspsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
@@ -90,7 +89,6 @@ public class PspsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
@@ -102,7 +100,7 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @PUT
-  @Path("/{fdr}/payments-add")
+  @Path("/{fdr}/payments/add")
   public GenericResponse addPaymentToFlow(
       @PathParam("psp") String psp,
       @PathParam("fdr") String fdr,
@@ -126,7 +124,6 @@ public class PspsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
@@ -138,7 +135,7 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @PUT
-  @Path("/{fdr}/payments-del")
+  @Path("/{fdr}/payments/del")
   public GenericResponse deletePaymentToReportingFlow(
       @PathParam("psp") String psp,
       @PathParam("fdr") String fdr,
@@ -161,7 +158,6 @@ public class PspsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
@@ -192,7 +188,6 @@ public class PspsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(

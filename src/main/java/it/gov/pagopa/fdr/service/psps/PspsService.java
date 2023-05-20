@@ -6,14 +6,15 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.panache.common.Parameters;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrHistoryEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrInsertEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentHistoryEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentInsertEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.model.ReportingFlowStatusEnumEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.projection.FdrPublishRevisionProjection;
+import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrInsertEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.model.AbstractReportingFlowPaymentEntity;
+import it.gov.pagopa.fdr.repository.fdr.model.ReportingFlowStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
@@ -54,7 +55,7 @@ public class PspsService {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
           reportingFlowName,
-          byReportingFlowName.get().status);
+          byReportingFlowName.get().getStatus());
     }
 
     Optional<FdrPublishRevisionProjection> fdrPublishedByReportingFlowName =
@@ -69,13 +70,13 @@ public class PspsService {
 
     FdrInsertEntity reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
 
-    reportingFlowEntity.created = now;
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.CREATED;
-    reportingFlowEntity.tot_payments = 0L;
-    reportingFlowEntity.sum_paymnents = 0.0;
-    reportingFlowEntity.revision =
-        fdrPublishedByReportingFlowName.map(r -> r.revision + 1).orElse(1L);
+    reportingFlowEntity.setCreated(now);
+    reportingFlowEntity.setUpdated(now);
+    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.CREATED);
+    reportingFlowEntity.setTot_payments(0L);
+    reportingFlowEntity.setSum_paymnents(0.0);
+    reportingFlowEntity.setRevision(
+        fdrPublishedByReportingFlowName.map(r -> r.revision + 1).orElse(1L));
     reportingFlowEntity.persist();
   }
 
@@ -95,12 +96,12 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(reportingFlowEntity.status == ReportingFlowStatusEnumEntity.CREATED
-        || reportingFlowEntity.status == ReportingFlowStatusEnumEntity.INSERTED)) {
+    if (!(reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.CREATED
+        || reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.INSERTED)) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
-          reportingFlowEntity.status);
+          reportingFlowEntity.getStatus());
     }
 
     // TODO revedere con iuv+iur
@@ -126,26 +127,26 @@ public class PspsService {
     List<FdrPaymentInsertEntity> reportingFlowPaymentEntities =
         mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
 
-    reportingFlowEntity.tot_payments =
-        addAndSumCount(reportingFlowEntity, reportingFlowPaymentEntities);
-    reportingFlowEntity.sum_paymnents =
-        addAndSum(reportingFlowEntity, reportingFlowPaymentEntities);
+    reportingFlowEntity.setTot_payments(
+        addAndSumCount(reportingFlowEntity, reportingFlowPaymentEntities));
+    reportingFlowEntity.setSum_paymnents(
+        addAndSum(reportingFlowEntity, reportingFlowPaymentEntities));
 
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.INSERTED;
+    reportingFlowEntity.setUpdated(now);
+    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.INSERTED);
     reportingFlowEntity.update();
 
     FdrPaymentInsertEntity.persist(
         reportingFlowPaymentEntities.stream()
             .map(
                 reportingFlowPaymentEntity -> {
-                  reportingFlowPaymentEntity.created = now;
-                  reportingFlowPaymentEntity.updated = now;
-                  reportingFlowPaymentEntity.ref_fdr_id = reportingFlowEntity.id;
-                  reportingFlowPaymentEntity.ref_fdr_reporting_flow_name =
-                      reportingFlowEntity.reporting_flow_name;
-                  reportingFlowPaymentEntity.ref_fdr_reporting_sender_psp_id =
-                      reportingFlowEntity.sender.pspId;
+                  reportingFlowPaymentEntity.setCreated(now);
+                  reportingFlowPaymentEntity.setUpdated(now);
+                  reportingFlowPaymentEntity.setRef_fdr_id(reportingFlowEntity.id);
+                  reportingFlowPaymentEntity.setRef_fdr_reporting_flow_name(
+                      reportingFlowEntity.getReporting_flow_name());
+                  reportingFlowPaymentEntity.setRef_fdr_reporting_sender_psp_id(
+                      reportingFlowEntity.getSender().getPspId());
                   return reportingFlowPaymentEntity;
                 })
             .collect(Collectors.toList()));
@@ -168,11 +169,11 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(reportingFlowEntity.status == ReportingFlowStatusEnumEntity.INSERTED)) {
+    if (!(reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.INSERTED)) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
-          reportingFlowEntity.status);
+          reportingFlowEntity.getStatus());
     }
 
     // TODO rivedere con iuv+iur
@@ -190,7 +191,7 @@ public class PspsService {
             .project(FdrPaymentInsertEntity.class)
             .list();
     if (!paymentToDelete.stream()
-        .map(a -> a.index)
+        .map(AbstractReportingFlowPaymentEntity::getIndex)
         .collect(Collectors.toSet())
         .containsAll(indexList)) {
       throw new AppException(
@@ -201,13 +202,13 @@ public class PspsService {
         "ref_fdr_reporting_flow_name = :flowName and index in :indexes",
         Parameters.with("flowName", reportingFlowName).and("indexes", indexList).map());
 
-    reportingFlowEntity.tot_payments = deleteAndSumCount(reportingFlowEntity, paymentToDelete);
-    reportingFlowEntity.sum_paymnents = deleteAndSubtract(reportingFlowEntity, paymentToDelete);
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.status =
-        (reportingFlowEntity.sum_paymnents > 0)
+    reportingFlowEntity.setTot_payments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
+    reportingFlowEntity.setSum_paymnents(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
+    reportingFlowEntity.setUpdated(now);
+    reportingFlowEntity.setStatus(
+        (reportingFlowEntity.getSum_paymnents() > 0)
             ? ReportingFlowStatusEnumEntity.INSERTED
-            : ReportingFlowStatusEnumEntity.CREATED;
+            : ReportingFlowStatusEnumEntity.CREATED);
     reportingFlowEntity.update();
   }
 
@@ -227,15 +228,15 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(reportingFlowEntity.status == ReportingFlowStatusEnumEntity.INSERTED)) {
+    if (!(reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.INSERTED)) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
-          reportingFlowEntity.status);
+          reportingFlowEntity.getStatus());
     }
 
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.status = ReportingFlowStatusEnumEntity.PUBLISHED;
+    reportingFlowEntity.setUpdated(now);
+    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.PUBLISHED);
 
     List<FdrPaymentInsertEntity> paymentInsertEntities =
         FdrPaymentInsertEntity.find(
@@ -245,7 +246,7 @@ public class PspsService {
             .project(FdrPaymentInsertEntity.class)
             .list();
 
-    if (reportingFlowEntity.revision > 1L) {
+    if (reportingFlowEntity.getRevision() > 1L) {
       FdrPublishEntity.delete(
           "reporting_flow_name = :flowName and sender.psp_id = :pspId",
           Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
@@ -255,8 +256,8 @@ public class PspsService {
     }
 
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(reportingFlowEntity);
-    fdrPublishEntity.internal_ndp_read = Boolean.FALSE;
-    fdrPublishEntity.read = Boolean.FALSE;
+    fdrPublishEntity.setInternal_ndp_read(Boolean.FALSE);
+    fdrPublishEntity.setRead(Boolean.FALSE);
     fdrPublishEntity.persist();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
@@ -290,15 +291,15 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(reportingFlowEntity.status == ReportingFlowStatusEnumEntity.CREATED
-        || reportingFlowEntity.status == ReportingFlowStatusEnumEntity.INSERTED)) {
+    if (!(reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.CREATED
+        || reportingFlowEntity.getStatus() == ReportingFlowStatusEnumEntity.INSERTED)) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
-          reportingFlowEntity.status);
+          reportingFlowEntity.getStatus());
     }
 
-    if (reportingFlowEntity.tot_payments > 0L) {
+    if (reportingFlowEntity.getTot_payments() > 0L) {
       FdrPaymentInsertEntity.delete(
           "ref_fdr_reporting_flow_name = :flowName",
           Parameters.with("flowName", reportingFlowName).map());
@@ -310,9 +311,9 @@ public class PspsService {
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
     return Double.sum(
-        Objects.requireNonNullElseGet(reportingFlowEntity.sum_paymnents, () -> (double) 0),
+        Objects.requireNonNullElseGet(reportingFlowEntity.getSum_paymnents(), () -> (double) 0),
         reportingFlowPaymentEntities.stream()
-            .map(a -> a.pay)
+            .map(AbstractReportingFlowPaymentEntity::getPay)
             .mapToDouble(Double::doubleValue)
             .sum());
   }
@@ -320,24 +321,27 @@ public class PspsService {
   private static double deleteAndSubtract(
       FdrInsertEntity reportingFlowEntity, List<FdrPaymentInsertEntity> paymentToDelete) {
     return BigDecimal.valueOf(
-            Objects.requireNonNullElseGet(reportingFlowEntity.sum_paymnents, () -> (double) 0))
+            Objects.requireNonNullElseGet(reportingFlowEntity.getSum_paymnents(), () -> (double) 0))
         .subtract(
             BigDecimal.valueOf(
-                paymentToDelete.stream().map(a -> a.pay).mapToDouble(Double::doubleValue).sum()))
+                paymentToDelete.stream()
+                    .map(AbstractReportingFlowPaymentEntity::getPay)
+                    .mapToDouble(Double::doubleValue)
+                    .sum()))
         .doubleValue();
   }
 
   private static long addAndSumCount(
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(reportingFlowEntity.tot_payments, () -> (long) 0)
+    return Objects.requireNonNullElseGet(reportingFlowEntity.getTot_payments(), () -> (long) 0)
         + reportingFlowPaymentEntities.size();
   }
 
   private static long deleteAndSumCount(
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(reportingFlowEntity.tot_payments, () -> (long) 0)
+    return Objects.requireNonNullElseGet(reportingFlowEntity.getTot_payments(), () -> (long) 0)
         - reportingFlowPaymentEntities.size();
   }
 }

@@ -1,7 +1,7 @@
-package it.gov.pagopa.fdr.repository.reportingFlow.projection;
+package it.gov.pagopa.fdr.repository.fdr.projection;
 
 import io.quarkus.mongodb.panache.common.ProjectionFor;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 
 @ProjectionFor(FdrPublishEntity.class)
 public class FdrPublishReportingFlowNameProjection {

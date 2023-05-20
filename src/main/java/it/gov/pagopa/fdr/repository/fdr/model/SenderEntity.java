@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.reportingFlow.model;
+package it.gov.pagopa.fdr.repository.fdr.model;
 
 import lombok.Data;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -6,22 +6,22 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 @Data
 public class SenderEntity {
 
-  public SenderTypeEnumEntity type;
+  private SenderTypeEnumEntity type;
 
   @BsonProperty("id")
-  public String id;
+  private String id;
 
   @BsonProperty("psp_id")
-  public String pspId;
+  private String pspId;
 
   @BsonProperty("psp_name")
-  public String pspName;
+  private String pspName;
 
   @BsonProperty("broker_id")
-  public String brokerId;
+  private String brokerId;
 
   @BsonProperty("channel_id")
-  public String channelId;
+  private String channelId;
 
-  public String password;
+  private String password;
 }

@@ -48,7 +48,6 @@ public class InternalOrganizationsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
@@ -79,7 +78,6 @@ public class InternalOrganizationsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
@@ -109,7 +107,6 @@ public class InternalOrganizationsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
@@ -145,7 +142,6 @@ public class InternalOrganizationsResource {
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/ValidationBadRequest"),
         @APIResponse(ref = "#/components/responses/AppException400"),
         @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(

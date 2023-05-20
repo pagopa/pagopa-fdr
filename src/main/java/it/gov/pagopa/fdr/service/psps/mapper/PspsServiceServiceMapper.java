@@ -1,11 +1,11 @@
 package it.gov.pagopa.fdr.service.psps.mapper;
 
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrHistoryEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrInsertEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentHistoryEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentInsertEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrInsertEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
