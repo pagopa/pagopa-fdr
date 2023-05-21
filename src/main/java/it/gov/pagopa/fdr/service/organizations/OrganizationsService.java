@@ -32,6 +32,10 @@ public class OrganizationsService {
 
   @Inject Logger log;
 
+  private static final String PSP_ID = "pspId";
+  private static final String EC_ID = "ecId";
+  private static final String FLOW_NAME = "flowName";
+
   @WithSpan(kind = SERVER)
   public ReportingFlowByIdEcDto findByIdEc(
       String ecId, String pspId, long pageNumber, long pageSize) {
@@ -44,13 +48,13 @@ public class OrganizationsService {
     if (pspId == null || pspId.isBlank()) {
       reportingFlowPanacheQuery =
           FdrPublishEntity.find(
-              "receiver.ec_id = :ecId", sort, Parameters.with("ecId", ecId).map());
+              "receiver.ec_id = :%s".formatted(EC_ID), sort, Parameters.with(EC_ID, ecId).map());
     } else {
       reportingFlowPanacheQuery =
           FdrPublishEntity.find(
-              "receiver.ec_id = :ecId and sender.psp_id = :pspId",
+              "receiver.ec_id = :%s and sender.psp_id = :%s".formatted(EC_ID, PSP_ID),
               sort,
-              Parameters.with("ecId", ecId).and("pspId", pspId).map());
+              Parameters.with(EC_ID, ecId).and(PSP_ID, pspId).map());
     }
     PanacheQuery<FdrPublishReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
         reportingFlowPanacheQuery.page(page).project(FdrPublishReportingFlowNameProjection.class);
@@ -87,8 +91,8 @@ public class OrganizationsService {
 
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.find(
-                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                "reporting_flow_name = :%s and sender.psp_id = :pspId".formatted(FLOW_NAME, PSP_ID),
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -109,10 +113,10 @@ public class OrganizationsService {
 
     PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
         FdrPaymentPublishEntity.find(
-                "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id ="
-                    + " :pspId",
+                "ref_fdr_reporting_flow_name = :%s and ref_fdr_reporting_sender_psp_id = :%s"
+                    .formatted(FLOW_NAME, PSP_ID),
                 sort,
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .page(page);
 
     List<FdrPaymentPublishEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
@@ -139,8 +143,8 @@ public class OrganizationsService {
     Instant now = Instant.now();
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.find(
-                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                "reporting_flow_name = :%s and sender.psp_id = :%s".formatted(FLOW_NAME, PSP_ID),
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(

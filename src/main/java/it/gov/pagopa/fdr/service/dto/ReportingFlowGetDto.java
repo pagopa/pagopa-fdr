@@ -8,13 +8,13 @@ import lombok.Getter;
 @Builder
 public class ReportingFlowGetDto {
 
-  public Long revision;
+  private Long revision;
 
-  public Instant created;
+  private Instant created;
 
-  public Instant updated;
+  private Instant updated;
 
-  public ReportingFlowStatusEnumDto status;
+  private ReportingFlowStatusEnumDto status;
 
   private String reportingFlowName;
 
@@ -30,7 +30,7 @@ public class ReportingFlowGetDto {
 
   private String bicCodePouringBank;
 
-  public Long totPayments;
+  private Long totPayments;
 
-  public Double sumPaymnents;
+  private Double sumPaymnents;
 }

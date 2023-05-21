@@ -43,7 +43,7 @@ public class PspsValidationService {
         Optional.ofNullable(configData.getPsps().get(pspId))
             .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.PSP_UNKNOWN, pspId));
 
-    if (!paymentServiceProvider.getEnabled()) {
+    if (paymentServiceProvider.getEnabled() == null || !paymentServiceProvider.getEnabled()) {
       throw new AppException(AppErrorCodeMessageEnum.PSP_NOT_ENABLED, pspId);
     }
 
@@ -53,7 +53,7 @@ public class PspsValidationService {
         Optional.ofNullable(configData.getPspBrokers().get(brokerId))
             .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.BROKER_UNKNOWN, brokerId));
 
-    if (!brokerPsp.getEnabled()) {
+    if (brokerPsp.getEnabled() == null || !brokerPsp.getEnabled()) {
       throw new AppException(AppErrorCodeMessageEnum.BROKER_NOT_ENABLED, brokerId);
     }
 
@@ -64,12 +64,13 @@ public class PspsValidationService {
             .orElseThrow(
                 () -> new AppException(AppErrorCodeMessageEnum.CHANNEL_UNKNOWN, channelId));
 
-    if (!channel.getEnabled()) {
+    if (channel.getEnabled() == null || !channel.getEnabled()) {
       throw new AppException(AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED, channelId);
     }
 
     // check channel/broker
-    if (!channel.getBrokerPspCode().equals(brokerPsp.getBrokerPspCode())) {
+    if (channel.getBrokerPspCode() == null
+        || !channel.getBrokerPspCode().equals(brokerPsp.getBrokerPspCode())) {
       throw new AppException(
           AppErrorCodeMessageEnum.CHANNEL_BROKER_WRONG_CONFIG, channelId, brokerId);
     }
@@ -95,7 +96,7 @@ public class PspsValidationService {
         Optional.ofNullable(configData.getCreditorInstitutions().get(ecId))
             .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.EC_UNKNOWN, ecId));
 
-    if (!ec.getEnabled()) {
+    if (ec.getEnabled() == null || !ec.getEnabled()) {
       throw new AppException(AppErrorCodeMessageEnum.EC_NOT_ENABLED, ecId);
     }
 
@@ -104,7 +105,7 @@ public class PspsValidationService {
     try {
       // default, ISO_LOCAL_DATE ("2016-08-16")
       LocalDate.parse(date);
-    } catch (Throwable e) {
+    } catch (RuntimeException e) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, reportingFlowName);
     }
