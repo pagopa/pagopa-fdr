@@ -91,7 +91,7 @@ public class OrganizationsService {
 
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.find(
-                "reporting_flow_name = :%s and sender.psp_id = :pspId".formatted(FLOW_NAME, PSP_ID),
+                "reporting_flow_name = :%s and sender.psp_id = :%s".formatted(FLOW_NAME, PSP_ID),
                 Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .project(FdrPublishEntity.class)
             .firstResultOptional()
