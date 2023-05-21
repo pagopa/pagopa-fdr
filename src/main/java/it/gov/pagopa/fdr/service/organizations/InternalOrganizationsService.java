@@ -32,6 +32,9 @@ public class InternalOrganizationsService {
 
   @Inject Logger log;
 
+  private static final String PSP_ID = "pspId";
+  private static final String FLOW_NAME = "flowName";
+
   @WithSpan(kind = SERVER)
   public ReportingFlowByIdEcDto findByInternals(long pageNumber, long pageSize) {
     log.debugf("Get all data from DB");
@@ -81,8 +84,8 @@ public class InternalOrganizationsService {
 
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.find(
-                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                "reporting_flow_name = :%s and sender.psp_id = :%s".formatted(FLOW_NAME, PSP_ID),
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -103,9 +106,10 @@ public class InternalOrganizationsService {
 
     PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
         FdrPaymentPublishEntity.find(
-                "ref_fdr_reporting_flow_name = :flowName and sender.psp_id = :pspId",
+                "ref_fdr_reporting_flow_name = :%s and sender.psp_id = :%s"
+                    .formatted(FLOW_NAME, PSP_ID),
                 sort,
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .page(page);
 
     List<FdrPaymentPublishEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
@@ -132,8 +136,8 @@ public class InternalOrganizationsService {
     Instant now = Instant.now();
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.find(
-                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                "reporting_flow_name = :%s and sender.psp_id = :%s".formatted(FLOW_NAME, PSP_ID),
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(

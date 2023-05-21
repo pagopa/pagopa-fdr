@@ -27,7 +27,7 @@ public class OrganizationsValidationService {
         Optional.ofNullable(configData.getPsps().get(pspId))
             .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.PSP_UNKNOWN, pspId));
 
-    if (!paymentServiceProvider.getEnabled()) {
+    if (paymentServiceProvider.getEnabled() == null || !paymentServiceProvider.getEnabled()) {
       throw new AppException(AppErrorCodeMessageEnum.PSP_NOT_ENABLED, pspId);
     }
 
@@ -36,7 +36,7 @@ public class OrganizationsValidationService {
         Optional.ofNullable(configData.getCreditorInstitutions().get(ecId))
             .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.EC_UNKNOWN, ecId));
 
-    if (!ec.getEnabled()) {
+    if (ec.getEnabled() == null || !ec.getEnabled()) {
       throw new AppException(AppErrorCodeMessageEnum.EC_NOT_ENABLED, ecId);
     }
   }

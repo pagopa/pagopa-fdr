@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.exceptionMapper;
+package it.gov.pagopa.fdr.rest.exceptionmapper;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -30,12 +30,11 @@ public class ExceptionMappers {
 
   @ServerExceptionMapper
   public Response mapWebApplicationException(WebApplicationException webApplicationException) {
-    if (webApplicationException.getCause() instanceof JsonMappingException) {
-      return mapJsonMappingException((JsonMappingException) webApplicationException.getCause())
-          .toResponse();
-    } else if (webApplicationException.getCause() instanceof JsonParseException) {
-      return mapJsonParseException((JsonParseException) webApplicationException.getCause())
-          .toResponse();
+    if (webApplicationException.getCause() instanceof JsonMappingException jsonMappingException) {
+      return mapJsonMappingException(jsonMappingException).toResponse();
+    } else if (webApplicationException.getCause()
+        instanceof JsonParseException jsonParseException) {
+      return mapJsonParseException(jsonParseException).toResponse();
     }
     return webApplicationException.getResponse();
   }
@@ -125,8 +124,7 @@ public class ExceptionMappers {
       Class<?> target = Class.forName(invalidFormatException.getTargetType().getName());
       if (target.isEnum()) {
         Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) target;
-        List<String> accepted =
-            Stream.of(enumClass.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
+        List<String> accepted = Stream.of(enumClass.getEnumConstants()).map(Enum::name).toList();
         appEx =
             new AppException(
                 invalidFormatException,
@@ -260,12 +258,12 @@ public class ExceptionMappers {
                                 .toString()
                                 .compareTo(a.getPropertyPath().toString()))
                     .map(
-                        constraintViolation -> {
-                          return ErrorResponse.ErrorMessage.builder()
-                              .path(constraintViolation.getPropertyPath().toString())
-                              .message(AppMessageUtil.getMessage(constraintViolation.getMessage()))
-                              .build();
-                        })
+                        constraintViolation ->
+                            ErrorResponse.ErrorMessage.builder()
+                                .path(constraintViolation.getPropertyPath().toString())
+                                .message(
+                                    AppMessageUtil.getMessage(constraintViolation.getMessage()))
+                                .build())
                     .collect(Collectors.toList()))
             .build());
   }
