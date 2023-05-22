@@ -22,10 +22,6 @@ public class ListSizeValidator implements ConstraintValidator<ListSize, java.uti
       return true;
     }
 
-    if (value.size() >= min && value.size() <= max) {
-      return true;
-    } else {
-      return false;
-    }
+    return value.size() >= min && value.size() <= max;
   }
 }
