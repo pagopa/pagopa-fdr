@@ -5,6 +5,7 @@ import static it.gov.pagopa.fdr.ConstantsTest.pspCode;
 import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,7 +72,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
         .statusCode(200)
         .extract()
         .as(GetAllResponse.class);
-    assertThat(testUtil.prettyPrint(res), equals(testUtil.prettyPrint(responseFmt, GetAllResponse.class)));
+    assertThat(testUtil.prettyPrint(res), equalTo(testUtil.prettyPrint(responseFmt, GetAllResponse.class)));
 //        .body(containsString(responseFmt.replaceAll("[\r\n]+"," ").trim()));
   }
 

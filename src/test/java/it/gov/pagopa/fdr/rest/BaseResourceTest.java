@@ -87,16 +87,31 @@ public class BaseResourceTest {
       """;
 
   String response = """
-      {"message":"Flow [%s] saved"}""";
+      {
+        "message":"Flow [%s] saved"
+      }
+      """;
 
-  String flowsPublishedResponse = """
-      {"message":"Flow [%s] published"}""";
+  String flowsPublishedResponse =
+      """
+      {
+        "message":"Flow [%s] published"
+      }
+      """;
 
-  String paymentsAddResponse = """
-      {"message":"Flow [%s] payment added"}""";
+  String paymentsAddResponse =
+      """
+      {
+        "message":"Flow [%s] payment added"
+      }
+     """;
 
-  String paymentsDelResponse = """
-      {"message":"Flow [%s] payment deleted"}""";
+  String paymentsDelResponse =
+      """
+      {
+        "message":"Flow [%s] payment deleted"
+      }
+      """;
 
   protected String getFlowName() {
     RandomGenerator randomGenerator = new Random();
