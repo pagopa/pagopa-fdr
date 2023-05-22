@@ -14,10 +14,5 @@ cd ..
 
 ## escludo le classi con il String text block perchè non ancora supportate da google java format
 java -jar .cache/google-java-format-1.17.0-all-deps.jar \
---add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
---add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED \
---add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
---add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
---add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
---add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --replace $(find . -type f -name "*.java" ! -name "PspResourceTest.java" ! -name "App.java")
+--replace $(find . -type f -name "*.java" ! -name "PspResourceTest.java" ! -name "App.java")
 
