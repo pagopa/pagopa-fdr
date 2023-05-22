@@ -63,7 +63,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspCode);
-    String responseFmt = responseAllPublishedFlows.formatted(flowName, pspCode);
+    String responseFmt = testUtil.prettyPrint(responseAllPublishedFlows.formatted(flowName, pspCode), GetAllResponse.class);
     GetAllResponse res = given()
         .header(header)
         .when()
@@ -72,8 +72,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
         .statusCode(200)
         .extract()
         .as(GetAllResponse.class);
-    assertThat(testUtil.prettyPrint(res), equalTo(testUtil.prettyPrint(responseFmt, GetAllResponse.class)));
-//        .body(containsString(responseFmt.replaceAll("[\r\n]+"," ").trim()));
+    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
   }
 
   @Test

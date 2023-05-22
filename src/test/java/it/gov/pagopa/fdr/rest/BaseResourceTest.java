@@ -2,35 +2,27 @@ package it.gov.pagopa.fdr.rest;
 
 import static io.restassured.RestAssured.given;
 import static it.gov.pagopa.fdr.ConstantsTest.brokerCode;
-import static it.gov.pagopa.fdr.ConstantsTest.brokerCode2;
-import static it.gov.pagopa.fdr.ConstantsTest.brokerCodeNotEnabled;
 import static it.gov.pagopa.fdr.ConstantsTest.channelCode;
-import static it.gov.pagopa.fdr.ConstantsTest.channelCodeNotEnabled;
 import static it.gov.pagopa.fdr.ConstantsTest.ecCode;
-import static it.gov.pagopa.fdr.ConstantsTest.ecCodeNotEnabled;
 import static it.gov.pagopa.fdr.ConstantsTest.flowsPublishUrl;
 import static it.gov.pagopa.fdr.ConstantsTest.flowsUrl;
 import static it.gov.pagopa.fdr.ConstantsTest.header;
 import static it.gov.pagopa.fdr.ConstantsTest.paymentsAddUrl;
-import static it.gov.pagopa.fdr.ConstantsTest.pspChannelPaymentTypeCode;
 import static it.gov.pagopa.fdr.ConstantsTest.pspCode;
-import static it.gov.pagopa.fdr.ConstantsTest.pspCode2;
-import static it.gov.pagopa.fdr.ConstantsTest.pspCodeNotEnabled;
 import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowName;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import it.gov.pagopa.fdr.rest.model.GenericResponse;
+import it.gov.pagopa.fdr.util.TestUtil;
+import jakarta.inject.Inject;
 import java.util.Random;
 import java.util.random.RandomGenerator;
-import org.openapi.quarkus.api_config_cache_json.model.BrokerPsp;
-import org.openapi.quarkus.api_config_cache_json.model.Channel;
-import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
-import org.openapi.quarkus.api_config_cache_json.model.CreditorInstitution;
-import org.openapi.quarkus.api_config_cache_json.model.PaymentServiceProvider;
-import org.openapi.quarkus.api_config_cache_json.model.PspChannelPaymentType;
 
 public class BaseResourceTest {
+
+  @Inject protected TestUtil testUtil;
 
   protected static String flowTemplate =
       """
@@ -86,27 +78,28 @@ public class BaseResourceTest {
       }
       """;
 
-  String response = """
+  private static String response =
+      """
       {
         "message":"Flow [%s] saved"
       }
       """;
 
-  String flowsPublishedResponse =
+  private static String flowsPublishedResponse =
       """
       {
         "message":"Flow [%s] published"
       }
       """;
 
-  String paymentsAddResponse =
+  private static String paymentsAddResponse =
       """
       {
         "message":"Flow [%s] payment added"
       }
       """;
 
-  String paymentsDelResponse =
+  private static String paymentsDelResponse =
       """
       {
         "message":"Flow [%s] payment deleted"
@@ -119,117 +112,54 @@ public class BaseResourceTest {
         + randomGenerator.nextInt(1111, 9999);
   }
 
-  protected void pspSunnyDay(String flowName) {
+  protected void pspSunnyDay(String flowName) throws JsonProcessingException {
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt = flowTemplate.formatted(flowName, pspCode, brokerCode, channelCode, ecCode);
-    String responseFmt = response.formatted(flowName);
+    String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
 
-    given()
-        .body(bodyFmt)
-        .header(header)
-        .when()
-        .post(url)
-        .then()
-        .statusCode(201)
-        .body(containsString(responseFmt));
+    GenericResponse res =
+        given()
+            .body(bodyFmt)
+            .header(header)
+            .when()
+            .post(url)
+            .then()
+            .statusCode(201)
+            .extract()
+            .body()
+            .as(GenericResponse.class);
+    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
 
     url = paymentsAddUrl.formatted(pspCode, flowName);
     bodyFmt = paymentsTemplate;
-    responseFmt = paymentsAddResponse.formatted(flowName);
-    given()
-        .body(bodyFmt)
-        .header(header)
-        .when()
-        .put(url)
-        .then()
-        .statusCode(200)
-        .body(containsString(responseFmt));
+    responseFmt =
+        testUtil.prettyPrint(paymentsAddResponse.formatted(flowName), GenericResponse.class);
+    res =
+        given()
+            .body(bodyFmt)
+            .header(header)
+            .when()
+            .put(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .body()
+            .as(GenericResponse.class);
+    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
 
     url = flowsPublishUrl.formatted(pspCode, flowName);
-    responseFmt = flowsPublishedResponse.formatted(flowName);
-    given()
-        .header(header)
-        .when()
-        .post(url)
-        .then()
-        .statusCode(200)
-        .body(containsString(responseFmt));
-  }
-
-  private static ConfigDataV1 getConfig() {
-    PaymentServiceProvider paymentServiceProvider = new PaymentServiceProvider();
-    paymentServiceProvider.setEnabled(true);
-    paymentServiceProvider.setPspCode(pspCode);
-
-    PaymentServiceProvider paymentServiceProviderNotEnabled = new PaymentServiceProvider();
-    paymentServiceProviderNotEnabled.setEnabled(false);
-    paymentServiceProviderNotEnabled.setPspCode(pspCodeNotEnabled);
-
-    PaymentServiceProvider paymentServiceProvider2 = new PaymentServiceProvider();
-    paymentServiceProvider2.setEnabled(true);
-    paymentServiceProvider2.setPspCode(pspCode2);
-
-    Map<String, PaymentServiceProvider> psps = new LinkedHashMap<>();
-    psps.put(pspCode, paymentServiceProvider);
-    psps.put(pspCode2, paymentServiceProvider2);
-    psps.put(pspCodeNotEnabled, paymentServiceProviderNotEnabled);
-
-    BrokerPsp brokerPsp = new BrokerPsp();
-    brokerPsp.setEnabled(true);
-    brokerPsp.setBrokerPspCode(brokerCode);
-
-    BrokerPsp brokerPsp2 = new BrokerPsp();
-    brokerPsp2.setEnabled(true);
-    brokerPsp2.setBrokerPspCode(brokerCode2);
-
-    BrokerPsp brokerPspNotEnabled = new BrokerPsp();
-    brokerPspNotEnabled.setEnabled(false);
-    brokerPspNotEnabled.setBrokerPspCode(brokerCodeNotEnabled);
-
-    Map<String, BrokerPsp> pspBrokers = new LinkedHashMap<>();
-    pspBrokers.put(brokerCode, brokerPsp);
-    pspBrokers.put(brokerCode2, brokerPsp2);
-    pspBrokers.put(brokerCodeNotEnabled, brokerPspNotEnabled);
-
-    Channel channel = new Channel();
-    channel.setEnabled(true);
-    channel.setBrokerPspCode(brokerCode);
-    channel.setChannelCode(channelCode);
-
-    Channel channelNotEnabled = new Channel();
-    channelNotEnabled.setEnabled(false);
-    channelNotEnabled.setBrokerPspCode(brokerCode);
-    channelNotEnabled.setChannelCode(channelCodeNotEnabled);
-
-    Map<String, Channel> channels = new LinkedHashMap<>();
-    channels.put(channelCode, channel);
-    channels.put(channelCodeNotEnabled, channelNotEnabled);
-
-    PspChannelPaymentType pspChannelPaymentType = new PspChannelPaymentType();
-    pspChannelPaymentType.setPspCode(pspCode);
-    pspChannelPaymentType.setChannelCode(channelCode);
-    Map<String, PspChannelPaymentType> pspChannelPaymentTypeLinkedHashMap = new LinkedHashMap<>();
-    pspChannelPaymentTypeLinkedHashMap.put(pspChannelPaymentTypeCode, pspChannelPaymentType);
-
-    CreditorInstitution creditorInstitution = new CreditorInstitution();
-    creditorInstitution.setCreditorInstitutionCode(ecCode);
-    creditorInstitution.setEnabled(true);
-
-    CreditorInstitution creditorInstitutionNotEnabled = new CreditorInstitution();
-    creditorInstitutionNotEnabled.setCreditorInstitutionCode(ecCodeNotEnabled);
-    creditorInstitutionNotEnabled.setEnabled(false);
-
-    Map<String, CreditorInstitution> creditorInstitutionMap = new LinkedHashMap<>();
-    creditorInstitutionMap.put(ecCode, creditorInstitution);
-    creditorInstitutionMap.put(ecCodeNotEnabled, creditorInstitutionNotEnabled);
-
-    ConfigDataV1 configDataV1 = new ConfigDataV1();
-    configDataV1.setPsps(psps);
-    configDataV1.setPspBrokers(pspBrokers);
-    configDataV1.setChannels(channels);
-    configDataV1.setPspChannelPaymentTypes(pspChannelPaymentTypeLinkedHashMap);
-    configDataV1.setCreditorInstitutions(creditorInstitutionMap);
-
-    return configDataV1;
+    responseFmt =
+        testUtil.prettyPrint(flowsPublishedResponse.formatted(flowName), GenericResponse.class);
+    res =
+        given()
+            .header(header)
+            .when()
+            .post(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .body()
+            .as(GenericResponse.class);
+    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
   }
 }

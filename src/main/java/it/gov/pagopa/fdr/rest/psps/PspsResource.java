@@ -66,8 +66,8 @@ public class PspsResource {
   public RestResponse<GenericResponse> createFlow(
       @PathParam("psp") String psp, @NotNull @Valid CreateFlowRequest createFlowRequest) {
 
-    String flowNme = createFlowRequest.getReportingFlowName();
-    log.infof("Create reporting flow [%s]", flowNme);
+    String flowName = createFlowRequest.getReportingFlowName();
+    log.infof("Create reporting flow [%s]", flowName);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
@@ -79,7 +79,7 @@ public class PspsResource {
     GenericResponse.builder().build();
     return RestResponse.status(
         Status.CREATED,
-        GenericResponse.builder().message(String.format("Flow [%s] saved", flowNme)).build());
+        GenericResponse.builder().message(String.format("Flow [%s] saved", flowName)).build());
   }
 
   @Operation(
