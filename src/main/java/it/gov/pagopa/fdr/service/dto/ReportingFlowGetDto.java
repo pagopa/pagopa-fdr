@@ -48,5 +48,5 @@ public class ReportingFlowGetDto {
 
   private Long totPayments;
 
-  private Double sumPaymnents;
+  private Double sumPayments;
 }

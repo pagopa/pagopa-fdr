@@ -6,6 +6,4 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
 public class OrganizationResourceIT extends OrganizationResourceTest {
   // Execute the same tests but in packaged mode.
 
-  @Override
-  public void setup() {}
 }

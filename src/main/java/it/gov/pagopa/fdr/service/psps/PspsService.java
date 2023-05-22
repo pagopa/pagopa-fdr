@@ -12,7 +12,6 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.model.AbstractReportingFlowPaymentEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReportingFlowStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
@@ -74,7 +73,7 @@ public class PspsService {
     reportingFlowEntity.setUpdated(now);
     reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.CREATED);
     reportingFlowEntity.setTotPayments(0L);
-    reportingFlowEntity.setSumPaymnents(0.0);
+    reportingFlowEntity.setSumPayments(0.0);
     reportingFlowEntity.setRevision(
         fdrPublishedByReportingFlowName.map(r -> r.getRevision() + 1).orElse(1L));
     reportingFlowEntity.persist();
@@ -129,7 +128,7 @@ public class PspsService {
 
     reportingFlowEntity.setTotPayments(
         addAndSumCount(reportingFlowEntity, reportingFlowPaymentEntities));
-    reportingFlowEntity.setSumPaymnents(
+    reportingFlowEntity.setSumPayments(
         addAndSum(reportingFlowEntity, reportingFlowPaymentEntities));
 
     reportingFlowEntity.setUpdated(now);
@@ -191,7 +190,7 @@ public class PspsService {
             .project(FdrPaymentInsertEntity.class)
             .list();
     if (!paymentToDelete.stream()
-        .map(AbstractReportingFlowPaymentEntity::getIndex)
+        .map(FdrPaymentInsertEntity::getIndex)
         .collect(Collectors.toSet())
         .containsAll(indexList)) {
       throw new AppException(
@@ -203,10 +202,10 @@ public class PspsService {
         Parameters.with("flowName", reportingFlowName).and("indexes", indexList).map());
 
     reportingFlowEntity.setTotPayments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
-    reportingFlowEntity.setSumPaymnents(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
+    reportingFlowEntity.setSumPayments(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
     reportingFlowEntity.setUpdated(now);
     reportingFlowEntity.setStatus(
-        (reportingFlowEntity.getSumPaymnents() > 0)
+        (reportingFlowEntity.getSumPayments() > 0)
             ? ReportingFlowStatusEnumEntity.INSERTED
             : ReportingFlowStatusEnumEntity.CREATED);
     reportingFlowEntity.update();
@@ -311,9 +310,9 @@ public class PspsService {
       FdrInsertEntity reportingFlowEntity,
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
     return Double.sum(
-        Objects.requireNonNullElseGet(reportingFlowEntity.getSumPaymnents(), () -> (double) 0),
+        Objects.requireNonNullElseGet(reportingFlowEntity.getSumPayments(), () -> (double) 0),
         reportingFlowPaymentEntities.stream()
-            .map(AbstractReportingFlowPaymentEntity::getPay)
+            .map(FdrPaymentInsertEntity::getPay)
             .mapToDouble(Double::doubleValue)
             .sum());
   }
@@ -321,11 +320,11 @@ public class PspsService {
   private static double deleteAndSubtract(
       FdrInsertEntity reportingFlowEntity, List<FdrPaymentInsertEntity> paymentToDelete) {
     return BigDecimal.valueOf(
-            Objects.requireNonNullElseGet(reportingFlowEntity.getSumPaymnents(), () -> (double) 0))
+            Objects.requireNonNullElseGet(reportingFlowEntity.getSumPayments(), () -> (double) 0))
         .subtract(
             BigDecimal.valueOf(
                 paymentToDelete.stream()
-                    .map(AbstractReportingFlowPaymentEntity::getPay)
+                    .map(FdrPaymentInsertEntity::getPay)
                     .mapToDouble(Double::doubleValue)
                     .sum()))
         .doubleValue();

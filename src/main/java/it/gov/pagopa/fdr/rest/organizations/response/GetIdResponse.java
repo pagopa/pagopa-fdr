@@ -62,5 +62,5 @@ public class GetIdResponse {
   public Long totPayments;
 
   @Schema(example = "100.90")
-  public Double sumPaymnents;
+  public Double sumPayments;
 }
