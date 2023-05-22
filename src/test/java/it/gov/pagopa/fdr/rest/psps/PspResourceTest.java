@@ -155,7 +155,6 @@ public class PspResourceTest {
   @DisplayName("PSPS create KO FDR-0709")
   public void test_psp_KO_FDR0709() {
     //TODO replicare la config sul mock json per far funzionare il test
-
     String url = flowsUrl.formatted(pspCodeNotEnabled);
     String bodyFmt =
         template.formatted(reportingFlowName, pspCodeNotEnabled, brokerCode, channelCode, ecCode);

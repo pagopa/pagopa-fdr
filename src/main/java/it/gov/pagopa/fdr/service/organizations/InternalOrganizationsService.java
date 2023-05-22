@@ -9,9 +9,9 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.reportingFlow.projection.FdrPublishReportingFlowNameProjection;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishReportingFlowNameProjection;
 import it.gov.pagopa.fdr.service.dto.FlowDto;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
@@ -31,6 +31,9 @@ public class InternalOrganizationsService {
   @Inject InternalOrganizationsServiceServiceMapper mapper;
 
   @Inject Logger log;
+
+  private static final String PSP_ID = "pspId";
+  private static final String FLOW_NAME = "flowName";
 
   @WithSpan(kind = SERVER)
   public ReportingFlowByIdEcDto findByInternals(long pageNumber, long pageSize) {
@@ -67,8 +70,8 @@ public class InternalOrganizationsService {
                 .map(
                     rf ->
                         FlowDto.builder()
-                            .name(rf.reporting_flow_name)
-                            .pspId(rf.sender.pspId)
+                            .name(rf.getReportingFlowName())
+                            .pspId(rf.getSender().getPspId())
                             .build())
                 .toList())
         .build();
@@ -81,8 +84,8 @@ public class InternalOrganizationsService {
 
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.find(
-                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                "reporting_flow_name = :%s and sender.psp_id = :%s".formatted(FLOW_NAME, PSP_ID),
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -103,14 +106,15 @@ public class InternalOrganizationsService {
 
     PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
         FdrPaymentPublishEntity.find(
-                "ref_fdr_reporting_flow_name = :flowName and sender.psp_id = :pspId",
+                "ref_fdr_reporting_flow_name = :%s and sender.psp_id = :%s"
+                    .formatted(FLOW_NAME, PSP_ID),
                 sort,
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .page(page);
 
     List<FdrPaymentPublishEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
 
-    long totPage = Long.valueOf(reportingFlowPaymentEntityPanacheQuery.pageCount());
+    long totPage = reportingFlowPaymentEntityPanacheQuery.pageCount();
     long countReportingFlowPayment = reportingFlowPaymentEntityPanacheQuery.count();
 
     return ReportingFlowGetPaymentDto.builder()
@@ -132,16 +136,16 @@ public class InternalOrganizationsService {
     Instant now = Instant.now();
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.find(
-                "reporting_flow_name = :flowName and sender.psp_id = :pspId",
-                Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map())
+                "reporting_flow_name = :%s and sender.psp_id = :%s".formatted(FLOW_NAME, PSP_ID),
+                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(
                 () ->
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
-    reportingFlowEntity.updated = now;
-    reportingFlowEntity.internal_ndp_read = Boolean.TRUE;
+    reportingFlowEntity.setUpdated(now);
+    reportingFlowEntity.setInternalNdpRead(Boolean.TRUE);
     reportingFlowEntity.update();
   }
 }
