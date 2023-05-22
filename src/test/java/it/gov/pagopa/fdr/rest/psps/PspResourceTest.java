@@ -47,7 +47,17 @@ public class PspResourceTest extends BaseResourceTest {
         flowTemplate.formatted(reportingFlowName, pspNotMatch, brokerCode, channelCode, ecCode);
     String responseFmt =
         """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0704","errors":[{"message":"Reporting flow [2016-08-16pspTest-1176] have sender.pspId [PSP_NOT_MATCH] but not match with query param [pspTest]"}]}""";
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0704",
+          "errors": [
+            {
+              "message":"Reporting flow [2016-08-16pspTest-1176] have sender.pspId [PSP_NOT_MATCH] but not match with query param [pspTest]"
+            }
+          ]
+        }
+        """;
 
     given()
         .body(bodyFmt)

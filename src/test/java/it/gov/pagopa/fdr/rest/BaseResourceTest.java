@@ -34,28 +34,28 @@ public class BaseResourceTest {
 
   protected static String flowTemplate =
       """
-        {
-          "reportingFlowName": "%s",
-          "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
-          "sender": {
-            "type": "LEGAL_PERSON",
-            "id": "SELBIT2B",
-            "pspId": "%s",
-            "pspName": "Bank",
-            "brokerId": "%s",
-            "channelId": "%s",
-            "password": "1234567890"
-          },
-          "receiver": {
-            "id": "APPBIT2B",
-            "ecId": "%s",
-            "ecName": "Comune di xyz"
-          },
-          "regulation": "SEPA - Bonifico xzy",
-          "regulationDate": "2023-04-03T12:00:30.900000Z",
-          "bicCodePouringBank": "UNCRITMMXXX"
-        }
-        """;
+      {
+        "reportingFlowName": "%s",
+        "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
+        "sender": {
+          "type": "LEGAL_PERSON",
+          "id": "SELBIT2B",
+          "pspId": "%s",
+          "pspName": "Bank",
+          "brokerId": "%s",
+          "channelId": "%s",
+          "password": "1234567890"
+        },
+        "receiver": {
+          "id": "APPBIT2B",
+          "ecId": "%s",
+          "ecName": "Comune di xyz"
+        },
+        "regulation": "SEPA - Bonifico xzy",
+        "regulationDate": "2023-04-03T12:00:30.900000Z",
+        "bicCodePouringBank": "UNCRITMMXXX"
+      }
+      """;
 
   protected static String paymentsTemplate =
       """
@@ -104,7 +104,7 @@ public class BaseResourceTest {
       {
         "message":"Flow [%s] payment added"
       }
-     """;
+      """;
 
   String paymentsDelResponse =
       """
