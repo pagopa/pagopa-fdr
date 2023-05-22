@@ -4,24 +4,15 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
-import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
-import io.quarkus.panache.common.Parameters;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.restassured.http.Header;
-import io.restassured.internal.common.assertion.AssertParameter;
-import it.gov.pagopa.fdr.Config;
-import it.gov.pagopa.fdr.repository.reportingFlow.FdrInsertEntity;
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 import java.util.random.RandomGenerator;
-
-import it.gov.pagopa.fdr.util.MongoResource;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
