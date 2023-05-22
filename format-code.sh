@@ -14,4 +14,3 @@ cd ..
 
 ## escludo le classi con il String text block perchè non ancora supportate da google java format
 java -jar .cache/google-java-format-1.17.0-all-deps.jar --replace $(find . -type f -name "*.java" ! -name "App.java" ! -name "PspResourceTest.java" ! -name "OrganizationResourceTest.java")
-

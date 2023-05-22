@@ -20,7 +20,7 @@ public class AppStartup {
 
   @PostConstruct
   public void init() {
-    if ("test".equals(profile) || "openapi".equals(profile)) {
+    if ("openapi".equals(profile)) {
       log.info("NOT START CONFIG CLASS");
     } else {
       log.info("START CONFIG CLASS");
