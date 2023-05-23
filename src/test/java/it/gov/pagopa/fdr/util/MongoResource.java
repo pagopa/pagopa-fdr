@@ -19,7 +19,7 @@ public class MongoResource implements QuarkusTestResourceLifecycleManager {
     mongo.start();
     Map<String, String> conf = new HashMap<>();
     conf.put(
-        "quarkus.mongodb.connection-string",
+        "%test.quarkus.mongodb.connection-string",
         "mongodb://root:example@localhost:" + mongo.getMappedPort(27017));
     return conf;
   }

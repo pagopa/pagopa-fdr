@@ -20,7 +20,7 @@ public interface InternalOrganizationsServiceServiceMapper {
   //  @Mapping(source = "regulation_date", target = "regulationDate")
   //  @Mapping(source = "bic_code_pouring_bank", target = "bicCodePouringBank")
   //  @Mapping(source = "tot_payments", target = "totPayments")
-  //  @Mapping(source = "sum_paymnents", target = "sumPaymnents")
+  //  @Mapping(source = "sum_paymnents", target = "sumPayments")
   ReportingFlowGetDto toReportingFlowGetDto(FdrPublishEntity reportingFlow);
 
   //  @Mapping(source = "pay_status", target = "payStatus")
