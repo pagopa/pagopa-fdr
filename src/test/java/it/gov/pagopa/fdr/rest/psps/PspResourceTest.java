@@ -1,22 +1,22 @@
 package it.gov.pagopa.fdr.rest.psps;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.ConstantsTest.brokerCode;
-import static it.gov.pagopa.fdr.ConstantsTest.brokerCode2;
-import static it.gov.pagopa.fdr.ConstantsTest.brokerCodeNotEnabled;
-import static it.gov.pagopa.fdr.ConstantsTest.channelCode;
-import static it.gov.pagopa.fdr.ConstantsTest.channelCodeNotEnabled;
-import static it.gov.pagopa.fdr.ConstantsTest.ecCode;
-import static it.gov.pagopa.fdr.ConstantsTest.ecCodeNotEnabled;
-import static it.gov.pagopa.fdr.ConstantsTest.flowsDeleteUrl;
-import static it.gov.pagopa.fdr.ConstantsTest.flowsUrl;
-import static it.gov.pagopa.fdr.ConstantsTest.header;
-import static it.gov.pagopa.fdr.ConstantsTest.pspCode;
-import static it.gov.pagopa.fdr.ConstantsTest.pspCode2;
-import static it.gov.pagopa.fdr.ConstantsTest.pspCodeNotEnabled;
-import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowName;
-import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowNameDateWrongFormat;
-import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowNamePspWrongFormat;
+import static it.gov.pagopa.fdr.Constants.brokerCode;
+import static it.gov.pagopa.fdr.Constants.brokerCode2;
+import static it.gov.pagopa.fdr.Constants.brokerCodeNotEnabled;
+import static it.gov.pagopa.fdr.Constants.channelCode;
+import static it.gov.pagopa.fdr.Constants.channelCodeNotEnabled;
+import static it.gov.pagopa.fdr.Constants.ecCode;
+import static it.gov.pagopa.fdr.Constants.ecCodeNotEnabled;
+import static it.gov.pagopa.fdr.Constants.flowsDeleteUrl;
+import static it.gov.pagopa.fdr.Constants.flowsUrl;
+import static it.gov.pagopa.fdr.Constants.header;
+import static it.gov.pagopa.fdr.Constants.pspCode;
+import static it.gov.pagopa.fdr.Constants.pspCode2;
+import static it.gov.pagopa.fdr.Constants.pspCodeNotEnabled;
+import static it.gov.pagopa.fdr.Constants.reportingFlowName;
+import static it.gov.pagopa.fdr.Constants.reportingFlowNameDateWrongFormat;
+import static it.gov.pagopa.fdr.Constants.reportingFlowNamePspWrongFormat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -37,13 +37,13 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e pubblicazione di un flusso")
-  public void test_psp_OK() {
+  void test_psp_OK() {
     pspSunnyDay(getFlowName());
   }
 
   @Test
   @DisplayName("PSPS - OK - inserimento e cancellazione di un flusso")
-  public void test_psp_deleteFlow_OK() {
+  void test_psp_deleteFlow_OK() {
     String flowName = getFlowName();
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt = flowTemplate.formatted(flowName, pspCode, brokerCode, channelCode, ecCode);
@@ -158,7 +158,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0704 - psp param and psp body not match")
-  public void test_psp_KO_FDR0704() {
+  void test_psp_KO_FDR0704() {
     String pspNotMatch = "PSP_NOT_MATCH";
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt = flowTemplate.formatted(reportingFlowName, pspNotMatch, brokerCode, channelCode, ecCode);
@@ -191,7 +191,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0708 - psp unknown")
-  public void test_psp_KO_FDR0708() {
+  void test_psp_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
     String url = flowsUrl.formatted(pspUnknown);
     String bodyFmt = flowTemplate.formatted(reportingFlowName, pspUnknown, brokerCode, channelCode, ecCode);
@@ -223,7 +223,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0709 - psp not enabled")
-  public void test_psp_KO_FDR0709() {
+  void test_psp_KO_FDR0709() {
     String url = "/psps/%s/flows".formatted(pspCodeNotEnabled);
     String bodyFmt =
         flowTemplate.formatted(reportingFlowName, pspCodeNotEnabled, brokerCode, channelCode, ecCode);
@@ -255,7 +255,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0710 - brokerPsp unknown")
-  public void test_brokerpsp_KO_FDR0710() {
+  void test_brokerpsp_KO_FDR0710() {
     String brokerPspUnknown = "BROKERPSP_UNKNOWN";
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
@@ -288,7 +288,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0711 - brokerPsp not enabled")
-  public void test_brokerpsp_KO_FDR0711() {
+  void test_brokerpsp_KO_FDR0711() {
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         flowTemplate.formatted(reportingFlowName, pspCode, brokerCodeNotEnabled, channelCode, ecCode);
@@ -320,7 +320,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0712 - channel unknown")
-  public void test_channel_KO_FDR0712() {
+  void test_channel_KO_FDR0712() {
     String channelUnknown = "CHANNEL_UNKNOWN";
 
     String url = flowsUrl.formatted(pspCode);
@@ -354,7 +354,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0713 - channel not enabled")
-  public void test_channel_KO_FDR0713() {
+  void test_channel_KO_FDR0713() {
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         flowTemplate.formatted(reportingFlowName, pspCode, brokerCode, channelCodeNotEnabled, ecCode);
@@ -386,7 +386,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0714 - channel with brokerPsp not authorized")
-  public void test_channelBroker_KO_FDR0714() {
+  void test_channelBroker_KO_FDR0714() {
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         flowTemplate.formatted(reportingFlowName, pspCode, brokerCode2, channelCode, ecCode);
@@ -418,7 +418,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0715 - channel with psp not authorized")
-  public void test_channelPsp_KO_FDR0715() {
+  void test_channelPsp_KO_FDR0715() {
     String url = flowsUrl.formatted(pspCode2);
     String bodyFmt =
         flowTemplate.formatted(reportingFlowName, pspCode2, brokerCode, channelCode, ecCode);
@@ -450,7 +450,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0716 - ec unknown")
-  public void test_ecId_KO_FDR0716() {
+  void test_ecId_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
@@ -483,7 +483,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0717 - ec not enabled")
-  public void test_ecId_KO_FDR0717() {
+  void test_ecId_KO_FDR0717() {
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         flowTemplate.formatted(reportingFlowName, pspCode, brokerCode, channelCode, ecCodeNotEnabled);
@@ -515,7 +515,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0718 - flow format wrong date")
-  public void test_flowName_KO_FDR0718() {
+  void test_flowName_KO_FDR0718() {
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         flowTemplate.formatted(reportingFlowNameDateWrongFormat, pspCode, brokerCode, channelCode, ecCode);
@@ -547,7 +547,7 @@ public class PspResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0719 - flow format wrong psp")
-  public void test_flowName_KO_FDR0719() {
+  void test_flowName_KO_FDR0719() {
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt =
         flowTemplate.formatted(reportingFlowNamePspWrongFormat, pspCode, brokerCode, channelCode, ecCode);

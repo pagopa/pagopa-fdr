@@ -1,15 +1,15 @@
 package it.gov.pagopa.fdr.rest;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.ConstantsTest.brokerCode;
-import static it.gov.pagopa.fdr.ConstantsTest.channelCode;
-import static it.gov.pagopa.fdr.ConstantsTest.ecCode;
-import static it.gov.pagopa.fdr.ConstantsTest.flowsPublishUrl;
-import static it.gov.pagopa.fdr.ConstantsTest.flowsUrl;
-import static it.gov.pagopa.fdr.ConstantsTest.header;
-import static it.gov.pagopa.fdr.ConstantsTest.paymentsAddUrl;
-import static it.gov.pagopa.fdr.ConstantsTest.pspCode;
-import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowName;
+import static it.gov.pagopa.fdr.Constants.brokerCode;
+import static it.gov.pagopa.fdr.Constants.channelCode;
+import static it.gov.pagopa.fdr.Constants.ecCode;
+import static it.gov.pagopa.fdr.Constants.flowsPublishUrl;
+import static it.gov.pagopa.fdr.Constants.flowsUrl;
+import static it.gov.pagopa.fdr.Constants.header;
+import static it.gov.pagopa.fdr.Constants.paymentsAddUrl;
+import static it.gov.pagopa.fdr.Constants.pspCode;
+import static it.gov.pagopa.fdr.Constants.reportingFlowName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 

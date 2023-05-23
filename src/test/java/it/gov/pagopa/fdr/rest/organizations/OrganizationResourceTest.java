@@ -1,8 +1,8 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.ConstantsTest.pspCode;
-import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowName;
+import static it.gov.pagopa.fdr.Constants.pspCode;
+import static it.gov.pagopa.fdr.Constants.reportingFlowName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -58,7 +58,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
   /** ############### findByIdEc ################ */
   @Test
   @DisplayName("ORGANIZATIONS findByIdEc Ok")
-  public void testOrganization_findByIdEc_Ok() {
+  void testOrganization_findByIdEc_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspCode);
@@ -76,7 +76,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("ORGANIZATIONS findByIdEc no results")
-  public void testOrganization_findByIdEc_OkNoResults() {
+  void testOrganization_findByIdEc_OkNoResults() {
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspCode, 10, 10);
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
@@ -91,7 +91,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
-  public void testOrganization_findByIdEc_KO_FDR0708() {
+  void testOrganization_findByIdEc_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspUnknown, 10, 10);
     String responseFmt =
@@ -119,7 +119,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("ORGANIZATIONS findByIdEc KO FDR-0709")
-  public void testOrganization_findByIdEc_KO_FDR0709() {
+  void testOrganization_findByIdEc_KO_FDR0709() {
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspCodeNotEnabled, 10, 10);
     String responseFmt =
         testUtil.prettyPrint("""
@@ -147,7 +147,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("ORGANIZATIONS findByIdEc KO FDR-0716")
-  public void testOrganization_findByIdEc_KO_FDR0716() {
+  void testOrganization_findByIdEc_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
     String url = organizationFindByIdEcUrl.formatted(ecUnknown, pspCode, 10, 10);
     String responseFmt =
@@ -176,7 +176,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
 
   @Test
   @DisplayName("ORGANIZATIONS findByIdEc KO FDR-0717")
-  public void testOrganization_findByIdEc_KO_FDR0717() {
+  void testOrganization_findByIdEc_KO_FDR0717() {
     String url = organizationFindByIdEcUrl.formatted(ecCodeNotEnabled, pspCode, 10, 10);
     String responseFmt =
         testUtil.prettyPrint("""
@@ -205,7 +205,7 @@ public class OrganizationResourceTest extends BaseResourceTest {
   /** ################# findByReportingFlowName ############### */
   @Test
   @DisplayName("ORGANIZATIONS findByReportingFlowName Ok")
-  public void testOrganization_findByReportingFlowName_Ok() {
+  void testOrganization_findByReportingFlowName_Ok() {
     String url =
         organizationfindByReportingFlowNameUrl.formatted(ecCode, reportingFlowName, pspCode);
 

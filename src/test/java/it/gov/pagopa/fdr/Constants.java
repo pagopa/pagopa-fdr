@@ -2,7 +2,7 @@ package it.gov.pagopa.fdr;
 
 import io.restassured.http.Header;
 
-public class ConstantsTest {
+public class Constants {
 
   public static final String reportingFlowName = "2016-08-16pspTest-1176";
   public static final String reportingFlowNamePspWrongFormat = "2016-08-16-psp-1176";
