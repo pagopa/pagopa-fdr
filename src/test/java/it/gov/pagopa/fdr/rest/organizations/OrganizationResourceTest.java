@@ -1,11 +1,6 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.Constants.brokerCode;
-import static it.gov.pagopa.fdr.Constants.channelCode;
-import static it.gov.pagopa.fdr.Constants.ecCode;
-import static it.gov.pagopa.fdr.Constants.flowsUrl;
-import static it.gov.pagopa.fdr.Constants.header;
 import static it.gov.pagopa.fdr.Constants.pspCode;
 import static it.gov.pagopa.fdr.Constants.pspCode2;
 import static it.gov.pagopa.fdr.Constants.pspCodeNotEnabled;
@@ -23,16 +18,19 @@ import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.util.MongoResource;
 import it.gov.pagopa.fdr.util.TestUtil;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(MongoResource.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class OrganizationResourceTest extends BaseResource {
 
   @Inject TestUtil testUtil;
@@ -145,6 +143,7 @@ class OrganizationResourceTest extends BaseResource {
 
   /** ############### getAllPublishedFlow ################ */
   @Test
+  @Order(1)
   @DisplayName("ORGANIZATIONS getAllPublishedFlow Ok")
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = getFlowName();
@@ -163,6 +162,7 @@ class OrganizationResourceTest extends BaseResource {
   }
 
   @Test
+  @Order(2)
   @DisplayName("ORGANIZATIONS getAllPublishedFlow no results OK")
   void testOrganization_getAllPublishedFlow_OkNoResults() {
     String flowName = getFlowName();
@@ -181,6 +181,7 @@ class OrganizationResourceTest extends BaseResource {
   }
 
   @Test
+  @Order(3)
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
@@ -209,6 +210,7 @@ class OrganizationResourceTest extends BaseResource {
   }
 
   @Test
+  @Order(4)
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
     String url = getAllPublishedFlowUrl.formatted(ecCode, pspCodeNotEnabled, 10, 10);
@@ -237,6 +239,7 @@ class OrganizationResourceTest extends BaseResource {
   }
 
   @Test
+  @Order(5)
   @DisplayName("ORGANIZATIONS - KO FDR-0716 - creditor institution unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
@@ -266,6 +269,7 @@ class OrganizationResourceTest extends BaseResource {
   }
 
   @Test
+  @Order(6)
   @DisplayName("ORGANIZATIONS - KO FDR-0717 - creditor institution not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0717() {
     String url = getAllPublishedFlowUrl.formatted(ecCodeNotEnabled, pspCode, 10, 10);
@@ -295,6 +299,7 @@ class OrganizationResourceTest extends BaseResource {
 
   /** ################# getReportingFlow ############### */
   @Test
+  @Order(7)
   @DisplayName("ORGANIZATIONS getReportingFlow Ok")
   void testOrganization_getReportingFlow_Ok() {
     String flowName = getFlowName();
@@ -316,6 +321,7 @@ class OrganizationResourceTest extends BaseResource {
   }
 
   @Test
+  @Order(8)
   @DisplayName("ORGANIZATIONS - KO FDR-0701 - getReportingFlow reporting flow not found")
   void testOrganization_getReportingFlow_KO_FDR0701() {
     String flowName = getFlowName();
@@ -348,6 +354,7 @@ class OrganizationResourceTest extends BaseResource {
 
   /** ################# getReportingFlowPayments ############### */
   @Test
+  @Order(9)
   @DisplayName("ORGANIZATIONS getReportingFlowPayments Ok")
   void testOrganization_getReportingFlowPayments_Ok() {
     String flowName = getFlowName();
@@ -366,6 +373,7 @@ class OrganizationResourceTest extends BaseResource {
 
   /** ################# changeReadFlag ############### */
   @Test
+  @Order(10)
   @DisplayName("ORGANIZATIONS changeReadFlag Ok")
   void testOrganization_changeReadFlag_Ok() {
     String flowName = getFlowName();
@@ -384,6 +392,7 @@ class OrganizationResourceTest extends BaseResource {
   }
 
   @Test
+  @Order(11)
   @DisplayName("ORGANIZATIONS - KO FDR-0701 - changeReadFlag reporting flow not found")
   void testOrganization_changeReadFlag_KO_FDR0701() {
     String flowName = getFlowName();

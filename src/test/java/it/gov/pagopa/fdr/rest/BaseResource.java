@@ -78,6 +78,42 @@ public class BaseResource {
       }
       """;
 
+  protected static String paymentsSameIndexAddTemplate =
+      """
+      {
+        "payments": [{
+            "iuv": "a",
+            "iur": "abcdefg",
+            "index": 1,
+            "pay": 0.01,
+            "payStatus": "EXECUTED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          },{
+            "iuv": "b",
+            "iur": "abcdefg",
+            "index": 1,
+            "pay": 0.01,
+            "payStatus": "REVOKED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          }
+        ]
+      }
+      """;
+
+  protected static String payments2AddTemplate =
+      """
+      {
+        "payments": [{
+          "iuv": "a",
+          "iur": "abcdefg",
+          "index": 1,
+          "pay": 0.01,
+          "payStatus": "EXECUTED",
+          "payDate": "2023-02-03T12:00:30.900000Z"
+        }]
+      }
+      """;
+
   protected static String paymentsDeleteTemplate =
       """
       {
@@ -85,6 +121,15 @@ public class BaseResource {
             1,
             2,
             3
+        ]
+      }
+      """;
+
+  protected static String paymentsDeleteWrongTemplate =
+      """
+      {
+        "indexPayments": [
+            5
         ]
       }
       """;

@@ -209,28 +209,6 @@ class PspResourceTest extends BaseResource {
     assertThat(res, equalTo(responseFmt));
   }
 
-  //TODO
-  @Test
-  @DisplayName("PSPS - KO FDR-0703 - reporting flow wrong action")
-  public void test_psp_KO_FDR0703() {
-    String flowName = getFlowName();
-    pspSunnyDay(flowName);
-
-    String url = paymentsAddUrl.formatted(pspCode, flowName);
-    String responseFmt = testUtil.prettyPrint(paymentsAddResponse.formatted(flowName), GenericResponse.class);
-    String res = testUtil.prettyPrint(
-        given()
-            .body(paymentsAddTemplate)
-            .header(header)
-            .when()
-            .put(url)
-            .then()
-            .statusCode(400)
-            .extract()
-            .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
-  }
-
   @Test
   @DisplayName("PSPS - KO FDR-0702 - flow already exists")
   void test_psp_KO_FDR0702() {
@@ -276,13 +254,65 @@ class PspResourceTest extends BaseResource {
   }
 
   @Test
+  @DisplayName("PSPS - KO FDR-0703 - reporting flow wrong action")
+  public void test_psp_KO_FDR0703() {
+    String flowName = getFlowName();
+    String url = flowsUrl.formatted(pspCode);
+    String bodyFmt =
+        flowTemplate.formatted(
+            flowName,
+            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            pspCode,
+            brokerCode,
+            channelCode,
+            ecCode);
+    String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
+    String res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .post(url)
+                .then()
+                .statusCode(201)
+                .extract()
+                .body()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = paymentsDeleteUrl.formatted(pspCode, flowName);
+    responseFmt = testUtil.prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0703",
+          "errors": [
+            {
+              "message":"Reporting flow [%s] exist but in [CREATED] status"
+            }
+          ]
+        }
+        """.formatted(flowName), ErrorResponse.class);
+    res = testUtil.prettyPrint(given()
+        .body(paymentsDeleteTemplate)
+        .header(header)
+        .when()
+        .put(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
   @DisplayName("PSPS - KO FDR-0704 - psp param and psp body not match")
   void test_psp_KO_FDR0704() {
     String pspNotMatch = "PSP_NOT_MATCH";
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt = flowTemplate.formatted(reportingFlowName, SenderTypeEnumDto.LEGAL_PERSON.name(), pspNotMatch, brokerCode, channelCode, ecCode);
-    String responseFmt =
-        """
+    String responseFmt = testUtil.prettyPrint("""
         {
           "httpStatusCode":400,
           "httpStatusDescription":"Bad Request",
@@ -293,8 +323,7 @@ class PspResourceTest extends BaseResource {
             }
           ]
         }
-        """;
-    String responseExpected = testUtil.prettyPrint(responseFmt, ErrorResponse.class);
+        """, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -305,7 +334,206 @@ class PspResourceTest extends BaseResource {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(testUtil.prettyPrint(res), equalTo(responseExpected));
+    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0705 - payments with same index in same request")
+  void test_psp_KO_FDR0705() {
+    String flowName = getFlowName();
+    String url = flowsUrl.formatted(pspCode);
+    String bodyFmt =
+        flowTemplate.formatted(
+            flowName,
+            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            pspCode,
+            brokerCode,
+            channelCode,
+            ecCode);
+    String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
+
+    String res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .post(url)
+                .then()
+                .statusCode(201)
+                .extract()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = paymentsAddUrl.formatted(pspCode, flowName);
+    bodyFmt = paymentsSameIndexAddTemplate;
+    responseFmt = testUtil.prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0705",
+          "errors":[
+             {
+                "message":"Exist one or more payment index in same request on reporting flow [%s]"
+             }
+          ]
+        }""".formatted(flowName), ErrorResponse.class);
+    res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(400)
+                .extract()
+                .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0706 - payments with same index")
+  void test_psp_KO_FDR0706() {
+    String flowName = getFlowName();
+    String url = flowsUrl.formatted(pspCode);
+    String bodyFmt =
+        flowTemplate.formatted(
+            flowName,
+            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            pspCode,
+            brokerCode,
+            channelCode,
+            ecCode);
+    String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
+
+    String res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .post(url)
+                .then()
+                .statusCode(201)
+                .extract()
+                .body()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = paymentsAddUrl.formatted(pspCode, flowName);
+    bodyFmt = paymentsAddTemplate;
+    responseFmt =
+        testUtil.prettyPrint(paymentsAddResponse.formatted(flowName), GenericResponse.class);
+    res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    bodyFmt = payments2AddTemplate;
+    responseFmt = testUtil.prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0706",
+          "errors":[
+             {
+                "message":"One or more payment index already added on reporting flow [%s]"
+             }
+          ]
+        }""".formatted(flowName), ErrorResponse.class);
+    res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(400)
+                .extract()
+                .body()
+                .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0707 - payments unknown index delete")
+  void test_psp_KO_FDR0707() {
+    String flowName = getFlowName();
+    String url = flowsUrl.formatted(pspCode);
+    String bodyFmt =
+        flowTemplate.formatted(
+            flowName,
+            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            pspCode,
+            brokerCode,
+            channelCode,
+            ecCode);
+    String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
+    String res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .post(url)
+                .then()
+                .statusCode(201)
+                .extract()
+                .body()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = paymentsAddUrl.formatted(pspCode, flowName);
+    bodyFmt = paymentsAddTemplate;
+    responseFmt =
+        testUtil.prettyPrint(paymentsAddResponse.formatted(flowName), GenericResponse.class);
+    res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = paymentsDeleteUrl.formatted(pspCode, flowName);
+    responseFmt = testUtil.prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0707",
+          "errors":[
+             {
+                "message":"Index of payment not match with index loaded on reporting flow [%s]"
+             }
+          ]
+        }""".formatted(flowName), ErrorResponse.class);
+    res = testUtil.prettyPrint(given()
+        .body(paymentsDeleteWrongTemplate)
+        .header(header)
+        .when()
+        .put(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
   }
 
   @Test
