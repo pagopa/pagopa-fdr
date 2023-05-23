@@ -48,7 +48,7 @@ public class BaseResourceTest {
       }
       """;
 
-  protected static String paymentsTemplate =
+  protected static String paymentsAddTemplate =
       """
       {
         "payments": [{
@@ -73,6 +73,17 @@ public class BaseResourceTest {
             "payStatus": "EXECUTED",
             "payDate": "2023-02-03T12:00:30.900000Z"
           }
+        ]
+      }
+      """;
+
+  protected static String paymentsDeleteTemplate =
+      """
+      {
+        "indexPayments": [
+            1,
+            2,
+            3
         ]
       }
       """;
@@ -138,7 +149,7 @@ public class BaseResourceTest {
     assertThat(res, equalTo(responseFmt));
 
     url = paymentsAddUrl.formatted(pspCode, flowName);
-    bodyFmt = paymentsTemplate;
+    bodyFmt = paymentsAddTemplate;
     responseFmt =
         testUtil.prettyPrint(paymentsAddResponse.formatted(flowName), GenericResponse.class);
     res =

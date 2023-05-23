@@ -24,7 +24,7 @@ public class ConstantsTest {
   public static final String flowsPublishUrl = "/psps/%s/flows/%s/publish";
   public static final String flowsDeleteUrl = "/psps/%s/flows/%s";
   public static final String paymentsAddUrl = "/psps/%s/flows/%s/payments/add";
-  public static final String paymentsDelUrl = "/psps/%s/flows/%s/payments/del";
+  public static final String paymentsDeleteUrl = "/psps/%s/flows/%s/payments/del";
   public static final String organizationFindByIdEcUrl =
       "/organizations/%s/flows?idPsp=%s&page=%d&size=%d";
   public static final String organizationfindByReportingFlowNameUrl =

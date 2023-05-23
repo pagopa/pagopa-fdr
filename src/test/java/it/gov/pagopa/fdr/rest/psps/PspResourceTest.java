@@ -42,7 +42,7 @@ public class PspResourceTest extends BaseResourceTest {
   }
 
   @Test
-  @DisplayName("PSPS - OK - inserimento completo e cancellazione di un flusso")
+  @DisplayName("PSPS - OK - inserimento e cancellazione di un flusso")
   public void test_psp_deleteFlow_OK() {
     String flowName = getFlowName();
     String url = flowsUrl.formatted(pspCode);
@@ -57,7 +57,6 @@ public class PspResourceTest extends BaseResourceTest {
             .then()
             .statusCode(201)
             .extract()
-            .body()
             .as(GenericResponse.class));
     assertThat(res, equalTo(responseFmt));
 
@@ -71,7 +70,6 @@ public class PspResourceTest extends BaseResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .body()
             .as(GenericResponse.class));
     assertThat(res, equalTo(responseFmt));
 
@@ -94,10 +92,69 @@ public class PspResourceTest extends BaseResourceTest {
         .then()
         .statusCode(404)
         .extract()
-        .body()
         .as(ErrorResponse.class));
     assertThat(res, equalTo(responseFmt));
   }
+
+//  @Test
+//  @DisplayName("PSPS - OK - inserimento completo e cancellazione dei payments")
+//  public void test_psp_deletePayments_OK() {
+//    String flowName = getFlowName();
+//    String url = flowsUrl.formatted(pspCode);
+//    String bodyFmt = flowTemplate.formatted(flowName, pspCode, brokerCode, channelCode, ecCode);
+//    String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
+//
+//    String res = testUtil.prettyPrint(given()
+//        .body(bodyFmt)
+//        .header(header)
+//        .when()
+//        .post(url)
+//        .then()
+//        .statusCode(201)
+//        .extract()
+//        .as(GenericResponse.class));
+//    assertThat(res, equalTo(responseFmt));
+//
+//    url = paymentsAddUrl.formatted(pspCode, flowName);
+//    bodyFmt = paymentsAddTemplate;
+//    responseFmt =
+//        testUtil.prettyPrint(paymentsAddResponse.formatted(flowName), GenericResponse.class);
+//    res =
+//        testUtil.prettyPrint(
+//            given()
+//                .body(bodyFmt)
+//                .header(header)
+//                .when()
+//                .put(url)
+//                .then()
+//                .statusCode(200)
+//                .extract()
+//                .as(GenericResponse.class));
+//    assertThat(res, equalTo(responseFmt));
+//
+//    url = paymentsDeleteUrl.formatted(pspCode, flowName);
+//    bodyFmt = paymentsDeleteTemplate;
+//    responseFmt = testUtil.prettyPrint("""
+//        {
+//          "httpStatusCode" : 404,
+//          "httpStatusDescription" : "Not Found",
+//          "appErrorCode" : "FDR-0701",
+//          "errors" : [ {
+//            "message" : "Reporting flow [%s] not found"
+//          } ]
+//        }
+//        """.formatted(flowName), ErrorResponse.class);
+//    res = testUtil.prettyPrint(given()
+//        .body(bodyFmt)
+//        .header(header)
+//        .when()
+//        .delete(url)
+//        .then()
+//        .statusCode(200)
+//        .extract()
+//        .as(GenericResponse.class));
+//    assertThat(res, equalTo(responseFmt));
+//  }
 
   @Test
   @DisplayName("PSPS - KO FDR-0704 - psp param and psp body not match")
