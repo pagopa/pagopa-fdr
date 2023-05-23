@@ -277,7 +277,6 @@ class PspResourceTest extends BaseResource {
                 .then()
                 .statusCode(201)
                 .extract()
-                .body()
                 .as(GenericResponse.class));
     assertThat(res, equalTo(responseFmt));
 
