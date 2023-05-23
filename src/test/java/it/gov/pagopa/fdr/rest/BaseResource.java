@@ -14,12 +14,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
+import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.util.TestUtil;
 import jakarta.inject.Inject;
 import java.util.Random;
 import java.util.random.RandomGenerator;
 
-public class BaseResourceTest {
+public class BaseResource {
 
   @Inject protected TestUtil testUtil;
 
@@ -29,7 +30,7 @@ public class BaseResourceTest {
         "reportingFlowName": "%s",
         "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
         "sender": {
-          "type": "LEGAL_PERSON",
+          "type": "%s",
           "id": "SELBIT2B",
           "pspId": "%s",
           "pspName": "Bank",
@@ -63,14 +64,14 @@ public class BaseResourceTest {
             "iur": "abcdefg",
             "index": 2,
             "pay": 0.01,
-            "payStatus": "EXECUTED",
+            "payStatus": "REVOKED",
             "payDate": "2023-02-03T12:00:30.900000Z"
           },{
             "iuv": "c",
             "iur": "abcdefg",
             "index": 3,
             "pay": 0.01,
-            "payStatus": "EXECUTED",
+            "payStatus": "NO_RPT",
             "payDate": "2023-02-03T12:00:30.900000Z"
           }
         ]
@@ -116,7 +117,7 @@ public class BaseResourceTest {
       }
       """;
 
-  private static String paymentsDelResponse =
+  protected static String paymentsDeleteResponse =
       """
       {
         "message":"Flow [%s] payment deleted"
@@ -131,7 +132,14 @@ public class BaseResourceTest {
 
   protected void pspSunnyDay(String flowName) {
     String url = flowsUrl.formatted(pspCode);
-    String bodyFmt = flowTemplate.formatted(flowName, pspCode, brokerCode, channelCode, ecCode);
+    String bodyFmt =
+        flowTemplate.formatted(
+            flowName,
+            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            pspCode,
+            brokerCode,
+            channelCode,
+            ecCode);
     String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
 
     String res =
