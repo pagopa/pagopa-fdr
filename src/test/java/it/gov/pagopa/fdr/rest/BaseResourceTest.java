@@ -13,7 +13,6 @@ import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.util.TestUtil;
 import jakarta.inject.Inject;
@@ -78,10 +77,17 @@ public class BaseResourceTest {
       }
       """;
 
-  private static String response =
+  protected static String response =
       """
       {
         "message":"Flow [%s] saved"
+      }
+      """;
+
+  protected static String flowsDeletedResponse =
+      """
+      {
+        "message": "Flow [%s] deleted"
       }
       """;
 
@@ -92,7 +98,7 @@ public class BaseResourceTest {
       }
       """;
 
-  private static String paymentsAddResponse =
+  protected static String paymentsAddResponse =
       """
       {
         "message":"Flow [%s] payment added"
@@ -112,54 +118,57 @@ public class BaseResourceTest {
         + randomGenerator.nextInt(1111, 9999);
   }
 
-  protected void pspSunnyDay(String flowName) throws JsonProcessingException {
+  protected void pspSunnyDay(String flowName) {
     String url = flowsUrl.formatted(pspCode);
     String bodyFmt = flowTemplate.formatted(flowName, pspCode, brokerCode, channelCode, ecCode);
     String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
 
-    GenericResponse res =
-        given()
-            .body(bodyFmt)
-            .header(header)
-            .when()
-            .post(url)
-            .then()
-            .statusCode(201)
-            .extract()
-            .body()
-            .as(GenericResponse.class);
-    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
+    String res =
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .post(url)
+                .then()
+                .statusCode(201)
+                .extract()
+                .body()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
 
     url = paymentsAddUrl.formatted(pspCode, flowName);
     bodyFmt = paymentsTemplate;
     responseFmt =
         testUtil.prettyPrint(paymentsAddResponse.formatted(flowName), GenericResponse.class);
     res =
-        given()
-            .body(bodyFmt)
-            .header(header)
-            .when()
-            .put(url)
-            .then()
-            .statusCode(200)
-            .extract()
-            .body()
-            .as(GenericResponse.class);
-    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
+        testUtil.prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(header)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
 
     url = flowsPublishUrl.formatted(pspCode, flowName);
     responseFmt =
         testUtil.prettyPrint(flowsPublishedResponse.formatted(flowName), GenericResponse.class);
     res =
-        given()
-            .header(header)
-            .when()
-            .post(url)
-            .then()
-            .statusCode(200)
-            .extract()
-            .body()
-            .as(GenericResponse.class);
-    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
+        testUtil.prettyPrint(
+            given()
+                .header(header)
+                .when()
+                .post(url)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
   }
 }

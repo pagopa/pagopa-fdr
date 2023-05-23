@@ -4,10 +4,8 @@ import static io.restassured.RestAssured.given;
 import static it.gov.pagopa.fdr.ConstantsTest.pspCode;
 import static it.gov.pagopa.fdr.ConstantsTest.reportingFlowName;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
@@ -15,6 +13,7 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.Header;
 import it.gov.pagopa.fdr.rest.BaseResourceTest;
+import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.util.MongoResource;
 import it.gov.pagopa.fdr.util.TestUtil;
@@ -59,25 +58,25 @@ public class OrganizationResourceTest extends BaseResourceTest {
   /** ############### findByIdEc ################ */
   @Test
   @DisplayName("ORGANIZATIONS findByIdEc Ok")
-  public void testOrganization_findByIdEc_Ok() throws JsonProcessingException {
+  public void testOrganization_findByIdEc_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspCode);
     String responseFmt = testUtil.prettyPrint(responseAllPublishedFlows.formatted(flowName, pspCode), GetAllResponse.class);
-    GetAllResponse res = given()
+    String res = testUtil.prettyPrint(given()
         .header(header)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(GetAllResponse.class);
-    assertThat(testUtil.prettyPrint(res), equalTo(responseFmt));
+        .as(GetAllResponse.class));
+    assertThat(res, equalTo(responseFmt));
   }
 
   @Test
   @DisplayName("ORGANIZATIONS findByIdEc no results")
-  public void testOrganization_findByIdEc_OkNoResults() throws JsonProcessingException {
+  public void testOrganization_findByIdEc_OkNoResults() {
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspCode, 10, 10);
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
@@ -91,14 +90,31 @@ public class OrganizationResourceTest extends BaseResourceTest {
   }
 
   @Test
-  @DisplayName("ORGANIZATIONS findByIdEc KO FDR-0708")
+  @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   public void testOrganization_findByIdEc_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspUnknown, 10, 10);
     String responseFmt =
-        """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0708","errors":[{"message":"Psp [PSP_UNKNOWN] unknown"}]}""";
-    given().header(header).when().get(url).then().statusCode(400).body(containsString(responseFmt));
+        testUtil.prettyPrint("""
+        {
+           "httpStatusCode":400,
+           "httpStatusDescription":"Bad Request",
+           "appErrorCode":"FDR-0708",
+           "errors":[
+              {
+                 "message":"Psp [PSP_UNKNOWN] unknown"
+              }
+           ]
+        }""", ErrorResponse.class);
+    String res = testUtil.prettyPrint(given()
+        .header(header)
+        .when()
+        .get(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
   }
 
   @Test
@@ -106,10 +122,27 @@ public class OrganizationResourceTest extends BaseResourceTest {
   public void testOrganization_findByIdEc_KO_FDR0709() {
     String url = organizationFindByIdEcUrl.formatted(ecCode, pspCodeNotEnabled, 10, 10);
     String responseFmt =
-        """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0709","errors":[{"message":"Psp [pspNotEnabled] not enabled"}]}""";
+        testUtil.prettyPrint("""
+        {
+           "httpStatusCode":400,
+           "httpStatusDescription":"Bad Request",
+           "appErrorCode":"FDR-0709",
+           "errors":[
+              {
+                 "message":"Psp [pspNotEnabled] not enabled"
+              }
+           ]
+        }""", ErrorResponse.class);
 
-    given().header(header).when().get(url).then().statusCode(400).body(containsString(responseFmt));
+    String res = testUtil.prettyPrint(given()
+        .header(header)
+        .when()
+        .get(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
   }
 
   @Test
@@ -118,10 +151,27 @@ public class OrganizationResourceTest extends BaseResourceTest {
     String ecUnknown = "EC_UNKNOWN";
     String url = organizationFindByIdEcUrl.formatted(ecUnknown, pspCode, 10, 10);
     String responseFmt =
-        """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0716","errors":[{"message":"Creditor institution [EC_UNKNOWN] unknown"}]}""";
+        testUtil.prettyPrint("""
+        {
+           "httpStatusCode":400,
+           "httpStatusDescription":"Bad Request",
+           "appErrorCode":"FDR-0716",
+           "errors":[
+              {
+                 "message":"Creditor institution [EC_UNKNOWN] unknown"
+              }
+           ]
+        }""", ErrorResponse.class);
 
-    given().header(header).when().get(url).then().statusCode(400).body(containsString(responseFmt));
+    String res = testUtil.prettyPrint(given()
+        .header(header)
+        .when()
+        .get(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
   }
 
   @Test
@@ -129,17 +179,33 @@ public class OrganizationResourceTest extends BaseResourceTest {
   public void testOrganization_findByIdEc_KO_FDR0717() {
     String url = organizationFindByIdEcUrl.formatted(ecCodeNotEnabled, pspCode, 10, 10);
     String responseFmt =
-        """
-        {"httpStatusCode":400,"httpStatusDescription":"Bad Request","appErrorCode":"FDR-0717","errors":[{"message":"Creditor institution [%s] not enabled"}]}"""
-            .formatted(ecCodeNotEnabled);
+        testUtil.prettyPrint("""
+        {
+           "httpStatusCode":400,
+           "httpStatusDescription":"Bad Request",
+           "appErrorCode":"FDR-0717",
+           "errors":[
+              {
+                 "message":"Creditor institution [%s] not enabled"
+              }
+           ]
+        }""".formatted(ecCodeNotEnabled), ErrorResponse.class);
 
-    given().header(header).when().get(url).then().statusCode(400).body(containsString(responseFmt));
+    String res = testUtil.prettyPrint(given()
+        .header(header)
+        .when()
+        .get(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
   }
 
   /** ################# findByReportingFlowName ############### */
   @Test
   @DisplayName("ORGANIZATIONS findByReportingFlowName Ok")
-  public void testOrganization_findByReportingFlowName_Ok() throws JsonProcessingException {
+  public void testOrganization_findByReportingFlowName_Ok() {
     String url =
         organizationfindByReportingFlowNameUrl.formatted(ecCode, reportingFlowName, pspCode);
 
