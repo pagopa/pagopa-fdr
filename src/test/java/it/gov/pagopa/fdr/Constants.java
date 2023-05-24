@@ -4,29 +4,24 @@ import io.restassured.http.Header;
 
 public class Constants {
 
-  public static final String reportingFlowName = "2016-08-16pspTest-1176";
-  public static final String reportingFlowNamePspWrongFormat = "2016-08-16-psp-1176";
-  public static final String reportingFlowNameDateWrongFormat = "2016-aa-16pspTest-1176";
-  public static final String pspCode = "pspTest";
-  public static final String pspCode2 = "pspTest2";
-  public static final String pspCodeNotEnabled = "pspNotEnabled";
-  public static final String brokerCode = "intTest";
-  public static final String brokerCode2 = "intTest2";
-  public static final String brokerCodeNotEnabled = "intNotEnabled";
-  public static final String channelCode = "canaleTest";
-  public static final String channelCodeNotEnabled = "canaleNotEnabled";
-  public static final String ecCode = "12345678900";
-  public static final String ecCodeNotEnabled = "00987654321";
-  public static final String pspChannelPaymentTypeCode = "PAYPAL";
-  public static final Header header = new Header("Content-Type", "application/json");
+  public static final String REPORTING_FLOW_NAME = "2016-08-16pspTest-1176";
+  public static final String REPORTING_FLOW_NAME_PSP_WRONG_FORMAT = "2016-08-16-psp-1176";
+  public static final String REPORTING_FLOW_NAME_DATE_WRONG_FORMAT = "2016-aa-16pspTest-1176";
+  public static final String PSP_CODE = "pspTest";
+  public static final String PSP_CODE_2 = "pspTest2";
+  public static final String PSP_CODE_NOT_ENABLED = "pspNotEnabled";
+  public static final String BROKER_CODE = "intTest";
+  public static final String BROKER_CODE_2 = "intTest2";
+  public static final String BROKER_CODE_NOT_ENABLED = "intNotEnabled";
+  public static final String CHANNEL_CODE = "canaleTest";
+  public static final String CHANNEL_CODE_NOT_ENABLED = "canaleNotEnabled";
+  public static final String EC_CODE = "12345678900";
+  public static final String EC_CODE_NOT_ENABLED = "00987654321";
+  public static final Header HEADER = new Header("Content-Type", "application/json");
 
-  public static final String flowsUrl = "/psps/%s/flows";
-  public static final String flowsPublishUrl = "/psps/%s/flows/%s/publish";
-  public static final String flowsDeleteUrl = "/psps/%s/flows/%s";
-  public static final String paymentsAddUrl = "/psps/%s/flows/%s/payments/add";
-  public static final String paymentsDeleteUrl = "/psps/%s/flows/%s/payments/del";
-  public static final String organizationFindByIdEcUrl =
-      "/organizations/%s/flows?idPsp=%s&page=%d&size=%d";
-  public static final String organizationfindByReportingFlowNameUrl =
-      "/organizations/%s/flows/%s/psps/%s";
+  public static final String FLOWS_URL = "/psps/%s/flows";
+  public static final String FLOWS_PUBLISH_URL = "/psps/%s/flows/%s/publish";
+  public static final String FLOWS_DELETE_URL = "/psps/%s/flows/%s";
+  public static final String PAYMENTS_ADD_URL = "/psps/%s/flows/%s/payments/add";
+  public static final String PAYMENTS_DELETE_URL = "/psps/%s/flows/%s/payments/del";
 }

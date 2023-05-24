@@ -1,30 +1,42 @@
 package it.gov.pagopa.fdr.rest;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.Constants.brokerCode;
-import static it.gov.pagopa.fdr.Constants.channelCode;
-import static it.gov.pagopa.fdr.Constants.ecCode;
-import static it.gov.pagopa.fdr.Constants.flowsPublishUrl;
-import static it.gov.pagopa.fdr.Constants.flowsUrl;
-import static it.gov.pagopa.fdr.Constants.header;
-import static it.gov.pagopa.fdr.Constants.paymentsAddUrl;
-import static it.gov.pagopa.fdr.Constants.pspCode;
-import static it.gov.pagopa.fdr.Constants.reportingFlowName;
+import static it.gov.pagopa.fdr.Constants.BROKER_CODE;
+import static it.gov.pagopa.fdr.Constants.CHANNEL_CODE;
+import static it.gov.pagopa.fdr.Constants.EC_CODE;
+import static it.gov.pagopa.fdr.Constants.FLOWS_PUBLISH_URL;
+import static it.gov.pagopa.fdr.Constants.FLOWS_URL;
+import static it.gov.pagopa.fdr.Constants.HEADER;
+import static it.gov.pagopa.fdr.Constants.PAYMENTS_ADD_URL;
+import static it.gov.pagopa.fdr.Constants.PSP_CODE;
+import static it.gov.pagopa.fdr.Constants.REPORTING_FLOW_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
-import it.gov.pagopa.fdr.util.TestUtil;
 import jakarta.inject.Inject;
 import java.util.Random;
 import java.util.random.RandomGenerator;
+import lombok.SneakyThrows;
 
-public class BaseResource {
+public class BaseUnitTestHelper {
 
-  @Inject protected TestUtil testUtil;
+  @Inject ObjectMapper mapper;
 
-  protected static String flowTemplate =
+  @SneakyThrows
+  public <T> String prettyPrint(String json, Class<T> clazz) {
+    T obj = mapper.readValue(json, clazz);
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+  }
+
+  @SneakyThrows
+  public <T> String prettyPrint(T obj) {
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+  }
+
+  protected static String FLOW_TEMPLATE =
       """
       {
         "reportingFlowName": "%s",
@@ -49,7 +61,7 @@ public class BaseResource {
       }
       """;
 
-  protected static String paymentsAddTemplate =
+  protected static String PAYMENTS_ADD_TEMPLATE =
       """
       {
         "payments": [{
@@ -78,7 +90,7 @@ public class BaseResource {
       }
       """;
 
-  protected static String paymentsSameIndexAddTemplate =
+  protected static String PAYMENTS_SAME_INDEX_ADD_TEMPLATE =
       """
       {
         "payments": [{
@@ -100,7 +112,7 @@ public class BaseResource {
       }
       """;
 
-  protected static String payments2AddTemplate =
+  protected static String PAYMENTS_2_ADD_TEMPLATE =
       """
       {
         "payments": [{
@@ -114,7 +126,7 @@ public class BaseResource {
       }
       """;
 
-  protected static String paymentsDeleteTemplate =
+  protected static String PAYMENTS_DELETE_TEMPLATE =
       """
       {
         "indexPayments": [
@@ -125,7 +137,7 @@ public class BaseResource {
       }
       """;
 
-  protected static String paymentsDeleteWrongTemplate =
+  protected static String PAYMENTS_DELETE_WRONG_TEMPLATE =
       """
       {
         "indexPayments": [
@@ -134,35 +146,35 @@ public class BaseResource {
       }
       """;
 
-  protected static String response =
+  protected static String RESPONSE =
       """
       {
         "message":"Flow [%s] saved"
       }
       """;
 
-  protected static String flowsDeletedResponse =
+  protected static String FLOWS_DELETED_RESPONSE =
       """
       {
         "message": "Flow [%s] deleted"
       }
       """;
 
-  private static String flowsPublishedResponse =
+  private static String FLOWS_PUBLISHED_RESPONSE =
       """
       {
         "message":"Flow [%s] published"
       }
       """;
 
-  protected static String paymentsAddResponse =
+  protected static String PAYMENTS_ADD_RESPONSE =
       """
       {
         "message":"Flow [%s] payment added"
       }
       """;
 
-  protected static String paymentsDeleteResponse =
+  protected static String PAYMENTS_DELETE_RESPONSE =
       """
       {
         "message":"Flow [%s] payment deleted"
@@ -171,27 +183,27 @@ public class BaseResource {
 
   protected String getFlowName() {
     RandomGenerator randomGenerator = new Random();
-    return reportingFlowName.substring(0, reportingFlowName.length() - 4)
+    return REPORTING_FLOW_NAME.substring(0, REPORTING_FLOW_NAME.length() - 4)
         + randomGenerator.nextInt(1111, 9999);
   }
 
   protected void pspSunnyDay(String flowName) {
-    String url = flowsUrl.formatted(pspCode);
+    String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
-        flowTemplate.formatted(
+        FLOW_TEMPLATE.formatted(
             flowName,
             SenderTypeEnumDto.LEGAL_PERSON.name(),
-            pspCode,
-            brokerCode,
-            channelCode,
-            ecCode);
-    String responseFmt = testUtil.prettyPrint(response.formatted(flowName), GenericResponse.class);
+            PSP_CODE,
+            BROKER_CODE,
+            CHANNEL_CODE,
+            EC_CODE);
+    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
     String res =
-        testUtil.prettyPrint(
+        prettyPrint(
             given()
                 .body(bodyFmt)
-                .header(header)
+                .header(HEADER)
                 .when()
                 .post(url)
                 .then()
@@ -201,15 +213,14 @@ public class BaseResource {
                 .as(GenericResponse.class));
     assertThat(res, equalTo(responseFmt));
 
-    url = paymentsAddUrl.formatted(pspCode, flowName);
-    bodyFmt = paymentsAddTemplate;
-    responseFmt =
-        testUtil.prettyPrint(paymentsAddResponse.formatted(flowName), GenericResponse.class);
+    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    bodyFmt = PAYMENTS_ADD_TEMPLATE;
+    responseFmt = prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
     res =
-        testUtil.prettyPrint(
+        prettyPrint(
             given()
                 .body(bodyFmt)
-                .header(header)
+                .header(HEADER)
                 .when()
                 .put(url)
                 .then()
@@ -219,13 +230,12 @@ public class BaseResource {
                 .as(GenericResponse.class));
     assertThat(res, equalTo(responseFmt));
 
-    url = flowsPublishUrl.formatted(pspCode, flowName);
-    responseFmt =
-        testUtil.prettyPrint(flowsPublishedResponse.formatted(flowName), GenericResponse.class);
+    url = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+    responseFmt = prettyPrint(FLOWS_PUBLISHED_RESPONSE.formatted(flowName), GenericResponse.class);
     res =
-        testUtil.prettyPrint(
+        prettyPrint(
             given()
-                .header(header)
+                .header(HEADER)
                 .when()
                 .post(url)
                 .then()

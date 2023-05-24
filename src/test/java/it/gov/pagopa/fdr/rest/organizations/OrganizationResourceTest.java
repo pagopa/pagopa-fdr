@@ -1,17 +1,19 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.Constants.pspCode;
-import static it.gov.pagopa.fdr.Constants.pspCode2;
-import static it.gov.pagopa.fdr.Constants.pspCodeNotEnabled;
+import static it.gov.pagopa.fdr.Constants.EC_CODE;
+import static it.gov.pagopa.fdr.Constants.EC_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.Constants.HEADER;
+import static it.gov.pagopa.fdr.Constants.PSP_CODE;
+import static it.gov.pagopa.fdr.Constants.PSP_CODE_2;
+import static it.gov.pagopa.fdr.Constants.PSP_CODE_NOT_ENABLED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.http.Header;
-import it.gov.pagopa.fdr.rest.BaseResource;
+import it.gov.pagopa.fdr.rest.BaseUnitTestHelper;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
@@ -19,8 +21,6 @@ import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.util.MongoResource;
-import it.gov.pagopa.fdr.util.TestUtil;
-import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -31,18 +31,12 @@ import org.junit.jupiter.api.TestMethodOrder;
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(MongoResource.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class OrganizationResourceTest extends BaseResource {
+class OrganizationResourceTest extends BaseUnitTestHelper {
 
-  @Inject TestUtil testUtil;
-
-  private static final String ecCode = "12345678900";
-  private static final String ecCodeNotEnabled = "00987654321";
-  private static final Header header = new Header("Content-Type", "application/json");
-
-  private static final String getAllPublishedFlowUrl = "/organizations/%s/flows?idPsp=%s";
-  private static final String getReportingFlowUrl = "/organizations/%s/flows/%s/psps/%s";
-  private static final String getReportingFlowPaymentsUrl = "/organizations/%s/flows/%s/psps/%s/payments";
-  private static final String changeReadFlagUrl = "/organizations/%s/flows/%s/psps/%s/read";
+  private static final String GET_ALL_PUBLISHED_FLOW_URL = "/organizations/%s/flows?idPsp=%s";
+  private static final String GET_REPORTING_FLOW_URL = "/organizations/%s/flows/%s/psps/%s";
+  private static final String GET_REPORTING_FLOW_PAYMENTS_URL = "/organizations/%s/flows/%s/psps/%s/payments";
+  private static final String CHANGE_READ_FLAG_URL = "/organizations/%s/flows/%s/psps/%s/read";
 
   private static String responseAllPublishedFlows = """
       {
@@ -148,10 +142,11 @@ class OrganizationResourceTest extends BaseResource {
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
-    String url = getAllPublishedFlowUrl.formatted(ecCode, pspCode);
-    String responseFmt = testUtil.prettyPrint(responseAllPublishedFlows.formatted(flowName, pspCode), GetAllResponse.class);
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
+    String responseFmt = prettyPrint(responseAllPublishedFlows.formatted(flowName,
+        PSP_CODE), GetAllResponse.class);
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -167,10 +162,10 @@ class OrganizationResourceTest extends BaseResource {
   void testOrganization_getAllPublishedFlow_OkNoResults() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
-    String url = getAllPublishedFlowUrl.formatted(ecCode, pspCode2);
-    String responseFmt = testUtil.prettyPrint(responseAllPublishedFlowsNoResult, GetAllResponse.class);
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
+    String responseFmt = prettyPrint(responseAllPublishedFlowsNoResult, GetAllResponse.class);
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -185,9 +180,9 @@ class OrganizationResourceTest extends BaseResource {
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
-    String url = getAllPublishedFlowUrl.formatted(ecCode, pspUnknown, 10, 10);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, pspUnknown, 10, 10);
     String responseFmt =
-        testUtil.prettyPrint("""
+        prettyPrint("""
         {
            "httpStatusCode":400,
            "httpStatusDescription":"Bad Request",
@@ -198,8 +193,8 @@ class OrganizationResourceTest extends BaseResource {
               }
            ]
         }""", ErrorResponse.class);
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -213,9 +208,9 @@ class OrganizationResourceTest extends BaseResource {
   @Order(4)
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
-    String url = getAllPublishedFlowUrl.formatted(ecCode, pspCodeNotEnabled, 10, 10);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_NOT_ENABLED, 10, 10);
     String responseFmt =
-        testUtil.prettyPrint("""
+        prettyPrint("""
         {
            "httpStatusCode":400,
            "httpStatusDescription":"Bad Request",
@@ -227,8 +222,8 @@ class OrganizationResourceTest extends BaseResource {
            ]
         }""", ErrorResponse.class);
 
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -243,9 +238,9 @@ class OrganizationResourceTest extends BaseResource {
   @DisplayName("ORGANIZATIONS - KO FDR-0716 - creditor institution unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
-    String url = getAllPublishedFlowUrl.formatted(ecUnknown, pspCode, 10, 10);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(ecUnknown, PSP_CODE, 10, 10);
     String responseFmt =
-        testUtil.prettyPrint("""
+        prettyPrint("""
         {
            "httpStatusCode":400,
            "httpStatusDescription":"Bad Request",
@@ -257,8 +252,8 @@ class OrganizationResourceTest extends BaseResource {
            ]
         }""", ErrorResponse.class);
 
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -272,9 +267,9 @@ class OrganizationResourceTest extends BaseResource {
   @Order(6)
   @DisplayName("ORGANIZATIONS - KO FDR-0717 - creditor institution not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0717() {
-    String url = getAllPublishedFlowUrl.formatted(ecCodeNotEnabled, pspCode, 10, 10);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE_NOT_ENABLED, PSP_CODE, 10, 10);
     String responseFmt =
-        testUtil.prettyPrint("""
+        prettyPrint("""
         {
            "httpStatusCode":400,
            "httpStatusDescription":"Bad Request",
@@ -284,10 +279,10 @@ class OrganizationResourceTest extends BaseResource {
                  "message":"Creditor institution [%s] not enabled"
               }
            ]
-        }""".formatted(ecCodeNotEnabled), ErrorResponse.class);
+        }""".formatted(EC_CODE_NOT_ENABLED), ErrorResponse.class);
 
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -304,9 +299,9 @@ class OrganizationResourceTest extends BaseResource {
   void testOrganization_getReportingFlow_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
-    String url = getReportingFlowUrl.formatted(ecCode, flowName, pspCode);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
     GetIdResponse res = given()
-        .header(header)
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -314,8 +309,8 @@ class OrganizationResourceTest extends BaseResource {
         .extract()
         .as(GetIdResponse.class);
     assertThat(res.getReportingFlowName(), equalTo(flowName));
-    assertThat(res.getReceiver().getEcId(), equalTo(ecCode));
-    assertThat(res.getSender().getPspId(), equalTo(pspCode));
+    assertThat(res.getReceiver().getEcId(), equalTo(EC_CODE));
+    assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
     assertThat(res.totPayments, equalTo(3L));
   }
@@ -327,9 +322,9 @@ class OrganizationResourceTest extends BaseResource {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String flowNameWrong = getFlowName();
-    String url = getReportingFlowUrl.formatted(ecCode, flowNameWrong, pspCode);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, PSP_CODE);
     String responseFmt =
-        testUtil.prettyPrint("""
+        prettyPrint("""
         {
            "httpStatusCode":404,
            "httpStatusDescription":"Not Found",
@@ -341,8 +336,8 @@ class OrganizationResourceTest extends BaseResource {
            ]
         }""".formatted(flowNameWrong), ErrorResponse.class);
 
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -359,9 +354,9 @@ class OrganizationResourceTest extends BaseResource {
   void testOrganization_getReportingFlowPayments_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
-    String url = getReportingFlowPaymentsUrl.formatted(ecCode, flowName, pspCode);
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, PSP_CODE);
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .get(url)
         .then()
@@ -378,10 +373,10 @@ class OrganizationResourceTest extends BaseResource {
   void testOrganization_changeReadFlag_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
-    String url = changeReadFlagUrl.formatted(ecCode, flowName, pspCode);
-    String responseFmt = testUtil.prettyPrint(changeReadFlagResponse.formatted(flowName), GenericResponse.class);
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String url = CHANGE_READ_FLAG_URL.formatted(EC_CODE, flowName, PSP_CODE);
+    String responseFmt = prettyPrint(changeReadFlagResponse.formatted(flowName), GenericResponse.class);
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .put(url)
         .then()
@@ -398,9 +393,9 @@ class OrganizationResourceTest extends BaseResource {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String flowNameWrong = getFlowName();
-    String url = changeReadFlagUrl.formatted(ecCode, flowNameWrong, pspCode);
+    String url = CHANGE_READ_FLAG_URL.formatted(EC_CODE, flowNameWrong, PSP_CODE);
     String responseFmt =
-        testUtil.prettyPrint("""
+        prettyPrint("""
         {
            "httpStatusCode":404,
            "httpStatusDescription":"Not Found",
@@ -412,8 +407,8 @@ class OrganizationResourceTest extends BaseResource {
            ]
         }""".formatted(flowNameWrong), ErrorResponse.class);
 
-    String res = testUtil.prettyPrint(given()
-        .header(header)
+    String res = prettyPrint(given()
+        .header(HEADER)
         .when()
         .put(url)
         .then()
