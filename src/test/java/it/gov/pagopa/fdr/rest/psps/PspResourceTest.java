@@ -29,6 +29,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.rest.BaseUnitTestHelper;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
+import it.gov.pagopa.fdr.rest.model.SenderTypeEnum;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.util.MongoResource;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +44,15 @@ class PspResourceTest extends BaseUnitTestHelper {
   @DisplayName("PSPS - OK - inserimento completo e pubblicazione di un flusso")
   void test_psp_OK() {
     pspSunnyDay(getFlowName());
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - aggiornamento flow pubblicato alla revisione 2")
+  void test_psp_flow_revision_2_OK() {
+    String flowName = getFlowName();
+    pspSunnyDay(flowName);
+
+    pspSunnyDay(flowName);
   }
 
   @Test
@@ -144,6 +154,54 @@ class PspResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
+  @DisplayName("PSPS - OK - inserimento completo e cancellazione del flusso con payments")
+  public void test_psp_deleteFlowWithPayment_OK() {
+    String flowName = getFlowName();
+    String url = FLOWS_URL.formatted(PSP_CODE);
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
+
+    String res = prettyPrint(given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(201)
+        .extract()
+        .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    responseFmt = prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
+    res = prettyPrint(
+        given()
+            .body(PAYMENTS_ADD_TEMPLATE)
+            .header(HEADER)
+            .when()
+            .put(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
+    responseFmt = prettyPrint(FLOWS_DELETED_RESPONSE.formatted(flowName), GenericResponse.class);
+    res = prettyPrint(given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .delete(url)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
   @DisplayName("PSPS - OK - inserimento completo e cancellazione dei payments")
   public void test_psp_deletePayments_OK() {
     String flowName = getFlowName();
@@ -211,6 +269,54 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - inserimento completo e cancellazione parziale dei payments")
+  public void test_psp_deletePayments_partial_OK() {
+    String flowName = getFlowName();
+    String url = FLOWS_URL.formatted(PSP_CODE);
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
+
+    String res = prettyPrint(given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(201)
+        .extract()
+        .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    responseFmt = prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
+    res = prettyPrint(
+        given()
+            .body(PAYMENTS_ADD_TEMPLATE)
+            .header(HEADER)
+            .when()
+            .put(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GenericResponse.class));
+    assertThat(res, equalTo(responseFmt));
+
+    url = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    responseFmt = prettyPrint(PAYMENTS_DELETE_RESPONSE.formatted(flowName), GenericResponse.class);
+    res = prettyPrint(given()
+        .body(PAYMENTS_DELETE_PARTIAL_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(url)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class));
     assertThat(res, equalTo(responseFmt));
   }
 
@@ -1217,5 +1323,224 @@ class PspResourceTest extends BaseUnitTestHelper {
         .as(ErrorResponse.class);
     assertThat(prettyPrint(res), equalTo(responseExpected));
   }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0400 - JSON input wrong fields")
+  void test_psp_KO_FDR0400() {
+    String flowName = getFlowName();
+    String url = FLOWS_URL.formatted(PSP_CODE);
+    String bodyFmt = FLOW_TEMPLATE_WRONG_FIELDS.formatted(
+        flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
+        PSP_CODE,
+        BROKER_CODE,
+        CHANNEL_CODE,
+        EC_CODE);
+
+    String responseFmt =
+        prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0400",
+          "errors": [
+            {
+              "path":"createFlow.createFlowRequest.reportingFlowName",
+              "message":"non deve essere null"
+            }
+          ]
+        }
+        """.formatted(""), ErrorResponse.class);
+    String res = prettyPrint(given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0401 - JSON incorrect value")
+  void test_psp_KO_FDR0401() {
+    String flowName = getFlowName();
+    String url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String wrongFormatDecimal = "0,01";
+    String bodyFmt = PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE.formatted(wrongFormatDecimal);
+    String responseFmt =
+        prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0401",
+          "errors": [
+            {
+              "message":"Bad request. Field [payments.pay] is [%s]. Not match a correct value"
+            }
+          ]
+        }
+        """.formatted(wrongFormatDecimal), ErrorResponse.class);
+    String res =
+        prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(HEADER)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(400)
+                .extract()
+                .body()
+                .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0402 - JSON invalid input instant")
+  void test_psp_KO_FDR0402() {
+    String flowName = getFlowName();
+    String url = FLOWS_URL.formatted(PSP_CODE);
+    String wrongFormatDate = "2023-04-05";
+    String bodyFmt = FLOW_TEMPLATE_WRONG_INSTANT.formatted(
+        flowName,
+        wrongFormatDate,
+        SenderTypeEnum.LEGAL_PERSON.name(),
+        PSP_CODE,
+        BROKER_CODE,
+        CHANNEL_CODE,
+        EC_CODE);
+
+    String responseFmt =
+        prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0402",
+          "errors": [
+            {
+              "message":"Bad request. Field [reportingFlowDate] is [%s]. Expected ISO-8601 [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]"
+            }
+          ]
+        }
+        """.formatted(wrongFormatDate), ErrorResponse.class);
+    String res = prettyPrint(given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0403 - JSON invalid input enum")
+  void test_psp_KO_FDR0403() {
+    String flowName = getFlowName();
+    String url = FLOWS_URL.formatted(PSP_CODE);
+    String wrongEnum = "WRONG_ENUM";
+    String bodyFmt = FLOW_TEMPLATE.formatted(
+        flowName,
+        wrongEnum,
+        PSP_CODE,
+        BROKER_CODE,
+        CHANNEL_CODE,
+        EC_CODE);
+
+    String responseFmt =
+        prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0403",
+          "errors": [
+            {
+              "message":"Bad request. Field [sender.type] is [%s]. Expected value one of [LEGAL_PERSON, ABI_CODE, BIC_CODE]"
+            }
+          ]
+        }
+        """.formatted(wrongEnum), ErrorResponse.class);
+    String res = prettyPrint(given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0404 - JSON deserialization error")
+  void test_psp_KO_FDR0404() {
+    String flowName = getFlowName();
+    String url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String bodyFmt = PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE;
+    String responseFmt =
+        prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0404",
+          "errors": [
+            {
+              "message":"Bad request. Field [payments] generate an deserialize error. Set correct value"
+            }
+          ]
+        }
+        """, ErrorResponse.class);
+    String res =
+        prettyPrint(
+            given()
+                .body(bodyFmt)
+                .header(HEADER)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(400)
+                .extract()
+                .body()
+                .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0405 - JSON malformed")
+  void test_psp_KO_FDR0405() {
+    String url = FLOWS_URL.formatted(PSP_CODE);
+    String bodyFmt = MALFORMED_JSON;
+
+    String responseFmt =
+        prettyPrint("""
+        {
+          "httpStatusCode":400,
+          "httpStatusDescription":"Bad Request",
+          "appErrorCode":"FDR-0405",
+          "errors": [
+            {
+              "message":"Bad request. Json format not valid"
+            }
+          ]
+        }
+        """, ErrorResponse.class);
+    String res = prettyPrint(given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
 
 }

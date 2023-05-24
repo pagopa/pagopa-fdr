@@ -36,10 +36,66 @@ public class BaseUnitTestHelper {
     return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
   }
 
+  protected static String MALFORMED_JSON = """
+      {
+        12345
+      }
+      """;
+
   protected static String FLOW_TEMPLATE =
       """
       {
         "reportingFlowName": "%s",
+        "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
+        "sender": {
+          "type": "%s",
+          "id": "SELBIT2B",
+          "pspId": "%s",
+          "pspName": "Bank",
+          "brokerId": "%s",
+          "channelId": "%s",
+          "password": "1234567890"
+        },
+        "receiver": {
+          "id": "APPBIT2B",
+          "ecId": "%s",
+          "ecName": "Comune di xyz"
+        },
+        "regulation": "SEPA - Bonifico xzy",
+        "regulationDate": "2023-04-03T12:00:30.900000Z",
+        "bicCodePouringBank": "UNCRITMMXXX"
+      }
+      """;
+
+  protected static String FLOW_TEMPLATE_WRONG_INSTANT =
+      """
+      {
+        "reportingFlowName": "%s",
+        "reportingFlowDate": "%s",
+        "sender": {
+          "type": "%s",
+          "id": "SELBIT2B",
+          "pspId": "%s",
+          "pspName": "Bank",
+          "brokerId": "%s",
+          "channelId": "%s",
+          "password": "1234567890"
+        },
+        "receiver": {
+          "id": "APPBIT2B",
+          "ecId": "%s",
+          "ecName": "Comune di xyz"
+        },
+        "regulation": "SEPA - Bonifico xzy",
+        "regulationDate": "2023-04-03T12:00:30.900000Z",
+        "bicCodePouringBank": "UNCRITMMXXX"
+      }
+      """;
+
+  protected static String FLOW_TEMPLATE_WRONG_FIELDS =
+      """
+      {
+        "flowName": "%s",
         "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
         "sender": {
           "type": "%s",
@@ -90,6 +146,35 @@ public class BaseUnitTestHelper {
       }
       """;
 
+  protected static String PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE =
+      """
+      {
+        "payments": [{
+            "iuv": "a",
+            "iur": "abcdefg",
+            "index": 1,
+            "pay": "%s",
+            "payStatus": "EXECUTED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          }
+        ]
+      }
+      """;
+
+  protected static String PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE =
+      """
+      {
+        "payments": {
+            "iuv": "a",
+            "iur": "abcdefg",
+            "index": 1,
+            "pay": "%s",
+            "payStatus": "EXECUTED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          }
+      }
+      """;
+
   protected static String PAYMENTS_SAME_INDEX_ADD_TEMPLATE =
       """
       {
@@ -133,6 +218,16 @@ public class BaseUnitTestHelper {
             1,
             2,
             3
+        ]
+      }
+      """;
+
+  protected static String PAYMENTS_DELETE_PARTIAL_TEMPLATE =
+      """
+      {
+        "indexPayments": [
+            1,
+            2
         ]
       }
       """;

@@ -38,7 +38,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL = "/organizations/%s/flows/%s/psps/%s/payments";
   private static final String CHANGE_READ_FLAG_URL = "/organizations/%s/flows/%s/psps/%s/read";
 
-  private static String responseAllPublishedFlows = """
+  private static String RESPONSE_ALL_PUBLISHED_FLOWS = """
       {
           "metadata": {
               "pageSize": 50,
@@ -54,7 +54,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
           ]
       }""";
 
-  private static String responseAllPublishedFlowsNoResult = """
+  private static String RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT = """
       {
         "metadata" : {
           "pageSize" : 50,
@@ -66,7 +66,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
       }
     """;
 
-  private static String responsePublishedFlow = """
+  private static String RESPONSE_PUBLISHED_FLOW = """
       {
          "status":"%s",
          "revision":1,
@@ -96,7 +96,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
       }
       """;
 
-  private static String responseGetReportingFlowPayments = """
+  private static String RESPONSE_GET_REPORTING_FLOW_PAYMENTS = """
       {
         "metadata" : {
           "pageSize" : 50,
@@ -128,7 +128,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
         } ]
       }""";
 
-  private static String changeReadFlagResponse =
+  private static String CHANGE_READ_FLAG_RESPONSE =
       """
       {
         "message":"Flow [%s] read"
@@ -143,7 +143,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
-    String responseFmt = prettyPrint(responseAllPublishedFlows.formatted(flowName,
+    String responseFmt = prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS.formatted(flowName,
         PSP_CODE), GetAllResponse.class);
     String res = prettyPrint(given()
         .header(HEADER)
@@ -163,7 +163,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
-    String responseFmt = prettyPrint(responseAllPublishedFlowsNoResult, GetAllResponse.class);
+    String responseFmt = prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT, GetAllResponse.class);
     String res = prettyPrint(given()
         .header(HEADER)
         .when()
@@ -363,7 +363,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
         .statusCode(200)
         .extract()
         .as(GetPaymentResponse.class));
-    assertThat(res, equalTo(responseGetReportingFlowPayments));
+    assertThat(res, equalTo(RESPONSE_GET_REPORTING_FLOW_PAYMENTS));
   }
 
   /** ################# changeReadFlag ############### */
@@ -374,7 +374,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String url = CHANGE_READ_FLAG_URL.formatted(EC_CODE, flowName, PSP_CODE);
-    String responseFmt = prettyPrint(changeReadFlagResponse.formatted(flowName), GenericResponse.class);
+    String responseFmt = prettyPrint(CHANGE_READ_FLAG_RESPONSE.formatted(flowName), GenericResponse.class);
     String res = prettyPrint(given()
         .header(HEADER)
         .when()
