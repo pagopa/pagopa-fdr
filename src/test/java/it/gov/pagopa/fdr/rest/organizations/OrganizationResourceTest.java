@@ -66,36 +66,6 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
       }
     """;
 
-  private static String RESPONSE_PUBLISHED_FLOW = """
-      {
-         "status":"%s",
-         "revision":1,
-         "created":"2023-05-23T13:32:09.844Z",
-         "updated":"2023-05-23T13:32:12.457Z",
-         "reportingFlowName":"%s",
-         "reportingFlowDate":"2023-04-05T09:21:37.810Z",
-         "regulation":"SEPA - Bonifico xzy",
-         "regulationDate":"2023-04-03T12:00:30.900Z",
-         "bicCodePouringBank":"UNCRITMMXXX",
-         "sender":{
-            "type":"LEGAL_PERSON",
-            "id":"SELBIT2B",
-            "pspId":"%s",
-            "pspName":"Bank",
-            "brokerId":"intTest",
-            "channelId":"canaleTest",
-            "password":"1234567890"
-         },
-         "receiver":{
-            "id":"APPBIT2B",
-            "ecId":"%s",
-            "ecName":"Comune di xyz"
-         },
-         "totPayments":3,
-         "sumPayments":0.03
-      }
-      """;
-
   private static String RESPONSE_GET_REPORTING_FLOW_PAYMENTS = """
       {
         "metadata" : {
@@ -416,6 +386,32 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
         .extract()
         .as(ErrorResponse.class));
     assertThat(res, equalTo(responseFmt));
+  }
+
+  @Test
+  @Order(12)
+  @DisplayName("ORGANIZATIONS - OK - aggiornamento flow pubblicato alla revisione 2")
+  void test_psp_flow_revision_2_OK() {
+    String flowName = getFlowName();
+    pspSunnyDay(flowName);
+
+    pspSunnyDay(flowName);
+
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
+    GetIdResponse res = given()
+        .header(HEADER)
+        .when()
+        .get(url)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GetIdResponse.class);
+    assertThat(res.getReportingFlowName(), equalTo(flowName));
+    assertThat(res.getReceiver().getEcId(), equalTo(EC_CODE));
+    assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
+    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
+    assertThat(res.totPayments, equalTo(3L));
+    assertThat(res.revision, equalTo(2L));
   }
 
 }

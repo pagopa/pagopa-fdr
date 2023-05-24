@@ -155,7 +155,7 @@ class PspResourceTest extends BaseUnitTestHelper {
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e cancellazione del flusso con payments")
-  public void test_psp_deleteFlowWithPayment_OK() {
+  void test_psp_deleteFlowWithPayment_OK() {
     String flowName = getFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
@@ -203,7 +203,7 @@ class PspResourceTest extends BaseUnitTestHelper {
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e cancellazione dei payments")
-  public void test_psp_deletePayments_OK() {
+  void test_psp_deletePayments_OK() {
     String flowName = getFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
@@ -274,7 +274,7 @@ class PspResourceTest extends BaseUnitTestHelper {
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e cancellazione parziale dei payments")
-  public void test_psp_deletePayments_partial_OK() {
+  void test_psp_deletePayments_partial_OK() {
     String flowName = getFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
@@ -571,7 +571,7 @@ class PspResourceTest extends BaseUnitTestHelper {
 
   @Test
   @DisplayName("PSPS - KO FDR-0703 - reporting flow wrong action delete payments")
-  public void test_psp_payments_delete_KO_FDR0703() {
+  void test_psp_payments_delete_KO_FDR0703() {
     String flowName = getFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
