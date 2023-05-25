@@ -21,7 +21,8 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   REPORTING_FLOW_NOT_FOUND("0701", "reporting-flow.notFound", RestResponse.Status.NOT_FOUND),
   REPORTING_FLOW_ALREADY_EXIST(
       "0702", "reporting-flow.alreadyExist", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_WRONG_ACTION("0703", "reporting-flow.wrogAction", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_WRONG_ACTION(
+      "0703", "reporting-flow.wrongAction", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PSP_ID_NOT_MATCH(
       "0704", "reporting-flow.pspId.notMatch", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST(

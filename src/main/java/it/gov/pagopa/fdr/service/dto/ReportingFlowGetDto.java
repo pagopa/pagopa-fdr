@@ -1,27 +1,11 @@
 package it.gov.pagopa.fdr.service.dto;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Builder
-@Jacksonized
-@JsonPropertyOrder({
-  "status",
-  "revision",
-  "created",
-  "updated",
-  "reportingFlowName",
-  "reportingFlowDate",
-  "regulation",
-  "regulationDate",
-  "bicCodePouringBank",
-  "sender",
-  "receiver"
-})
 public class ReportingFlowGetDto {
 
   private Long revision;

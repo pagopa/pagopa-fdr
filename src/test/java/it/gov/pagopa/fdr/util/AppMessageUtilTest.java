@@ -6,10 +6,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class AppMessageUtilTest {
+class AppMessageUtilTest {
 
   @Test
-  public void resourceBundle() {
+  void resourceBundle() {
     String str = AppMessageUtil.getMessage("app.description");
     assertEquals("FDR - Flussi di rendicontazione", str);
   }
