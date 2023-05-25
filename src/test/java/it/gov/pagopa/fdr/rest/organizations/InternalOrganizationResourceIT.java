@@ -1,8 +1,9 @@
-package it.gov.pagopa.fdr.rest.info;
+package it.gov.pagopa.fdr.rest.organizations;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 @QuarkusIntegrationTest
-class InfoResourceIT extends InfoResourceTest {
+class InternalOrganizationResourceIT extends InternalOrganizationResourceTest {
   // Execute the same tests but in packaged mode.
+
 }

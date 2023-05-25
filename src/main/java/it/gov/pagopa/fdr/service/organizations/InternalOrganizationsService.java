@@ -1,6 +1,8 @@
 package it.gov.pagopa.fdr.service.organizations;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
+import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -31,9 +33,6 @@ public class InternalOrganizationsService {
   @Inject InternalOrganizationsServiceServiceMapper mapper;
 
   @Inject Logger log;
-
-  private static final String PSP_ID = "pspId";
-  private static final String FLOW_NAME = "flowName";
 
   @WithSpan(kind = SERVER)
   public ReportingFlowByIdEcDto findByInternals(long pageNumber, long pageSize) {
@@ -130,7 +129,7 @@ public class InternalOrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public void changeInternalReadFlag(String pspId, String reportingFlowName) {
+  public void changeInternalReadFlag(String reportingFlowName, String pspId) {
     log.debugf("Change read flag");
 
     Instant now = Instant.now();

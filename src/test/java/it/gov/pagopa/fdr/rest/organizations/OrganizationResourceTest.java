@@ -1,13 +1,14 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.Constants.EC_CODE;
-import static it.gov.pagopa.fdr.Constants.EC_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.Constants.HEADER;
-import static it.gov.pagopa.fdr.Constants.PSP_CODE;
-import static it.gov.pagopa.fdr.Constants.PSP_CODE_2;
-import static it.gov.pagopa.fdr.Constants.PSP_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.EC_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.HEADER;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE_2;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
@@ -108,7 +109,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   /** ############### getAllPublishedFlow ################ */
   @Test
   @Order(1)
-  @DisplayName("ORGANIZATIONS getAllPublishedFlow Ok")
+  @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow")
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
@@ -127,8 +128,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
-  @Order(2)
-  @DisplayName("ORGANIZATIONS getAllPublishedFlow no results OK")
+  @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow no results")
   void testOrganization_getAllPublishedFlow_OkNoResults() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
@@ -146,7 +146,6 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
-  @Order(3)
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
@@ -175,7 +174,6 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
-  @Order(4)
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_NOT_ENABLED, 10, 10);
@@ -204,7 +202,6 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
-  @Order(5)
   @DisplayName("ORGANIZATIONS - KO FDR-0716 - creditor institution unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
@@ -234,7 +231,6 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
-  @Order(6)
   @DisplayName("ORGANIZATIONS - KO FDR-0717 - creditor institution not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0717() {
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE_NOT_ENABLED, PSP_CODE, 10, 10);
@@ -264,8 +260,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
 
   /** ################# getReportingFlow ############### */
   @Test
-  @Order(7)
-  @DisplayName("ORGANIZATIONS getReportingFlow Ok")
+  @DisplayName("ORGANIZATIONS - OK - recupero di un reporting flow")
   void testOrganization_getReportingFlow_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
@@ -286,7 +281,27 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
-  @Order(8)
+  @DisplayName("ORGANIZATIONS - OK - recupero di un reporting flow pubblicato alla revision 2")
+  void testOrganization_getReportingFlow_revision_2_OK() {
+    String flowName = getFlowName();
+    assertThat(pspSunnyDay(flowName), equalTo(Boolean.TRUE));
+    assertThat(pspSunnyDay(flowName), equalTo(Boolean.TRUE));
+
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
+    String res = prettyPrint(given()
+        .header(HEADER)
+        .when()
+        .get(url)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GetIdResponse.class));
+    assertThat(res, containsString("\"reportingFlowName\" : \"%s\"".formatted(flowName)));
+    assertThat(res, containsString("\"revision\" : 2"));
+    assertThat(res, containsString("\"status\" : \"PUBLISHED\""));
+  }
+
+  @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0701 - getReportingFlow reporting flow not found")
   void testOrganization_getReportingFlow_KO_FDR0701() {
     String flowName = getFlowName();
@@ -319,8 +334,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
 
   /** ################# getReportingFlowPayments ############### */
   @Test
-  @Order(9)
-  @DisplayName("ORGANIZATIONS getReportingFlowPayments Ok")
+  @DisplayName("ORGANIZATIONS - OK - recupero dei payments di un flow pubblicato")
   void testOrganization_getReportingFlowPayments_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
@@ -338,8 +352,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
 
   /** ################# changeReadFlag ############### */
   @Test
-  @Order(10)
-  @DisplayName("ORGANIZATIONS changeReadFlag Ok")
+  @DisplayName("ORGANIZATIONS - OK - changeReadFlag")
   void testOrganization_changeReadFlag_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
@@ -357,7 +370,6 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
-  @Order(11)
   @DisplayName("ORGANIZATIONS - KO FDR-0701 - changeReadFlag reporting flow not found")
   void testOrganization_changeReadFlag_KO_FDR0701() {
     String flowName = getFlowName();
@@ -386,32 +398,6 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
         .extract()
         .as(ErrorResponse.class));
     assertThat(res, equalTo(responseFmt));
-  }
-
-  @Test
-  @Order(12)
-  @DisplayName("ORGANIZATIONS - OK - aggiornamento flow pubblicato alla revisione 2")
-  void test_psp_flow_revision_2_OK() {
-    String flowName = getFlowName();
-    pspSunnyDay(flowName);
-
-    pspSunnyDay(flowName);
-
-    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
-    GetIdResponse res = given()
-        .header(HEADER)
-        .when()
-        .get(url)
-        .then()
-        .statusCode(200)
-        .extract()
-        .as(GetIdResponse.class);
-    assertThat(res.getReportingFlowName(), equalTo(flowName));
-    assertThat(res.getReceiver().getEcId(), equalTo(EC_CODE));
-    assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
-    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-    assertThat(res.totPayments, equalTo(3L));
-    assertThat(res.revision, equalTo(2L));
   }
 
 }

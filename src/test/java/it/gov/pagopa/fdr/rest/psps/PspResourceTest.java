@@ -1,25 +1,25 @@
 package it.gov.pagopa.fdr.rest.psps;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.Constants.BROKER_CODE;
-import static it.gov.pagopa.fdr.Constants.BROKER_CODE_2;
-import static it.gov.pagopa.fdr.Constants.BROKER_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.Constants.CHANNEL_CODE;
-import static it.gov.pagopa.fdr.Constants.CHANNEL_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.Constants.EC_CODE;
-import static it.gov.pagopa.fdr.Constants.EC_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.Constants.FLOWS_DELETE_URL;
-import static it.gov.pagopa.fdr.Constants.FLOWS_PUBLISH_URL;
-import static it.gov.pagopa.fdr.Constants.FLOWS_URL;
-import static it.gov.pagopa.fdr.Constants.HEADER;
-import static it.gov.pagopa.fdr.Constants.PAYMENTS_ADD_URL;
-import static it.gov.pagopa.fdr.Constants.PAYMENTS_DELETE_URL;
-import static it.gov.pagopa.fdr.Constants.PSP_CODE;
-import static it.gov.pagopa.fdr.Constants.PSP_CODE_2;
-import static it.gov.pagopa.fdr.Constants.PSP_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.Constants.REPORTING_FLOW_NAME;
-import static it.gov.pagopa.fdr.Constants.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
-import static it.gov.pagopa.fdr.Constants.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.BROKER_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.BROKER_CODE_2;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.BROKER_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.CHANNEL_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.CHANNEL_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.EC_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.FLOWS_DELETE_URL;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.FLOWS_URL;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.HEADER;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PAYMENTS_DELETE_URL;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE_2;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.REPORTING_FLOW_NAME;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -43,16 +43,7 @@ class PspResourceTest extends BaseUnitTestHelper {
   @Test
   @DisplayName("PSPS - OK - inserimento completo e pubblicazione di un flusso")
   void test_psp_OK() {
-    pspSunnyDay(getFlowName());
-  }
-
-  @Test
-  @DisplayName("PSPS - OK - aggiornamento flow pubblicato alla revisione 2")
-  void test_psp_flow_revision_2_OK() {
-    String flowName = getFlowName();
-    pspSunnyDay(flowName);
-
-    pspSunnyDay(flowName);
+    assertThat(pspSunnyDay(getFlowName()), equalTo(Boolean.TRUE));
   }
 
   @Test

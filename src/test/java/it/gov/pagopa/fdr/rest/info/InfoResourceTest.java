@@ -7,12 +7,12 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class InfoResourceTest {
+class InfoResourceTest {
 
   String name = "pagopafdr";
 
   @Test
-  public void testInfoEndpoint2() {
+  void testInfoEndpoint2() {
     given().when().get("/info").then().statusCode(200).body("name", equalTo(name));
   }
 }
