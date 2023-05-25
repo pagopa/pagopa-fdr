@@ -39,22 +39,6 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL = "/organizations/%s/flows/%s/psps/%s/payments";
   private static final String CHANGE_READ_FLAG_URL = "/organizations/%s/flows/%s/psps/%s/read";
 
-  private static String RESPONSE_ALL_PUBLISHED_FLOWS = """
-      {
-          "metadata": {
-              "pageSize": 50,
-              "pageNumber": 1,
-              "totPage": 1
-          },
-          "count": 1,
-          "data": [
-              {
-                  "name": "%s",
-                  "pspId": "%s"
-              }
-          ]
-      }""";
-
   private static String RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT = """
       {
         "metadata" : {
@@ -115,6 +99,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
     pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
     String flowNameContained = "\"name\" : \"%s\"".formatted(flowName);
+    String pspIdContained = "\"pspId\" : \"%s\"".formatted(PSP_CODE);
     String res = prettyPrint(given()
         .header(HEADER)
         .when()
@@ -124,6 +109,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
         .extract()
         .as(GetAllResponse.class));
     assertThat(res, containsString(flowNameContained));
+    assertThat(res, containsString(pspIdContained));
   }
 
   @Test
