@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.service.psps;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.AppConstant.INDEXES;
 import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -108,7 +109,7 @@ public class PspsService {
     List<FdrPaymentInsertEntity> paymentIndexAlreadyExist =
         FdrPaymentInsertEntity.find(
                 "ref_fdr_reporting_flow_name = :flowName and index in :indexes",
-                Parameters.with(FLOW_NAME, reportingFlowName).and("indexes", indexList).map())
+                Parameters.with(FLOW_NAME, reportingFlowName).and(INDEXES, indexList).map())
             .project(FdrPaymentInsertEntity.class)
             .list();
 
@@ -180,7 +181,7 @@ public class PspsService {
     List<FdrPaymentInsertEntity> paymentToDelete =
         FdrPaymentInsertEntity.find(
                 "ref_fdr_reporting_flow_name = :flowName and index in :indexes",
-                Parameters.with(FLOW_NAME, reportingFlowName).and("indexes", indexList).map())
+                Parameters.with(FLOW_NAME, reportingFlowName).and(INDEXES, indexList).map())
             .project(FdrPaymentInsertEntity.class)
             .list();
     if (!paymentToDelete.stream()
@@ -193,7 +194,7 @@ public class PspsService {
 
     FdrPaymentInsertEntity.delete(
         "ref_fdr_reporting_flow_name = :flowName and index in :indexes",
-        Parameters.with(FLOW_NAME, reportingFlowName).and("indexes", indexList).map());
+        Parameters.with(FLOW_NAME, reportingFlowName).and(INDEXES, indexList).map());
 
     reportingFlowEntity.setTotPayments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
     reportingFlowEntity.setSumPayments(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
