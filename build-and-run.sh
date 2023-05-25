@@ -15,7 +15,8 @@ build () {
   echo "Build version [$version] [$conf]"
   #./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
   #docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
-  docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
+  docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf --build-arg ADAPTER_API_CONFIG_CACHE_URL=http://localhost:8080 --build-arg ADAPTER_API_CONFIG_CACHE_KEY=key -t $REPO:$version-$conf .
+
 }
 
 run () {
@@ -29,10 +30,12 @@ generate_openapi () {
   conf=$1
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Generate OpenAPI JSON [$version] [$conf]"
-  docker run -i -d --name exportopenapifdr --rm -p 8080:8080 $REPO:$version-$conf
+#  docker run -v $(pwd)/src/test/resources:/config -d --rm -p 9999:1080 mockserver/mockserver
+  docker run -i --name exportopenapifdr$conf --rm -p 8080:8080 --env ADAPTER_API_CONFIG_CACHE_URL=http://host.docker.internal:9999 $REPO:$version-$conf
   sleep 5
-  curl http://localhost:8080/q/openapi?format=json > openapi/openapi.json
-  docker rm -f exportopenapifdr
+  curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
+  exit 1
+  #docker rm -f exportopenapifdr$conf
 }
 
 test_curl () {
@@ -56,6 +59,8 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
   elif [ $action = "generate_openapi" ]; then
     build openapi
     generate_openapi openapi
+#    build openapi_internal
+#    generate_openapi openapi_internal
   else
     test_curl
   fi

@@ -11,8 +11,8 @@ import org.jboss.logging.Logger;
 @ApplicationScoped
 public class AppStartup {
 
-  @ConfigProperty(name = "quarkus.profile")
-  String profile;
+  @ConfigProperty(name = "startconfig.enabled")
+  boolean startconfig;
 
   @Inject Logger log;
 
@@ -20,11 +20,11 @@ public class AppStartup {
 
   @PostConstruct
   public void init() {
-    if ("openapi".equals(profile)) {
-      log.info("NOT START CONFIG CLASS");
-    } else {
+    if (startconfig) {
       log.info("START CONFIG CLASS");
       config.init();
+    } else {
+      log.info("NOT START CONFIG CLASS");
     }
   }
 }

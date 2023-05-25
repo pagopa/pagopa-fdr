@@ -11,7 +11,7 @@ ARG QUARKUS_PROFILE
 ARG APP_NAME
 ARG ADAPTER_API_CONFIG_CACHE_URL
 ARG ADAPTER_API_CONFIG_CACHE_KEY
-RUN ./mvnw package -Pnative -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Dadapter.api_config_cache.url=$ADAPTER_API_CONFIG_CACHE_URL -Dadapter.api_config_cache.api-key-value=$ADAPTER_API_CONFIG_CACHE_KEY
+RUN ./mvnw package -DskipTests=true -Pnative -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Dadapter.api_config_cache.url=$ADAPTER_API_CONFIG_CACHE_URL -Dadapter.api_config_cache.api-key-value=$ADAPTER_API_CONFIG_CACHE_KEY
 
 ## Stage 2 : create the docker final image
 FROM quay.io/quarkus/quarkus-micro-image:2.0
