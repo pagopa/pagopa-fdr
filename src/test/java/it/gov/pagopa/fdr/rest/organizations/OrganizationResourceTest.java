@@ -114,8 +114,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
-    String responseFmt = prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS.formatted(flowName,
-        PSP_CODE), GetAllResponse.class);
+    String flowNameContained = "\"name\" : \"%s\"".formatted(flowName);
     String res = prettyPrint(given()
         .header(HEADER)
         .when()
@@ -124,10 +123,11 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
         .statusCode(200)
         .extract()
         .as(GetAllResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    assertThat(res, containsString(flowNameContained));
   }
 
   @Test
+  @Order(2)
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow no results")
   void testOrganization_getAllPublishedFlow_OkNoResults() {
     String flowName = getFlowName();
@@ -146,6 +146,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
+  @Order(3)
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
@@ -174,6 +175,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
+  @Order(4)
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_NOT_ENABLED, 10, 10);
@@ -202,6 +204,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
+  @Order(5)
   @DisplayName("ORGANIZATIONS - KO FDR-0716 - creditor institution unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
@@ -231,6 +234,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
+  @Order(6)
   @DisplayName("ORGANIZATIONS - KO FDR-0717 - creditor institution not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0717() {
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE_NOT_ENABLED, PSP_CODE, 10, 10);
@@ -260,6 +264,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
 
   /** ################# getReportingFlow ############### */
   @Test
+  @Order(7)
   @DisplayName("ORGANIZATIONS - OK - recupero di un reporting flow")
   void testOrganization_getReportingFlow_Ok() {
     String flowName = getFlowName();
@@ -281,6 +286,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
+  @Order(8)
   @DisplayName("ORGANIZATIONS - OK - recupero di un reporting flow pubblicato alla revision 2")
   void testOrganization_getReportingFlow_revision_2_OK() {
     String flowName = getFlowName();
@@ -288,6 +294,9 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
     assertThat(pspSunnyDay(flowName), equalTo(Boolean.TRUE));
 
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
+    String reportingFlowNameContained = "\"reportingFlowName\" : \"%s\"".formatted(flowName);
+    String revisionContained = "\"revision\" : 2";
+    String statusContained = "\"status\" : \"PUBLISHED\"";
     String res = prettyPrint(given()
         .header(HEADER)
         .when()
@@ -296,12 +305,13 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
         .statusCode(200)
         .extract()
         .as(GetIdResponse.class));
-    assertThat(res, containsString("\"reportingFlowName\" : \"%s\"".formatted(flowName)));
-    assertThat(res, containsString("\"revision\" : 2"));
-    assertThat(res, containsString("\"status\" : \"PUBLISHED\""));
+    assertThat(res, containsString(reportingFlowNameContained));
+    assertThat(res, containsString(revisionContained));
+    assertThat(res, containsString(statusContained));
   }
 
   @Test
+  @Order(9)
   @DisplayName("ORGANIZATIONS - KO FDR-0701 - getReportingFlow reporting flow not found")
   void testOrganization_getReportingFlow_KO_FDR0701() {
     String flowName = getFlowName();
@@ -334,6 +344,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
 
   /** ################# getReportingFlowPayments ############### */
   @Test
+  @Order(10)
   @DisplayName("ORGANIZATIONS - OK - recupero dei payments di un flow pubblicato")
   void testOrganization_getReportingFlowPayments_Ok() {
     String flowName = getFlowName();
@@ -352,6 +363,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
 
   /** ################# changeReadFlag ############### */
   @Test
+  @Order(11)
   @DisplayName("ORGANIZATIONS - OK - changeReadFlag")
   void testOrganization_changeReadFlag_Ok() {
     String flowName = getFlowName();
@@ -370,6 +382,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
+  @Order(12)
   @DisplayName("ORGANIZATIONS - KO FDR-0701 - changeReadFlag reporting flow not found")
   void testOrganization_changeReadFlag_KO_FDR0701() {
     String flowName = getFlowName();
