@@ -1,17 +1,13 @@
-package it.gov.pagopa.fdr;
+package it.gov.pagopa.fdr.util;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.openapi.OASFilter;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.PathItem;
 
 public class NoInternalSchemaFilter implements OASFilter {
-
-  @ConfigProperty(name = "operations.filter")
-  String filter;
 
   @Override
   public void filterOpenAPI(OpenAPI openAPI) {
