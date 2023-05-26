@@ -1,6 +1,9 @@
 package it.gov.pagopa.fdr.service.organizations;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
+import static it.gov.pagopa.fdr.util.AppConstant.EC_ID;
+import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -31,10 +34,6 @@ public class OrganizationsService {
   @Inject OrganizationsServiceServiceMapper mapper;
 
   @Inject Logger log;
-
-  private static final String PSP_ID = "pspId";
-  private static final String EC_ID = "ecId";
-  private static final String FLOW_NAME = "flowName";
 
   @WithSpan(kind = SERVER)
   public ReportingFlowByIdEcDto findByIdEc(

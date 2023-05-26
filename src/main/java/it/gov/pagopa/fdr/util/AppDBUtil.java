@@ -6,9 +6,13 @@ import java.util.List;
 
 public class AppDBUtil {
 
+  private AppDBUtil() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static Sort getSort(List<String> sortColumn) {
     Sort sort = Sort.empty();
-    if (sortColumn != null && sortColumn.size() > 0) {
+    if (sortColumn != null && !sortColumn.isEmpty()) {
       sortColumn.stream()
           .filter(s -> s.replace(",", "").isBlank())
           .forEach(

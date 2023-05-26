@@ -1,8 +1,8 @@
-package it.gov.pagopa.fdr;
+package it.gov.pagopa.fdr.util;
 
 import io.restassured.http.Header;
 
-public class Constants {
+public class AppConstantTestHelper {
 
   public static final String FLOWS_URL = "/psps/%s/flows";
   public static final String FLOWS_PUBLISH_URL = "/psps/%s/flows/%s/publish";
