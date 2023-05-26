@@ -95,13 +95,13 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(ReportingFlowStatusEnumEntity.CREATED == reportingFlowEntity.getStatus()
-        || ReportingFlowStatusEnumEntity.INSERTED == reportingFlowEntity.getStatus())) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
-          reportingFlowName,
-          reportingFlowEntity.getStatus());
-    }
+    //    if (!(ReportingFlowStatusEnumEntity.CREATED == reportingFlowEntity.getStatus()
+    //        || ReportingFlowStatusEnumEntity.INSERTED == reportingFlowEntity.getStatus())) {
+    //      throw new AppException(
+    //          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+    //          reportingFlowName,
+    //          reportingFlowEntity.getStatus());
+    //    }
 
     // TODO revedere con iuv+iur
     List<Long> indexList = addPaymentDto.getPayments().stream().map(PaymentDto::getIndex).toList();
@@ -290,13 +290,13 @@ public class PspsService {
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
-    if (!(ReportingFlowStatusEnumEntity.CREATED == reportingFlowEntity.getStatus()
-        || ReportingFlowStatusEnumEntity.INSERTED == reportingFlowEntity.getStatus())) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
-          reportingFlowName,
-          reportingFlowEntity.getStatus());
-    }
+    //    if (!(ReportingFlowStatusEnumEntity.CREATED == reportingFlowEntity.getStatus()
+    //        || ReportingFlowStatusEnumEntity.INSERTED == reportingFlowEntity.getStatus())) {
+    //      throw new AppException(
+    //          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+    //          reportingFlowName,
+    //          reportingFlowEntity.getStatus());
+    //    }
 
     if (reportingFlowEntity.getTotPayments() > 0L) {
       FdrPaymentInsertEntity.delete(
