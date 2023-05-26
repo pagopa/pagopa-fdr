@@ -15,11 +15,7 @@ build () {
   echo "Build version [$version] [$conf]"
   #./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
   #docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
-  docker build -f src/main/docker/Dockerfile.jvm \
-  --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf \
-  --build-arg ADAPTER_API_CONFIG_CACHE_URL=http://localhost:8080 \
-  --build-arg ADAPTER_API_CONFIG_CACHE_KEY=$conf \
-  -t $REPO:$version-$conf .
+  docker build -f src/main/docker/Dockerfile.multistage --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf -t $REPO:$version-$conf .
 }
 
 run () {
@@ -35,7 +31,7 @@ generate_openapi () {
   echo "Generate OpenAPI JSON [$version] [$conf]"
   docker run -i -d --name exportopenapifdr --rm -p 8080:8080 $REPO:$version-$conf
   sleep 5
-  curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
+  curl http://localhost:8080/q/openapi?format=json > openapi/openapi.json
   docker rm -f exportopenapifdr
 }
 
@@ -49,7 +45,6 @@ test_curl () {
   curl localhost:8080/q/openapi
 }
 
-set -e
 if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; then
   if [ $action = "build" ]; then
     build docker
@@ -59,10 +54,25 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
     echo "###########"
     run docker
   elif [ $action = "generate_openapi" ]; then
-    build openapi
-    generate_openapi openapi
-    #build openapi_internal
-    #generate_openapi openapi_internal
+#    build openapi
+    export JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dadapter.api_config_cache.url="na" -Dadapter.api_config_cache.api-key-value="na""
+    ./mvnw package -DskipTests=true -Dquarkus.application.name=openapi -Dquarkus.profile=openapi
+    java -jar target/quarkus-app/quarkus-run.jar &
+    javapid=$!
+    echo $javapid
+    sleep 5
+    curl http://localhost:8080/q/openapi?format=json > openapi/openapi.json
+    kill -9 $javapid
+
+    ./mvnw package -DskipTests=true -Dquarkus.application.name=openapi_internal -Dquarkus.profile=openapi_internal
+    java -jar target/quarkus-app/quarkus-run.jar &
+    javapid=$!
+    echo $javapid
+    sleep 5
+    curl http://localhost:8080/q/openapi?format=json > openapi/openapi_internal.json
+    kill -9 $javapid
+
+#    generate_openapi openapi
   else
     test_curl
   fi

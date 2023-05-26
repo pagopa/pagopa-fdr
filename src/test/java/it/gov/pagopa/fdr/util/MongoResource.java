@@ -3,24 +3,24 @@ package it.gov.pagopa.fdr.util;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.SneakyThrows;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class MongoResource implements QuarkusTestResourceLifecycleManager {
 
-  private GenericContainer<?> mongo;
+  private GenericContainer mongo;
 
+  @SneakyThrows
   @Override
   public Map<String, String> start() {
-    mongo =
-        new GenericContainer<>("mongo")
-            .withExposedPorts(27017)
-            .withEnv("MONGO_INITDB_ROOT_USERNAME", "root")
-            .withEnv("MONGO_INITDB_ROOT_PASSWORD", "example");
+    mongo = new MongoDBContainer(DockerImageName.parse("mongo:latest")).withExposedPorts(27017);
     mongo.start();
     Map<String, String> conf = new HashMap<>();
     conf.put(
-        "%test.quarkus.mongodb.connection-string",
-        "mongodb://root:example@localhost:" + mongo.getMappedPort(27017));
+        "mockserver.mongodb.connection-string",
+        "mongodb://localhost:" + mongo.getMappedPort(27017));
     return conf;
   }
 
