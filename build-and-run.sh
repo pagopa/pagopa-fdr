@@ -61,8 +61,8 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
   elif [ $action = "generate_openapi" ]; then
     build openapi
     generate_openapi openapi
-    build openapi_internal
-    generate_openapi openapi_internal
+    #build openapi_internal
+    #generate_openapi openapi_internal
   else
     test_curl
   fi
