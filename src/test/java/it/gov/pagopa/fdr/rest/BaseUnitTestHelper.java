@@ -1,15 +1,15 @@
 package it.gov.pagopa.fdr.rest;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.Constants.BROKER_CODE;
-import static it.gov.pagopa.fdr.Constants.CHANNEL_CODE;
-import static it.gov.pagopa.fdr.Constants.EC_CODE;
-import static it.gov.pagopa.fdr.Constants.FLOWS_PUBLISH_URL;
-import static it.gov.pagopa.fdr.Constants.FLOWS_URL;
-import static it.gov.pagopa.fdr.Constants.HEADER;
-import static it.gov.pagopa.fdr.Constants.PAYMENTS_ADD_URL;
-import static it.gov.pagopa.fdr.Constants.PSP_CODE;
-import static it.gov.pagopa.fdr.Constants.REPORTING_FLOW_NAME;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.BROKER_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.CHANNEL_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.EC_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.FLOWS_URL;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.HEADER;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.util.AppConstantTestHelper.REPORTING_FLOW_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -282,7 +282,7 @@ public class BaseUnitTestHelper {
         + randomGenerator.nextInt(1111, 9999);
   }
 
-  protected void pspSunnyDay(String flowName) {
+  protected boolean pspSunnyDay(String flowName) {
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -339,5 +339,6 @@ public class BaseUnitTestHelper {
                 .body()
                 .as(GenericResponse.class));
     assertThat(res, equalTo(responseFmt));
+    return Boolean.TRUE;
   }
 }
