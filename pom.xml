@@ -17,6 +17,7 @@
     <quarkus.platform.version>3.0.1.Final</quarkus.platform.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
+    <sonar.exclusions>src/main/java/it/gov/pagopa/fdr/repository/fdr/*Entity.java</sonar.exclusions>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -128,6 +129,11 @@
       <version>1.18.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jacoco</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -184,10 +190,6 @@
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
-            <excludes>
-              <exclude>it.gov.pagopa.fdr.repository.fdr.model.*Entity.java</exclude>
-              <exclude>it.gov.pagopa.fdr.repository.fdr.*Entity.java</exclude>
-            </excludes>
           </systemPropertyVariables>
         </configuration>
       </plugin>
