@@ -87,6 +87,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jacoco</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
@@ -184,6 +189,10 @@
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
+            <excludes>
+              <exclude>it.gov.pagopa.fdr.repository.fdr.model.*Entity.java</exclude>
+              <exclude>it.gov.pagopa.fdr.repository.fdr.*Entity.java</exclude>
+            </excludes>
           </systemPropertyVariables>
         </configuration>
       </plugin>

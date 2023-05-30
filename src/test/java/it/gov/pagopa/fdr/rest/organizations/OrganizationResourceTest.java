@@ -347,9 +347,45 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
     assertThat(res, equalTo(RESPONSE_GET_REPORTING_FLOW_PAYMENTS));
   }
 
-  /** ################# changeReadFlag ############### */
   @Test
   @Order(11)
+  @DisplayName("ORGANIZATIONS - OK - recupero dei payments di un flow pubblicato con paginazione custom")
+  void testOrganization_getReportingFlowPayments_pagination_Ok() {
+    String flowName = getFlowName();
+    pspSunnyDay(flowName);
+    String url = (GET_REPORTING_FLOW_PAYMENTS_URL+"?page=2&size=1").formatted(EC_CODE, flowName, PSP_CODE);
+    String responseFmt = prettyPrint("""
+        {
+          "metadata" : {
+            "pageSize" : 1,
+            "pageNumber" : 2,
+            "totPage" : 3
+          },
+          "count" : 3,
+          "data" : [{
+            "iuv" : "b",
+            "iur" : "abcdefg",
+            "index" : 2,
+            "pay" : 0.01,
+            "payStatus" : "REVOKED",
+            "payDate" : "2023-02-03T12:00:30.900Z"
+          }]
+        }
+        """, GetPaymentResponse.class);
+    String res = prettyPrint(given()
+        .header(HEADER)
+        .when()
+        .get(url)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GetPaymentResponse.class));
+    assertThat(res, equalTo(responseFmt));
+  }
+
+  /** ################# changeReadFlag ############### */
+  @Test
+  @Order(12)
   @DisplayName("ORGANIZATIONS - OK - changeReadFlag")
   void testOrganization_changeReadFlag_Ok() {
     String flowName = getFlowName();
@@ -368,7 +404,7 @@ class OrganizationResourceTest extends BaseUnitTestHelper {
   }
 
   @Test
-  @Order(12)
+  @Order(13)
   @DisplayName("ORGANIZATIONS - KO FDR-0701 - changeReadFlag reporting flow not found")
   void testOrganization_changeReadFlag_KO_FDR0701() {
     String flowName = getFlowName();
