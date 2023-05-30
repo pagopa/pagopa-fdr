@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.util;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.openapi.OASFilter;
@@ -16,7 +17,7 @@ public class NoInternalSchemaFilter implements OASFilter {
     Map<String, PathItem> collect =
         openAPI.getPaths().getPathItems().entrySet().stream()
             .filter(d -> d.getKey().matches(profilefilter))
-            .collect(Collectors.toMap(r -> r.getKey(), r -> r.getValue()));
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     openAPI.getPaths().setPathItems(collect);
   }
 }

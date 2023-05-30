@@ -78,14 +78,12 @@ public class PspsValidationService {
     // check channel/psp
     boolean exist =
         configData.getPspChannelPaymentTypes().entrySet().stream()
-            .filter(
+            .anyMatch(
                 a -> {
                   PspChannelPaymentType value = a.getValue();
                   return value.getPspCode().equals(paymentServiceProvider.getPspCode())
                       && value.getChannelCode().equals(channel.getChannelCode());
-                })
-            .findAny()
-            .isPresent();
+                });
     if (!exist) {
       throw new AppException(AppErrorCodeMessageEnum.CHANNEL_PSP_WRONG_CONFIG, channelId, pspId);
     }
