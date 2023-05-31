@@ -117,7 +117,7 @@ public class PspsService {
     reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.INSERTED);
     reportingFlowEntity.update();
 
-    FdrPaymentInsertEntity.persist(
+    FdrPaymentInsertEntity.persistFdrPaymentsInsert(
         reportingFlowPaymentEntities.stream()
             .map(
                 reportingFlowPaymentEntity -> {
@@ -227,13 +227,13 @@ public class PspsService {
     fdrPublishEntity.persistEntity();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
-    FdrPaymentPublishEntity.persist(fdrPaymentPublishEntities);
+    FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
 
     FdrHistoryEntity fdrHistoryEntity = mapper.toFdrHistoryEntity(reportingFlowEntity);
     fdrHistoryEntity.persist();
     List<FdrPaymentHistoryEntity> fdrPaymentHistoryEntities =
         mapper.toFdrPaymentHistoryEntityList(paymentInsertEntities);
-    FdrPaymentHistoryEntity.persist(fdrPaymentHistoryEntities);
+    FdrPaymentHistoryEntity.persistFdrPaymentHistoryEntities(fdrPaymentHistoryEntities);
 
     reportingFlowEntity.delete();
     FdrPaymentInsertEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);

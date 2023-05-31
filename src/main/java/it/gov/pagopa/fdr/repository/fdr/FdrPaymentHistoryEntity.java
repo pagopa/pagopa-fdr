@@ -4,6 +4,7 @@ import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
 import java.time.Instant;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -40,4 +41,9 @@ public class FdrPaymentHistoryEntity extends PanacheMongoEntity {
 
   @BsonProperty("ref_fdr_reporting_sender_psp_id")
   private String refFdrReportingSenderPspId;
+
+  public static void persistFdrPaymentHistoryEntities(
+      List<FdrPaymentHistoryEntity> fdrPaymentHistoryEntities) {
+    persist(fdrPaymentHistoryEntities);
+  }
 }

@@ -81,4 +81,9 @@ public class FdrPaymentInsertEntity extends PanacheMongoEntity {
   public static long deleteByFlowName(String reportingFlowName) {
     return delete(BY_REFFLOWNAME, Parameters.with(FLOW_NAME, reportingFlowName).map());
   }
+
+  public static void persistFdrPaymentsInsert(
+      List<FdrPaymentInsertEntity> fdrPaymentInsertEntityList) {
+    persist(fdrPaymentInsertEntityList);
+  }
 }

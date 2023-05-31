@@ -12,6 +12,7 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
 import java.time.Instant;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -63,7 +64,8 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
         Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
   }
 
-  public void persistEntity() {
-    persist();
+  public static void persistFdrPaymentPublishEntities(
+      List<FdrPaymentPublishEntity> fdrPaymentPublishEntities) {
+    persist(fdrPaymentPublishEntities);
   }
 }
