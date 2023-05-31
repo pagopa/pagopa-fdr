@@ -65,6 +65,8 @@ stages:
               extraProperties: |
                 sonar.projectKey=$(SONARCLOUD_PROJECT_KEY)
                 sonar.projectName=$(SONARCLOUD_PROJECT_NAME)
+                sonar.java.coveragePlugin=jacoco
+                sonar.junit.reportsPath=target/jacoco-report/jacoco.xml
 
           - task: Maven@3
             displayName: 'Run Junit Test'
