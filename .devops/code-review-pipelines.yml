@@ -65,8 +65,8 @@ stages:
               extraProperties: |
                 sonar.projectKey=$(SONARCLOUD_PROJECT_KEY)
                 sonar.projectName=$(SONARCLOUD_PROJECT_NAME)
-                sonar.coverage.exclusions=**/config/*,**/*Mock*,**/model/**,**/entity/*
-                sonar.cpd.exclusions=**/model/**,**/entity/*
+                sonar.exclusions=src/main/java/it/gov/pagopa/fdr/**/*Entity.java,src/main/java/it/gov/pagopa/fdr/util/App*.java,src/main/java/it/gov/pagopa/fdr/**/model/*.java,src/main/java/it/gov/pagopa/fdr/**/projection/*.java
+                sonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml
 
           - task: Maven@3
             displayName: 'Run Junit Test'

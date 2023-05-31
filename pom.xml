@@ -17,7 +17,6 @@
     <quarkus.platform.version>3.0.1.Final</quarkus.platform.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
-    <sonar.exclusions>src/main/java/it/gov/pagopa/fdr/repository/fdr/*Entity.java</sonar.exclusions>
   </properties>
   <dependencyManagement>
     <dependencies>
