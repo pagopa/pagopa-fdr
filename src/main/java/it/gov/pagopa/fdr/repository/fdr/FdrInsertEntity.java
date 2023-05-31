@@ -1,7 +1,14 @@
 package it.gov.pagopa.fdr.repository.fdr;
 
+import static it.gov.pagopa.fdr.repository.fdr.QueryConstants.BY_FLOWNAME_AND_PSPID;
+import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
+
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
+import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
+import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.mongodb.panache.common.MongoEntity;
+import io.quarkus.panache.common.Parameters;
 import it.gov.pagopa.fdr.repository.fdr.model.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReportingFlowStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.SenderEntity;
@@ -51,4 +58,11 @@ public class FdrInsertEntity extends PanacheMongoEntity {
   private Boolean internalNdpRead;
 
   private Boolean read;
+
+  public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
+      String reportingFlowName, String pspId) {
+    return find(
+        BY_FLOWNAME_AND_PSPID,
+        Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
+  }
 }

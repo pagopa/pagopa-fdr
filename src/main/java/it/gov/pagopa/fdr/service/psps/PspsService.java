@@ -1,12 +1,8 @@
 package it.gov.pagopa.fdr.service.psps;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
-import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
-import static it.gov.pagopa.fdr.util.AppConstant.INDEXES;
-import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import io.quarkus.panache.common.Parameters;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
@@ -39,11 +35,6 @@ public class PspsService {
 
   @Inject Logger log;
 
-  private static final String FIND_BY_FLOWNAME_AND_PSPID =
-      "reporting_flow_name = :flowName and sender.psp_id = :pspId";
-  private static final String FIND_BY_REFFLOWNAME_AND_INDEXES =
-      "ref_fdr_reporting_flow_name = :flowName and index in :indexes";
-
   @WithSpan(kind = SERVER)
   public void save(ReportingFlowDto reportingFlowDto) {
     log.debugf("Save data on DB");
@@ -53,10 +44,7 @@ public class PspsService {
 
     // TODO rivedere index  con fdr+psp
     Optional<FdrInsertEntity> byReportingFlowName =
-        FdrInsertEntity.find(
-                FIND_BY_FLOWNAME_AND_PSPID,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
-            .firstResultOptional();
+        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId).firstResultOptional();
 
     if (byReportingFlowName.isPresent()) {
       throw new AppException(
@@ -66,9 +54,7 @@ public class PspsService {
     }
 
     Optional<FdrPublishRevisionProjection> fdrPublishedByReportingFlowName =
-        FdrPublishEntity.find(
-                FIND_BY_FLOWNAME_AND_PSPID,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
+        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrPublishRevisionProjection.class)
             .firstResultOptional();
 
@@ -93,9 +79,7 @@ public class PspsService {
     Instant now = Instant.now();
 
     FdrInsertEntity reportingFlowEntity =
-        FdrInsertEntity.find(
-                FIND_BY_FLOWNAME_AND_PSPID,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
+        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -112,9 +96,7 @@ public class PspsService {
     }
 
     List<FdrPaymentInsertEntity> paymentIndexAlreadyExist =
-        FdrPaymentInsertEntity.find(
-                FIND_BY_REFFLOWNAME_AND_INDEXES,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(INDEXES, indexList).map())
+        FdrPaymentInsertEntity.findByFlowNameAndIndexes(reportingFlowName, indexList)
             .project(FdrPaymentInsertEntity.class)
             .list();
 
@@ -158,9 +140,7 @@ public class PspsService {
     Instant now = Instant.now();
 
     FdrInsertEntity reportingFlowEntity =
-        FdrInsertEntity.find(
-                FIND_BY_FLOWNAME_AND_PSPID,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
+        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -184,9 +164,7 @@ public class PspsService {
     }
 
     List<FdrPaymentInsertEntity> paymentToDelete =
-        FdrPaymentInsertEntity.find(
-                FIND_BY_REFFLOWNAME_AND_INDEXES,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(INDEXES, indexList).map())
+        FdrPaymentInsertEntity.findByFlowNameAndIndexes(reportingFlowName, indexList)
             .project(FdrPaymentInsertEntity.class)
             .list();
     if (!paymentToDelete.stream()
@@ -197,9 +175,7 @@ public class PspsService {
           AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX, reportingFlowName);
     }
 
-    FdrPaymentInsertEntity.delete(
-        FIND_BY_REFFLOWNAME_AND_INDEXES,
-        Parameters.with(FLOW_NAME, reportingFlowName).and(INDEXES, indexList).map());
+    FdrPaymentInsertEntity.deleteByFlowNameAndIndexes(reportingFlowName, indexList);
 
     reportingFlowEntity.setTotPayments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
     reportingFlowEntity.setSumPayments(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
@@ -217,9 +193,7 @@ public class PspsService {
     Instant now = Instant.now();
 
     FdrInsertEntity reportingFlowEntity =
-        FdrInsertEntity.find(
-                FIND_BY_FLOWNAME_AND_PSPID,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
+        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -238,26 +212,19 @@ public class PspsService {
     reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.PUBLISHED);
 
     List<FdrPaymentInsertEntity> paymentInsertEntities =
-        FdrPaymentInsertEntity.find(
-                "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id ="
-                    + " :pspId",
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
+        FdrPaymentInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrPaymentInsertEntity.class)
             .list();
 
     if (reportingFlowEntity.getRevision() > 1L) {
-      FdrPublishEntity.delete(
-          FIND_BY_FLOWNAME_AND_PSPID,
-          Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
-      FdrPaymentPublishEntity.delete(
-          "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
-          Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
+      FdrPublishEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);
+      FdrPaymentPublishEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);
     }
 
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(reportingFlowEntity);
     fdrPublishEntity.setInternalNdpRead(Boolean.FALSE);
     fdrPublishEntity.setRead(Boolean.FALSE);
-    fdrPublishEntity.persist();
+    fdrPublishEntity.persistEntity();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
     FdrPaymentPublishEntity.persist(fdrPaymentPublishEntities);
@@ -269,9 +236,7 @@ public class PspsService {
     FdrPaymentHistoryEntity.persist(fdrPaymentHistoryEntities);
 
     reportingFlowEntity.delete();
-    FdrPaymentInsertEntity.delete(
-        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
-        Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
+    FdrPaymentInsertEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);
   }
 
   @WithSpan(kind = SERVER)
@@ -279,9 +244,7 @@ public class PspsService {
     log.debugf("Delete reporting flow");
 
     FdrInsertEntity reportingFlowEntity =
-        FdrInsertEntity.find(
-                FIND_BY_FLOWNAME_AND_PSPID,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
+        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -290,9 +253,7 @@ public class PspsService {
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
     if (reportingFlowEntity.getTotPayments() > 0L) {
-      FdrPaymentInsertEntity.delete(
-          "ref_fdr_reporting_flow_name = :flowName",
-          Parameters.with(FLOW_NAME, reportingFlowName).map());
+      FdrPaymentInsertEntity.deleteByFlowName(reportingFlowName);
     }
     reportingFlowEntity.delete();
   }

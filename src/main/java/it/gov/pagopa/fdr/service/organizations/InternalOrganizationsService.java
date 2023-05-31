@@ -1,13 +1,10 @@
 package it.gov.pagopa.fdr.service.organizations;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
-import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
-import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
-import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
@@ -42,10 +39,7 @@ public class InternalOrganizationsService {
     Sort sort = AppDBUtil.getSort(List.of("_id,asc"));
 
     PanacheQuery<FdrPublishEntity> reportingFlowPanacheQuery =
-        FdrPublishEntity.find(
-            "receiver.internal_ndp_read = :internalRead",
-            sort,
-            Parameters.with("internalRead", Boolean.TRUE).map());
+        FdrPublishEntity.findByInternalRead(Boolean.TRUE, sort);
 
     PanacheQuery<FdrPublishReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
         reportingFlowPanacheQuery.page(page).project(FdrPublishReportingFlowNameProjection.class);
@@ -82,9 +76,7 @@ public class InternalOrganizationsService {
     log.debugf("Get data from DB");
 
     FdrPublishEntity reportingFlowEntity =
-        FdrPublishEntity.find(
-                "reporting_flow_name = :%s and sender.psp_id = :%s".formatted(FLOW_NAME, PSP_ID),
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
+        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -104,12 +96,7 @@ public class InternalOrganizationsService {
     Sort sort = AppDBUtil.getSort(List.of("index,asc"));
 
     PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
-        FdrPaymentPublishEntity.find(
-                "ref_fdr_reporting_flow_name = :%s and sender.psp_id = :%s"
-                    .formatted(FLOW_NAME, PSP_ID),
-                sort,
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
-            .page(page);
+        FdrPaymentPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId, sort).page(page);
 
     List<FdrPaymentPublishEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
 
@@ -134,9 +121,7 @@ public class InternalOrganizationsService {
 
     Instant now = Instant.now();
     FdrPublishEntity reportingFlowEntity =
-        FdrPublishEntity.find(
-                "reporting_flow_name = :%s and sender.psp_id = :%s".formatted(FLOW_NAME, PSP_ID),
-                Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map())
+        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(
