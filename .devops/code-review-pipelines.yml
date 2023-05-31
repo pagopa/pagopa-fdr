@@ -65,7 +65,6 @@ stages:
               extraProperties: |
                 sonar.projectKey=$(SONARCLOUD_PROJECT_KEY)
                 sonar.projectName=$(SONARCLOUD_PROJECT_NAME)
-                sonar.exclusions=src/main/java/it/gov/pagopa/fdr/**/*Entity.java,src/main/java/it/gov/pagopa/fdr/util/App*.java,src/main/java/it/gov/pagopa/fdr/**/model/*.java,src/main/java/it/gov/pagopa/fdr/**/projection/*.java
 
           - task: Maven@3
             displayName: 'Run Junit Test'

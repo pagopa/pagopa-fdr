@@ -17,6 +17,8 @@
     <quarkus.platform.version>3.0.1.Final</quarkus.platform.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
+    <sonar.exclusions>src/main/java/it/gov/pagopa/fdr/**/*Entity.java,src/main/java/it/gov/pagopa/fdr/util/App*.java,src/main/java/it/gov/pagopa/fdr/**/model/*.java,src/main/java/it/gov/pagopa/fdr/**/projection/*.java</sonar.exclusions>
+    <sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
   <dependencyManagement>
     <dependencies>
