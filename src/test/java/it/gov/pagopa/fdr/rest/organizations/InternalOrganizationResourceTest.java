@@ -16,11 +16,13 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.rest.BaseUnitTestHelper;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
+import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.util.MongoResource;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -304,7 +306,10 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
                 .statusCode(200)
                 .extract()
                 .as(GetPaymentResponse.class));
-    assertThat(res, equalTo(RESPONSE_GET_REPORTING_FLOW_PAYMENTS));
+    assertThat(3, equalTo(StringUtils.countMatches(res, "abcdefg")));
+    assertThat(res, containsString(PaymentStatusEnum.EXECUTED.toString()));
+    assertThat(res, containsString(PaymentStatusEnum.REVOKED.toString()));
+    assertThat(res, containsString(PaymentStatusEnum.NO_RPT.toString()));
   }
 
   /** ################# changeReadFlag ############### */

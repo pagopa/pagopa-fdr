@@ -28,7 +28,7 @@ public class BaseUnitTestHelper {
   @SneakyThrows
   public <T> String prettyPrint(String json, Class<T> clazz) {
     T obj = mapper.readValue(json, clazz);
-    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj).replaceAll("\\r","");
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj).replaceAll("\\r", "");
   }
 
   @SneakyThrows

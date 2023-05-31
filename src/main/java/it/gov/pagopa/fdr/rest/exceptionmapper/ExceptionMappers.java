@@ -264,7 +264,7 @@ public class ExceptionMappers {
                                 .message(
                                     AppMessageUtil.getMessage(constraintViolation.getMessage()))
                                 .build())
-                    .collect(Collectors.toList()))
+                    .toList())
             .build());
   }
 }
