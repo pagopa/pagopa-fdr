@@ -18,6 +18,8 @@ import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
+import it.gov.pagopa.fdr.service.queue.ConversionQueue;
+import it.gov.pagopa.fdr.service.queue.message.FlowMessage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
@@ -34,6 +36,8 @@ public class PspsService {
   @Inject PspsServiceServiceMapper mapper;
 
   @Inject Logger log;
+
+  @Inject ConversionQueue conversionQueue;
 
   @WithSpan(kind = SERVER)
   public void save(ReportingFlowDto reportingFlowDto) {
@@ -237,6 +241,13 @@ public class PspsService {
 
     reportingFlowEntity.delete();
     FdrPaymentInsertEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);
+
+    conversionQueue.addQueueFlowMessage(
+        FlowMessage.builder()
+            .name(reportingFlowEntity.getReportingFlowName())
+            .pspId(reportingFlowEntity.getSender().getPspId())
+            .retry(0L)
+            .build());
   }
 
   @WithSpan(kind = SERVER)
