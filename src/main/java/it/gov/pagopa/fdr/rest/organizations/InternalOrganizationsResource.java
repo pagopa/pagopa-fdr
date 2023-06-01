@@ -3,13 +3,14 @@ package it.gov.pagopa.fdr.rest.organizations;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.InternalOrganizationsValidationService;
 import it.gov.pagopa.fdr.service.organizations.InternalOrganizationsService;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -26,9 +27,10 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
+import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 @Tag(name = "Internal Organizations", description = "Get reporting flow operations")
-@Path("/internal/organizations/ndp/flows")
+@Path("/internal/history/organizations/ndp/flows")
 @Consumes("application/json")
 @Produces("application/json")
 public class InternalOrganizationsResource {
@@ -56,20 +58,26 @@ public class InternalOrganizationsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetAllResponse.class)))
+                    schema = @Schema(implementation = GetAllInternalResponse.class)))
       })
   @GET
-  public GetAllResponse getAllPublishedFlow(
+  public GetAllInternalResponse getAllPublishedFlow(
+      @QueryParam("flowName") @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String flowName,
+      @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
 
     log.infof(
-        "Get id of reporting flow by for ndp - page: [%s], pageSize: [%s]", pageNumber, pageSize);
+        "Get id of reporting flow, idPsp [%s] , flowName [%s] - page: [%s], pageSize: [%s]",
+        idPsp, flowName, pageNumber, pageSize);
 
+    ConfigDataV1 configData = config.getClonedCache();
     // validation
+    internalValidator.validateGetAllInternal(idPsp, configData);
 
     // get from db
-    return mapper.toGetAllResponse(internalService.findByInternals(pageNumber, pageSize));
+    return mapper.toGetAllInternalResponse(
+        internalService.findByInternals(flowName, idPsp, pageNumber, pageSize));
   }
 
   @Operation(
@@ -89,9 +97,9 @@ public class InternalOrganizationsResource {
                     schema = @Schema(implementation = GetIdResponse.class)))
       })
   @GET
-  @Path("/{fdr}/psps/{psp}")
+  @Path("/{fdr}/rev/{rev}/psps/{psp}")
   public GetIdResponse getReportingFlow(
-      @PathParam("fdr") String fdr, @PathParam("psp") String psp) {
+      @PathParam("fdr") String fdr, @PathParam("rev") String rev, @PathParam("psp") String psp) {
     log.infof("Get reporting flow by reportingFlowName [%s] for ndp", fdr);
 
     // validation

@@ -6,11 +6,17 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
+import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 @ApplicationScoped
 public class InternalOrganizationsValidationService {
 
   @Inject Logger log;
+
+  @WithSpan(kind = SERVER)
+  public void validateGetAllInternal(String pspId, ConfigDataV1 configData) {
+    log.debug("Validate get all");
+  }
 
   @WithSpan(kind = SERVER)
   public void validateGetInternal(String fdr) {

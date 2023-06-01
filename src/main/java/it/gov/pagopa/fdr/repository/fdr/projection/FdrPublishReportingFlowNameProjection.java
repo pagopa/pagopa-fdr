@@ -13,4 +13,6 @@ public class FdrPublishReportingFlowNameProjection {
   private String reportingFlowName;
 
   private Sender sender;
+
+  private Long revision;
 }
