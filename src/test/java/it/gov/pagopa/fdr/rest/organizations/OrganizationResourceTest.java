@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.equalTo;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import it.gov.pagopa.fdr.rest.BaseUnitTestHelper;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;

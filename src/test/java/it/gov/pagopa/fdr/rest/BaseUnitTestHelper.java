@@ -14,6 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import jakarta.inject.Inject;
@@ -23,7 +24,9 @@ import lombok.SneakyThrows;
 
 public class BaseUnitTestHelper {
 
-  @Inject ObjectMapper mapper;
+  ObjectMapper mapper = new ObjectMapper()
+      .findAndRegisterModules()
+      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
   @SneakyThrows
   public <T> String prettyPrint(String json, Class<T> clazz) {
