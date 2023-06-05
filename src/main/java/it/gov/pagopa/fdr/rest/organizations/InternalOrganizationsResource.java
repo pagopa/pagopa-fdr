@@ -99,14 +99,14 @@ public class InternalOrganizationsResource {
   @GET
   @Path("/{fdr}/rev/{rev}/psps/{psp}")
   public GetIdResponse getReportingFlow(
-      @PathParam("fdr") String fdr, @PathParam("rev") String rev, @PathParam("psp") String psp) {
+      @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
     log.infof("Get reporting flow by reportingFlowName [%s] for ndp", fdr);
 
     // validation
     internalValidator.validateGetInternal(fdr);
 
     // get from db
-    return mapper.toGetIdResponse(internalService.findByReportingFlowNameInternals(fdr, psp));
+    return mapper.toGetIdResponse(internalService.findByReportingFlowNameInternals(fdr, rev, psp));
   }
 
   @Operation(
@@ -126,9 +126,10 @@ public class InternalOrganizationsResource {
                     schema = @Schema(implementation = GetPaymentResponse.class)))
       })
   @GET
-  @Path("/{fdr}/psps/{psp}/payments")
+  @Path("/{fdr}/rev/{rev}/psps/{psp}/payments")
   public GetPaymentResponse getReportingFlowPayments(
       @PathParam("fdr") String fdr,
+      @PathParam("rev") Long rev,
       @PathParam("psp") String psp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
@@ -141,7 +142,8 @@ public class InternalOrganizationsResource {
 
     // get from db
     return mapper.toGetPaymentResponse(
-        internalService.findPaymentByReportingFlowNameInternals(fdr, psp, pageNumber, pageSize));
+        internalService.findPaymentByReportingFlowNameInternals(
+            fdr, rev, psp, pageNumber, pageSize));
   }
 
   @Operation(
@@ -161,16 +163,16 @@ public class InternalOrganizationsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @PUT
-  @Path("/{fdr}/psps/{psp}/read")
+  @Path("/{fdr}/rev/{rev}/psps/{psp}/read")
   public GenericResponse changeInternalReadFlag(
-      @PathParam("fdr") String fdr, @PathParam("psp") String psp) {
+      @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
     log.infof("Get payment of reporting flow by id [%s]", fdr);
 
     // validation
     internalValidator.validateChangeInternalReadFlag(fdr);
 
     // change on DB
-    internalService.changeInternalReadFlag(fdr, psp);
+    internalService.changeInternalReadFlag(fdr, rev, psp);
 
     // get from db
     return GenericResponse.builder().message(String.format("Flow [%s] internal read", fdr)).build();

@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.service.organizations.mapper;
 
+import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
@@ -23,9 +25,15 @@ public interface InternalOrganizationsServiceServiceMapper {
   //  @Mapping(source = "sum_paymnents", target = "sumPayments")
   ReportingFlowGetDto toReportingFlowGetDto(FdrPublishEntity reportingFlow);
 
+  ReportingFlowGetDto toReportingFlowGetDto(FdrHistoryEntity reportingFlow);
+
   //  @Mapping(source = "pay_status", target = "payStatus")
   //  @Mapping(source = "pay_date", target = "payDate")
   PaymentDto toPagamentoDto(FdrPaymentPublishEntity paymentEntity);
 
   List<PaymentDto> toPagamentoDtos(List<FdrPaymentPublishEntity> paymentEntities);
+
+  PaymentDto historyToPagamentoDto(FdrPaymentHistoryEntity paymentEntity);
+
+  List<PaymentDto> historyToPagamentoDtos(List<FdrPaymentHistoryEntity> paymentEntities);
 }

@@ -132,6 +132,7 @@ public class PspsService {
                       reportingFlowEntity.getReportingFlowName());
                   reportingFlowPaymentEntity.setRefFdrReportingSenderPspId(
                       reportingFlowEntity.getSender().getPspId());
+                  reportingFlowPaymentEntity.setRefFdrRevision(reportingFlowEntity.getRevision());
                   return reportingFlowPaymentEntity;
                 })
             .toList());

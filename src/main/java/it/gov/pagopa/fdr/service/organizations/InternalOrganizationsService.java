@@ -10,9 +10,8 @@ import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishReportingFlowNameProjection;
+import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
+import it.gov.pagopa.fdr.repository.fdr.projection.FdrHistoryReportingFlowNameProjection;
 import it.gov.pagopa.fdr.service.dto.FlowInternalDto;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
@@ -61,10 +60,10 @@ public class InternalOrganizationsService {
           FdrHistoryEntity.find(String.join(" and ", queryAnd), sort, parameters);
     }
 
-    PanacheQuery<FdrPublishReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
-        reportingFlowPanacheQuery.page(page).project(FdrPublishReportingFlowNameProjection.class);
+    PanacheQuery<FdrHistoryReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
+        reportingFlowPanacheQuery.page(page).project(FdrHistoryReportingFlowNameProjection.class);
 
-    List<FdrPublishReportingFlowNameProjection> reportingFlowIds =
+    List<FdrHistoryReportingFlowNameProjection> reportingFlowIds =
         reportingFlowNameProjectionPanacheQuery.list();
 
     long totPage = reportingFlowNameProjectionPanacheQuery.pageCount();
@@ -93,12 +92,12 @@ public class InternalOrganizationsService {
 
   @WithSpan(kind = SERVER)
   public ReportingFlowGetDto findByReportingFlowNameInternals(
-      String reportingFlowName, String pspId) {
+      String reportingFlowName, Long rev, String pspId) {
     log.debugf("Get data from DB");
 
-    FdrPublishEntity reportingFlowEntity =
-        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
-            .project(FdrPublishEntity.class)
+    FdrHistoryEntity reportingFlowEntity =
+        FdrHistoryEntity.findByFlowNameAndPspId(reportingFlowName, rev, pspId)
+            .project(FdrHistoryEntity.class)
             .firstResultOptional()
             .orElseThrow(
                 () ->
@@ -110,16 +109,17 @@ public class InternalOrganizationsService {
 
   @WithSpan(kind = SERVER)
   public ReportingFlowGetPaymentDto findPaymentByReportingFlowNameInternals(
-      String reportingFlowName, String pspId, long pageNumber, long pageSize) {
+      String reportingFlowName, Long rev, String pspId, long pageNumber, long pageSize) {
     log.debugf("Get data from DB");
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = AppDBUtil.getSort(List.of("index,asc"));
 
-    PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
-        FdrPaymentPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId, sort).page(page);
+    PanacheQuery<FdrPaymentHistoryEntity> reportingFlowPaymentEntityPanacheQuery =
+        FdrPaymentHistoryEntity.findByFlowNameAndPspId(reportingFlowName, rev, pspId, sort)
+            .page(page);
 
-    List<FdrPaymentPublishEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
+    List<FdrPaymentHistoryEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
 
     long totPage = reportingFlowPaymentEntityPanacheQuery.pageCount();
     long countReportingFlowPayment = reportingFlowPaymentEntityPanacheQuery.count();
@@ -132,18 +132,18 @@ public class InternalOrganizationsService {
                 .totPage(totPage)
                 .build())
         .count(countReportingFlowPayment)
-        .data(mapper.toPagamentoDtos(list))
+        .data(mapper.historyToPagamentoDtos(list))
         .build();
   }
 
   @WithSpan(kind = SERVER)
-  public void changeInternalReadFlag(String reportingFlowName, String pspId) {
+  public void changeInternalReadFlag(String reportingFlowName, Long rev, String pspId) {
     log.debugf("Change read flag");
 
     Instant now = Instant.now();
-    FdrPublishEntity reportingFlowEntity =
-        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
-            .project(FdrPublishEntity.class)
+    FdrHistoryEntity reportingFlowEntity =
+        FdrHistoryEntity.findByFlowNameAndPspId(reportingFlowName, rev, pspId)
+            .project(FdrHistoryEntity.class)
             .firstResultOptional()
             .orElseThrow(
                 () ->
