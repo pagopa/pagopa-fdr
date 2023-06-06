@@ -27,11 +27,11 @@ public class ConversionQueue {
 
   @SneakyThrows
   public void init() {
-    QueueClient queue =
+    QueueClient queueClient =
         new QueueClientBuilder().connectionString(connectStr).queueName(queueName).buildClient();
 
     log.debugf("Queue conversion init. Queue name [%s]", queueName);
-    this.queue = queue;
+    this.queue = queueClient;
   }
 
   @SneakyThrows
