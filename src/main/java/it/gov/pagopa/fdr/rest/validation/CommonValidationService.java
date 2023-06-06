@@ -3,10 +3,8 @@ package it.gov.pagopa.fdr.rest.validation;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.util.Optional;
-import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.BrokerPsp;
 import org.openapi.quarkus.api_config_cache_json.model.Channel;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
@@ -16,8 +14,6 @@ import org.openapi.quarkus.api_config_cache_json.model.PspChannelPaymentType;
 
 @ApplicationScoped
 public class CommonValidationService {
-
-  @Inject Logger log;
 
   public void checkPspSender(String psp, String pspId, String reportingFlowName) {
     if (!psp.equals(pspId)) {
