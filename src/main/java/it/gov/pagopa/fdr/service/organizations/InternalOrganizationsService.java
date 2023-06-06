@@ -34,8 +34,7 @@ public class InternalOrganizationsService {
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowInternalDto findByInternals(
-      String flowName, String pspId, long pageNumber, long pageSize) {
+  public ReportingFlowInternalDto findByInternals(String pspId, long pageNumber, long pageSize) {
     log.debugf("Get all data from DB");
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
@@ -46,10 +45,6 @@ public class InternalOrganizationsService {
     if (pspId != null && !pspId.isBlank()) {
       queryAnd.add("sender.psp_id = :pspId");
       parameters.and("pspId", pspId);
-    }
-    if (flowName != null && !flowName.isBlank()) {
-      queryAnd.add("reporting_flow_name = :flowName");
-      parameters.and("flowName", flowName);
     }
 
     PanacheQuery<FdrHistoryEntity> reportingFlowPanacheQuery;
@@ -96,7 +91,7 @@ public class InternalOrganizationsService {
     log.debugf("Get data from DB");
 
     FdrHistoryEntity reportingFlowEntity =
-        FdrHistoryEntity.findByFlowNameAndPspId(reportingFlowName, rev, pspId)
+        FdrHistoryEntity.findByFlowNameAndRevAndPspId(reportingFlowName, rev, pspId)
             .project(FdrHistoryEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -116,7 +111,7 @@ public class InternalOrganizationsService {
     Sort sort = AppDBUtil.getSort(List.of("index,asc"));
 
     PanacheQuery<FdrPaymentHistoryEntity> reportingFlowPaymentEntityPanacheQuery =
-        FdrPaymentHistoryEntity.findByFlowNameAndPspId(reportingFlowName, rev, pspId, sort)
+        FdrPaymentHistoryEntity.findByFlowNameAndRevAndPspId(reportingFlowName, rev, pspId, sort)
             .page(page);
 
     List<FdrPaymentHistoryEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
@@ -142,7 +137,7 @@ public class InternalOrganizationsService {
 
     Instant now = Instant.now();
     FdrHistoryEntity reportingFlowEntity =
-        FdrHistoryEntity.findByFlowNameAndPspId(reportingFlowName, rev, pspId)
+        FdrHistoryEntity.findByFlowNameAndRevAndPspId(reportingFlowName, rev, pspId)
             .project(FdrHistoryEntity.class)
             .firstResultOptional()
             .orElseThrow(

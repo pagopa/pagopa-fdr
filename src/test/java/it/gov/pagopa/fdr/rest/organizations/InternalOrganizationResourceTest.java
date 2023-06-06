@@ -13,13 +13,12 @@ import static org.hamcrest.Matchers.equalTo;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import it.gov.pagopa.fdr.rest.BaseUnitTestHelper;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.util.MongoResource;
@@ -53,8 +52,14 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
             "pageNumber":1,
             "totPage":1
          },
-         "count":0,
-         "data":[]
+         "count":1,
+         "data":[
+            {
+              "name":"%s",
+              "pspId":"%s",
+              "revision":1
+            }
+         ]
       }
       """;
 
@@ -97,10 +102,11 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE);
     String responseFmt =
         prettyPrint(
-            RESPONSE_ALL_PUBLISHED_FLOWS.formatted(flowName, PSP_CODE), GetAllResponse.class);
+            RESPONSE_ALL_PUBLISHED_FLOWS.formatted(flowName, PSP_CODE),
+            GetAllInternalResponse.class);
     String res =
         prettyPrint(
             given()
@@ -110,7 +116,7 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(GetAllResponse.class));
+                .as(GetAllInternalResponse.class));
     assertThat(res, equalTo(responseFmt));
   }
 
@@ -120,7 +126,8 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
     String flowName = getFlowName();
     pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_2);
-    String responseFmt = prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT, GetAllResponse.class);
+    String responseFmt =
+        prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT, GetAllInternalResponse.class);
     String res =
         prettyPrint(
             given()
@@ -130,7 +137,7 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(GetAllResponse.class));
+                .as(GetAllInternalResponse.class));
     assertThat(res, equalTo(responseFmt));
   }
 
@@ -139,7 +146,20 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(pspUnknown, 10, 10);
-    String responseFmt = prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT, GetAllResponse.class);
+    String responseFmt =
+        prettyPrint(
+            """
+        {
+           "httpStatusCode":400,
+           "httpStatusDescription":"Bad Request",
+           "appErrorCode":"FDR-0708",
+           "errors":[
+              {
+                 "message":"Psp [PSP_UNKNOWN] unknown"
+              }
+           ]
+        }""",
+            ErrorResponse.class);
     String res =
         prettyPrint(
             given()
@@ -147,9 +167,9 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
                 .when()
                 .get(url)
                 .then()
-                .statusCode(200)
+                .statusCode(400)
                 .extract()
-                .as(GetAllResponse.class));
+                .as(ErrorResponse.class));
     assertThat(res, equalTo(responseFmt));
   }
 
@@ -157,7 +177,21 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_NOT_ENABLED, 10, 10);
-    String responseFmt = prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT, GetAllResponse.class);
+    String responseFmt =
+        prettyPrint(
+            """
+        {
+           "httpStatusCode":400,
+           "httpStatusDescription":"Bad Request",
+           "appErrorCode":"FDR-0709",
+           "errors":[
+              {
+                 "message":"Psp [pspNotEnabled] not enabled"
+              }
+           ]
+        }""",
+            ErrorResponse.class);
+
     String res =
         prettyPrint(
             given()
@@ -165,50 +199,11 @@ class InternalOrganizationResourceTest extends BaseUnitTestHelper {
                 .when()
                 .get(url)
                 .then()
-                .statusCode(200)
+                .statusCode(400)
                 .extract()
-                .as(GetAllResponse.class));
+                .as(ErrorResponse.class));
     assertThat(res, equalTo(responseFmt));
   }
-
-  //  @Test
-  //  @DisplayName("ORGANIZATIONS - KO FDR-0716 - creditor institution unknown")
-  //  void testOrganization_getAllPublishedFlow_KO_FDR0716() {
-  //    String ecUnknown = "EC_UNKNOWN";
-  //    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE, 10, 10);
-  //    String responseFmt = prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT,
-  // GetAllResponse.class);
-  //    String res =
-  //        prettyPrint(
-  //            given()
-  //                .header(HEADER)
-  //                .when()
-  //                .get(url)
-  //                .then()
-  //                .statusCode(200)
-  //                .extract()
-  //                .as(GetAllInternalResponse.class));
-  //    assertThat(res, equalTo(responseFmt));
-  //  }
-
-  //  @Test
-  //  @DisplayName("ORGANIZATIONS - KO FDR-0717 - creditor institution not enabled")
-  //  void testOrganization_getAllPublishedFlow_KO_FDR0717() {
-  //    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE, 10, 10);
-  //    String responseFmt = prettyPrint(RESPONSE_ALL_PUBLISHED_FLOWS_NO_RESULT,
-  // GetAllResponse.class);
-  //    String res =
-  //        prettyPrint(
-  //            given()
-  //                .header(HEADER)
-  //                .when()
-  //                .get(url)
-  //                .then()
-  //                .statusCode(200)
-  //                .extract()
-  //                .as(GetAllInternalResponse.class));
-  //    assertThat(res, equalTo(responseFmt));
-  //  }
 
   /** ################# getReportingFlow ############### */
   @Test

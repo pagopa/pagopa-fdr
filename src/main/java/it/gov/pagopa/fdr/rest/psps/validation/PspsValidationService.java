@@ -5,9 +5,7 @@ import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
-import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDate;
@@ -118,23 +116,138 @@ public class PspsValidationService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validateAddPayment(String psp, String fdr, AddPaymentRequest addPaymentRequest) {
+  public void validateAddPayment(String psp, String fdr, ConfigDataV1 configData) {
     log.debug("Validate add payment");
+
+    // check psp
+    if (!psp.equals(psp)) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH, fdr, psp, psp);
+    }
+
+    PaymentServiceProvider paymentServiceProvider =
+        Optional.ofNullable(configData.getPsps().get(psp))
+            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.PSP_UNKNOWN, psp));
+
+    if (paymentServiceProvider.getEnabled() == null || !paymentServiceProvider.getEnabled()) {
+      throw new AppException(AppErrorCodeMessageEnum.PSP_NOT_ENABLED, psp);
+    }
+
+    // check reportingFlowName format
+    String date = fdr.substring(0, 10);
+    try {
+      // default, ISO_LOCAL_DATE ("2016-08-16")
+      LocalDate.parse(date);
+    } catch (RuntimeException e) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, fdr);
+    }
+
+    String name = fdr.substring(10);
+    boolean nameWrongFromat = !name.startsWith(String.format("%s-", psp));
+    if (nameWrongFromat) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, fdr);
+    }
   }
 
   @WithSpan(kind = SERVER)
-  public void validateDeletePayment(
-      String psp, String fdr, DeletePaymentRequest deletePaymentRequest) {
+  public void validateDeletePayment(String psp, String fdr, ConfigDataV1 configData) {
     log.debug("Validate delete payment");
+
+    // check psp
+    if (!psp.equals(psp)) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH, fdr, psp, psp);
+    }
+
+    PaymentServiceProvider paymentServiceProvider =
+        Optional.ofNullable(configData.getPsps().get(psp))
+            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.PSP_UNKNOWN, psp));
+
+    if (paymentServiceProvider.getEnabled() == null || !paymentServiceProvider.getEnabled()) {
+      throw new AppException(AppErrorCodeMessageEnum.PSP_NOT_ENABLED, psp);
+    }
+
+    // check reportingFlowName format
+    String date = fdr.substring(0, 10);
+    try {
+      // default, ISO_LOCAL_DATE ("2016-08-16")
+      LocalDate.parse(date);
+    } catch (RuntimeException e) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, fdr);
+    }
+
+    String name = fdr.substring(10);
+    boolean nameWrongFromat = !name.startsWith(String.format("%s-", psp));
+    if (nameWrongFromat) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, fdr);
+    }
   }
 
   @WithSpan(kind = SERVER)
-  public void validatePublish(String psp, String fdr) {
+  public void validatePublish(String psp, String fdr, ConfigDataV1 configData) {
     log.debug("Validate publish");
+
+    // check psp
+    if (!psp.equals(psp)) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH, fdr, psp, psp);
+    }
+
+    PaymentServiceProvider paymentServiceProvider =
+        Optional.ofNullable(configData.getPsps().get(psp))
+            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.PSP_UNKNOWN, psp));
+
+    if (paymentServiceProvider.getEnabled() == null || !paymentServiceProvider.getEnabled()) {
+      throw new AppException(AppErrorCodeMessageEnum.PSP_NOT_ENABLED, psp);
+    }
+
+    // check reportingFlowName format
+    String date = fdr.substring(0, 10);
+    try {
+      // default, ISO_LOCAL_DATE ("2016-08-16")
+      LocalDate.parse(date);
+    } catch (RuntimeException e) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, fdr);
+    }
+
+    String name = fdr.substring(10);
+    boolean nameWrongFromat = !name.startsWith(String.format("%s-", psp));
+    if (nameWrongFromat) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, fdr);
+    }
   }
 
   @WithSpan(kind = SERVER)
-  public void validateDelete(String psp, String fdr) {
+  public void validateDelete(String psp, String fdr, ConfigDataV1 configData) {
     log.debug("Validate delete");
+
+    // check psp
+    if (!psp.equals(psp)) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH, fdr, psp, psp);
+    }
+
+    PaymentServiceProvider paymentServiceProvider =
+        Optional.ofNullable(configData.getPsps().get(psp))
+            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.PSP_UNKNOWN, psp));
+
+    if (paymentServiceProvider.getEnabled() == null || !paymentServiceProvider.getEnabled()) {
+      throw new AppException(AppErrorCodeMessageEnum.PSP_NOT_ENABLED, psp);
+    }
+
+    // check reportingFlowName format
+    String date = fdr.substring(0, 10);
+    try {
+      // default, ISO_LOCAL_DATE ("2016-08-16")
+      LocalDate.parse(date);
+    } catch (RuntimeException e) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, fdr);
+    }
+
+    String name = fdr.substring(10);
+    boolean nameWrongFromat = !name.startsWith(String.format("%s-", psp));
+    if (nameWrongFromat) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, fdr);
+    }
   }
 }

@@ -17,16 +17,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
-import jakarta.inject.Inject;
 import java.util.Random;
 import java.util.random.RandomGenerator;
 import lombok.SneakyThrows;
 
 public class BaseUnitTestHelper {
 
-  ObjectMapper mapper = new ObjectMapper()
-      .findAndRegisterModules()
-      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+  ObjectMapper mapper =
+      new ObjectMapper()
+          .findAndRegisterModules()
+          .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
   @SneakyThrows
   public <T> String prettyPrint(String json, Class<T> clazz) {

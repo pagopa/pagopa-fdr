@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.rest.exceptionmapper;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
@@ -17,12 +19,12 @@ import jakarta.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
+import org.slf4j.MDC;
 
 public class ExceptionMappers {
 
@@ -36,6 +38,7 @@ public class ExceptionMappers {
         instanceof JsonParseException jsonParseException) {
       return mapJsonParseException(jsonParseException).toResponse();
     }
+    MDC.clear();
     return webApplicationException.getResponse();
   }
 
@@ -44,6 +47,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
+    MDC.clear();
     return RestResponse.status(
         codeMessage.httpStatus(),
         ErrorResponse.builder()
@@ -69,6 +73,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
+    MDC.clear();
     return RestResponse.status(
         codeMessage.httpStatus(),
         ErrorResponse.builder()
@@ -93,6 +98,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
+    MDC.clear();
     return RestResponse.status(
         codeMessage.httpStatus(),
         ErrorResponse.builder()
@@ -160,6 +166,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
+    MDC.clear();
     return RestResponse.status(
         codeMessage.httpStatus(),
         ErrorResponse.builder()
@@ -192,6 +199,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
+    MDC.clear();
     return RestResponse.status(
         codeMessage.httpStatus(),
         ErrorResponse.builder()
@@ -208,18 +216,20 @@ public class ExceptionMappers {
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapUnexpectedTypeException(UnexpectedTypeException exception) {
+    MDC.clear();
     return mapThrowable(exception);
   }
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapThrowable(Throwable exception) {
-    String errorId = UUID.randomUUID().toString();
-    log.errorf(exception, "Exception not managed - errorId[%s]", errorId);
+    String errorId = MDC.get(TRX_ID);
+    log.errorf(exception, "Exception not managed");
 
     AppException appEx = new AppException(exception, AppErrorCodeMessageEnum.ERROR);
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
+    MDC.clear();
     return RestResponse.status(
         codeMessage.httpStatus(),
         ErrorResponse.builder()
@@ -244,6 +254,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
+    MDC.clear();
     return RestResponse.status(
         codeMessage.httpStatus(),
         ErrorResponse.builder()

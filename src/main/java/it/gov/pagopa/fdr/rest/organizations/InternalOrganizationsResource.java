@@ -1,5 +1,11 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.MDCKeys.NDP;
+import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
+
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
@@ -7,6 +13,9 @@ import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.InternalOrganizationsValidationService;
+import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
+import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
+import it.gov.pagopa.fdr.service.dto.ReportingFlowInternalDto;
 import it.gov.pagopa.fdr.service.organizations.InternalOrganizationsService;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Min;
@@ -20,6 +29,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -28,6 +38,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
+import org.slf4j.MDC;
 
 @Tag(name = "Internal Organizations", description = "Get reporting flow operations")
 @Path("/internal/history/organizations/ndp/flows")
@@ -62,22 +73,27 @@ public class InternalOrganizationsResource {
       })
   @GET
   public GetAllInternalResponse getAllPublishedFlow(
-      @QueryParam("flowName") @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String flowName,
       @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+    MDC.put(TRX_ID, UUID.randomUUID().toString());
+    MDC.put(EC_ID, NDP);
+    MDC.put(PSP_ID, idPsp);
 
     log.infof(
-        "Get id of reporting flow, idPsp [%s] , flowName [%s] - page: [%s], pageSize: [%s]",
-        idPsp, flowName, pageNumber, pageSize);
+        "Get reporting flows, idPsp [%s] , page: [%s], pageSize: [%s]",
+        idPsp, pageNumber, pageSize);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
     internalValidator.validateGetAllInternal(idPsp, configData);
 
     // get from db
-    return mapper.toGetAllInternalResponse(
-        internalService.findByInternals(flowName, idPsp, pageNumber, pageSize));
+    ReportingFlowInternalDto reportingFlowInternalDto =
+        internalService.findByInternals(idPsp, pageNumber, pageSize);
+
+    MDC.clear();
+    return mapper.toGetAllInternalResponse(reportingFlowInternalDto);
   }
 
   @Operation(
@@ -100,13 +116,23 @@ public class InternalOrganizationsResource {
   @Path("/{fdr}/rev/{rev}/psps/{psp}")
   public GetIdResponse getReportingFlow(
       @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
+    MDC.put(TRX_ID, UUID.randomUUID().toString());
+    MDC.put(EC_ID, NDP);
+    MDC.put(FLOW_NAME, fdr);
+    MDC.put(PSP_ID, psp);
+
     log.infof("Get reporting flow by reportingFlowName [%s] for ndp", fdr);
 
+    ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateGetInternal(fdr);
+    internalValidator.validateGetInternal(fdr, psp, configData);
 
     // get from db
-    return mapper.toGetIdResponse(internalService.findByReportingFlowNameInternals(fdr, rev, psp));
+    ReportingFlowGetDto flowNameInternals =
+        internalService.findByReportingFlowNameInternals(fdr, rev, psp);
+
+    MDC.clear();
+    return mapper.toGetIdResponse(flowNameInternals);
   }
 
   @Operation(
@@ -133,17 +159,26 @@ public class InternalOrganizationsResource {
       @PathParam("psp") String psp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+    MDC.put(TRX_ID, UUID.randomUUID().toString());
+    MDC.put(EC_ID, NDP);
+    MDC.put(FLOW_NAME, fdr);
+    MDC.put(PSP_ID, psp);
+
     log.infof(
         "Get payment of reporting flow by id [%s] - page: [%s], pageSize: [%s]",
         fdr, pageNumber, pageSize);
 
+    ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateGetPaymentInternal(fdr);
+    internalValidator.validateGetPaymentInternal(fdr, psp, configData);
 
     // get from db
-    return mapper.toGetPaymentResponse(
+    ReportingFlowGetPaymentDto flowNameInternals =
         internalService.findPaymentByReportingFlowNameInternals(
-            fdr, rev, psp, pageNumber, pageSize));
+            fdr, rev, psp, pageNumber, pageSize);
+
+    MDC.clear();
+    return mapper.toGetPaymentResponse(flowNameInternals);
   }
 
   @Operation(
@@ -166,15 +201,21 @@ public class InternalOrganizationsResource {
   @Path("/{fdr}/rev/{rev}/psps/{psp}/read")
   public GenericResponse changeInternalReadFlag(
       @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
+    MDC.put(TRX_ID, UUID.randomUUID().toString());
+    MDC.put(EC_ID, NDP);
+    MDC.put(FLOW_NAME, fdr);
+    MDC.put(PSP_ID, psp);
+
     log.infof("Get payment of reporting flow by id [%s]", fdr);
 
+    ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateChangeInternalReadFlag(fdr);
+    internalValidator.validateChangeInternalReadFlag(fdr, psp, configData);
 
     // change on DB
     internalService.changeInternalReadFlag(fdr, rev, psp);
 
-    // get from db
+    MDC.clear();
     return GenericResponse.builder().message(String.format("Flow [%s] internal read", fdr)).build();
   }
 }

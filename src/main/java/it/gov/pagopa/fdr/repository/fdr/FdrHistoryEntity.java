@@ -1,8 +1,5 @@
 package it.gov.pagopa.fdr.repository.fdr;
 
-import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
-import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
-
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -58,10 +55,10 @@ public class FdrHistoryEntity extends PanacheMongoEntity {
 
   private Boolean read;
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
+  public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndRevAndPspId(
       String reportingFlowName, Long rev, String pspId) {
     return find(
         "reporting_flow_name = :flowName and revision = :rev and sender.psp_id = :pspId",
-        Parameters.with(FLOW_NAME, reportingFlowName).and("rev", rev).and(PSP_ID, pspId).map());
+        Parameters.with("flowName", reportingFlowName).and("rev", rev).and("pspId", pspId).map());
   }
 }

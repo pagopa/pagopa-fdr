@@ -1,9 +1,5 @@
 package it.gov.pagopa.fdr.repository.fdr;
 
-import static it.gov.pagopa.fdr.repository.fdr.QueryConstants.BY_REFFLOWNAME_AND_REFPSPID;
-import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
-import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
-
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -56,15 +52,15 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
   public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
       String reportingFlowName, String pspId, Sort sort) {
     return find(
-        BY_REFFLOWNAME_AND_REFPSPID,
+        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
         sort,
-        Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
+        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
   }
 
   public static long deleteByFlowNameAndPspId(String reportingFlowName, String pspId) {
     return delete(
-        BY_REFFLOWNAME_AND_REFPSPID,
-        Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
+        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
+        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
   }
 
   public static void persistFdrPaymentPublishEntities(
