@@ -1,8 +1,9 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.test.util;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import java.util.HashMap;
 import java.util.Map;
+import io.quarkus.test.common.TestStatus;
 import lombok.SneakyThrows;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
@@ -26,6 +27,12 @@ public class MongoResource implements QuarkusTestResourceLifecycleManager {
 
   @Override
   public void stop() {
-    mongo.stop();
+    /*
+    * commento la seguente riga perchè durante i test il container chiude prima di quanto deve e va in prematurely end of file,
+    * in realtà poi si chiude lo stesso quando chiude tutto, potrebbe essere un bug della lib, da indagare
+    */
+
+    //mongo.stop();
   }
+
 }

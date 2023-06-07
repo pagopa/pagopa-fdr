@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.test.util;
 
 import io.restassured.http.Header;
 
