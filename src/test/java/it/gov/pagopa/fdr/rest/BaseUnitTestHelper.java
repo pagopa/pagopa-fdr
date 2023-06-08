@@ -1,27 +1,27 @@
-//package it.gov.pagopa.fdr.rest;
+// package it.gov.pagopa.fdr.rest;
 //
-//import static io.restassured.RestAssured.given;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_URL;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
-//import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME;
-//import static org.hamcrest.MatcherAssert.assertThat;
-//import static org.hamcrest.Matchers.equalTo;
+// import static io.restassured.RestAssured.given;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_URL;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
+// import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME;
+// import static org.hamcrest.MatcherAssert.assertThat;
+// import static org.hamcrest.Matchers.equalTo;
 //
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.fasterxml.jackson.databind.SerializationFeature;
-//import it.gov.pagopa.fdr.rest.model.GenericResponse;
-//import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
-//import java.util.Random;
-//import java.util.random.RandomGenerator;
-//import lombok.SneakyThrows;
+// import com.fasterxml.jackson.databind.ObjectMapper;
+// import com.fasterxml.jackson.databind.SerializationFeature;
+// import it.gov.pagopa.fdr.rest.model.GenericResponse;
+// import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
+// import java.util.Random;
+// import java.util.random.RandomGenerator;
+// import lombok.SneakyThrows;
 //
-//public class BaseUnitTestHelper extends AbstractQuarkusTest {
+// public class BaseUnitTestHelper extends AbstractQuarkusTest {
 //
 ////  ObjectMapper mapper =
 ////      new ObjectMapper()
@@ -329,7 +329,8 @@
 ////    assertThat(res, equalTo(responseFmt));
 ////
 ////    url = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
-////    responseFmt = prettyPrint(FLOWS_PUBLISHED_RESPONSE.formatted(flowName), GenericResponse.class);
+////    responseFmt = prettyPrint(FLOWS_PUBLISHED_RESPONSE.formatted(flowName),
+// GenericResponse.class);
 ////    res =
 ////        prettyPrint(
 ////            given()
@@ -344,4 +345,4 @@
 ////    assertThat(res, equalTo(responseFmt));
 ////    return Boolean.TRUE;
 ////  }
-//}
+// }

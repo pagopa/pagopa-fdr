@@ -6,11 +6,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(MongoResource.class)
+@QuarkusTestResource(AzuriteResource.class)
 class PspResourceTest {
 
 

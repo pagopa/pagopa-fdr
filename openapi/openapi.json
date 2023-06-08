@@ -654,12 +654,49 @@
           }
         }
       },
+      "FlowInternal" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "AAABBB"
+          },
+          "pspId" : {
+            "type" : "string",
+            "example" : "1"
+          },
+          "revision" : {
+            "format" : "int64",
+            "type" : "integer",
+            "example" : 1
+          }
+        }
+      },
       "GenericResponse" : {
         "type" : "object",
         "properties" : {
           "message" : {
             "type" : "string",
             "example" : "Success"
+          }
+        }
+      },
+      "GetAllInternalResponse" : {
+        "type" : "object",
+        "properties" : {
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "count" : {
+            "format" : "int64",
+            "type" : "integer",
+            "example" : 100
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FlowInternal"
+            }
           }
         }
       },

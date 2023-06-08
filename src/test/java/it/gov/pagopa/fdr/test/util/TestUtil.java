@@ -1,10 +1,5 @@
 package it.gov.pagopa.fdr.test.util;
 
-import it.gov.pagopa.fdr.rest.model.GenericResponse;
-import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
-import java.util.Random;
-import java.util.random.RandomGenerator;
-
 import static io.restassured.RestAssured.given;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
@@ -14,21 +9,26 @@ import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_URL;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+
+import it.gov.pagopa.fdr.rest.model.GenericResponse;
+import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 public class TestUtil {
   public static String getDynamicFlowName() {
     return getDynamicFlowName(PSP_CODE);
   }
+
   public static String getDynamicFlowName(String psp) {
     RandomGenerator randomGenerator = new Random();
     return String.format("2016-08-16%s-%s", psp, randomGenerator.nextInt(1111, 9999));
   }
 
   private static String FLOW_TEMPLATE =
-    """
+      """
     {
       "reportingFlowName": "%s",
       "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
@@ -52,7 +52,7 @@ public class TestUtil {
     }
     """;
 
-    private static String PAYMENTS_ADD_TEMPLATE =
+  private static String PAYMENTS_ADD_TEMPLATE =
       """
       {
         "payments": [{
@@ -92,44 +92,46 @@ public class TestUtil {
             CHANNEL_CODE,
             EC_CODE);
 
-    GenericResponse resPspFlow = given()
-                .body(bodyFmtPspFlow)
-                .header(HEADER)
-                .when()
-                .post(urlPspFlow)
-                .then()
-                .statusCode(201)
-                .extract()
-                .body()
-                .as(GenericResponse.class);
+    GenericResponse resPspFlow =
+        given()
+            .body(bodyFmtPspFlow)
+            .header(HEADER)
+            .when()
+            .post(urlPspFlow)
+            .then()
+            .statusCode(201)
+            .extract()
+            .body()
+            .as(GenericResponse.class);
     assertThat(resPspFlow.getMessage(), equalTo(String.format("Flow [%s] saved", flowName)));
 
     String urlPayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
     String bodyPayment = PAYMENTS_ADD_TEMPLATE;
     GenericResponse resPayment =
-            given()
-                .body(bodyPayment)
-                .header(HEADER)
-                .when()
-                .put(urlPayment)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .as(GenericResponse.class);
-    assertThat(resPayment.getMessage(), equalTo(String.format("Flow [%s] payment added", flowName)));
+        given()
+            .body(bodyPayment)
+            .header(HEADER)
+            .when()
+            .put(urlPayment)
+            .then()
+            .statusCode(200)
+            .extract()
+            .body()
+            .as(GenericResponse.class);
+    assertThat(
+        resPayment.getMessage(), equalTo(String.format("Flow [%s] payment added", flowName)));
 
     String urlPublish = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
     GenericResponse resPublish =
-            given()
-                .header(HEADER)
-                .when()
-                .post(urlPublish)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .as(GenericResponse.class);
+        given()
+            .header(HEADER)
+            .when()
+            .post(urlPublish)
+            .then()
+            .statusCode(200)
+            .extract()
+            .body()
+            .as(GenericResponse.class);
     assertThat(resPublish.getMessage(), equalTo(String.format("Flow [%s] published", flowName)));
   }
 }
