@@ -39,7 +39,7 @@ public class GetIdResponse {
   @Schema(example = "CREATED")
   public ReportingFlowStatusEnum status;
 
-  @Schema(example = "60000000001-1173")
+  @Schema(example = "2016-08-16pspTest-1178")
   private String reportingFlowName;
 
   @Schema(example = "2023-04-05T09:21:37.810000Z")

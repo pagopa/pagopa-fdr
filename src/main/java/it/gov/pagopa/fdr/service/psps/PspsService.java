@@ -248,6 +248,7 @@ public class PspsService {
             .name(reportingFlowEntity.getReportingFlowName())
             .pspId(reportingFlowEntity.getSender().getPspId())
             .retry(0L)
+            .revision(reportingFlowEntity.getRevision())
             .build());
   }
 

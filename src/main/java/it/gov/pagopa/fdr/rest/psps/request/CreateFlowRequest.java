@@ -17,7 +17,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class CreateFlowRequest {
   @NotNull
   @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
-  @Schema(example = "60000000001-1173")
+  @Schema(example = "2016-08-16pspTest-1178")
   private String reportingFlowName;
 
   @NotNull

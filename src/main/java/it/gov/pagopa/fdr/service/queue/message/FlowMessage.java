@@ -12,4 +12,6 @@ public class FlowMessage {
   private String pspId;
 
   private Long retry;
+
+  private Long revision;
 }
