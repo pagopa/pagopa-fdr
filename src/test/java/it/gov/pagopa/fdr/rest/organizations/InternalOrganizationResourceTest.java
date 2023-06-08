@@ -37,7 +37,6 @@ class InternalOrganizationResourceTest {
       "/internal/history/organizations/ndp/flows/%s/rev/%s/psps/%s/payments";
   private static final String CHANGE_READ_FLAG_URL =
       "/internal/history/organizations/ndp/flows/%s/rev/%s/psps/%s/read";
-
   private static String RESPONSE_ALL_PUBLISHED_FLOWS =
       """
       {
