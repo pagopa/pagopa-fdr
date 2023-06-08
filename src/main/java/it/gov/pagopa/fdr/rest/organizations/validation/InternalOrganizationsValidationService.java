@@ -4,6 +4,7 @@ import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -15,27 +16,17 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public void validateGetAllInternal(String pspId, ConfigDataV1 configData) {
-    log.debug("Validate get all by ec");
+  public void validateGetAllInternal(String action, String pspId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(pspId, configData);
   }
 
   @WithSpan(kind = SERVER)
-  public void validateGetInternal(String fdr, String pspId, ConfigDataV1 configData) {
-    log.debug("Validate get");
-
-    // check psp
-    checkPaymentServiceProvider(pspId, configData);
-
-    // check reportingFlowName format
-    checkReportingFlowFormat(fdr, pspId);
-  }
-
-  @WithSpan(kind = SERVER)
-  public void validateGetPaymentInternal(String fdr, String pspId, ConfigDataV1 configData) {
-    log.debug("Validate get payment");
+  public void validateGetInternal(
+      String action, String fdr, String pspId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(pspId, configData);
@@ -45,8 +36,21 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
   }
 
   @WithSpan(kind = SERVER)
-  public void validateChangeInternalReadFlag(String fdr, String pspId, ConfigDataV1 configData) {
-    log.debug("Validate change read flag");
+  public void validateGetPaymentInternal(
+      String action, String fdr, String pspId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
+
+    // check psp
+    checkPaymentServiceProvider(pspId, configData);
+
+    // check reportingFlowName format
+    checkReportingFlowFormat(fdr, pspId);
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validateChangeInternalReadFlag(
+      String action, String fdr, String pspId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(pspId, configData);

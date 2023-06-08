@@ -10,7 +10,6 @@ public class AppConstantTestHelper {
   public static final String PAYMENTS_ADD_URL = "/psps/%s/flows/%s/payments/add";
   public static final String PAYMENTS_DELETE_URL = "/psps/%s/flows/%s/payments/del";
 
-  public static final String REPORTING_FLOW_NAME = "2016-08-16pspTest-1176";
   public static final String REPORTING_FLOW_NAME_PSP_WRONG_FORMAT = "2016-08-16-psp-1176";
   public static final String REPORTING_FLOW_NAME_DATE_WRONG_FORMAT = "2016-aa-16pspTest-1176";
   public static final String PSP_CODE = "pspTest";

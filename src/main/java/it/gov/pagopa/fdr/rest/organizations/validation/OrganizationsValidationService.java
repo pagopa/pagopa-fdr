@@ -4,6 +4,7 @@ import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -15,8 +16,9 @@ public class OrganizationsValidationService extends CommonValidationService {
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public void validateGetAllByEc(String ecId, String pspId, ConfigDataV1 configData) {
-    log.debug("Validate get all by ec");
+  public void validateGetAllByEc(
+      String action, String ecId, String pspId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(pspId, configData);
@@ -26,8 +28,9 @@ public class OrganizationsValidationService extends CommonValidationService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validateGet(String fdr, String ecId, String pspId, ConfigDataV1 configData) {
-    log.debug("Validate get");
+  public void validateGet(
+      String action, String fdr, String ecId, String pspId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(pspId, configData);
@@ -40,8 +43,9 @@ public class OrganizationsValidationService extends CommonValidationService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validateGetPayment(String fdr, String ecId, String pspId, ConfigDataV1 configData) {
-    log.debug("Validate get payment");
+  public void validateGetPayment(
+      String action, String fdr, String ecId, String pspId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(pspId, configData);
@@ -55,8 +59,8 @@ public class OrganizationsValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateChangeReadFlag(
-      String fdr, String ecId, String pspId, ConfigDataV1 configData) {
-    log.debug("Validate change read flag");
+      String action, String fdr, String ecId, String pspId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(pspId, configData);

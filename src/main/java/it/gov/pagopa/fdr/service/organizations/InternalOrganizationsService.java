@@ -19,6 +19,7 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowInternalDto;
 import it.gov.pagopa.fdr.service.organizations.mapper.InternalOrganizationsServiceServiceMapper;
 import it.gov.pagopa.fdr.util.AppDBUtil;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -34,8 +35,9 @@ public class InternalOrganizationsService {
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowInternalDto findByInternals(String pspId, long pageNumber, long pageSize) {
-    log.debugf("Get all data from DB");
+  public ReportingFlowInternalDto findByInternals(
+      String action, String pspId, long pageNumber, long pageSize) {
+    log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = AppDBUtil.getSort(List.of("_id,asc"));
@@ -87,8 +89,8 @@ public class InternalOrganizationsService {
 
   @WithSpan(kind = SERVER)
   public ReportingFlowGetDto findByReportingFlowNameInternals(
-      String reportingFlowName, Long rev, String pspId) {
-    log.debugf("Get data from DB");
+      String action, String reportingFlowName, Long rev, String pspId) {
+    log.infof(AppMessageUtil.logExecute(action));
 
     FdrHistoryEntity reportingFlowEntity =
         FdrHistoryEntity.findByFlowNameAndRevAndPspId(reportingFlowName, rev, pspId)
@@ -104,8 +106,13 @@ public class InternalOrganizationsService {
 
   @WithSpan(kind = SERVER)
   public ReportingFlowGetPaymentDto findPaymentByReportingFlowNameInternals(
-      String reportingFlowName, Long rev, String pspId, long pageNumber, long pageSize) {
-    log.debugf("Get data from DB");
+      String action,
+      String reportingFlowName,
+      Long rev,
+      String pspId,
+      long pageNumber,
+      long pageSize) {
+    log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = AppDBUtil.getSort(List.of("index,asc"));
@@ -132,8 +139,9 @@ public class InternalOrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public void changeInternalReadFlag(String reportingFlowName, Long rev, String pspId) {
-    log.debugf("Change read flag");
+  public void changeInternalReadFlag(
+      String action, String reportingFlowName, Long rev, String pspId) {
+    log.infof(AppMessageUtil.logExecute(action));
 
     Instant now = Instant.now();
     FdrHistoryEntity reportingFlowEntity =

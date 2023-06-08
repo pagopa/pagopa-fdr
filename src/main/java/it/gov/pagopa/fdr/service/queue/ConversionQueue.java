@@ -31,7 +31,7 @@ public class ConversionQueue {
         new QueueClientBuilder().connectionString(connectStr).queueName(queueName).buildClient();
     queueClient.create();
 
-    log.debugf("Queue conversion init. Queue name [%s]", queueName);
+    log.infof("Queue conversion init. Queue name [%s]", queueName);
     this.queue = queueClient;
   }
 
@@ -42,7 +42,7 @@ public class ConversionQueue {
           "Queue conversion NOT INITIALIZED. Queue name [%s], pspId [%s], flowName [%s] NOT SENDED",
           queueName, flowMessage.getPspId(), flowMessage.getName());
     } else {
-      log.debugf(
+      log.infof(
           "Send message. Queue name [%s], pspId [%s], flowName [%s]",
           queueName, flowMessage.getPspId(), flowMessage.getName());
       this.queue.sendMessage(objectMapper.writeValueAsString(flowMessage));

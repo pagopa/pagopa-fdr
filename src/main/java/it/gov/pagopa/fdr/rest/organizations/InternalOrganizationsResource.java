@@ -1,10 +1,10 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
 import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
 import static it.gov.pagopa.fdr.util.MDCKeys.NDP;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
@@ -17,6 +17,7 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowInternalDto;
 import it.gov.pagopa.fdr.service.organizations.InternalOrganizationsService;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -29,7 +30,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -45,6 +45,11 @@ import org.slf4j.MDC;
 @Consumes("application/json")
 @Produces("application/json")
 public class InternalOrganizationsResource {
+
+  private static final String GET_ALL_PUBLISHED_FLOW = "getAllPublishedFlowInternal";
+  private static final String GET_REPORTING_FLOW = "getReportingFlowInternal";
+  private static final String GET_REPORTING_FLOW_PAYMENTS = "getReportingFlowPaymentsInternal";
+  private static final String CHANGE_READ_FLAG = "changeReadFlagInternal";
 
   @Inject Config config;
   @Inject Logger log;
@@ -76,23 +81,25 @@ public class InternalOrganizationsResource {
       @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
-    MDC.put(TRX_ID, UUID.randomUUID().toString());
+    MDC.put(ACTION, GET_ALL_PUBLISHED_FLOW);
     MDC.put(EC_ID, NDP);
     MDC.put(PSP_ID, idPsp);
 
     log.infof(
-        "Get reporting flows, idPsp [%s] , page: [%s], pageSize: [%s]",
-        idPsp, pageNumber, pageSize);
+        AppMessageUtil.logProcess("%s with idPsp:[%s] - page:[%s], pageSize:[%s]"),
+        GET_ALL_PUBLISHED_FLOW,
+        idPsp,
+        pageNumber,
+        pageSize);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateGetAllInternal(idPsp, configData);
+    internalValidator.validateGetAllInternal(GET_ALL_PUBLISHED_FLOW, idPsp, configData);
 
     // get from db
     ReportingFlowInternalDto reportingFlowInternalDto =
-        internalService.findByInternals(idPsp, pageNumber, pageSize);
+        internalService.findByInternals(GET_ALL_PUBLISHED_FLOW, idPsp, pageNumber, pageSize);
 
-    MDC.clear();
     return mapper.toGetAllInternalResponse(reportingFlowInternalDto);
   }
 
@@ -116,22 +123,21 @@ public class InternalOrganizationsResource {
   @Path("/{fdr}/rev/{rev}/psps/{psp}")
   public GetIdResponse getReportingFlow(
       @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
-    MDC.put(TRX_ID, UUID.randomUUID().toString());
+    MDC.put(ACTION, GET_REPORTING_FLOW);
     MDC.put(EC_ID, NDP);
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
-    log.infof("Get reporting flow by reportingFlowName [%s] for ndp", fdr);
+    log.infof(AppMessageUtil.logProcess("%s with id:[%s]"), GET_REPORTING_FLOW, fdr);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateGetInternal(fdr, psp, configData);
+    internalValidator.validateGetInternal(GET_REPORTING_FLOW, fdr, psp, configData);
 
     // get from db
     ReportingFlowGetDto flowNameInternals =
-        internalService.findByReportingFlowNameInternals(fdr, rev, psp);
+        internalService.findByReportingFlowNameInternals(GET_REPORTING_FLOW, fdr, rev, psp);
 
-    MDC.clear();
     return mapper.toGetIdResponse(flowNameInternals);
   }
 
@@ -159,25 +165,27 @@ public class InternalOrganizationsResource {
       @PathParam("psp") String psp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
-    MDC.put(TRX_ID, UUID.randomUUID().toString());
+    MDC.put(ACTION, GET_REPORTING_FLOW_PAYMENTS);
     MDC.put(EC_ID, NDP);
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
     log.infof(
-        "Get payment of reporting flow by id [%s] - page: [%s], pageSize: [%s]",
-        fdr, pageNumber, pageSize);
+        AppMessageUtil.logProcess("%s with id:[%s] - page:[%s], pageSize:[%s]"),
+        GET_REPORTING_FLOW_PAYMENTS,
+        fdr,
+        pageNumber,
+        pageSize);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateGetPaymentInternal(fdr, psp, configData);
+    internalValidator.validateGetPaymentInternal(GET_REPORTING_FLOW_PAYMENTS, fdr, psp, configData);
 
     // get from db
     ReportingFlowGetPaymentDto flowNameInternals =
         internalService.findPaymentByReportingFlowNameInternals(
-            fdr, rev, psp, pageNumber, pageSize);
+            GET_REPORTING_FLOW_PAYMENTS, fdr, rev, psp, pageNumber, pageSize);
 
-    MDC.clear();
     return mapper.toGetPaymentResponse(flowNameInternals);
   }
 
@@ -201,21 +209,20 @@ public class InternalOrganizationsResource {
   @Path("/{fdr}/rev/{rev}/psps/{psp}/read")
   public GenericResponse changeInternalReadFlag(
       @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
-    MDC.put(TRX_ID, UUID.randomUUID().toString());
+    MDC.put(ACTION, CHANGE_READ_FLAG);
     MDC.put(EC_ID, NDP);
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
-    log.infof("Get payment of reporting flow by id [%s]", fdr);
+    log.infof(AppMessageUtil.logProcess("%s with id:[%s]"), CHANGE_READ_FLAG, fdr);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateChangeInternalReadFlag(fdr, psp, configData);
+    internalValidator.validateChangeInternalReadFlag(CHANGE_READ_FLAG, fdr, psp, configData);
 
     // change on DB
-    internalService.changeInternalReadFlag(fdr, rev, psp);
+    internalService.changeInternalReadFlag(CHANGE_READ_FLAG, fdr, rev, psp);
 
-    MDC.clear();
     return GenericResponse.builder().message(String.format("Flow [%s] internal read", fdr)).build();
   }
 }

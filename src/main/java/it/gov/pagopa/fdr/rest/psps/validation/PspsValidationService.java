@@ -5,6 +5,7 @@ import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -20,8 +21,8 @@ public class PspsValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateCreateFlow(
-      String psp, CreateFlowRequest createFlowRequest, ConfigDataV1 configData) {
-    log.debug("Validate create");
+      String action, String psp, CreateFlowRequest createFlowRequest, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp sender
     String pspId = createFlowRequest.getSender().getPspId();
@@ -54,8 +55,8 @@ public class PspsValidationService extends CommonValidationService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validateAddPayment(String psp, String fdr, ConfigDataV1 configData) {
-    log.debug("Validate add payment");
+  public void validateAddPayment(String action, String psp, String fdr, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(psp, configData);
@@ -65,8 +66,9 @@ public class PspsValidationService extends CommonValidationService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validateDeletePayment(String psp, String fdr, ConfigDataV1 configData) {
-    log.debug("Validate delete payment");
+  public void validateDeletePayment(
+      String action, String psp, String fdr, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(psp, configData);
@@ -76,8 +78,8 @@ public class PspsValidationService extends CommonValidationService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validatePublish(String psp, String fdr, ConfigDataV1 configData) {
-    log.debug("Validate publish");
+  public void validatePublish(String action, String psp, String fdr, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(psp, configData);
@@ -87,8 +89,8 @@ public class PspsValidationService extends CommonValidationService {
   }
 
   @WithSpan(kind = SERVER)
-  public void validateDelete(String psp, String fdr, ConfigDataV1 configData) {
-    log.debug("Validate delete");
+  public void validateDelete(String action, String psp, String fdr, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
     // check psp
     checkPaymentServiceProvider(psp, configData);

@@ -38,4 +38,16 @@ public class AppMessageUtil {
       return messageKey;
     }
   }
+
+  public static String logProcess(String message) {
+    return "Process %s".formatted(message);
+  }
+
+  public static String logValidate(String method) {
+    return "Validate %s".formatted(method);
+  }
+
+  public static String logExecute(String method) {
+    return "Execute %s".formatted(method);
+  }
 }

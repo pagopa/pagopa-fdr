@@ -38,7 +38,7 @@ public class ExceptionMappers {
         instanceof JsonParseException jsonParseException) {
       return mapJsonParseException(jsonParseException).toResponse();
     }
-    MDC.clear();
+
     return webApplicationException.getResponse();
   }
 
@@ -46,24 +46,24 @@ public class ExceptionMappers {
   public RestResponse<ErrorResponse> mapAppException(AppException appEx) {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
+    String message = codeMessage.message(appEx.getArgs());
 
-    MDC.clear();
-    return RestResponse.status(
-        codeMessage.httpStatus(),
+    log.errorf("Error [message:%s]", message);
+
+    ErrorResponse errorResponse =
         ErrorResponse.builder()
             .httpStatusCode(status.getStatusCode())
             .httpStatusDescription(status.getReasonPhrase())
             .appErrorCode(codeMessage.errorCode())
-            .errors(
-                List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
-            .build());
+            .errors(List.of(ErrorResponse.ErrorMessage.builder().message(message).build()))
+            .build();
+
+    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
 
   private RestResponse<ErrorResponse> mapJsonMappingException(
       JsonMappingException jsonMappingException) {
+    log.errorf("Error [message:%s]", jsonMappingException.getMessage());
     // quando jackson riesce a parsare il messaggio perchè non formato json valido
 
     AppException appEx =
@@ -73,9 +73,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    MDC.clear();
-    return RestResponse.status(
-        codeMessage.httpStatus(),
+    ErrorResponse errorResponse =
         ErrorResponse.builder()
             .httpStatusCode(status.getStatusCode())
             .httpStatusDescription(status.getReasonPhrase())
@@ -85,10 +83,13 @@ public class ExceptionMappers {
                     ErrorResponse.ErrorMessage.builder()
                         .message(codeMessage.message(appEx.getArgs()))
                         .build()))
-            .build());
+            .build();
+
+    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
 
   private RestResponse<ErrorResponse> mapJsonParseException(JsonParseException jsonParseException) {
+    log.errorf("Error [message:%s]", jsonParseException.getMessage());
     // quando jackson riesce a parsare il messaggio perchè non formato json valido
 
     AppException appEx =
@@ -98,9 +99,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    MDC.clear();
-    return RestResponse.status(
-        codeMessage.httpStatus(),
+    ErrorResponse errorResponse =
         ErrorResponse.builder()
             .httpStatusCode(status.getStatusCode())
             .httpStatusDescription(status.getReasonPhrase())
@@ -110,13 +109,16 @@ public class ExceptionMappers {
                     ErrorResponse.ErrorMessage.builder()
                         .message(codeMessage.message(appEx.getArgs()))
                         .build()))
-            .build());
+            .build();
+
+    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
 
   @SuppressWarnings("unchecked")
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapInvalidFormatException(
       InvalidFormatException invalidFormatException) {
+    log.errorf("Error [message:%s]", invalidFormatException.getMessage());
     // quando jackson riesce a parsare il messaggio per popolare il bean ma i valori NON sono
     // corretti
     String field =
@@ -166,9 +168,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    MDC.clear();
-    return RestResponse.status(
-        codeMessage.httpStatus(),
+    ErrorResponse errorResponse =
         ErrorResponse.builder()
             .httpStatusCode(status.getStatusCode())
             .httpStatusDescription(status.getReasonPhrase())
@@ -178,12 +178,15 @@ public class ExceptionMappers {
                     ErrorResponse.ErrorMessage.builder()
                         .message(codeMessage.message(appEx.getArgs()))
                         .build()))
-            .build());
+            .build();
+
+    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapMismatchedInputException(
       MismatchedInputException mismatchedInputException) {
+    log.errorf("Error [message:%s]", mismatchedInputException.getMessage());
     // quando jackson NON riesce a parsare il messaggio per popolare il bean
     String field =
         mismatchedInputException.getPath().stream()
@@ -199,9 +202,7 @@ public class ExceptionMappers {
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    MDC.clear();
-    return RestResponse.status(
-        codeMessage.httpStatus(),
+    ErrorResponse errorResponse =
         ErrorResponse.builder()
             .httpStatusCode(status.getStatusCode())
             .httpStatusDescription(status.getReasonPhrase())
@@ -211,27 +212,26 @@ public class ExceptionMappers {
                     ErrorResponse.ErrorMessage.builder()
                         .message(codeMessage.message(appEx.getArgs()))
                         .build()))
-            .build());
+            .build();
+
+    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapUnexpectedTypeException(UnexpectedTypeException exception) {
-    MDC.clear();
     return mapThrowable(exception);
   }
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapThrowable(Throwable exception) {
     String errorId = MDC.get(TRX_ID);
-    log.errorf(exception, "Exception not managed");
+    log.errorf("Exception not managed [message: %s]", exception.getMessage());
 
     AppException appEx = new AppException(exception, AppErrorCodeMessageEnum.ERROR);
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    MDC.clear();
-    return RestResponse.status(
-        codeMessage.httpStatus(),
+    ErrorResponse errorResponse =
         ErrorResponse.builder()
             .errorId(errorId)
             .httpStatusCode(status.getStatusCode())
@@ -242,21 +242,22 @@ public class ExceptionMappers {
                     ErrorResponse.ErrorMessage.builder()
                         .message(codeMessage.message(appEx.getArgs()))
                         .build()))
-            .build());
+            .build();
+
+    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapConstraintViolationException(
       ConstraintViolationException constraintViolationException) {
+    log.errorf("Error [message:%s]", constraintViolationException.getMessage());
 
     AppException appEx =
         new AppException(constraintViolationException, AppErrorCodeMessageEnum.BAD_REQUEST);
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
-    MDC.clear();
-    return RestResponse.status(
-        codeMessage.httpStatus(),
+    ErrorResponse errorResponse =
         ErrorResponse.builder()
             .httpStatusCode(status.getStatusCode())
             .httpStatusDescription(status.getReasonPhrase())
@@ -276,6 +277,8 @@ public class ExceptionMappers {
                                     AppMessageUtil.getMessage(constraintViolation.getMessage()))
                                 .build())
                     .toList())
-            .build());
+            .build();
+
+    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
 }

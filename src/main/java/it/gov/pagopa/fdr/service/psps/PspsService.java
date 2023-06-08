@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.service.psps;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
+import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
@@ -20,6 +21,7 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.queue.ConversionQueue;
 import it.gov.pagopa.fdr.service.queue.message.FlowMessage;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
@@ -29,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
 
 @ApplicationScoped
 public class PspsService {
@@ -40,8 +43,9 @@ public class PspsService {
   @Inject ConversionQueue conversionQueue;
 
   @WithSpan(kind = SERVER)
-  public void save(ReportingFlowDto reportingFlowDto) {
-    log.debugf("Save data on DB");
+  public void save(String action, ReportingFlowDto reportingFlowDto) {
+    log.infof(AppMessageUtil.logExecute(action));
+
     Instant now = Instant.now();
     String reportingFlowName = reportingFlowDto.getReportingFlowName();
     String pspId = reportingFlowDto.getSender().getPspId();
@@ -78,8 +82,9 @@ public class PspsService {
   }
 
   @WithSpan(kind = SERVER)
-  public void addPayment(String pspId, String reportingFlowName, AddPaymentDto addPaymentDto) {
-    log.debugf("Save add payment on DB");
+  public void addPayment(
+      String action, String pspId, String reportingFlowName, AddPaymentDto addPaymentDto) {
+    log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
     FdrInsertEntity reportingFlowEntity =
@@ -90,6 +95,8 @@ public class PspsService {
                 () ->
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+
+    MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
     // TODO revedere con iuv+iur
     List<Long> indexList = addPaymentDto.getPayments().stream().map(PaymentDto::getIndex).toList();
@@ -140,8 +147,8 @@ public class PspsService {
 
   @WithSpan(kind = SERVER)
   public void deletePayment(
-      String pspId, String reportingFlowName, DeletePaymentDto deletePaymentDto) {
-    log.debugf("Delete payment on DB");
+      String action, String pspId, String reportingFlowName, DeletePaymentDto deletePaymentDto) {
+    log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
     FdrInsertEntity reportingFlowEntity =
@@ -152,6 +159,8 @@ public class PspsService {
                 () ->
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+
+    MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
     if (ReportingFlowStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
       throw new AppException(
@@ -193,8 +202,8 @@ public class PspsService {
   }
 
   @WithSpan(kind = SERVER)
-  public void publishByReportingFlowName(String pspId, String reportingFlowName) {
-    log.debugf("Confirm reporting flow");
+  public void publishByReportingFlowName(String action, String pspId, String reportingFlowName) {
+    log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
     FdrInsertEntity reportingFlowEntity =
@@ -205,6 +214,8 @@ public class PspsService {
                 () ->
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+
+    MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
     if (ReportingFlowStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
       throw new AppException(
@@ -253,8 +264,8 @@ public class PspsService {
   }
 
   @WithSpan(kind = SERVER)
-  public void deleteByReportingFlowName(String pspId, String reportingFlowName) {
-    log.debugf("Delete reporting flow");
+  public void deleteByReportingFlowName(String action, String pspId, String reportingFlowName) {
+    log.infof(AppMessageUtil.logExecute(action));
 
     FdrInsertEntity reportingFlowEntity =
         FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
@@ -264,6 +275,8 @@ public class PspsService {
                 () ->
                     new AppException(
                         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+
+    MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
     if (reportingFlowEntity.getTotPayments() > 0L) {
       FdrPaymentInsertEntity.deleteByFlowName(reportingFlowName);

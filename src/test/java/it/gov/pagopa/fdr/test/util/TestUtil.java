@@ -27,7 +27,7 @@ public class TestUtil {
     return String.format("2016-08-16%s-%s", psp, randomGenerator.nextInt(1111, 9999));
   }
 
-  private static String FLOW_TEMPLATE =
+  public static String FLOW_TEMPLATE =
       """
     {
       "reportingFlowName": "%s",
@@ -52,7 +52,7 @@ public class TestUtil {
     }
     """;
 
-  private static String PAYMENTS_ADD_TEMPLATE =
+  public static String PAYMENTS_ADD_TEMPLATE =
       """
       {
         "payments": [{
