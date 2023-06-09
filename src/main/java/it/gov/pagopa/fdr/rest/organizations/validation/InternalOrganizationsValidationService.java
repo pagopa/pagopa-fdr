@@ -20,7 +20,7 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(pspId, configData);
+    checkPaymentServiceProvider(log, pspId, configData);
   }
 
   @WithSpan(kind = SERVER)
@@ -29,10 +29,10 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(pspId, configData);
+    checkPaymentServiceProvider(log, pspId, configData);
 
     // check reportingFlowName format
-    checkReportingFlowFormat(fdr, pspId);
+    checkReportingFlowFormat(log, fdr, pspId);
   }
 
   @WithSpan(kind = SERVER)
@@ -41,10 +41,10 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(pspId, configData);
+    checkPaymentServiceProvider(log, pspId, configData);
 
     // check reportingFlowName format
-    checkReportingFlowFormat(fdr, pspId);
+    checkReportingFlowFormat(log, fdr, pspId);
   }
 
   @WithSpan(kind = SERVER)
@@ -53,9 +53,9 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(pspId, configData);
+    checkPaymentServiceProvider(log, pspId, configData);
 
     // check reportingFlowName format
-    checkReportingFlowFormat(fdr, pspId);
+    checkReportingFlowFormat(log, fdr, pspId);
   }
 }

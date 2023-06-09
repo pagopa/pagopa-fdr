@@ -11,7 +11,6 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.ext.Provider;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -26,8 +25,7 @@ public class ResponseFilter implements ContainerResponseFilter {
 
   @Override
   public void filter(
-      ContainerRequestContext requestContext, ContainerResponseContext responseContext)
-      throws IOException {
+      ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
     long requestStartTime = (long) requestContext.getProperty("requestStartTime");
     long requestFinishTime = System.nanoTime();
     long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
@@ -63,26 +61,8 @@ public class ResponseFilter implements ContainerResponseFilter {
           requestMethod, requestPath, requestSubject, elapsed, httpStatus);
     }
 
-    log.infof(
-        jsonLog(
-            "REQ",
-            action,
-            requestPath,
-            psp,
-            ec,
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty()));
-    log.infof(
-        jsonLog(
-            "RES",
-            action,
-            requestPath,
-            psp,
-            ec,
-            Optional.of(elapsed),
-            Optional.of(httpStatus),
-            errorResponse));
+    logJsonReq(action, requestPath, psp, ec);
+    logJsonRes(action, requestPath, psp, ec, elapsed, httpStatus, errorResponse);
 
     MDC.clear();
   }
@@ -107,8 +87,32 @@ public class ResponseFilter implements ContainerResponseFilter {
             .collect(Collectors.joining(", ")));
   }
 
-  private String jsonLog(
-      String httpType,
+  private void logJsonReq(String action, String requestPath, String psp, String ec) {
+    log.infof(
+        jsonStringOperation(
+            action, requestPath, psp, ec, Optional.empty(), Optional.empty(), Optional.empty()));
+  }
+
+  private void logJsonRes(
+      String action,
+      String requestPath,
+      String psp,
+      String ec,
+      Long elapsed,
+      Integer httpStatus,
+      Optional<ErrorResponse> errorResponse) {
+    log.infof(
+        jsonStringOperation(
+            action,
+            requestPath,
+            psp,
+            ec,
+            Optional.of(elapsed),
+            Optional.of(httpStatus),
+            errorResponse));
+  }
+
+  private String jsonStringOperation(
       String action,
       String requestPath,
       String psp,
@@ -118,14 +122,10 @@ public class ResponseFilter implements ContainerResponseFilter {
       Optional<ErrorResponse> errorResponse) {
     StringBuilder stringBuilder = new StringBuilder("{");
     stringBuilder.append("\"isJsonLog\":\"%s\"".formatted(true));
-    stringBuilder.append(",\"httpType\":\"%s\"".formatted(httpType));
-    stringBuilder.append(",\"action\":%s".formatted(action != null ? action : "NA"));
-    stringBuilder.append(",\"uri\":\"%s\"".formatted(requestPath));
-    elapsed.map(v -> stringBuilder.append(",\"elapsed\":%d".formatted(v)));
-    statusCode.map(s -> stringBuilder.append(",\"statusCode\":%d".formatted(s)));
-    if (httpType.equals("RES")) {
-      errorResponse
-          .map(
+    statusCode.ifPresentOrElse(
+        sc -> {
+          stringBuilder.append(",\"httpType\":\"RES\"");
+          errorResponse.ifPresentOrElse(
               er -> {
                 stringBuilder.append(",\"outcome\":\"KO\"");
                 stringBuilder.append(",\"code\":\"%s\"".formatted(er.getAppErrorCode()));
@@ -135,14 +135,14 @@ public class ResponseFilter implements ContainerResponseFilter {
                             er.getErrors().stream()
                                 .map(ErrorMessage::getMessage)
                                 .collect(Collectors.joining(", "))));
-                return null;
-              })
-          .orElseGet(
-              () -> {
-                stringBuilder.append(",\"outcome\":\"OK\"");
-                return null;
-              });
-    }
+              },
+              () -> stringBuilder.append(",\"outcome\":\"OK\""));
+        },
+        () -> stringBuilder.append(",\"httpType\":\"REQ\""));
+    stringBuilder.append(",\"action\":%s".formatted(action != null ? action : "NA"));
+    stringBuilder.append(",\"uri\":\"%s\"".formatted(requestPath));
+    elapsed.ifPresent(v -> stringBuilder.append(",\"elapsed\":%d".formatted(v)));
+    statusCode.ifPresent(s -> stringBuilder.append(",\"statusCode\":%d".formatted(s)));
     stringBuilder.append(",\"psp\":\"%s\"".formatted(psp != null ? psp : "NA"));
     stringBuilder.append(",\"ec\":\"%s\"".formatted(ec != null ? ec : "NA"));
     stringBuilder.append("}");

@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.exceptionmapper;
 
+import static it.gov.pagopa.fdr.util.AppMessageUtil.logErrorMessage;
 import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -48,7 +49,7 @@ public class ExceptionMappers {
     RestResponse.Status status = codeMessage.httpStatus();
     String message = codeMessage.message(appEx.getArgs());
 
-    log.errorf("Error [message:%s]", message);
+    log.errorf(logErrorMessage(message));
 
     ErrorResponse errorResponse =
         ErrorResponse.builder()
@@ -63,7 +64,7 @@ public class ExceptionMappers {
 
   private RestResponse<ErrorResponse> mapJsonMappingException(
       JsonMappingException jsonMappingException) {
-    log.errorf("Error [message:%s]", jsonMappingException.getMessage());
+    log.errorf(logErrorMessage(jsonMappingException.getMessage()));
     // quando jackson riesce a parsare il messaggio perchè non formato json valido
 
     AppException appEx =
@@ -89,7 +90,7 @@ public class ExceptionMappers {
   }
 
   private RestResponse<ErrorResponse> mapJsonParseException(JsonParseException jsonParseException) {
-    log.errorf("Error [message:%s]", jsonParseException.getMessage());
+    log.errorf(logErrorMessage(jsonParseException.getMessage()));
     // quando jackson riesce a parsare il messaggio perchè non formato json valido
 
     AppException appEx =
@@ -118,7 +119,7 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapInvalidFormatException(
       InvalidFormatException invalidFormatException) {
-    log.errorf("Error [message:%s]", invalidFormatException.getMessage());
+    log.errorf(logErrorMessage(invalidFormatException.getMessage()));
     // quando jackson riesce a parsare il messaggio per popolare il bean ma i valori NON sono
     // corretti
     String field =
@@ -186,7 +187,7 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapMismatchedInputException(
       MismatchedInputException mismatchedInputException) {
-    log.errorf("Error [message:%s]", mismatchedInputException.getMessage());
+    log.errorf(logErrorMessage(mismatchedInputException.getMessage()));
     // quando jackson NON riesce a parsare il messaggio per popolare il bean
     String field =
         mismatchedInputException.getPath().stream()
@@ -225,7 +226,7 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapThrowable(Throwable exception) {
     String errorId = MDC.get(TRX_ID);
-    log.errorf("Exception not managed [message: %s]", exception.getMessage());
+    log.errorf(logErrorMessage(exception.getMessage()));
 
     AppException appEx = new AppException(exception, AppErrorCodeMessageEnum.ERROR);
     AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
@@ -250,7 +251,7 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapConstraintViolationException(
       ConstraintViolationException constraintViolationException) {
-    log.errorf("Error [message:%s]", constraintViolationException.getMessage());
+    log.errorf(logErrorMessage(constraintViolationException.getMessage()));
 
     AppException appEx =
         new AppException(constraintViolationException, AppErrorCodeMessageEnum.BAD_REQUEST);

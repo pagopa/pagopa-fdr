@@ -26,32 +26,33 @@ public class PspsValidationService extends CommonValidationService {
 
     // check psp sender
     String pspId = createFlowRequest.getSender().getPspId();
-    checkPspSender(psp, pspId, createFlowRequest.getReportingFlowName());
+    checkPspSender(log, psp, pspId, createFlowRequest.getReportingFlowName());
 
     // check psp
-    PaymentServiceProvider paymentServiceProvider = checkPaymentServiceProvider(psp, configData);
+    PaymentServiceProvider paymentServiceProvider =
+        checkPaymentServiceProvider(log, psp, configData);
 
     // check broker
     String brokerId = createFlowRequest.getSender().getBrokerId();
-    BrokerPsp brokerPsp = checkBrokerPsp(brokerId, configData);
+    BrokerPsp brokerPsp = checkBrokerPsp(log, brokerId, configData);
 
     // check channel
     String channelId = createFlowRequest.getSender().getChannelId();
-    Channel channel = checkChannel(channelId, configData);
+    Channel channel = checkChannel(log, channelId, configData);
 
     // check channel/broker
-    checkChannelBrokerPsp(channel, channelId, brokerPsp, brokerId);
+    checkChannelBrokerPsp(log, channel, channelId, brokerPsp, brokerId);
 
     // check channel/psp
-    checkChannelPsp(channel, channelId, paymentServiceProvider, pspId, configData);
+    checkChannelPsp(log, channel, channelId, paymentServiceProvider, pspId, configData);
 
     // check ec
     String ecId = createFlowRequest.getReceiver().getEcId();
-    checkCreditorInstitution(ecId, configData);
+    checkCreditorInstitution(log, ecId, configData);
 
     // check reportingFlowName format
     String reportingFlowName = createFlowRequest.getReportingFlowName();
-    checkReportingFlowFormat(reportingFlowName, pspId);
+    checkReportingFlowFormat(log, reportingFlowName, pspId);
   }
 
   @WithSpan(kind = SERVER)
@@ -59,10 +60,10 @@ public class PspsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(psp, configData);
+    checkPaymentServiceProvider(log, psp, configData);
 
     // check reportingFlowName format
-    checkReportingFlowFormat(fdr, psp);
+    checkReportingFlowFormat(log, fdr, psp);
   }
 
   @WithSpan(kind = SERVER)
@@ -71,10 +72,10 @@ public class PspsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(psp, configData);
+    checkPaymentServiceProvider(log, psp, configData);
 
     /// check reportingFlowName format
-    checkReportingFlowFormat(fdr, psp);
+    checkReportingFlowFormat(log, fdr, psp);
   }
 
   @WithSpan(kind = SERVER)
@@ -82,10 +83,10 @@ public class PspsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(psp, configData);
+    checkPaymentServiceProvider(log, psp, configData);
 
     /// check reportingFlowName format
-    checkReportingFlowFormat(fdr, psp);
+    checkReportingFlowFormat(log, fdr, psp);
   }
 
   @WithSpan(kind = SERVER)
@@ -93,9 +94,9 @@ public class PspsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(psp, configData);
+    checkPaymentServiceProvider(log, psp, configData);
 
     /// check reportingFlowName format
-    checkReportingFlowFormat(fdr, psp);
+    checkReportingFlowFormat(log, fdr, psp);
   }
 }

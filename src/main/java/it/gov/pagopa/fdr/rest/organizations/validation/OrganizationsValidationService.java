@@ -21,10 +21,10 @@ public class OrganizationsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(pspId, configData);
+    checkPaymentServiceProvider(log, pspId, configData);
 
     // check ec
-    checkCreditorInstitution(ecId, configData);
+    checkCreditorInstitution(log, ecId, configData);
   }
 
   @WithSpan(kind = SERVER)
@@ -33,13 +33,13 @@ public class OrganizationsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(pspId, configData);
+    checkPaymentServiceProvider(log, pspId, configData);
 
     // check ec
-    checkCreditorInstitution(ecId, configData);
+    checkCreditorInstitution(log, ecId, configData);
 
     // check reportingFlowName format
-    checkReportingFlowFormat(fdr, pspId);
+    checkReportingFlowFormat(log, fdr, pspId);
   }
 
   @WithSpan(kind = SERVER)
@@ -48,13 +48,13 @@ public class OrganizationsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(pspId, configData);
+    checkPaymentServiceProvider(log, pspId, configData);
 
     // check ec
-    checkCreditorInstitution(ecId, configData);
+    checkCreditorInstitution(log, ecId, configData);
 
     // check reportingFlowName format
-    checkReportingFlowFormat(fdr, pspId);
+    checkReportingFlowFormat(log, fdr, pspId);
   }
 
   @WithSpan(kind = SERVER)
@@ -63,12 +63,12 @@ public class OrganizationsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(pspId, configData);
+    checkPaymentServiceProvider(log, pspId, configData);
 
     // check ec
-    checkCreditorInstitution(ecId, configData);
+    checkCreditorInstitution(log, ecId, configData);
 
     // check reportingFlowName format
-    checkReportingFlowFormat(fdr, pspId);
+    checkReportingFlowFormat(log, fdr, pspId);
   }
 }

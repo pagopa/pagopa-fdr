@@ -92,16 +92,11 @@ public class PspsService {
     log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
-    log.debugf(
-        "Existence check FdrInsertEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
     FdrInsertEntity reportingFlowEntity =
-        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
-            .project(FdrInsertEntity.class)
-            .firstResultOptional()
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+        checkFdrInsertEntity(
+            reportingFlowName,
+            pspId,
+            new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
     MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
@@ -164,16 +159,11 @@ public class PspsService {
     log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
-    log.debugf(
-        "Existence check FdrInsertEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
     FdrInsertEntity reportingFlowEntity =
-        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
-            .project(FdrInsertEntity.class)
-            .firstResultOptional()
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+        checkFdrInsertEntity(
+            reportingFlowName,
+            pspId,
+            new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
     MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
@@ -226,16 +216,11 @@ public class PspsService {
     log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
-    log.debugf(
-        "Existence check FdrInsertEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
     FdrInsertEntity reportingFlowEntity =
-        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
-            .project(FdrInsertEntity.class)
-            .firstResultOptional()
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+        checkFdrInsertEntity(
+            reportingFlowName,
+            pspId,
+            new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
     MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
@@ -307,16 +292,11 @@ public class PspsService {
   public void deleteByReportingFlowName(String action, String pspId, String reportingFlowName) {
     log.infof(AppMessageUtil.logExecute(action));
 
-    log.debugf(
-        "Existence check FdrInsertEntity by flowName[%s], pspId[%s]", reportingFlowName, pspId);
     FdrInsertEntity reportingFlowEntity =
-        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
-            .project(FdrInsertEntity.class)
-            .firstResultOptional()
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+        checkFdrInsertEntity(
+            reportingFlowName,
+            pspId,
+            new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
 
     MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
@@ -365,5 +345,14 @@ public class PspsService {
       List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
     return Objects.requireNonNullElseGet(reportingFlowEntity.getTotPayments(), () -> (long) 0)
         - reportingFlowPaymentEntities.size();
+  }
+
+  private FdrInsertEntity checkFdrInsertEntity(
+      String reportingFlowName, String pspId, AppException appException) {
+    log.debugf("Find FdrInsertEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
+    return FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
+        .project(FdrInsertEntity.class)
+        .firstResultOptional()
+        .orElseThrow(() -> appException);
   }
 }

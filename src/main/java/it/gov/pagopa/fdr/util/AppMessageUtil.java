@@ -50,4 +50,8 @@ public class AppMessageUtil {
   public static String logExecute(String method) {
     return "Execute %s".formatted(method);
   }
+
+  public static String logErrorMessage(String errorMessage) {
+    return "Error [message:%s]".formatted(errorMessage);
+  }
 }

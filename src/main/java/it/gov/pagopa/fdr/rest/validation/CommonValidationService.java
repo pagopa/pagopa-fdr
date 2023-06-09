@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.rest.validation;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.jboss.logging.Logger;
@@ -17,9 +16,7 @@ import org.openapi.quarkus.api_config_cache_json.model.PspChannelPaymentType;
 @ApplicationScoped
 public class CommonValidationService {
 
-  @Inject Logger log;
-
-  public void checkPspSender(String psp, String pspId, String reportingFlowName) {
+  public void checkPspSender(Logger log, String psp, String pspId, String reportingFlowName) {
     log.debugf("Check match between psp[%s], sender.pspId[%s]", psp, pspId);
     if (!psp.equals(pspId)) {
       throw new AppException(
@@ -27,7 +24,8 @@ public class CommonValidationService {
     }
   }
 
-  public PaymentServiceProvider checkPaymentServiceProvider(String psp, ConfigDataV1 configData) {
+  public PaymentServiceProvider checkPaymentServiceProvider(
+      Logger log, String psp, ConfigDataV1 configData) {
     log.debugf("Check psp[%s]", psp);
     PaymentServiceProvider paymentServiceProvider =
         Optional.ofNullable(configData.getPsps().get(psp))
@@ -40,7 +38,7 @@ public class CommonValidationService {
     return paymentServiceProvider;
   }
 
-  public BrokerPsp checkBrokerPsp(String brokerId, ConfigDataV1 configData) {
+  public BrokerPsp checkBrokerPsp(Logger log, String brokerId, ConfigDataV1 configData) {
     log.debugf("Check brokerPsp[%s]", brokerId);
     BrokerPsp brokerPsp =
         Optional.ofNullable(configData.getPspBrokers().get(brokerId))
@@ -53,7 +51,7 @@ public class CommonValidationService {
     return brokerPsp;
   }
 
-  public Channel checkChannel(String channelId, ConfigDataV1 configData) {
+  public Channel checkChannel(Logger log, String channelId, ConfigDataV1 configData) {
     log.debugf("Check channel[%s]", channelId);
     Channel channel =
         Optional.ofNullable(configData.getChannels().get(channelId))
@@ -68,7 +66,7 @@ public class CommonValidationService {
   }
 
   public void checkChannelBrokerPsp(
-      Channel channel, String channelId, BrokerPsp brokerPsp, String brokerId) {
+      Logger log, Channel channel, String channelId, BrokerPsp brokerPsp, String brokerId) {
     log.debugf("Check conjunction between channel[%s], brokerPsp[%s]", channelId, brokerId);
     if (channel.getBrokerPspCode() == null
         || !channel.getBrokerPspCode().equals(brokerPsp.getBrokerPspCode())) {
@@ -78,6 +76,7 @@ public class CommonValidationService {
   }
 
   public void checkChannelPsp(
+      Logger log,
       Channel channel,
       String channelId,
       PaymentServiceProvider paymentServiceProvider,
@@ -97,7 +96,7 @@ public class CommonValidationService {
     }
   }
 
-  public void checkCreditorInstitution(String ecId, ConfigDataV1 configData) {
+  public void checkCreditorInstitution(Logger log, String ecId, ConfigDataV1 configData) {
     log.debugf("Check ec[%s]", ecId);
     CreditorInstitution ec =
         Optional.ofNullable(configData.getCreditorInstitutions().get(ecId))
@@ -108,7 +107,7 @@ public class CommonValidationService {
     }
   }
 
-  public void checkReportingFlowFormat(String reportingFlowName, String pspId) {
+  public void checkReportingFlowFormat(Logger log, String reportingFlowName, String pspId) {
     log.debugf("Check date format in flowName[%s] with psp[%s]", reportingFlowName, pspId);
     String date = reportingFlowName.substring(0, 10);
     try {
