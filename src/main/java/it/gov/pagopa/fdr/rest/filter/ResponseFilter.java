@@ -39,7 +39,6 @@ public class ResponseFilter implements ContainerResponseFilter {
     String requestMethod = requestContext.getMethod();
     String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
     int httpStatus = responseContext.getStatus();
-    boolean isSuccess = false;
     Optional<ErrorResponse> errorResponse = Optional.empty();
 
     if (responseContext.getStatus() != HttpStatusCode.OK_200.code()
@@ -49,7 +48,6 @@ public class ResponseFilter implements ContainerResponseFilter {
         errorResponse = Optional.of((ErrorResponse) body);
         logErrorResponse(requestMethod, requestPath, requestSubject, elapsed, errorResponse.get());
       } else {
-        isSuccess = true;
         log.infof(
             "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",
             requestMethod,
@@ -69,9 +67,9 @@ public class ResponseFilter implements ContainerResponseFilter {
         jsonLog(
             "REQ",
             action,
+            requestPath,
             psp,
             ec,
-            Optional.empty(),
             Optional.empty(),
             Optional.empty(),
             Optional.empty()));
@@ -79,11 +77,11 @@ public class ResponseFilter implements ContainerResponseFilter {
         jsonLog(
             "RES",
             action,
+            requestPath,
             psp,
             ec,
             Optional.of(elapsed),
             Optional.of(httpStatus),
-            Optional.of(isSuccess),
             errorResponse));
 
     MDC.clear();
@@ -112,39 +110,41 @@ public class ResponseFilter implements ContainerResponseFilter {
   private String jsonLog(
       String httpType,
       String action,
+      String requestPath,
       String psp,
       String ec,
       Optional<Long> elapsed,
       Optional<Integer> statusCode,
-      Optional<Boolean> isSuccess,
       Optional<ErrorResponse> errorResponse) {
     StringBuilder stringBuilder = new StringBuilder("{");
-    stringBuilder.append("\"httpType\":\"%s\"".formatted(httpType));
-    stringBuilder.append(",\"action\":%s".formatted(action));
+    stringBuilder.append("\"isJsonLog\":\"%s\"".formatted(true));
+    stringBuilder.append(",\"httpType\":\"%s\"".formatted(httpType));
+    stringBuilder.append(",\"action\":%s".formatted(action != null ? action : "NA"));
+    stringBuilder.append(",\"uri\":\"%s\"".formatted(requestPath));
     elapsed.map(v -> stringBuilder.append(",\"elapsed\":%d".formatted(v)));
     statusCode.map(s -> stringBuilder.append(",\"statusCode\":%d".formatted(s)));
-    isSuccess.map(
-        (success) -> {
-          if (success) {
-            stringBuilder.append(",\"outcome\":\"OK\"");
-          } else {
-            stringBuilder.append(",\"outcome\":\"KO\"");
-            errorResponse.map(
-                er -> {
-                  stringBuilder.append(",\"code\":\"%s\"".formatted(er.getAppErrorCode()));
-                  stringBuilder.append(
-                      ",\"message\":\"%s\""
-                          .formatted(
-                              er.getErrors().stream()
-                                  .map(ErrorMessage::getMessage)
-                                  .collect(Collectors.joining(", "))));
-                  return null;
-                });
-          }
-          return null;
-        });
-    stringBuilder.append(",\"psp\":\"%s\"".formatted(psp));
-    stringBuilder.append(",\"ec\":\"%s\"".formatted(ec));
+    if (httpType.equals("RES")) {
+      errorResponse
+          .map(
+              er -> {
+                stringBuilder.append(",\"outcome\":\"KO\"");
+                stringBuilder.append(",\"code\":\"%s\"".formatted(er.getAppErrorCode()));
+                stringBuilder.append(
+                    ",\"message\":\"%s\""
+                        .formatted(
+                            er.getErrors().stream()
+                                .map(ErrorMessage::getMessage)
+                                .collect(Collectors.joining(", "))));
+                return null;
+              })
+          .orElseGet(
+              () -> {
+                stringBuilder.append(",\"outcome\":\"OK\"");
+                return null;
+              });
+    }
+    stringBuilder.append(",\"psp\":\"%s\"".formatted(psp != null ? psp : "NA"));
+    stringBuilder.append(",\"ec\":\"%s\"".formatted(ec != null ? ec : "NA"));
     stringBuilder.append("}");
 
     return stringBuilder.toString();

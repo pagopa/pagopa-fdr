@@ -44,10 +44,14 @@ public class OrganizationsService {
 
     PanacheQuery<FdrPublishEntity> reportingFlowPanacheQuery;
     if (pspId == null || pspId.isBlank()) {
+      log.debugf("Get all FdrPublishEntity by ecId[%s]", ecId);
       reportingFlowPanacheQuery = FdrPublishEntity.findByEcId(ecId, sort);
     } else {
+      log.debugf("Get all FdrPublishEntity by ecId[%s], pspId[%s]", ecId, pspId);
       reportingFlowPanacheQuery = FdrPublishEntity.findByEcIdAndPspId(ecId, pspId, sort);
     }
+
+    log.debug("Get paging FdrPublishReportingFlowNameProjection");
     PanacheQuery<FdrPublishReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
         reportingFlowPanacheQuery.page(page).project(FdrPublishReportingFlowNameProjection.class);
 
@@ -57,6 +61,7 @@ public class OrganizationsService {
     long totPage = reportingFlowNameProjectionPanacheQuery.pageCount();
     long countReportingFlow = reportingFlowNameProjectionPanacheQuery.count();
 
+    log.debug("Building ReportingFlowByIdEcDto");
     return ReportingFlowByIdEcDto.builder()
         .metadata(
             MetadataDto.builder()
@@ -82,6 +87,8 @@ public class OrganizationsService {
       String action, String reportingFlowName, String pspId) {
     log.infof(AppMessageUtil.logExecute(action));
 
+    log.debugf(
+        "Existence check FdrPublishEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrPublishEntity.class)
@@ -93,6 +100,7 @@ public class OrganizationsService {
 
     MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
+    log.debug("Mapping ReportingFlowGetDto from FdrPublishEntity");
     return mapper.toReportingFlowGetDto(reportingFlowEntity);
   }
 
@@ -104,6 +112,9 @@ public class OrganizationsService {
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = AppDBUtil.getSort(List.of("index,asc"));
 
+    log.debugf(
+        "Existence check FdrPaymentPublishEntity by flowName[%s], psp[%s]",
+        reportingFlowName, pspId);
     PanacheQuery<FdrPaymentPublishEntity> reportingFlowPaymentEntityPanacheQuery =
         FdrPaymentPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId, sort).page(page);
 
@@ -112,6 +123,7 @@ public class OrganizationsService {
     long totPage = reportingFlowPaymentEntityPanacheQuery.pageCount();
     long countReportingFlowPayment = reportingFlowPaymentEntityPanacheQuery.count();
 
+    log.debug("Mapping ReportingFlowGetPaymentDto from FdrPaymentPublishEntity");
     return ReportingFlowGetPaymentDto.builder()
         .metadata(
             MetadataDto.builder()
@@ -129,6 +141,8 @@ public class OrganizationsService {
     log.infof(AppMessageUtil.logExecute(action));
 
     Instant now = Instant.now();
+    log.debugf(
+        "Existence check FdrPublishEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
     FdrPublishEntity reportingFlowEntity =
         FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
             .project(FdrPublishEntity.class)
@@ -140,5 +154,6 @@ public class OrganizationsService {
     reportingFlowEntity.setUpdated(now);
     reportingFlowEntity.setRead(Boolean.TRUE);
     reportingFlowEntity.update();
+    log.debug("FdrPublishEntity red");
   }
 }
