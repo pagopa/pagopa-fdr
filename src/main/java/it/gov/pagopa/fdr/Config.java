@@ -15,9 +15,7 @@ import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.api.FdrCacheApi;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
-// @Startup
 @ApplicationScoped
-// @UnlessBuildProfile("test")
 public class Config {
 
   @ConfigProperty(name = "adapter.api_config_cache.url")
@@ -46,7 +44,7 @@ public class Config {
             .build(FdrCacheApi.class);
 
     ConfigDataV1 newCache = nodeCacheApi.cache(null);
-    log.debugf("CACHE INIT. Version [%s]", newCache.getVersion());
+    log.debugf("Cache init. Version [%s]", newCache.getVersion());
     this.cache = newCache;
   }
 
@@ -67,9 +65,9 @@ public class Config {
     String version = cache.getVersion();
     String newVersion = nodeCacheApi.idV1().getVersion();
     if (version.equals(newVersion)) {
-      log.debugf("CACHE NOT UPDATED. Version [%s]", cache.getVersion());
+      log.debugf("Cache NOT updated. Version [%s]", cache.getVersion());
     } else {
-      log.debugf("CACHE UPDATED. Version  [%s] -> [%s]", version, newVersion);
+      log.debugf("Cache updated. Version  [%s] -> [%s]", version, newVersion);
       this.cache = nodeCacheApi.cache(null);
     }
   }

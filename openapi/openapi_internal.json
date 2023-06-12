@@ -23,7 +23,112 @@
     "description" : "Psp operations"
   } ],
   "paths" : {
-    "/internal/organizations/ndp/flows/{fdr}/psps/{psp}/payments" : {
+    "/internal/history/organizations/ndp/flows/{fdr}/rev/{rev}/psps/{psp}/read" : {
+      "put" : {
+        "tags" : [ "Internal Organizations" ],
+        "summary" : "Change internal read flag of reporting flow",
+        "description" : "Change internal read flag of reporting flow",
+        "parameters" : [ {
+          "name" : "fdr",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "psp",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "rev",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/history/organizations/ndp/flows" : {
+      "get" : {
+        "tags" : [ "Internal Organizations" ],
+        "summary" : "Get all published reporting flow",
+        "description" : "Get all published reporting flow by ec and idPsp(optional param)",
+        "parameters" : [ {
+          "name" : "idPsp",
+          "in" : "query",
+          "schema" : {
+            "pattern" : "^\\w{1,35}$",
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "format" : "int64",
+            "default" : 1,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "format" : "int64",
+            "default" : 50,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetAllInternalResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/history/organizations/ndp/flows/{fdr}/rev/{rev}/psps/{psp}/payments" : {
       "get" : {
         "tags" : [ "Internal Organizations" ],
         "summary" : "Get payments of reporting flow",
@@ -41,6 +146,14 @@
           "required" : true,
           "schema" : {
             "type" : "string"
+          }
+        }, {
+          "name" : "rev",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
           }
         }, {
           "name" : "page",
@@ -84,54 +197,7 @@
         }
       }
     },
-    "/internal/organizations/ndp/flows" : {
-      "get" : {
-        "tags" : [ "Internal Organizations" ],
-        "summary" : "Get all published reporting flow",
-        "description" : "Get all published reporting flow by ec and idPsp(optional param)",
-        "parameters" : [ {
-          "name" : "page",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 50,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GetAllResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/organizations/ndp/flows/{fdr}/psps/{psp}" : {
+    "/internal/history/organizations/ndp/flows/{fdr}/rev/{rev}/psps/{psp}" : {
       "get" : {
         "tags" : [ "Internal Organizations" ],
         "summary" : "Get reporting flow",
@@ -150,6 +216,14 @@
           "schema" : {
             "type" : "string"
           }
+        }, {
+          "name" : "rev",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
         } ],
         "responses" : {
           "500" : {
@@ -167,49 +241,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GetIdResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/organizations/ndp/flows/{fdr}/psps/{psp}/read" : {
-      "put" : {
-        "tags" : [ "Internal Organizations" ],
-        "summary" : "Change internal read flag of reporting flow",
-        "description" : "Change internal read flag of reporting flow",
-        "parameters" : [ {
-          "name" : "fdr",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "psp",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GenericResponse"
                 }
               }
             }
@@ -362,12 +393,49 @@
           }
         }
       },
+      "FlowInternal" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "AAABBB"
+          },
+          "pspId" : {
+            "type" : "string",
+            "example" : "1"
+          },
+          "revision" : {
+            "format" : "int64",
+            "type" : "integer",
+            "example" : 1
+          }
+        }
+      },
       "GenericResponse" : {
         "type" : "object",
         "properties" : {
           "message" : {
             "type" : "string",
             "example" : "Success"
+          }
+        }
+      },
+      "GetAllInternalResponse" : {
+        "type" : "object",
+        "properties" : {
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "count" : {
+            "format" : "int64",
+            "type" : "integer",
+            "example" : 100
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FlowInternal"
+            }
           }
         }
       },

@@ -1,61 +1,209 @@
 package it.gov.pagopa.fdr.rest.psps;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.BROKER_CODE;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.BROKER_CODE_2;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.BROKER_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.CHANNEL_CODE;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.CHANNEL_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.EC_CODE;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.FLOWS_DELETE_URL;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.FLOWS_URL;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.HEADER;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PAYMENTS_DELETE_URL;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE_2;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.REPORTING_FLOW_NAME;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
-import static it.gov.pagopa.fdr.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_2;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_DELETE_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.test.util.TestUtil.FLOW_TEMPLATE;
+import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.rest.BaseUnitTestHelper;
+import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.model.SenderTypeEnum;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
-import it.gov.pagopa.fdr.util.MongoResource;
+import it.gov.pagopa.fdr.test.util.AzuriteResource;
+import it.gov.pagopa.fdr.test.util.MongoResource;
+import it.gov.pagopa.fdr.test.util.TestUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(MongoResource.class)
-class PspResourceTest extends BaseUnitTestHelper {
+@QuarkusTestResource(AzuriteResource.class)
+class PspResourceTest {
+
+  protected static String PAYMENTS_SAME_INDEX_ADD_TEMPLATE =
+      """
+      {
+        "payments": [{
+            "iuv": "a",
+            "iur": "abcdefg",
+            "index": 1,
+            "pay": 0.01,
+            "payStatus": "EXECUTED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          },{
+            "iuv": "b",
+            "iur": "abcdefg",
+            "index": 1,
+            "pay": 0.01,
+            "payStatus": "REVOKED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          }
+        ]
+      }
+      """;
+
+  protected static String PAYMENTS_2_ADD_TEMPLATE =
+      """
+      {
+        "payments": [{
+          "iuv": "a",
+          "iur": "abcdefg",
+          "index": 1,
+          "pay": 0.01,
+          "payStatus": "EXECUTED",
+          "payDate": "2023-02-03T12:00:30.900000Z"
+        }]
+      }
+      """;
+
+  protected static String PAYMENTS_DELETE_WRONG_TEMPLATE =
+      """
+      {
+        "indexPayments": [
+            5
+        ]
+      }
+      """;
+
+  protected static String MALFORMED_JSON = """
+    {
+      12345
+    }
+    """;
+
+  protected static String PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE =
+    """
+    {
+      "payments": {
+          "iuv": "a",
+          "iur": "abcdefg",
+          "index": 1,
+          "pay": "%s",
+          "payStatus": "EXECUTED",
+          "payDate": "2023-02-03T12:00:30.900000Z"
+        }
+    }
+    """;
+
+  protected static String FLOW_TEMPLATE_WRONG_INSTANT =
+    """
+    {
+      "reportingFlowName": "%s",
+      "reportingFlowDate": "%s",
+      "sender": {
+        "type": "%s",
+        "id": "SELBIT2B",
+        "pspId": "%s",
+        "pspName": "Bank",
+        "brokerId": "%s",
+        "channelId": "%s",
+        "password": "1234567890"
+      },
+      "receiver": {
+        "id": "APPBIT2B",
+        "ecId": "%s",
+        "ecName": "Comune di xyz"
+      },
+      "regulation": "SEPA - Bonifico xzy",
+      "regulationDate": "2023-04-03T12:00:30.900000Z",
+      "bicCodePouringBank": "UNCRITMMXXX"
+    }
+    """;
+
+    protected static String PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE =
+      """
+      {
+        "payments": [{
+            "iuv": "a",
+            "iur": "abcdefg",
+            "index": 1,
+            "pay": "%s",
+            "payStatus": "EXECUTED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          }
+        ]
+      }
+      """;
+
+  protected static String FLOW_TEMPLATE_WRONG_FIELDS =
+      """
+      {
+        "flowName": "%s",
+        "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
+        "sender": {
+          "type": "%s",
+          "id": "SELBIT2B",
+          "pspId": "%s",
+          "pspName": "Bank",
+          "brokerId": "%s",
+          "channelId": "%s",
+          "password": "1234567890"
+        },
+        "receiver": {
+          "id": "APPBIT2B",
+          "ecId": "%s",
+          "ecName": "Comune di xyz"
+        },
+        "regulation": "SEPA - Bonifico xzy",
+        "regulationDate": "2023-04-03T12:00:30.900000Z",
+        "bicCodePouringBank": "UNCRITMMXXX"
+      }
+      """;
+
+    protected static String PAYMENTS_DELETE_TEMPLATE =
+      """
+      {
+        "indexPayments": [
+            1,
+            2,
+            3
+        ]
+      }
+      """;
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e pubblicazione di un flusso")
   void test_psp_OK() {
-    assertThat(pspSunnyDay(getFlowName()), equalTo(Boolean.TRUE));
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
   }
 
   @Test
   @DisplayName("PSPS - OK - inserimento di un flusso per tipo ABI_CODE")
   void test_psp_ABICODE_createFlow_OK() {
-    String flowName = getFlowName();
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.ABI_CODE.name(), PSP_CODE,
-        BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    String bodyFmt = TestUtil.FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.ABI_CODE.name(), PSP_CODE,
+        BROKER_CODE, CHANNEL_CODE, EC_CODE);
+
+    GenericResponse res = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
@@ -63,20 +211,20 @@ class PspResourceTest extends BaseUnitTestHelper {
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(res.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
   }
 
   @Test
   @DisplayName("PSPS - OK - inserimento di un flusso per tipo BIC_CODE")
   void test_psp_BIC_CODE_createFlow_OK() {
-    String flowName = getFlowName();
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.BIC_CODE.name(), PSP_CODE,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse res = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
@@ -84,660 +232,520 @@ class PspResourceTest extends BaseUnitTestHelper {
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(res.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
   }
 
   @Test
   @DisplayName("PSPS - OK - inserimento e cancellazione di un flusso")
   void test_psp_deleteFlow_OK() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
-            .body(bodyFmt)
-            .header(HEADER)
-            .when()
-            .post(url)
-            .then()
-            .statusCode(201)
-            .extract()
-            .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
-
-    url = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint(FLOWS_DELETED_RESPONSE.formatted(flowName), GenericResponse.class);
-    res = prettyPrint(given()
-            .body(bodyFmt)
-            .header(HEADER)
-            .when()
-            .delete(url)
-            .then()
-            .statusCode(200)
-            .extract()
-            .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
-
-    url = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint("""
-        {
-          "httpStatusCode" : 404,
-          "httpStatusDescription" : "Not Found",
-          "appErrorCode" : "FDR-0701",
-          "errors" : [ {
-            "message" : "Reporting flow [%s] not found"
-          } ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .delete(url)
+        .post(urlSave)
+        .then()
+        .statusCode(201)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+
+    String urlDel = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
+
+    GenericResponse resDel = given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .delete(urlDel)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resDel.getMessage(), equalTo("Flow [%s] deleted".formatted(flowName)));
+
+    String urlDel2 = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
+
+    ErrorResponse resDelError = given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .delete(urlDel2)
         .then()
         .statusCode(404)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e cancellazione del flusso con payments")
   void test_psp_deleteFlowWithPayment_OK() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
-    res = prettyPrint(
-        given()
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+
+    GenericResponse resSavePays = given()
             .body(PAYMENTS_ADD_TEMPLATE)
             .header(HEADER)
             .when()
-            .put(url)
+            .put(urlSavePayment)
             .then()
             .statusCode(200)
             .extract()
-            .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+            .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
 
-    url = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint(FLOWS_DELETED_RESPONSE.formatted(flowName), GenericResponse.class);
-    res = prettyPrint(given()
+    String urlDeleteFlow = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
+
+    GenericResponse resDelFlow = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .delete(url)
+        .delete(urlDeleteFlow)
         .then()
         .statusCode(200)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resDelFlow.getMessage(), equalTo("Flow [%s] deleted".formatted(flowName)));
   }
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e cancellazione dei payments")
   void test_psp_deletePayments_OK() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
-    res = prettyPrint(
-            given()
-                .body(PAYMENTS_ADD_TEMPLATE)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
-    url = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint(PAYMENTS_DELETE_RESPONSE.formatted(flowName), GenericResponse.class);
-    res = prettyPrint(given()
-        .body(PAYMENTS_DELETE_TEMPLATE)
+    GenericResponse resSavePays = given()
+        .body(PAYMENTS_ADD_TEMPLATE)
         .header(HEADER)
         .when()
-        .put(url)
+        .put(urlSavePayment)
         .then()
         .statusCode(200)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
 
-    responseFmt = prettyPrint("""
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0703",
-           "errors":[
-              {
-                 "message":"Reporting flow [%s] exist but in [CREATED] status"
-              }
-           ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+
+    GenericResponse resDelPays = given()
         .body(PAYMENTS_DELETE_TEMPLATE)
         .header(HEADER)
         .when()
-        .put(url)
+        .put(urlDelPays)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resDelPays.getMessage(), equalTo("Flow [%s] payment deleted".formatted(flowName)));
+
+    ErrorResponse resDelError = given()
+        .body(PAYMENTS_DELETE_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlDelPays)
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] exist but in [CREATED] status", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e cancellazione parziale dei payments")
   void test_psp_deletePayments_partial_OK() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
-    res = prettyPrint(
-        given()
-            .body(PAYMENTS_ADD_TEMPLATE)
-            .header(HEADER)
-            .when()
-            .put(url)
-            .then()
-            .statusCode(200)
-            .extract()
-            .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
-    url = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint(PAYMENTS_DELETE_RESPONSE.formatted(flowName), GenericResponse.class);
-    res = prettyPrint(given()
-        .body(PAYMENTS_DELETE_PARTIAL_TEMPLATE)
+    GenericResponse resSavePays = given()
+        .body(PAYMENTS_ADD_TEMPLATE)
         .header(HEADER)
         .when()
-        .put(url)
+        .put(urlSavePayment)
         .then()
         .statusCode(200)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+
+    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+
+    GenericResponse resDelPays = given()
+        .body(PAYMENTS_DELETE_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlDelPays)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resDelPays.getMessage(), equalTo("Flow [%s] payment deleted".formatted(flowName)));
   }
+
 
   @Test
   @DisplayName("PSPS - KO FDR-0701 - flow not found in publish")
   void test_psp_publish_KO_FDR0701() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    bodyFmt = PAYMENTS_ADD_TEMPLATE;
-    responseFmt =
-        prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
-    res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
-    flowName = getFlowName();
-    url = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
-    responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":404,
-          "httpStatusDescription":"Not Found",
-          "appErrorCode":"FDR-0701",
-          "errors": [
-            {
-              "message":"Reporting flow [%s] not found"
-            }
-          ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    GenericResponse resSavePays = given()
+        .body(PAYMENTS_ADD_TEMPLATE)
         .header(HEADER)
         .when()
-        .post(url)
+        .put(urlSavePayment)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+
+    String flowNameWrong = TestUtil.getDynamicFlowName();
+    String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowNameWrong);
+
+    ErrorResponse resDelError = given()
+        .header(HEADER)
+        .when()
+        .post(urlPublishFlow)
         .then()
         .statusCode(404)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found", flowNameWrong)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0701 - flow not found in add payments new flowName")
   void test_psp_payments_add_KO_FDR0701() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    flowName = getFlowName();
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":404,
-          "httpStatusDescription":"Not Found",
-          "appErrorCode":"FDR-0701",
-          "errors": [
-            {
-              "message":"Reporting flow [%s] not found"
-            }
-          ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(
-        given()
-            .body(PAYMENTS_ADD_TEMPLATE)
-            .header(HEADER)
-            .when()
-            .put(url)
-            .then()
-            .statusCode(404)
-            .extract()
-            .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String flowName2 = TestUtil.getDynamicFlowName();
+    String urlAddPayments = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName2);
+    ErrorResponse resDelError = given()
+        .body(PAYMENTS_ADD_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlAddPayments)
+        .then()
+        .statusCode(404)
+        .extract()
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found", flowName2)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0701 - flow not found in delete payments new flowName")
   void test_psp_payments_delete_KO_FDR0701() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
-
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    flowName = getFlowName();
-    url = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":404,
-          "httpStatusDescription":"Not Found",
-          "appErrorCode":"FDR-0701",
-          "errors": [
-            {
-              "message":"Reporting flow [%s] not found"
-            }
-          ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    String flowNameUnknown = TestUtil.getDynamicFlowName();
+    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowNameUnknown);
+    ErrorResponse resDelError = given()
         .body(PAYMENTS_DELETE_TEMPLATE)
         .header(HEADER)
         .when()
-        .put(url)
+        .put(urlDelPays)
         .then()
         .statusCode(404)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found", flowNameUnknown)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0702 - flow already exists")
   void test_psp_KO_FDR0702() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0702",
-          "errors": [
-            {
-              "message":"Reporting flow [%s] already exist in [CREATED] status"
-            }
-          ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    ErrorResponse resDelError = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] already exist in [CREATED] status", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0703 - flow not found in publish flow CREATED")
   void test_psp_CREATED_publish_KO_FDR0703() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    url = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
-    responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0703",
-          "errors": [
-            {
-              "message":"Reporting flow [%s] exist but in [CREATED] status"
-            }
-          ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+    ErrorResponse resPublish = given()
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlPublishFlow)
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resPublish.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION.errorCode()));
+    assertThat(resPublish.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] exist but in [CREATED] status", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0703 - reporting flow wrong action delete payments")
   void test_psp_payments_delete_KO_FDR0703() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
-    String bodyFmt =
-        FLOW_TEMPLATE.formatted(
-            flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
-            PSP_CODE,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
-    String res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .post(url)
-                .then()
-                .statusCode(201)
-                .extract()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
 
-    url = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0703",
-          "errors": [
-            {
-              "message":"Reporting flow [%s] exist but in [CREATED] status"
-            }
-          ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+
+    GenericResponse resSave = given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(urlSave)
+        .then()
+        .statusCode(201)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+
+    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    ErrorResponse resDelError = given()
         .body(PAYMENTS_DELETE_TEMPLATE)
         .header(HEADER)
         .when()
-        .put(url)
+        .put(urlDelPays)
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] exist but in [CREATED] status", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0704 - psp param and psp body not match")
   void test_psp_KO_FDR0704() {
+    String flowName = TestUtil.getDynamicFlowName();
     String pspNotMatch = "PSP_NOT_MATCH";
-    String url = FLOWS_URL.formatted(PSP_CODE);
-    String bodyFmt = FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), pspNotMatch,
-        BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0704",
-          "errors": [
-            {
-              "message":"Reporting flow [2016-08-16pspTest-1176] have sender.pspId [PSP_NOT_MATCH] but not match with query param [pspTest]"
-            }
-          ]
-        }
-        """, ErrorResponse.class);
 
-    ErrorResponse res = given()
-        .body(bodyFmt)
+    String url = FLOWS_URL.formatted(PSP_CODE);
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), pspNotMatch,
+        BROKER_CODE, CHANNEL_CODE, EC_CODE);
+    ErrorResponse resDelError = given()
         .header(HEADER)
+        .body(bodyFmt)
         .when()
         .post(url)
         .then()
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseFmt));
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] have sender.pspId [%s] but not match with query param [%s]", flowName, pspNotMatch, PSP_CODE)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0705 - add payments with same index in same request")
   void test_psp_payments_add_KO_FDR0705() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
-    String bodyFmt =
-        FLOW_TEMPLATE.formatted(
-            flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
-            PSP_CODE,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
 
-    String res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .post(url)
-                .then()
-                .statusCode(201)
-                .extract()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    GenericResponse resSave = given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(urlSave)
+        .then()
+        .statusCode(201)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+
+    String urlAddPays = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
     bodyFmt = PAYMENTS_SAME_INDEX_ADD_TEMPLATE;
-    responseFmt = prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0705",
-          "errors":[
-             {
-                "message":"Exist one or more payment index in same request on reporting flow [%s]"
-             }
-          ]
-        }""".formatted(flowName), ErrorResponse.class);
-    res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(400)
-                .extract()
-                .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    ErrorResponse resDelError = given()
+        .header(HEADER)
+        .body(bodyFmt)
+        .when()
+        .put(urlAddPays)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Exist one or more payment index in same request on reporting flow [%s]", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0705 - delete payments with same index in same request")
   void test_psp_payments_delete_KO_FDR0705() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
 
-    String res = prettyPrint(given()
+    GenericResponse resSave = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .post(url)
+        .post(urlSave)
         .then()
         .statusCode(201)
         .extract()
-        .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    bodyFmt = PAYMENTS_ADD_TEMPLATE;
-    responseFmt =
-        prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
-    res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
-    url = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    GenericResponse resSavePays = given()
+        .body(PAYMENTS_ADD_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlSavePayment)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+
+    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
     bodyFmt = """
         {
           "indexPayments": [
@@ -746,196 +754,121 @@ class PspResourceTest extends BaseUnitTestHelper {
           ]
         }
         """;
-    responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0705",
-          "errors": [
-            {
-              "message":"Exist one or more payment index in same request on reporting flow [%s]"
-            }
-          ]
-        }
-        """.formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    ErrorResponse resDelError = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
-        .put(url)
+        .put(urlDelPays)
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Exist one or more payment index in same request on reporting flow [%s]", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0706 - payments with same index")
   void test_psp_KO_FDR0706() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
-    String bodyFmt =
-        FLOW_TEMPLATE.formatted(
-            flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
-            PSP_CODE,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
 
-    String res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .post(url)
-                .then()
-                .statusCode(201)
-                .extract()
-                .body()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    bodyFmt = PAYMENTS_ADD_TEMPLATE;
-    responseFmt =
-        prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
-    res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    GenericResponse resSave = given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(urlSave)
+        .then()
+        .statusCode(201)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
 
-    bodyFmt = PAYMENTS_2_ADD_TEMPLATE;
-    responseFmt = prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0706",
-          "errors":[
-             {
-                "message":"One or more payment index already added on reporting flow [%s]"
-             }
-          ]
-        }""".formatted(flowName), ErrorResponse.class);
-    res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(400)
-                .extract()
-                .body()
-                .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+
+    GenericResponse resSavePays = given()
+        .body(PAYMENTS_ADD_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlSavePayment)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+
+    ErrorResponse resSavePays2 = given()
+        .body(PAYMENTS_2_ADD_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlSavePayment)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class);
+    assertThat(resSavePays2.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX.errorCode()));
+    assertThat(resSavePays2.getErrors(), hasItem(hasProperty("message", equalTo(String.format("One or more payment index already added on reporting flow [%s]", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0707 - payments unknown index delete")
   void test_psp_KO_FDR0707() {
-    String flowName = getFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
-    String bodyFmt =
-        FLOW_TEMPLATE.formatted(
-            flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
-            PSP_CODE,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
-    String responseFmt = prettyPrint(RESPONSE.formatted(flowName), GenericResponse.class);
-    String res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .post(url)
-                .then()
-                .statusCode(201)
-                .extract()
-                .body()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlSave = FLOWS_URL.formatted(PSP_CODE);
 
-    url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    bodyFmt = PAYMENTS_ADD_TEMPLATE;
-    responseFmt =
-        prettyPrint(PAYMENTS_ADD_RESPONSE.formatted(flowName), GenericResponse.class);
-    res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .as(GenericResponse.class));
-    assertThat(res, equalTo(responseFmt));
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
-    url = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    responseFmt = prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0707",
-          "errors":[
-             {
-                "message":"Index of payment not match with index loaded on reporting flow [%s]"
-             }
-          ]
-        }""".formatted(flowName), ErrorResponse.class);
-    res = prettyPrint(given()
+    GenericResponse resSave = given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .post(urlSave)
+        .then()
+        .statusCode(201)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+
+    GenericResponse resSavePays = given()
+        .body(PAYMENTS_ADD_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlSavePayment)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+
+    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    ErrorResponse resDelError = given()
         .body(PAYMENTS_DELETE_WRONG_TEMPLATE)
         .header(HEADER)
         .when()
-        .put(url)
+        .put(urlDelPays)
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Index of payment not match with index loaded on reporting flow [%s]", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0708 - psp unknown")
   void test_psp_KO_FDR0708() {
+    String flowName = TestUtil.getDynamicFlowName();
     String pspUnknown = "PSP_UNKNOWN";
-    String url = FLOWS_URL.formatted(pspUnknown);
-    String bodyFmt = FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), pspUnknown,
-        BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt =
-        """
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0708",
-          "errors":[
-             {
-                "message":"Psp [PSP_UNKNOWN] unknown"
-             }
-          ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
+    String url = FLOWS_URL.formatted(pspUnknown);
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), pspUnknown,
+        BROKER_CODE, CHANNEL_CODE, EC_CODE);
     ErrorResponse res = given()
         .body(bodyFmt)
         .header(HEADER)
@@ -945,30 +878,18 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.PSP_UNKNOWN.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Psp [%s] unknown", pspUnknown)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0709 - psp not enabled")
   void test_psp_KO_FDR0709() {
+    String flowName = TestUtil.getDynamicFlowName();
     String url = "/psps/%s/flows".formatted(PSP_CODE_NOT_ENABLED);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
             PSP_CODE_NOT_ENABLED, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0709",
-           "errors":[
-              {
-                 "message":"Psp [pspNotEnabled] not enabled"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
-
     ErrorResponse res = given()
         .body(bodyFmt)
         .header(HEADER)
@@ -978,32 +899,21 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.PSP_NOT_ENABLED.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Psp [%s] not enabled", PSP_CODE_NOT_ENABLED)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0710 - brokerPsp unknown")
   void test_brokerpsp_KO_FDR0710() {
+    String flowName = TestUtil.getDynamicFlowName();
     String brokerPspUnknown = "BROKERPSP_UNKNOWN";
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE, brokerPspUnknown,
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE, brokerPspUnknown,
             CHANNEL_CODE, EC_CODE);
-    String responseFmt =
-        """
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0710",
-          "errors":[
-             {
-                "message":"Broker [BROKERPSP_UNKNOWN] unknown"
-             }
-          ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
-    ErrorResponse res = given()
+    ErrorResponse resDelError = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
@@ -1012,29 +922,18 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BROKER_UNKNOWN.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Broker [%s] unknown", brokerPspUnknown)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0711 - brokerPsp not enabled")
   void test_brokerpsp_KO_FDR0711() {
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE_NOT_ENABLED, CHANNEL_CODE, EC_CODE);
-    String responseFmt =
-        """
-          {
-             "httpStatusCode":400,
-             "httpStatusDescription":"Bad Request",
-             "appErrorCode":"FDR-0711",
-             "errors":[
-                {
-                   "message":"Broker [intNotEnabled] not enabled"
-                }
-             ]
-          }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1045,31 +944,19 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BROKER_NOT_ENABLED.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Broker [%s] not enabled", BROKER_CODE_NOT_ENABLED)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0712 - channel unknown")
   void test_channel_KO_FDR0712() {
+    String flowName = TestUtil.getDynamicFlowName();
     String channelUnknown = "CHANNEL_UNKNOWN";
-
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, channelUnknown, EC_CODE);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0712",
-           "errors":[
-              {
-                 "message":"Channel [CHANNEL_UNKNOWN] unknown"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1080,29 +967,18 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.CHANNEL_UNKNOWN.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Channel [%s] unknown", channelUnknown)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0713 - channel not enabled")
   void test_channel_KO_FDR0713() {
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE_NOT_ENABLED, EC_CODE);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0713",
-           "errors":[
-              {
-                 "message":"channelId.notEnabled"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1113,29 +989,18 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("channelId.notEnabled"))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0714 - channel with brokerPsp not authorized")
   void test_channelBroker_KO_FDR0714() {
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE_2, CHANNEL_CODE, EC_CODE);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0714",
-           "errors":[
-              {
-                 "message":"Channel [canaleTest] with broker [intTest2] not authorized"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1146,29 +1011,18 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.CHANNEL_BROKER_WRONG_CONFIG.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Channel [%s] with broker [%s] not authorized", CHANNEL_CODE, BROKER_CODE_2)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0715 - channel with psp not authorized")
   void test_channelPsp_KO_FDR0715() {
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE_2);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
             PSP_CODE_2, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0715",
-           "errors":[
-              {
-                 "message":"Channel [canaleTest] with psp [pspTest2] not authorized"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1179,30 +1033,19 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.CHANNEL_PSP_WRONG_CONFIG.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Channel [%s] with psp [%s] not authorized", CHANNEL_CODE, PSP_CODE_2)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0716 - ec unknown")
   void test_ecId_KO_FDR0716() {
+    String flowName = TestUtil.getDynamicFlowName();
     String ecUnknown = "EC_UNKNOWN";
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE, ecUnknown);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0716",
-           "errors":[
-              {
-                 "message":"Creditor institution [EC_UNKNOWN] unknown"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1213,29 +1056,18 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.EC_UNKNOWN.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Creditor institution [%s] unknown", ecUnknown)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0717 - ec not enabled")
   void test_ecId_KO_FDR0717() {
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE, EC_CODE_NOT_ENABLED);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0717",
-           "errors":[
-              {
-                 "message":"Creditor institution [00987654321] not enabled"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1246,7 +1078,8 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.EC_NOT_ENABLED.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Creditor institution [%s] not enabled", EC_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -1256,19 +1089,6 @@ class PspResourceTest extends BaseUnitTestHelper {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, SenderTypeEnumDto.LEGAL_PERSON.name(),
             PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0718",
-           "errors":[
-              {
-                 "message":"Reporting flow [2016-aa-16pspTest-1176] has wrong date"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1279,7 +1099,8 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Reporting flow [2016-aa-16pspTest-1176] has wrong date"))));
   }
 
   @Test
@@ -1289,19 +1110,6 @@ class PspResourceTest extends BaseUnitTestHelper {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, SenderTypeEnumDto.LEGAL_PERSON.name(),
             PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
-    String responseFmt =
-        """
-        {
-           "httpStatusCode":400,
-           "httpStatusDescription":"Bad Request",
-           "appErrorCode":"FDR-0719",
-           "errors":[
-              {
-                 "message":"Reporting flow [2016-08-16-psp-1176] has wrong psp"
-              }
-           ]
-        }""";
-    String responseExpected = prettyPrint(responseFmt, ErrorResponse.class);
 
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -1312,13 +1120,14 @@ class PspResourceTest extends BaseUnitTestHelper {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(prettyPrint(res), equalTo(responseExpected));
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Reporting flow [2016-08-16-psp-1176] has wrong psp"))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0400 - JSON input wrong fields")
   void test_psp_KO_FDR0400() {
-    String flowName = getFlowName();
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String bodyFmt = FLOW_TEMPLATE_WRONG_FIELDS.formatted(
         flowName,
@@ -1328,21 +1137,7 @@ class PspResourceTest extends BaseUnitTestHelper {
         CHANNEL_CODE,
         EC_CODE);
 
-    String responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0400",
-          "errors": [
-            {
-              "path":"createFlow.createFlowRequest.reportingFlowName",
-              "message":"non deve essere null"
-            }
-          ]
-        }
-        """.formatted(""), ErrorResponse.class);
-    String res = prettyPrint(given()
+    ErrorResponse res = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
@@ -1350,49 +1145,37 @@ class PspResourceTest extends BaseUnitTestHelper {
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("non deve essere null"))));
+    assertThat(res.getErrors(), hasItem(hasProperty("path", equalTo("createFlow.createFlowRequest.reportingFlowName"))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0401 - JSON incorrect value")
   void test_psp_KO_FDR0401() {
-    String flowName = getFlowName();
+    String flowName = TestUtil.getDynamicFlowName();
     String url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
     String wrongFormatDecimal = "0,01";
     String bodyFmt = PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE.formatted(wrongFormatDecimal);
-    String responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0401",
-          "errors": [
-            {
-              "message":"Bad request. Field [payments.pay] is [%s]. Not match a correct value"
-            }
-          ]
-        }
-        """.formatted(wrongFormatDecimal), ErrorResponse.class);
-    String res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(400)
-                .extract()
-                .body()
-                .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+
+    ErrorResponse res = given()
+        .body(bodyFmt)
+        .header(HEADER)
+        .when()
+        .put(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Bad request. Field [payments.pay] is [%s]. Not match a correct value", wrongFormatDecimal)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0402 - JSON invalid input instant")
   void test_psp_KO_FDR0402() {
-    String flowName = getFlowName();
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String wrongFormatDate = "2023-04-05";
     String bodyFmt = FLOW_TEMPLATE_WRONG_INSTANT.formatted(
@@ -1404,20 +1187,7 @@ class PspResourceTest extends BaseUnitTestHelper {
         CHANNEL_CODE,
         EC_CODE);
 
-    String responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0402",
-          "errors": [
-            {
-              "message":"Bad request. Field [reportingFlowDate] is [%s]. Expected ISO-8601 [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]"
-            }
-          ]
-        }
-        """.formatted(wrongFormatDate), ErrorResponse.class);
-    String res = prettyPrint(given()
+    ErrorResponse res = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
@@ -1425,14 +1195,15 @@ class PspResourceTest extends BaseUnitTestHelper {
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_INSTANT.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Bad request. Field [reportingFlowDate] is [%s]. Expected ISO-8601 [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]", wrongFormatDate)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0403 - JSON invalid input enum")
   void test_psp_KO_FDR0403() {
-    String flowName = getFlowName();
+    String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE);
     String wrongEnum = "WRONG_ENUM";
     String bodyFmt = FLOW_TEMPLATE.formatted(
@@ -1443,20 +1214,7 @@ class PspResourceTest extends BaseUnitTestHelper {
         CHANNEL_CODE,
         EC_CODE);
 
-    String responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0403",
-          "errors": [
-            {
-              "message":"Bad request. Field [sender.type] is [%s]. Expected value one of [LEGAL_PERSON, ABI_CODE, BIC_CODE]"
-            }
-          ]
-        }
-        """.formatted(wrongEnum), ErrorResponse.class);
-    String res = prettyPrint(given()
+    ErrorResponse res = given()
         .body(bodyFmt)
         .header(HEADER)
         .when()
@@ -1464,73 +1222,46 @@ class PspResourceTest extends BaseUnitTestHelper {
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_ENUM.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Bad request. Field [sender.type] is [%s]. Expected value one of [LEGAL_PERSON, ABI_CODE, BIC_CODE]", wrongEnum)))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0404 - JSON deserialization error")
   void test_psp_KO_FDR0404() {
-    String flowName = getFlowName();
+    String flowName = TestUtil.getDynamicFlowName();
     String url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    String bodyFmt = PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE;
-    String responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0404",
-          "errors": [
-            {
-              "message":"Bad request. Field [payments] generate an deserialize error. Set correct value"
-            }
-          ]
-        }
-        """, ErrorResponse.class);
-    String res =
-        prettyPrint(
-            given()
-                .body(bodyFmt)
-                .header(HEADER)
-                .when()
-                .put(url)
-                .then()
-                .statusCode(400)
-                .extract()
-                .body()
-                .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+
+    ErrorResponse resDelError = given()
+        .body(PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(url)
+        .then()
+        .statusCode(400)
+        .extract()
+        .as(ErrorResponse.class);
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_DESERIALIZE_ERROR.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo("Bad request. Field [payments] generate an deserialize error. Set correct value"))));
   }
 
   @Test
   @DisplayName("PSPS - KO FDR-0405 - JSON malformed")
   void test_psp_KO_FDR0405() {
     String url = FLOWS_URL.formatted(PSP_CODE);
-    String bodyFmt = MALFORMED_JSON;
 
-    String responseFmt =
-        prettyPrint("""
-        {
-          "httpStatusCode":400,
-          "httpStatusDescription":"Bad Request",
-          "appErrorCode":"FDR-0405",
-          "errors": [
-            {
-              "message":"Bad request. Json format not valid"
-            }
-          ]
-        }
-        """, ErrorResponse.class);
-    String res = prettyPrint(given()
-        .body(bodyFmt)
+    ErrorResponse res = given()
+        .body(MALFORMED_JSON)
         .header(HEADER)
         .when()
         .post(url)
         .then()
         .statusCode(400)
         .extract()
-        .as(ErrorResponse.class));
-    assertThat(res, equalTo(responseFmt));
+        .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Bad request. Json format not valid"))));
   }
 
 

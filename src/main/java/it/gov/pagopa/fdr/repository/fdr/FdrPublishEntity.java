@@ -1,14 +1,5 @@
 package it.gov.pagopa.fdr.repository.fdr;
 
-import static it.gov.pagopa.fdr.repository.fdr.QueryConstants.BY_ECID;
-import static it.gov.pagopa.fdr.repository.fdr.QueryConstants.BY_ECID_AND_PSPID;
-import static it.gov.pagopa.fdr.repository.fdr.QueryConstants.BY_FLOWNAME_AND_PSPID;
-import static it.gov.pagopa.fdr.repository.fdr.QueryConstants.BY_INTERNAL_NDP_READ;
-import static it.gov.pagopa.fdr.util.AppConstant.EC_ID;
-import static it.gov.pagopa.fdr.util.AppConstant.FLOW_NAME;
-import static it.gov.pagopa.fdr.util.AppConstant.INTERNAL_READ;
-import static it.gov.pagopa.fdr.util.AppConstant.PSP_ID;
-
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -68,28 +59,34 @@ public class FdrPublishEntity extends PanacheMongoEntity {
   public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
       String reportingFlowName, String pspId) {
     return find(
-        BY_FLOWNAME_AND_PSPID,
-        Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
+        "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
   }
 
   public static PanacheQuery<FdrPublishEntity> findByEcIdAndPspId(
       String ecId, String pspId, Sort sort) {
-    return find(BY_ECID_AND_PSPID, sort, Parameters.with(EC_ID, ecId).and(PSP_ID, pspId).map());
+    return find(
+        "receiver.ec_id = :ecId and sender.psp_id = :pspId",
+        sort,
+        Parameters.with("ecId", ecId).and("pspId", pspId).map());
   }
 
   public static PanacheQuery<FdrPublishEntity> findByEcId(String ecId, Sort sort) {
-    return find(BY_ECID, sort, Parameters.with(EC_ID, ecId).map());
+    return find("receiver.ec_id = :ecId", sort, Parameters.with("ecId", ecId).map());
   }
 
   public static PanacheQuery<FdrPublishEntity> findByInternalRead(
       Boolean internalNdpRead, Sort sort) {
-    return find(BY_INTERNAL_NDP_READ, sort, Parameters.with(INTERNAL_READ, internalNdpRead).map());
+    return find(
+        "receiver.internal_ndp_read = :internalRead",
+        sort,
+        Parameters.with("internalRead", internalNdpRead).map());
   }
 
   public static long deleteByFlowNameAndPspId(String reportingFlowName, String pspId) {
     return delete(
-        BY_FLOWNAME_AND_PSPID,
-        Parameters.with(FLOW_NAME, reportingFlowName).and(PSP_ID, pspId).map());
+        "reporting_flow_name = :flowName and sender.psp_id = :pspId",
+        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
   }
 
   public void persistEntity() {

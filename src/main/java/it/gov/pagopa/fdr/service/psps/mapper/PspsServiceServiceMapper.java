@@ -52,6 +52,7 @@ public interface PspsServiceServiceMapper {
   @Mapping(target = "refFdrId", ignore = true)
   @Mapping(target = "refFdrReportingFlowName", ignore = true)
   @Mapping(target = "refFdrReportingSenderPspId", ignore = true)
+  @Mapping(target = "refFdrRevision", ignore = true)
   FdrPaymentInsertEntity toReportingFlowPaymentEntity(PaymentDto paymentDto);
 
   List<FdrPaymentInsertEntity> toReportingFlowPaymentEntityList(List<PaymentDto> paymentDto);

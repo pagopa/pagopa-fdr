@@ -3,138 +3,100 @@ package it.gov.pagopa.fdr.rest.psps.validation;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
-import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
+import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.time.LocalDate;
-import java.util.Optional;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.BrokerPsp;
 import org.openapi.quarkus.api_config_cache_json.model.Channel;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
-import org.openapi.quarkus.api_config_cache_json.model.CreditorInstitution;
 import org.openapi.quarkus.api_config_cache_json.model.PaymentServiceProvider;
-import org.openapi.quarkus.api_config_cache_json.model.PspChannelPaymentType;
 
 @ApplicationScoped
-public class PspsValidationService {
+public class PspsValidationService extends CommonValidationService {
 
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
   public void validateCreateFlow(
-      String psp, CreateFlowRequest createFlowRequest, ConfigDataV1 configData) {
-    log.debug("Validate create");
+      String action, String psp, CreateFlowRequest createFlowRequest, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
 
-    String reportingFlowName = createFlowRequest.getReportingFlowName();
+    // check psp sender
+    String pspId = createFlowRequest.getSender().getPspId();
+    checkPspSender(log, psp, pspId, createFlowRequest.getReportingFlowName());
 
     // check psp
-    String pspId = createFlowRequest.getSender().getPspId();
-    if (!psp.equals(pspId)) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH, reportingFlowName, pspId, psp);
-    }
-
     PaymentServiceProvider paymentServiceProvider =
-        Optional.ofNullable(configData.getPsps().get(pspId))
-            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.PSP_UNKNOWN, pspId));
-
-    if (paymentServiceProvider.getEnabled() == null || !paymentServiceProvider.getEnabled()) {
-      throw new AppException(AppErrorCodeMessageEnum.PSP_NOT_ENABLED, pspId);
-    }
+        checkPaymentServiceProvider(log, psp, configData);
 
     // check broker
     String brokerId = createFlowRequest.getSender().getBrokerId();
-    BrokerPsp brokerPsp =
-        Optional.ofNullable(configData.getPspBrokers().get(brokerId))
-            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.BROKER_UNKNOWN, brokerId));
-
-    if (brokerPsp.getEnabled() == null || !brokerPsp.getEnabled()) {
-      throw new AppException(AppErrorCodeMessageEnum.BROKER_NOT_ENABLED, brokerId);
-    }
+    BrokerPsp brokerPsp = checkBrokerPsp(log, brokerId, configData);
 
     // check channel
     String channelId = createFlowRequest.getSender().getChannelId();
-    Channel channel =
-        Optional.ofNullable(configData.getChannels().get(channelId))
-            .orElseThrow(
-                () -> new AppException(AppErrorCodeMessageEnum.CHANNEL_UNKNOWN, channelId));
-
-    if (channel.getEnabled() == null || !channel.getEnabled()) {
-      throw new AppException(AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED, channelId);
-    }
+    Channel channel = checkChannel(log, channelId, configData);
 
     // check channel/broker
-    if (channel.getBrokerPspCode() == null
-        || !channel.getBrokerPspCode().equals(brokerPsp.getBrokerPspCode())) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.CHANNEL_BROKER_WRONG_CONFIG, channelId, brokerId);
-    }
+    checkChannelBrokerPsp(log, channel, channelId, brokerPsp, brokerId);
 
     // check channel/psp
-    boolean exist =
-        configData.getPspChannelPaymentTypes().entrySet().stream()
-            .anyMatch(
-                a -> {
-                  PspChannelPaymentType value = a.getValue();
-                  return value.getPspCode().equals(paymentServiceProvider.getPspCode())
-                      && value.getChannelCode().equals(channel.getChannelCode());
-                });
-    if (!exist) {
-      throw new AppException(AppErrorCodeMessageEnum.CHANNEL_PSP_WRONG_CONFIG, channelId, pspId);
-    }
+    checkChannelPsp(log, channel, channelId, paymentServiceProvider, pspId, configData);
 
     // check ec
     String ecId = createFlowRequest.getReceiver().getEcId();
-    CreditorInstitution ec =
-        Optional.ofNullable(configData.getCreditorInstitutions().get(ecId))
-            .orElseThrow(() -> new AppException(AppErrorCodeMessageEnum.EC_UNKNOWN, ecId));
-
-    if (ec.getEnabled() == null || !ec.getEnabled()) {
-      throw new AppException(AppErrorCodeMessageEnum.EC_NOT_ENABLED, ecId);
-    }
+    checkCreditorInstitution(log, ecId, configData);
 
     // check reportingFlowName format
-    String date = reportingFlowName.substring(0, 10);
-    try {
-      // default, ISO_LOCAL_DATE ("2016-08-16")
-      LocalDate.parse(date);
-    } catch (RuntimeException e) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, reportingFlowName);
-    }
-    // TODO non dovremmo verificare che la data sia uguale a regulationDate o reportingFlowDate
-
-    String name = reportingFlowName.substring(10);
-    boolean nameWrongFromat = !name.startsWith(String.format("%s-", pspId));
-    if (nameWrongFromat) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, reportingFlowName);
-    }
+    String reportingFlowName = createFlowRequest.getReportingFlowName();
+    checkReportingFlowFormat(log, reportingFlowName, pspId);
   }
 
   @WithSpan(kind = SERVER)
-  public void validateAddPayment(String psp, String fdr, AddPaymentRequest addPaymentRequest) {
-    log.debug("Validate add payment");
+  public void validateAddPayment(String action, String psp, String fdr, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
+
+    // check psp
+    checkPaymentServiceProvider(log, psp, configData);
+
+    // check reportingFlowName format
+    checkReportingFlowFormat(log, fdr, psp);
   }
 
   @WithSpan(kind = SERVER)
   public void validateDeletePayment(
-      String psp, String fdr, DeletePaymentRequest deletePaymentRequest) {
-    log.debug("Validate delete payment");
+      String action, String psp, String fdr, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
+
+    // check psp
+    checkPaymentServiceProvider(log, psp, configData);
+
+    /// check reportingFlowName format
+    checkReportingFlowFormat(log, fdr, psp);
   }
 
   @WithSpan(kind = SERVER)
-  public void validatePublish(String psp, String fdr) {
-    log.debug("Validate publish");
+  public void validatePublish(String action, String psp, String fdr, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
+
+    // check psp
+    checkPaymentServiceProvider(log, psp, configData);
+
+    /// check reportingFlowName format
+    checkReportingFlowFormat(log, fdr, psp);
   }
 
   @WithSpan(kind = SERVER)
-  public void validateDelete(String psp, String fdr) {
-    log.debug("Validate delete");
+  public void validateDelete(String action, String psp, String fdr, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
+
+    // check psp
+    checkPaymentServiceProvider(log, psp, configData);
+
+    /// check reportingFlowName format
+    checkReportingFlowFormat(log, fdr, psp);
   }
 }

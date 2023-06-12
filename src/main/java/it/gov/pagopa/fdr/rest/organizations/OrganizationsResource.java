@@ -1,5 +1,10 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
+import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
+
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
@@ -7,7 +12,12 @@ import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.OrganizationsValidationService;
+import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
+import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
+import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
+import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -28,12 +38,18 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
+import org.slf4j.MDC;
 
 @Tag(name = "Organizations", description = "Get reporting flow operations")
 @Path("/organizations/{ec}/flows")
 @Consumes("application/json")
 @Produces("application/json")
 public class OrganizationsResource {
+
+  private static final String GET_ALL_PUBLISHED_FLOW = "getAllPublishedFlow";
+  private static final String GET_REPORTING_FLOW = "getReportingFlow";
+  private static final String GET_REPORTING_FLOW_PAYMENTS = "getReportingFlowPayments";
+  private static final String CHANGE_READ_FLAG = "changeReadFlag";
 
   @Inject Config config;
   @Inject Logger log;
@@ -68,10 +84,13 @@ public class OrganizationsResource {
       })
   @GET
   public GetAllResponse getAllPublishedFlow(
-      @PathParam("ec") @Pattern(regexp = "^\\w{1,35}$") String ec,
+      @PathParam(AppConstant.PATH_PARAM_EC) @Pattern(regexp = "^\\w{1,35}$") String ec,
       @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+    MDC.put(ACTION, GET_ALL_PUBLISHED_FLOW);
+    MDC.put(EC_ID, ec);
+    MDC.put(PSP_ID, idPsp);
 
     // TODO aggiungere date from to per leggere al massimo n (as is 30) giorni con limite di 90 e
     // meglio mettere TTL sulla collections a 90 giorni
@@ -80,15 +99,22 @@ public class OrganizationsResource {
     // ripresentarle ogni volta
 
     log.infof(
-        "Get id of reporting flow by idEc [%s], idPsp [%s] - page: [%s], pageSize: [%s]",
-        ec, idPsp, pageNumber, pageSize);
+        AppMessageUtil.logProcess("%s by ec:[%s] with psp:[%s] - page:[%s], pageSize:[%s]"),
+        GET_ALL_PUBLISHED_FLOW,
+        ec,
+        idPsp,
+        pageNumber,
+        pageSize);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    validator.validateGetAllByEc(ec, idPsp, configData);
+    validator.validateGetAllByEc(GET_ALL_PUBLISHED_FLOW, ec, idPsp, configData);
 
     // get from db
-    return mapper.toGetAllResponse(service.findByIdEc(ec, idPsp, pageNumber, pageSize));
+    ReportingFlowByIdEcDto reportingFlowByIdEcDto =
+        service.findByIdEc(GET_ALL_PUBLISHED_FLOW, ec, idPsp, pageNumber, pageSize);
+
+    return mapper.toGetAllResponse(reportingFlowByIdEcDto);
   }
 
   @Operation(
@@ -110,14 +136,31 @@ public class OrganizationsResource {
   @GET
   @Path("/{fdr}/psps/{psp}")
   public GetIdResponse getReportingFlow(
-      @PathParam("ec") String ec, @PathParam("fdr") String fdr, @PathParam("psp") String psp) {
-    log.infof("Get reporting flow by reportingFlowName [%s]", fdr);
+      @PathParam(AppConstant.PATH_PARAM_EC) String ec,
+      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
+      @PathParam(AppConstant.PATH_PARAM_PSP) String psp) {
+    MDC.put(ACTION, GET_REPORTING_FLOW);
+    MDC.put(EC_ID, ec);
+    MDC.put(FLOW_NAME, fdr);
+    MDC.put(PSP_ID, psp);
+
+    log.infof(
+        AppMessageUtil.logProcess("%s by ec:[%s] with fdr=[%s], psp=[%s]"),
+        GET_REPORTING_FLOW,
+        fdr,
+        ec,
+        psp);
+
+    ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateGet(fdr);
+    validator.validateGet(GET_REPORTING_FLOW, fdr, ec, psp, configData);
 
     // get from db
-    return mapper.toGetIdResponse(service.findByReportingFlowName(fdr, psp));
+    ReportingFlowGetDto reportingFlowGetDto =
+        service.findByReportingFlowName(GET_REPORTING_FLOW, fdr, psp);
+
+    return mapper.toGetIdResponse(reportingFlowGetDto);
   }
 
   @Operation(
@@ -139,21 +182,37 @@ public class OrganizationsResource {
   @GET
   @Path("/{fdr}/psps/{psp}/payments")
   public GetPaymentResponse getReportingFlowPayments(
-      @PathParam("ec") String ec,
-      @PathParam("fdr") String fdr,
-      @PathParam("psp") String psp,
+      @PathParam(AppConstant.PATH_PARAM_EC) String ec,
+      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
+      @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+    MDC.put(ACTION, GET_REPORTING_FLOW_PAYMENTS);
+    MDC.put(EC_ID, ec);
+    MDC.put(FLOW_NAME, fdr);
+    MDC.put(PSP_ID, psp);
+
     log.infof(
-        "Get payment of reporting flow by id [%s] - page: [%s], pageSize: [%s]",
-        fdr, pageNumber, pageSize);
+        AppMessageUtil.logProcess(
+            "%s by ec:[%s] with fdr:[%s], psp:[%s] - page:[%s], pageSize:[%s]"),
+        GET_REPORTING_FLOW_PAYMENTS,
+        fdr,
+        ec,
+        psp,
+        pageNumber,
+        pageSize);
+
+    ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateGetPayment(fdr);
+    validator.validateGetPayment(GET_REPORTING_FLOW_PAYMENTS, fdr, ec, psp, configData);
 
     // get from db
-    return mapper.toGetPaymentResponse(
-        service.findPaymentByReportingFlowName(fdr, psp, pageNumber, pageSize));
+    ReportingFlowGetPaymentDto reportingFlowGetPaymentDto =
+        service.findPaymentByReportingFlowName(
+            GET_REPORTING_FLOW_PAYMENTS, fdr, psp, pageNumber, pageSize);
+
+    return mapper.toGetPaymentResponse(reportingFlowGetPaymentDto);
   }
 
   @Operation(
@@ -175,16 +234,29 @@ public class OrganizationsResource {
   @PUT
   @Path("/{fdr}/psps/{psp}/read")
   public GenericResponse changeReadFlag(
-      @PathParam("ec") String ec, @PathParam("fdr") String fdr, @PathParam("psp") String psp) {
-    log.infof("Get payment of reporting flow by id [%s]", fdr);
+      @PathParam(AppConstant.PATH_PARAM_EC) String ec,
+      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
+      @PathParam(AppConstant.PATH_PARAM_PSP) String psp) {
+    MDC.put(ACTION, CHANGE_READ_FLAG);
+    MDC.put(EC_ID, ec);
+    MDC.put(FLOW_NAME, fdr);
+    MDC.put(PSP_ID, psp);
+
+    log.infof(
+        AppMessageUtil.logProcess("%s by ec=[%s] with fdr:[%s], psp:[%s]"),
+        CHANGE_READ_FLAG,
+        fdr,
+        ec,
+        psp);
+
+    ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateChangeReadFlag(fdr);
+    validator.validateChangeReadFlag(CHANGE_READ_FLAG, fdr, ec, psp, configData);
 
     // change on DB
-    service.changeReadFlag(ec, psp, fdr);
+    service.changeReadFlag(CHANGE_READ_FLAG, psp, fdr);
 
-    // get from db
     return GenericResponse.builder().message(String.format("Flow [%s] read", fdr)).build();
   }
 }
