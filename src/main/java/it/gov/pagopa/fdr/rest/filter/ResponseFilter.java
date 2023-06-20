@@ -3,14 +3,22 @@ package it.gov.pagopa.fdr.rest.filter;
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
 import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse.ErrorMessage;
+import it.gov.pagopa.fdr.service.re.ReService;
+import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
+import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.ext.Provider;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -23,19 +31,44 @@ public class ResponseFilter implements ContainerResponseFilter {
 
   @Inject Logger log;
 
+  @Inject ReService reService;
+
   @Override
   public void filter(
       ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
     long requestStartTime = (long) requestContext.getProperty("requestStartTime");
     long requestFinishTime = System.nanoTime();
     long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
+
+    String sessionId = MDC.get(TRX_ID);
+    String requestMethod = requestContext.getMethod();
+    String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
+    reService.sendEvent(
+        ReInterface.builder()
+            .appVersion(AppVersionEnum.PHASE_3)
+            .created(Instant.now())
+            .sessionId(sessionId)
+            .eventType(EventTypeEnum.INTERFACE)
+            .httpType(HttpTypeEnum.RES)
+            .httpMethod(requestMethod)
+            .httpUrl(requestPath)
+            .bodyRef("??REF??")
+            .header(
+                responseContext.getHeaders().entrySet().stream()
+                    .collect(
+                        Collectors.toMap(
+                            Map.Entry::getKey,
+                            a ->
+                                a.getValue().stream()
+                                    .map(Object::toString)
+                                    .collect(Collectors.toList()))))
+            .build());
+
     String requestSubject = (String) requestContext.getProperty("subject");
     String action = MDC.get(ACTION);
     String psp = MDC.get(PSP_ID);
     String ec = MDC.get(EC_ID);
 
-    String requestMethod = requestContext.getMethod();
-    String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
     int httpStatus = responseContext.getStatus();
     Optional<ErrorResponse> errorResponse = Optional.empty();
 

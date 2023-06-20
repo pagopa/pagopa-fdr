@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.queue.message;
+package it.gov.pagopa.fdr.service.conversion.message;
 
 import lombok.Builder;
 import lombok.Getter;

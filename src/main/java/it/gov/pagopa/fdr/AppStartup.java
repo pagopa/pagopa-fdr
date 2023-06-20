@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr;
 
 import io.quarkus.runtime.Startup;
-import it.gov.pagopa.fdr.service.queue.ConversionQueue;
+import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,7 +22,7 @@ public class AppStartup {
 
   @Inject Config config;
 
-  @Inject ConversionQueue conversionQueue;
+  @Inject ConversionService conversionQueue;
 
   @PostConstruct
   public void init() {

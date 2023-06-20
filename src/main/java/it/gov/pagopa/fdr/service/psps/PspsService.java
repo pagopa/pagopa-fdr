@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.service.psps;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
@@ -14,13 +15,19 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReportingFlowStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
+import it.gov.pagopa.fdr.service.conversion.ConversionService;
+import it.gov.pagopa.fdr.service.conversion.message.FlowMessage;
 import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
-import it.gov.pagopa.fdr.service.queue.ConversionQueue;
-import it.gov.pagopa.fdr.service.queue.message.FlowMessage;
+import it.gov.pagopa.fdr.service.re.ReService;
+import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
+import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FlowStatusEnum;
+import it.gov.pagopa.fdr.service.re.model.ReInternal;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -40,7 +47,9 @@ public class PspsService {
 
   @Inject Logger log;
 
-  @Inject ConversionQueue conversionQueue;
+  @Inject ConversionService conversionQueue;
+
+  @Inject ReService reService;
 
   @WithSpan(kind = SERVER)
   public void save(String action, ReportingFlowDto reportingFlowDto) {
@@ -72,6 +81,7 @@ public class PspsService {
     // sono stati tolti i check con il vecchio FDR, vale solo che se arriva stesso flowName con
     // stesso pspId si crea la rev2
 
+    Long revision = fdrPublishedByReportingFlowName.map(r -> r.getRevision() + 1).orElse(1L);
     log.debug("Mapping FdrInsertEntity from reportingFlowDto");
     FdrInsertEntity reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
 
@@ -80,9 +90,24 @@ public class PspsService {
     reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.CREATED);
     reportingFlowEntity.setTotPayments(0L);
     reportingFlowEntity.setSumPayments(0.0);
-    reportingFlowEntity.setRevision(
-        fdrPublishedByReportingFlowName.map(r -> r.getRevision() + 1).orElse(1L));
+    reportingFlowEntity.setRevision(revision);
     reportingFlowEntity.persist();
+
+    String sessionId = org.slf4j.MDC.get(TRX_ID);
+    reService.sendEvent(
+        ReInternal.builder()
+            .appVersion(AppVersionEnum.PHASE_3)
+            .created(Instant.now())
+            .sessionId(sessionId)
+            .eventType(EventTypeEnum.INTERNAL)
+            .flowPhisicalDelete(false)
+            .flowStatus(FlowStatusEnum.CREATED)
+            .flowRead(false)
+            .flowName(reportingFlowName)
+            .pspId(pspId)
+            .revision(revision)
+            .flowAction(FlowActionEnum.CREATE_FLOW)
+            .build());
     log.debug("FdrInsertEntity CREATED");
   }
 
