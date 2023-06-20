@@ -36,68 +36,71 @@ public class ResponseFilter implements ContainerResponseFilter {
   @Override
   public void filter(
       ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-    long requestStartTime = (long) requestContext.getProperty("requestStartTime");
-    long requestFinishTime = System.nanoTime();
-    long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
+    if (requestContext.getPropertyNames().contains("requestStartTime")) {
+      long requestStartTime = (long) requestContext.getProperty("requestStartTime");
+      long requestFinishTime = System.nanoTime();
+      long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
 
-    String sessionId = MDC.get(TRX_ID);
-    String requestMethod = requestContext.getMethod();
-    String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
-    reService.sendEvent(
-        ReInterface.builder()
-            .appVersion(AppVersionEnum.PHASE_3)
-            .created(Instant.now())
-            .sessionId(sessionId)
-            .eventType(EventTypeEnum.INTERFACE)
-            .httpType(HttpTypeEnum.RES)
-            .httpMethod(requestMethod)
-            .httpUrl(requestPath)
-            .bodyRef("??REF??")
-            .header(
-                responseContext.getHeaders().entrySet().stream()
-                    .collect(
-                        Collectors.toMap(
-                            Map.Entry::getKey,
-                            a ->
-                                a.getValue().stream()
-                                    .map(Object::toString)
-                                    .collect(Collectors.toList()))))
-            .build());
+      String sessionId = MDC.get(TRX_ID);
+      String requestMethod = requestContext.getMethod();
+      String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
+      reService.sendEvent(
+          ReInterface.builder()
+              .appVersion(AppVersionEnum.PHASE_3)
+              .created(Instant.now())
+              .sessionId(sessionId)
+              .eventType(EventTypeEnum.INTERFACE)
+              .httpType(HttpTypeEnum.RES)
+              .httpMethod(requestMethod)
+              .httpUrl(requestPath)
+              .bodyRef("??REF??")
+              .header(
+                  responseContext.getHeaders().entrySet().stream()
+                      .collect(
+                          Collectors.toMap(
+                              Map.Entry::getKey,
+                              a ->
+                                  a.getValue().stream()
+                                      .map(Object::toString)
+                                      .collect(Collectors.toList()))))
+              .build());
 
-    String requestSubject = (String) requestContext.getProperty("subject");
-    String action = MDC.get(ACTION);
-    String psp = MDC.get(PSP_ID);
-    String ec = MDC.get(EC_ID);
+      String requestSubject = (String) requestContext.getProperty("subject");
+      String action = MDC.get(ACTION);
+      String psp = MDC.get(PSP_ID);
+      String ec = MDC.get(EC_ID);
 
-    int httpStatus = responseContext.getStatus();
-    Optional<ErrorResponse> errorResponse = Optional.empty();
+      int httpStatus = responseContext.getStatus();
+      Optional<ErrorResponse> errorResponse = Optional.empty();
 
-    if (responseContext.getStatus() != HttpStatusCode.OK_200.code()
-        && responseContext.getStatus() != HttpStatusCode.CREATED_201.code()) {
-      Object body = responseContext.getEntity();
-      if (body instanceof ErrorResponse) {
-        errorResponse = Optional.of((ErrorResponse) body);
-        logErrorResponse(requestMethod, requestPath, requestSubject, elapsed, errorResponse.get());
+      if (responseContext.getStatus() != HttpStatusCode.OK_200.code()
+          && responseContext.getStatus() != HttpStatusCode.CREATED_201.code()) {
+        Object body = responseContext.getEntity();
+        if (body instanceof ErrorResponse) {
+          errorResponse = Optional.of((ErrorResponse) body);
+          logErrorResponse(
+              requestMethod, requestPath, requestSubject, elapsed, errorResponse.get());
+        } else {
+          log.infof(
+              "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",
+              requestMethod,
+              requestPath,
+              requestSubject,
+              elapsed,
+              httpStatus,
+              ((Throwable) responseContext.getEntity()).getMessage());
+        }
       } else {
         log.infof(
-            "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",
-            requestMethod,
-            requestPath,
-            requestSubject,
-            elapsed,
-            httpStatus,
-            ((Throwable) responseContext.getEntity()).getMessage());
+            "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d]",
+            requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       }
-    } else {
-      log.infof(
-          "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d]",
-          requestMethod, requestPath, requestSubject, elapsed, httpStatus);
+
+      logJsonReq(action, requestPath, psp, ec);
+      logJsonRes(action, requestPath, psp, ec, elapsed, httpStatus, errorResponse);
+
+      MDC.clear();
     }
-
-    logJsonReq(action, requestPath, psp, ec);
-    logJsonRes(action, requestPath, psp, ec, elapsed, httpStatus, errorResponse);
-
-    MDC.clear();
   }
 
   private void logErrorResponse(
