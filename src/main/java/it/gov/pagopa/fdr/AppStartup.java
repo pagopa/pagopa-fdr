@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr;
 
 import io.quarkus.runtime.Startup;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
+import it.gov.pagopa.fdr.service.re.ReService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,11 +19,16 @@ public class AppStartup {
   @ConfigProperty(name = "queue.conversion.enabled")
   boolean queueConversionEnabled;
 
+  @ConfigProperty(name = "eHub.re.enabled")
+  boolean eHubReEnabled;
+
   @Inject Logger log;
 
   @Inject Config config;
 
   @Inject ConversionService conversionQueue;
+
+  @Inject ReService reService;
 
   @PostConstruct
   public void init() {
@@ -38,6 +44,13 @@ public class AppStartup {
       conversionQueue.init();
     } else {
       log.info("Start Queue Conversion DISABLED");
+    }
+
+    if (eHubReEnabled) {
+      log.info("Start EventHub Re ENABLED");
+      reService.init();
+    } else {
+      log.info("Start EventHub Re DISABLED");
     }
   }
 }

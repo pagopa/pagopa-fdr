@@ -18,6 +18,7 @@ import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
@@ -40,7 +41,7 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
 @Tag(name = "PSP", description = "Psp operations")
-@Path("/psps/{psp}/flows")
+@Path("/psps/{psp}/flows/{fdr}")
 @Consumes("application/json")
 @Produces("application/json")
 public class PspsResource {
@@ -79,33 +80,33 @@ public class PspsResource {
   @POST
   public RestResponse<GenericResponse> createFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
+      @PathParam(AppConstant.PATH_PARAM_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
       @NotNull @Valid CreateFlowRequest createFlowRequest) {
 
     MDC.put(ACTION, CREATE_FLOW);
     MDC.put(PSP_ID, psp);
 
-    String flowName = createFlowRequest.getReportingFlowName();
     String ecId = createFlowRequest.getReceiver().getEcId();
     MDC.put(EC_ID, ecId);
-    MDC.put(FLOW_NAME, flowName);
+    MDC.put(FLOW_NAME, fdr);
 
     log.infof(
         AppMessageUtil.logProcess("%s by psp:[%s] with flowName:[%s], ecId:[%s]"),
         CREATE_FLOW,
         psp,
-        flowName,
+        fdr,
         ecId);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    validator.validateCreateFlow(CREATE_FLOW, psp, createFlowRequest, configData);
+    validator.validateCreateFlow(CREATE_FLOW, psp, fdr, createFlowRequest, configData);
 
     // save on DB
     service.save(CREATE_FLOW, mapper.toReportingFlowDto(createFlowRequest));
 
     return RestResponse.status(
         Status.CREATED,
-        GenericResponse.builder().message(String.format("Flow [%s] saved", flowName)).build());
+        GenericResponse.builder().message(String.format("Flow [%s] saved", fdr)).build());
   }
 
   @Operation(
@@ -126,7 +127,7 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @PUT
-  @Path("/{fdr}/payments/add")
+  @Path("/payments/add")
   public GenericResponse addPaymenTFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
@@ -167,7 +168,7 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @PUT
-  @Path("/{fdr}/payments/del")
+  @Path("/payments/del")
   public GenericResponse deletePaymentFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
@@ -208,7 +209,7 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @POST
-  @Path("/{fdr}/publish")
+  @Path("/publish")
   public GenericResponse publishReportingFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr) {
@@ -248,7 +249,6 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @DELETE
-  @Path("/{fdr}")
   public GenericResponse deleteReportingFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr) {

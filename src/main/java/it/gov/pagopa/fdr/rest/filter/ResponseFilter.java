@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.rest.filter;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
 import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
@@ -40,6 +41,11 @@ public class ResponseFilter implements ContainerResponseFilter {
       long requestStartTime = (long) requestContext.getProperty("requestStartTime");
       long requestFinishTime = System.nanoTime();
       long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
+      String requestSubject = (String) requestContext.getProperty("subject");
+      String action = MDC.get(ACTION);
+      String psp = MDC.get(PSP_ID);
+      String ec = MDC.get(EC_ID);
+      String flow = MDC.get(FLOW_NAME);
 
       String sessionId = MDC.get(TRX_ID);
       String requestMethod = requestContext.getMethod();
@@ -63,12 +69,9 @@ public class ResponseFilter implements ContainerResponseFilter {
                                   a.getValue().stream()
                                       .map(Object::toString)
                                       .collect(Collectors.toList()))))
+              .pspId(psp)
+              .flowName(flow)
               .build());
-
-      String requestSubject = (String) requestContext.getProperty("subject");
-      String action = MDC.get(ACTION);
-      String psp = MDC.get(PSP_ID);
-      String ec = MDC.get(EC_ID);
 
       int httpStatus = responseContext.getStatus();
       Optional<ErrorResponse> errorResponse = Optional.empty();

@@ -38,6 +38,8 @@ public class RequestFilter implements ContainerRequestFilter {
 
     String requestMethod = containerRequestContext.getMethod();
     String requestPath = containerRequestContext.getUriInfo().getAbsolutePath().getPath();
+    String pspPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("psp");
+    String flowPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("fdr");
 
     reService.sendEvent(
         ReInterface.builder()
@@ -52,6 +54,8 @@ public class RequestFilter implements ContainerRequestFilter {
             .header(
                 containerRequestContext.getHeaders().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+            .pspId(pspPathParam)
+            .flowName(flowPathParam)
             .build());
 
     MultivaluedMap<String, String> pathparam =
