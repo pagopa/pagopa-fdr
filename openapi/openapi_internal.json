@@ -16,6 +16,9 @@
     "name" : "Internal Organizations",
     "description" : "Get reporting flow operations"
   }, {
+    "name" : "Internal PSP",
+    "description" : "Psp operations"
+  }, {
     "name" : "Organizations",
     "description" : "Get reporting flow operations"
   }, {
@@ -23,11 +26,11 @@
     "description" : "Psp operations"
   } ],
   "paths" : {
-    "/internal/history/organizations/ndp/flows/{fdr}/rev/{rev}/psps/{psp}/read" : {
+    "/internal/psps/{psp}/flows/{fdr}/payments/del" : {
       "put" : {
-        "tags" : [ "Internal Organizations" ],
-        "summary" : "Change internal read flag of reporting flow",
-        "description" : "Change internal read flag of reporting flow",
+        "tags" : [ "Internal PSP" ],
+        "summary" : "Delete payments to reporting flow",
+        "description" : "Delete payments to reporting flow",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -42,15 +45,16 @@
           "schema" : {
             "type" : "string"
           }
-        }, {
-          "name" : "rev",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "format" : "int64",
-            "type" : "integer"
-          }
         } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeletePaymentRequest"
+              }
+            }
+          }
+        },
         "responses" : {
           "500" : {
             "$ref" : "#/components/responses/InternalServerError"
@@ -121,6 +125,101 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GetAllInternalResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/psps/{psp}/flows/{fdr}/payments/add" : {
+      "put" : {
+        "tags" : [ "Internal PSP" ],
+        "summary" : "Add payments to reporting flow",
+        "description" : "Add payments to reporting flow",
+        "parameters" : [ {
+          "name" : "fdr",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "psp",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AddPaymentRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/psps/{psp}/flows/{fdr}/publish" : {
+      "post" : {
+        "tags" : [ "Internal PSP" ],
+        "summary" : "Publish reporting flow",
+        "description" : "Publish reporting flow",
+        "parameters" : [ {
+          "name" : "fdr",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "psp",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GenericResponse"
                 }
               }
             }
@@ -247,6 +346,100 @@
           }
         }
       }
+    },
+    "/internal/psps/{psp}/flows/{fdr}" : {
+      "post" : {
+        "tags" : [ "Internal PSP" ],
+        "summary" : "Create reporting flow",
+        "description" : "Create new reporting flow",
+        "parameters" : [ {
+          "name" : "fdr",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "pattern" : "[a-zA-Z0-9\\-_]{1,35}",
+            "type" : "string"
+          }
+        }, {
+          "name" : "psp",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateFlowRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Internal PSP" ],
+        "summary" : "Delete reporting flow",
+        "description" : "Delete reporting flow",
+        "parameters" : [ {
+          "name" : "fdr",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "psp",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -272,7 +465,7 @@
           "reportingFlowName" : {
             "pattern" : "[a-zA-Z0-9\\-_]{1,35}",
             "type" : "string",
-            "example" : "60000000001-1173"
+            "example" : "2016-08-16pspTest-1178"
           },
           "reportingFlowDate" : {
             "type" : "string",
@@ -489,7 +682,7 @@
           },
           "reportingFlowName" : {
             "type" : "string",
-            "example" : "60000000001-1173"
+            "example" : "2016-08-16pspTest-1178"
           },
           "reportingFlowDate" : {
             "type" : "string",
