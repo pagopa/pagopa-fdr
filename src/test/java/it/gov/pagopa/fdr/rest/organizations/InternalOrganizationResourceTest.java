@@ -93,7 +93,7 @@ class InternalOrganizationResourceTest {
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(pspUnknown, 10, 10);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(pspUnknown);
     ErrorResponse res =
         given()
             .header(HEADER)
@@ -115,7 +115,7 @@ class InternalOrganizationResourceTest {
   @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_NOT_ENABLED, 10, 10);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_NOT_ENABLED);
 
     ErrorResponse res =
         given()
