@@ -17,8 +17,6 @@ build () {
   #docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
   docker build -f src/main/docker/Dockerfile.multistage.jvm \
   --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf \
-  --build-arg ADAPTER_API_CONFIG_CACHE_URL=http://localhost:8080 \
-  --build-arg ADAPTER_API_CONFIG_CACHE_KEY=$conf \
   -t $REPO:$version-$conf .
 }
 

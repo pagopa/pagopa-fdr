@@ -19,6 +19,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.Provider;
 import java.time.Instant;
 import java.util.Map;
@@ -28,7 +30,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
-import org.mockserver.model.HttpStatusCode;
 import org.slf4j.MDC;
 
 @Provider
@@ -90,8 +91,8 @@ public class ResponseFilter implements ContainerResponseFilter {
       int httpStatus = responseContext.getStatus();
       Optional<ErrorResponse> errorResponse = Optional.empty();
 
-      if (responseContext.getStatus() != HttpStatusCode.OK_200.code()
-          && responseContext.getStatus() != HttpStatusCode.CREATED_201.code()) {
+      if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
+          && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
         Object body = responseContext.getEntity();
         if (body instanceof ErrorResponse) {
           errorResponse = Optional.of((ErrorResponse) body);
