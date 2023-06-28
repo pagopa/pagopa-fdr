@@ -15,6 +15,8 @@ build () {
   echo "Build version [$version] [$conf]"
   #./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.profile=$conf
   #docker build -f src/main/docker/Dockerfile.native -t $REPO:$version-$conf .
+
+  ##Attenzione si usa il file Dockerfile.multistage.jvm, e non Dockerfile.multistage, perchè la lib di azure non è compatibile per la build nativa
   docker build -f src/main/docker/Dockerfile.multistage.jvm \
   --build-arg APP_NAME=pagopafdr --build-arg QUARKUS_PROFILE=$conf \
   -t $REPO:$version-$conf .

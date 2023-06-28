@@ -187,6 +187,7 @@ stages:
               DOCKER_IMAGE_NAME: $(imageRepository)
               DOCKER_IMAGE_TAG: $(current_version)
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
+              ##Attenzione si usa il file Dockerfile.multistage.jvm, e non Dockerfile.multistage, perchè la lib di azure non è compatibile per la build nativa
               DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage"
               DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository) --build-arg QUARKUS_PROFILE=prod"
 
