@@ -55,9 +55,9 @@ public class RequestFilter implements ContainerRequestFilter {
 
     if (flowActionEnum == null) {
       log.warn("Attention, missing annotation Re on this action");
+    } else {
+      MDC.put(ACTION, flowActionEnum.name());
     }
-
-    MDC.put(ACTION, flowActionEnum.name());
 
     reService.sendEvent(
         ReInterface.builder()
