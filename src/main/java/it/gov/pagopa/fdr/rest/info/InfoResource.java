@@ -2,7 +2,9 @@ package it.gov.pagopa.fdr.rest.info;
 
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.rest.info.response.InfoResponse;
+import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
+import it.gov.pagopa.fdr.util.Re;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -47,6 +49,7 @@ public class InfoResource {
       })
   @Produces(MediaType.APPLICATION_JSON)
   @GET
+  @Re(flowName = FlowActionEnum.INFO)
   public InfoResponse hello() {
     log.infof("Info environment: [%s] - name: [%s] - version: [%s]", environment, name, version);
 

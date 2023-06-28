@@ -1,9 +1,9 @@
-package it.gov.pagopa.fdr.service.queue;
+package it.gov.pagopa.fdr.service.conversion;
 
 import com.azure.storage.queue.QueueClient;
 import com.azure.storage.queue.QueueClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.fdr.service.queue.message.FlowMessage;
+import it.gov.pagopa.fdr.service.conversion.message.FlowMessage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
@@ -11,7 +11,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
-public class ConversionQueue {
+public class ConversionService {
 
   @ConfigProperty(name = "queue.conversion.connect-str")
   String connectStr;

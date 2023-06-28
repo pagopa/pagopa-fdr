@@ -21,7 +21,11 @@ public class PspsValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateCreateFlow(
-      String action, String psp, CreateFlowRequest createFlowRequest, ConfigDataV1 configData) {
+      String action,
+      String psp,
+      String fdr,
+      CreateFlowRequest createFlowRequest,
+      ConfigDataV1 configData) {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp sender
@@ -52,6 +56,7 @@ public class PspsValidationService extends CommonValidationService {
 
     // check reportingFlowName format
     String reportingFlowName = createFlowRequest.getReportingFlowName();
+    checkFlowName(log, fdr, reportingFlowName);
     checkReportingFlowFormat(log, reportingFlowName, pspId);
   }
 

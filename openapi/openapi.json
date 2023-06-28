@@ -16,6 +16,9 @@
     "name" : "Internal Organizations",
     "description" : "Get reporting flow operations"
   }, {
+    "name" : "Internal PSP",
+    "description" : "Psp operations"
+  }, {
     "name" : "Organizations",
     "description" : "Get reporting flow operations"
   }, {
@@ -205,51 +208,6 @@
         }
       }
     },
-    "/psps/{psp}/flows" : {
-      "post" : {
-        "tags" : [ "PSP" ],
-        "summary" : "Create reporting flow",
-        "description" : "Create new reporting flow",
-        "parameters" : [ {
-          "name" : "psp",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CreateFlowRequest"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "201" : {
-            "description" : "Created",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/organizations/{ec}/flows/{fdr}/psps/{psp}" : {
       "get" : {
         "tags" : [ "Organizations" ],
@@ -344,15 +302,16 @@
       }
     },
     "/psps/{psp}/flows/{fdr}" : {
-      "delete" : {
+      "post" : {
         "tags" : [ "PSP" ],
-        "summary" : "Delete reporting flow",
-        "description" : "Delete reporting flow",
+        "summary" : "Create reporting flow",
+        "description" : "Create new reporting flow",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
           "required" : true,
           "schema" : {
+            "pattern" : "[a-zA-Z0-9\\-_]{1,35}",
             "type" : "string"
           }
         }, {
@@ -363,6 +322,15 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateFlowRequest"
+              }
+            }
+          }
+        },
         "responses" : {
           "500" : {
             "$ref" : "#/components/responses/InternalServerError"
@@ -373,8 +341,8 @@
           "404" : {
             "$ref" : "#/components/responses/AppException404"
           },
-          "200" : {
-            "description" : "Success",
+          "201" : {
+            "description" : "Created",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -384,21 +352,12 @@
             }
           }
         }
-      }
-    },
-    "/organizations/{ec}/flows/{fdr}/psps/{psp}/read" : {
-      "put" : {
-        "tags" : [ "Organizations" ],
-        "summary" : "Change read flag of reporting flow",
-        "description" : "Change read flag of reporting flow",
+      },
+      "delete" : {
+        "tags" : [ "PSP" ],
+        "summary" : "Delete reporting flow",
+        "description" : "Delete reporting flow",
         "parameters" : [ {
-          "name" : "ec",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
           "name" : "fdr",
           "in" : "path",
           "required" : true,
@@ -533,7 +492,7 @@
           "reportingFlowName" : {
             "pattern" : "[a-zA-Z0-9\\-_]{1,35}",
             "type" : "string",
-            "example" : "60000000001-1173"
+            "example" : "2016-08-16pspTest-1178"
           },
           "reportingFlowDate" : {
             "type" : "string",
@@ -750,7 +709,7 @@
           },
           "reportingFlowName" : {
             "type" : "string",
-            "example" : "60000000001-1173"
+            "example" : "2016-08-16pspTest-1178"
           },
           "reportingFlowDate" : {
             "type" : "string",

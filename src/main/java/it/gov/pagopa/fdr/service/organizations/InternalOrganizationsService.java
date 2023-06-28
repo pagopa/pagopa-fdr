@@ -22,7 +22,6 @@ import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.jboss.logging.Logger;
@@ -145,28 +144,5 @@ public class InternalOrganizationsService {
         .count(countReportingFlowPayment)
         .data(mapper.historyToPagamentoDtos(list))
         .build();
-  }
-
-  @WithSpan(kind = SERVER)
-  public void changeInternalReadFlag(
-      String action, String reportingFlowName, Long rev, String pspId) {
-    log.infof(AppMessageUtil.logExecute(action));
-
-    Instant now = Instant.now();
-    log.debugf(
-        "Existence check FdrHistoryEntity by flowName[%s], rev[%d], psp[%s]",
-        reportingFlowName, rev, pspId);
-    FdrHistoryEntity reportingFlowEntity =
-        FdrHistoryEntity.findByFlowNameAndRevAndPspId(reportingFlowName, rev, pspId)
-            .project(FdrHistoryEntity.class)
-            .firstResultOptional()
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
-    reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setInternalNdpRead(Boolean.TRUE);
-    reportingFlowEntity.update();
-    log.debug("FdrHistoryEntity red");
   }
 }

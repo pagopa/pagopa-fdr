@@ -6,7 +6,6 @@ import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import it.gov.pagopa.fdr.Config;
-import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
@@ -16,15 +15,16 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
+import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
+import it.gov.pagopa.fdr.util.Re;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -45,11 +45,6 @@ import org.slf4j.MDC;
 @Consumes("application/json")
 @Produces("application/json")
 public class OrganizationsResource {
-
-  private static final String GET_ALL_PUBLISHED_FLOW = "getAllPublishedFlow";
-  private static final String GET_REPORTING_FLOW = "getReportingFlow";
-  private static final String GET_REPORTING_FLOW_PAYMENTS = "getReportingFlowPayments";
-  private static final String CHANGE_READ_FLAG = "changeReadFlag";
 
   @Inject Config config;
   @Inject Logger log;
@@ -83,12 +78,13 @@ public class OrganizationsResource {
                     schema = @Schema(implementation = GetAllResponse.class)))
       })
   @GET
+  @Re(flowName = FlowActionEnum.GET_ALL_FDR)
   public GetAllResponse getAllPublishedFlow(
       @PathParam(AppConstant.PATH_PARAM_EC) @Pattern(regexp = "^\\w{1,35}$") String ec,
       @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
-    MDC.put(ACTION, GET_ALL_PUBLISHED_FLOW);
+    String action = MDC.get(ACTION);
     MDC.put(EC_ID, ec);
     MDC.put(PSP_ID, idPsp);
 
@@ -100,7 +96,7 @@ public class OrganizationsResource {
 
     log.infof(
         AppMessageUtil.logProcess("%s by ec:[%s] with psp:[%s] - page:[%s], pageSize:[%s]"),
-        GET_ALL_PUBLISHED_FLOW,
+        action,
         ec,
         idPsp,
         pageNumber,
@@ -108,11 +104,11 @@ public class OrganizationsResource {
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    validator.validateGetAllByEc(GET_ALL_PUBLISHED_FLOW, ec, idPsp, configData);
+    validator.validateGetAllByEc(action, ec, idPsp, configData);
 
     // get from db
     ReportingFlowByIdEcDto reportingFlowByIdEcDto =
-        service.findByIdEc(GET_ALL_PUBLISHED_FLOW, ec, idPsp, pageNumber, pageSize);
+        service.findByIdEc(action, ec, idPsp, pageNumber, pageSize);
 
     return mapper.toGetAllResponse(reportingFlowByIdEcDto);
   }
@@ -135,30 +131,26 @@ public class OrganizationsResource {
       })
   @GET
   @Path("/{fdr}/psps/{psp}")
+  @Re(flowName = FlowActionEnum.GET_FDR)
   public GetIdResponse getReportingFlow(
       @PathParam(AppConstant.PATH_PARAM_EC) String ec,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp) {
-    MDC.put(ACTION, GET_REPORTING_FLOW);
+    String action = MDC.get(ACTION);
     MDC.put(EC_ID, ec);
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
     log.infof(
-        AppMessageUtil.logProcess("%s by ec:[%s] with fdr=[%s], psp=[%s]"),
-        GET_REPORTING_FLOW,
-        fdr,
-        ec,
-        psp);
+        AppMessageUtil.logProcess("%s by ec:[%s] with fdr=[%s], psp=[%s]"), action, fdr, ec, psp);
 
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateGet(GET_REPORTING_FLOW, fdr, ec, psp, configData);
+    validator.validateGet(action, fdr, ec, psp, configData);
 
     // get from db
-    ReportingFlowGetDto reportingFlowGetDto =
-        service.findByReportingFlowName(GET_REPORTING_FLOW, fdr, psp);
+    ReportingFlowGetDto reportingFlowGetDto = service.findByReportingFlowName(action, fdr, psp);
 
     return mapper.toGetIdResponse(reportingFlowGetDto);
   }
@@ -181,13 +173,14 @@ public class OrganizationsResource {
       })
   @GET
   @Path("/{fdr}/psps/{psp}/payments")
+  @Re(flowName = FlowActionEnum.GET_FDR_PAYMENT)
   public GetPaymentResponse getReportingFlowPayments(
       @PathParam(AppConstant.PATH_PARAM_EC) String ec,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
-    MDC.put(ACTION, GET_REPORTING_FLOW_PAYMENTS);
+    String action = MDC.get(ACTION);
     MDC.put(EC_ID, ec);
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
@@ -195,7 +188,7 @@ public class OrganizationsResource {
     log.infof(
         AppMessageUtil.logProcess(
             "%s by ec:[%s] with fdr:[%s], psp:[%s] - page:[%s], pageSize:[%s]"),
-        GET_REPORTING_FLOW_PAYMENTS,
+        action,
         fdr,
         ec,
         psp,
@@ -205,58 +198,12 @@ public class OrganizationsResource {
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateGetPayment(GET_REPORTING_FLOW_PAYMENTS, fdr, ec, psp, configData);
+    validator.validateGetPayment(action, fdr, ec, psp, configData);
 
     // get from db
     ReportingFlowGetPaymentDto reportingFlowGetPaymentDto =
-        service.findPaymentByReportingFlowName(
-            GET_REPORTING_FLOW_PAYMENTS, fdr, psp, pageNumber, pageSize);
+        service.findPaymentByReportingFlowName(action, fdr, psp, pageNumber, pageSize);
 
     return mapper.toGetPaymentResponse(reportingFlowGetPaymentDto);
-  }
-
-  @Operation(
-      summary = "Change read flag of reporting flow",
-      description = "Change read flag of reporting flow")
-  @APIResponses(
-      value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
-        @APIResponse(
-            responseCode = "200",
-            description = "Success",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GenericResponse.class)))
-      })
-  @PUT
-  @Path("/{fdr}/psps/{psp}/read")
-  public GenericResponse changeReadFlag(
-      @PathParam(AppConstant.PATH_PARAM_EC) String ec,
-      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
-      @PathParam(AppConstant.PATH_PARAM_PSP) String psp) {
-    MDC.put(ACTION, CHANGE_READ_FLAG);
-    MDC.put(EC_ID, ec);
-    MDC.put(FLOW_NAME, fdr);
-    MDC.put(PSP_ID, psp);
-
-    log.infof(
-        AppMessageUtil.logProcess("%s by ec=[%s] with fdr:[%s], psp:[%s]"),
-        CHANGE_READ_FLAG,
-        fdr,
-        ec,
-        psp);
-
-    ConfigDataV1 configData = config.getClonedCache();
-
-    // validation
-    validator.validateChangeReadFlag(CHANGE_READ_FLAG, fdr, ec, psp, configData);
-
-    // change on DB
-    service.changeReadFlag(CHANGE_READ_FLAG, psp, fdr);
-
-    return GenericResponse.builder().message(String.format("Flow [%s] read", fdr)).build();
   }
 }

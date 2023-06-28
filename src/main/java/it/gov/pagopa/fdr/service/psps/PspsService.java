@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.service.psps;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
@@ -14,13 +15,19 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReportingFlowStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
+import it.gov.pagopa.fdr.service.conversion.ConversionService;
+import it.gov.pagopa.fdr.service.conversion.message.FlowMessage;
 import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
-import it.gov.pagopa.fdr.service.queue.ConversionQueue;
-import it.gov.pagopa.fdr.service.queue.message.FlowMessage;
+import it.gov.pagopa.fdr.service.re.ReService;
+import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
+import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FlowStatusEnum;
+import it.gov.pagopa.fdr.service.re.model.ReInternal;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -29,6 +36,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
@@ -40,7 +48,9 @@ public class PspsService {
 
   @Inject Logger log;
 
-  @Inject ConversionQueue conversionQueue;
+  @Inject ConversionService conversionQueue;
+
+  @Inject ReService reService;
 
   @WithSpan(kind = SERVER)
   public void save(String action, ReportingFlowDto reportingFlowDto) {
@@ -49,6 +59,7 @@ public class PspsService {
     Instant now = Instant.now();
     String reportingFlowName = reportingFlowDto.getReportingFlowName();
     String pspId = reportingFlowDto.getSender().getPspId();
+    String ecId = reportingFlowDto.getReceiver().getEcId();
 
     log.debugf(
         "Existence check FdrInsertEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
@@ -72,6 +83,7 @@ public class PspsService {
     // sono stati tolti i check con il vecchio FDR, vale solo che se arriva stesso flowName con
     // stesso pspId si crea la rev2
 
+    Long revision = fdrPublishedByReportingFlowName.map(r -> r.getRevision() + 1).orElse(1L);
     log.debug("Mapping FdrInsertEntity from reportingFlowDto");
     FdrInsertEntity reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
 
@@ -80,9 +92,25 @@ public class PspsService {
     reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.CREATED);
     reportingFlowEntity.setTotPayments(0L);
     reportingFlowEntity.setSumPayments(0.0);
-    reportingFlowEntity.setRevision(
-        fdrPublishedByReportingFlowName.map(r -> r.getRevision() + 1).orElse(1L));
+    reportingFlowEntity.setRevision(revision);
     reportingFlowEntity.persist();
+
+    String sessionId = org.slf4j.MDC.get(TRX_ID);
+    reService.sendEvent(
+        ReInternal.builder()
+            .appVersion(AppVersionEnum.NEW_FDR)
+            .created(Instant.now())
+            .sessionId(sessionId)
+            .eventType(EventTypeEnum.INTERNAL)
+            .flowPhisicalDelete(false)
+            .flowStatus(FlowStatusEnum.CREATED)
+            //            .flowRead(false)
+            .flowName(reportingFlowName)
+            .pspId(pspId)
+            .ecId(ecId)
+            .revision(revision)
+            .flowAction(FlowActionEnum.CREATE_FLOW)
+            .build());
     log.debug("FdrInsertEntity CREATED");
   }
 
@@ -151,6 +179,23 @@ public class PspsService {
                   return reportingFlowPaymentEntity;
                 })
             .toList());
+
+    String sessionId = org.slf4j.MDC.get(TRX_ID);
+    reService.sendEvent(
+        ReInternal.builder()
+            .appVersion(AppVersionEnum.NEW_FDR)
+            .created(Instant.now())
+            .sessionId(sessionId)
+            .eventType(EventTypeEnum.INTERNAL)
+            .flowPhisicalDelete(false)
+            .flowStatus(FlowStatusEnum.INSERTED)
+            //            .flowRead(false)
+            .flowName(reportingFlowName)
+            .pspId(pspId)
+            .ecId(reportingFlowEntity.getReceiver().getEcId())
+            .revision(reportingFlowEntity.getRevision())
+            .flowAction(FlowActionEnum.ADD_PAYMENT)
+            .build());
   }
 
   @WithSpan(kind = SERVER)
@@ -200,19 +245,67 @@ public class PspsService {
     log.debugf("Delete FdrPaymentInsertEntity by flowName[%s], indexList", reportingFlowName);
     FdrPaymentInsertEntity.deleteByFlowNameAndIndexes(reportingFlowName, indexList);
 
+    ReportingFlowStatusEnumEntity status =
+        reportingFlowEntity.getSumPayments() > 0
+            ? ReportingFlowStatusEnumEntity.INSERTED
+            : ReportingFlowStatusEnumEntity.CREATED;
     reportingFlowEntity.setTotPayments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
     reportingFlowEntity.setSumPayments(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
     reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setStatus(
-        (reportingFlowEntity.getSumPayments() > 0)
-            ? ReportingFlowStatusEnumEntity.INSERTED
-            : ReportingFlowStatusEnumEntity.CREATED);
+    reportingFlowEntity.setStatus(status);
     reportingFlowEntity.update();
     log.debugf("FdrInsertEntity %s", reportingFlowEntity.getStatus().name());
+
+    String sessionId = org.slf4j.MDC.get(TRX_ID);
+    reService.sendEvent(
+        ReInternal.builder()
+            .appVersion(AppVersionEnum.NEW_FDR)
+            .created(Instant.now())
+            .sessionId(sessionId)
+            .eventType(EventTypeEnum.INTERNAL)
+            .flowPhisicalDelete(false)
+            .flowStatus(
+                ReportingFlowStatusEnumEntity.INSERTED == status
+                    ? FlowStatusEnum.INSERTED
+                    : FlowStatusEnum.CREATED)
+            //            .flowRead(false)
+            .flowName(reportingFlowName)
+            .pspId(pspId)
+            .ecId(reportingFlowEntity.getReceiver().getEcId())
+            .revision(reportingFlowEntity.getRevision())
+            .flowAction(FlowActionEnum.DELETE_PAYMENT)
+            .build());
+  }
+
+  @WithSpan(kind = SERVER)
+  public void internalPublishByReportingFlowName(
+      String action, String pspId, String reportingFlowName) {
+    Consumer<FdrInsertEntity> consumer =
+        reportingFlowEntity -> log.debug("NOT Add FdrInsertEntity in queue flow message");
+    basePublishByReportingFlowName(action, pspId, reportingFlowName, consumer);
   }
 
   @WithSpan(kind = SERVER)
   public void publishByReportingFlowName(String action, String pspId, String reportingFlowName) {
+    Consumer<FdrInsertEntity> consumer =
+        reportingFlowEntity -> {
+          log.debug("Add FdrInsertEntity in queue flow message");
+          conversionQueue.addQueueFlowMessage(
+              FlowMessage.builder()
+                  .name(reportingFlowEntity.getReportingFlowName())
+                  .pspId(reportingFlowEntity.getSender().getPspId())
+                  .retry(0L)
+                  .revision(reportingFlowEntity.getRevision())
+                  .build());
+        };
+    basePublishByReportingFlowName(action, pspId, reportingFlowName, consumer);
+  }
+
+  private void basePublishByReportingFlowName(
+      String action,
+      String pspId,
+      String reportingFlowName,
+      Consumer<FdrInsertEntity> funcConversionQueue) {
     log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
@@ -278,13 +371,24 @@ public class PspsService {
         reportingFlowEntity.getRevision(), reportingFlowName, pspId);
     FdrPaymentInsertEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);
 
-    log.debug("Add FdrInsertEntity in queue flow message");
-    conversionQueue.addQueueFlowMessage(
-        FlowMessage.builder()
-            .name(reportingFlowEntity.getReportingFlowName())
-            .pspId(reportingFlowEntity.getSender().getPspId())
-            .retry(0L)
+    // add to conversion queue
+    funcConversionQueue.accept(reportingFlowEntity);
+
+    String sessionId = org.slf4j.MDC.get(TRX_ID);
+    reService.sendEvent(
+        ReInternal.builder()
+            .appVersion(AppVersionEnum.NEW_FDR)
+            .created(Instant.now())
+            .sessionId(sessionId)
+            .eventType(EventTypeEnum.INTERNAL)
+            .flowPhisicalDelete(false)
+            .flowStatus(FlowStatusEnum.PUBLISHED)
+            //            .flowRead(false)
+            .flowName(reportingFlowName)
+            .pspId(pspId)
+            .ecId(reportingFlowEntity.getReceiver().getEcId())
             .revision(reportingFlowEntity.getRevision())
+            .flowAction(FlowActionEnum.PUBLISH)
             .build());
   }
 
@@ -307,6 +411,23 @@ public class PspsService {
     }
     log.debug("Delete FdrInsertEntity");
     reportingFlowEntity.delete();
+
+    String sessionId = org.slf4j.MDC.get(TRX_ID);
+    reService.sendEvent(
+        ReInternal.builder()
+            .appVersion(AppVersionEnum.NEW_FDR)
+            .created(Instant.now())
+            .sessionId(sessionId)
+            .eventType(EventTypeEnum.INTERNAL)
+            .flowPhisicalDelete(true)
+            .flowStatus(FlowStatusEnum.DELETED)
+            //            .flowRead(false)
+            .flowName(reportingFlowName)
+            .pspId(pspId)
+            .ecId(reportingFlowEntity.getReceiver().getEcId())
+            .revision(reportingFlowEntity.getRevision())
+            .flowAction(FlowActionEnum.DELETE_FLOW)
+            .build());
   }
 
   private static double addAndSum(

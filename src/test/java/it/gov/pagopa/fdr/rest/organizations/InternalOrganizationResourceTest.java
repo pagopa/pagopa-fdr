@@ -20,7 +20,6 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
-import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
@@ -94,7 +93,7 @@ class InternalOrganizationResourceTest {
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(pspUnknown, 10, 10);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(pspUnknown);
     ErrorResponse res =
         given()
             .header(HEADER)
@@ -116,7 +115,7 @@ class InternalOrganizationResourceTest {
   @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_NOT_ENABLED, 10, 10);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_NOT_ENABLED);
 
     ErrorResponse res =
         given()
@@ -240,52 +239,52 @@ class InternalOrganizationResourceTest {
   }
 
   /** ################# changeReadFlag ############### */
-  @Test
-  @DisplayName("ORGANIZATIONS - OK - changeReadFlag")
-  void testOrganization_changeReadFlag_Ok() {
-    String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
-
-    String url = CHANGE_READ_FLAG_URL.formatted(flowName, 1, PSP_CODE);
-
-    GenericResponse res =
-        given()
-            .header(HEADER)
-            .when()
-            .put(url)
-            .then()
-            .statusCode(200)
-            .extract()
-            .as(GenericResponse.class);
-    assertThat(res.getMessage(), equalTo(String.format("Flow [%s] internal read", flowName)));
-  }
-
-  @Test
-  @DisplayName("ORGANIZATIONS - KO FDR-0701 - changeReadFlag reporting flow not found")
-  void testOrganization_changeReadFlag_KO_FDR0701() {
-    String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
-    String flowNameWrong = TestUtil.getDynamicFlowName();
-
-    String url = CHANGE_READ_FLAG_URL.formatted(flowNameWrong, 1, PSP_CODE);
-
-    ErrorResponse res =
-        given()
-            .header(HEADER)
-            .when()
-            .put(url)
-            .then()
-            .statusCode(404)
-            .extract()
-            .as(ErrorResponse.class);
-    assertThat(
-        res.getAppErrorCode(),
-        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-    assertThat(
-        res.getErrors(),
-        hasItem(
-            hasProperty(
-                "message",
-                equalTo(String.format("Reporting flow [%s] not found", flowNameWrong)))));
-  }
+  //  @Test
+  //  @DisplayName("ORGANIZATIONS - OK - changeReadFlag")
+  //  void testOrganization_changeReadFlag_Ok() {
+  //    String flowName = TestUtil.getDynamicFlowName();
+  //    TestUtil.pspSunnyDay(flowName);
+  //
+  //    String url = CHANGE_READ_FLAG_URL.formatted(flowName, 1, PSP_CODE);
+  //
+  //    GenericResponse res =
+  //        given()
+  //            .header(HEADER)
+  //            .when()
+  //            .put(url)
+  //            .then()
+  //            .statusCode(200)
+  //            .extract()
+  //            .as(GenericResponse.class);
+  //    assertThat(res.getMessage(), equalTo(String.format("Flow [%s] internal read", flowName)));
+  //  }
+  //
+  //  @Test
+  //  @DisplayName("ORGANIZATIONS - KO FDR-0701 - changeReadFlag reporting flow not found")
+  //  void testOrganization_changeReadFlag_KO_FDR0701() {
+  //    String flowName = TestUtil.getDynamicFlowName();
+  //    TestUtil.pspSunnyDay(flowName);
+  //    String flowNameWrong = TestUtil.getDynamicFlowName();
+  //
+  //    String url = CHANGE_READ_FLAG_URL.formatted(flowNameWrong, 1, PSP_CODE);
+  //
+  //    ErrorResponse res =
+  //        given()
+  //            .header(HEADER)
+  //            .when()
+  //            .put(url)
+  //            .then()
+  //            .statusCode(404)
+  //            .extract()
+  //            .as(ErrorResponse.class);
+  //    assertThat(
+  //        res.getAppErrorCode(),
+  //        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
+  //    assertThat(
+  //        res.getErrors(),
+  //        hasItem(
+  //            hasProperty(
+  //                "message",
+  //                equalTo(String.format("Reporting flow [%s] not found", flowNameWrong)))));
+  //  }
 }

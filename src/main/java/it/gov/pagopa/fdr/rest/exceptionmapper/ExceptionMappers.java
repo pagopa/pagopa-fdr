@@ -49,8 +49,6 @@ public class ExceptionMappers {
     RestResponse.Status status = codeMessage.httpStatus();
     String message = codeMessage.message(appEx.getArgs());
 
-    log.errorf(logErrorMessage(message));
-
     ErrorResponse errorResponse =
         ErrorResponse.builder()
             .httpStatusCode(status.getStatusCode())
@@ -64,9 +62,7 @@ public class ExceptionMappers {
 
   private RestResponse<ErrorResponse> mapJsonMappingException(
       JsonMappingException jsonMappingException) {
-    log.errorf(logErrorMessage(jsonMappingException.getMessage()));
     // quando jackson riesce a parsare il messaggio perchè non formato json valido
-
     AppException appEx =
         new AppException(
             jsonMappingException, AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT);
@@ -90,7 +86,6 @@ public class ExceptionMappers {
   }
 
   private RestResponse<ErrorResponse> mapJsonParseException(JsonParseException jsonParseException) {
-    log.errorf(logErrorMessage(jsonParseException.getMessage()));
     // quando jackson riesce a parsare il messaggio perchè non formato json valido
 
     AppException appEx =
@@ -119,7 +114,6 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapInvalidFormatException(
       InvalidFormatException invalidFormatException) {
-    log.errorf(logErrorMessage(invalidFormatException.getMessage()));
     // quando jackson riesce a parsare il messaggio per popolare il bean ma i valori NON sono
     // corretti
     String field =
@@ -187,7 +181,6 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapMismatchedInputException(
       MismatchedInputException mismatchedInputException) {
-    log.errorf(logErrorMessage(mismatchedInputException.getMessage()));
     // quando jackson NON riesce a parsare il messaggio per popolare il bean
     String field =
         mismatchedInputException.getPath().stream()
@@ -251,7 +244,6 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapConstraintViolationException(
       ConstraintViolationException constraintViolationException) {
-    log.errorf(logErrorMessage(constraintViolationException.getMessage()));
 
     AppException appEx =
         new AppException(constraintViolationException, AppErrorCodeMessageEnum.BAD_REQUEST);

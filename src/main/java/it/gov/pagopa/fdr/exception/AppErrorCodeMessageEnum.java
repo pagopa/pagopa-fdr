@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.exception;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.RestResponse.Status;
 
 public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   ERROR("0500", "system.error", RestResponse.Status.INTERNAL_SERVER_ERROR),
@@ -25,6 +26,7 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
       "0703", "reporting-flow.wrongAction", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PSP_ID_NOT_MATCH(
       "0704", "reporting-flow.pspId.notMatch", RestResponse.Status.BAD_REQUEST),
+
   REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST(
       "0705", "reporting-flow.sameIndexInSameRequest", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX(
@@ -45,7 +47,11 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   REPORTING_FLOW_NAME_DATE_WRONG_FORMAT(
       "0718", "reporting-flow.name-date.wrongFormat", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_NAME_PSP_WRONG_FORMAT(
-      "0719", "reporting-flow.name-psp.wrongFormat", RestResponse.Status.BAD_REQUEST);
+      "0719", "reporting-flow.name-psp.wrongFormat", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_NAME_NOT_MATCH(
+      "0720", "reporting-flow.name.notMatch", RestResponse.Status.BAD_REQUEST),
+  EVENT_HUB_RE_PARSE_JSON("0721", "eHub.re.parse", Status.INTERNAL_SERVER_ERROR),
+  EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR);
   private final String errorCode;
   private final String errorMessageKey;
   private final RestResponse.Status httpStatus;

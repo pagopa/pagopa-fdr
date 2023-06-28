@@ -56,19 +56,4 @@ public class OrganizationsValidationService extends CommonValidationService {
     // check reportingFlowName format
     checkReportingFlowFormat(log, fdr, pspId);
   }
-
-  @WithSpan(kind = SERVER)
-  public void validateChangeReadFlag(
-      String action, String fdr, String ecId, String pspId, ConfigDataV1 configData) {
-    log.info(AppMessageUtil.logValidate(action));
-
-    // check psp
-    checkPaymentServiceProvider(log, pspId, configData);
-
-    // check ec
-    checkCreditorInstitution(log, ecId, configData);
-
-    // check reportingFlowName format
-    checkReportingFlowFormat(log, fdr, pspId);
-  }
 }

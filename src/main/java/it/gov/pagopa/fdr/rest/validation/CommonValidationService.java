@@ -24,6 +24,14 @@ public class CommonValidationService {
     }
   }
 
+  public void checkFlowName(Logger log, String fdr, String reportingFlowName) {
+    log.debugf("Check match between fdr[%s], reportingFlowName[%s]", fdr, reportingFlowName);
+    if (!fdr.equals(reportingFlowName)) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH, reportingFlowName, fdr);
+    }
+  }
+
   public PaymentServiceProvider checkPaymentServiceProvider(
       Logger log, String psp, ConfigDataV1 configData) {
     log.debugf("Check psp[%s]", psp);

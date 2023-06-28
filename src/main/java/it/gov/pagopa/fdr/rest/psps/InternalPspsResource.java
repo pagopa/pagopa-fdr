@@ -42,11 +42,11 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
-@Tag(name = "PSP", description = "Psp operations")
-@Path("/psps/{psp}/flows/{fdr}")
+@Tag(name = "Internal PSP", description = "Psp operations")
+@Path("/internal/psps/{psp}/flows/{fdr}")
 @Consumes("application/json")
 @Produces("application/json")
-public class PspsResource {
+public class InternalPspsResource {
 
   public static final String S_BY_PSP_S_WITH_FDR_S = "%s by psp:[%s] with fdr:[%s]";
 
@@ -76,7 +76,7 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @POST
-  @Re(flowName = FlowActionEnum.CREATE_FLOW)
+  @Re(flowName = FlowActionEnum.INTERNAL_CREATE_FLOW)
   public RestResponse<GenericResponse> createFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @PathParam(AppConstant.PATH_PARAM_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
@@ -127,7 +127,7 @@ public class PspsResource {
       })
   @PUT
   @Path("/payments/add")
-  @Re(flowName = FlowActionEnum.ADD_PAYMENT)
+  @Re(flowName = FlowActionEnum.INTERNAL_ADD_PAYMENT)
   public GenericResponse addPaymenTFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
@@ -168,7 +168,7 @@ public class PspsResource {
       })
   @PUT
   @Path("/payments/del")
-  @Re(flowName = FlowActionEnum.DELETE_PAYMENT)
+  @Re(flowName = FlowActionEnum.INTERNAL_DELETE_PAYMENT)
   public GenericResponse deletePaymentFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
@@ -208,7 +208,7 @@ public class PspsResource {
       })
   @POST
   @Path("/publish")
-  @Re(flowName = FlowActionEnum.PUBLISH)
+  @Re(flowName = FlowActionEnum.INTERNAL_PUBLISH)
   public GenericResponse publishReportingFlow(
       @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
       @PathParam(AppConstant.PATH_PARAM_FDR) String fdr) {
@@ -224,7 +224,7 @@ public class PspsResource {
     validator.validatePublish(action, psp, fdr, configData);
 
     // save on DB
-    service.publishByReportingFlowName(action, psp, fdr);
+    service.internalPublishByReportingFlowName(action, psp, fdr);
 
     return GenericResponse.builder().message(String.format("Flow [%s] published", fdr)).build();
   }

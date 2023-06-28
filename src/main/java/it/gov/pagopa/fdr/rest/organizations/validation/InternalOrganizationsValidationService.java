@@ -46,16 +46,4 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
     // check reportingFlowName format
     checkReportingFlowFormat(log, fdr, pspId);
   }
-
-  @WithSpan(kind = SERVER)
-  public void validateChangeInternalReadFlag(
-      String action, String fdr, String pspId, ConfigDataV1 configData) {
-    log.info(AppMessageUtil.logValidate(action));
-
-    // check psp
-    checkPaymentServiceProvider(log, pspId, configData);
-
-    // check reportingFlowName format
-    checkReportingFlowFormat(log, fdr, pspId);
-  }
 }
