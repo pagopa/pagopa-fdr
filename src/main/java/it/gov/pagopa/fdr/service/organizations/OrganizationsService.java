@@ -22,7 +22,6 @@ import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.time.Instant;
 import java.util.List;
 import org.jboss.logging.Logger;
 import org.slf4j.MDC;
@@ -136,24 +135,24 @@ public class OrganizationsService {
         .build();
   }
 
-  @WithSpan(kind = SERVER)
-  public void changeReadFlag(String action, String pspId, String reportingFlowName) {
-    log.infof(AppMessageUtil.logExecute(action));
-
-    Instant now = Instant.now();
-    log.debugf(
-        "Existence check FdrPublishEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
-    FdrPublishEntity reportingFlowEntity =
-        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
-            .project(FdrPublishEntity.class)
-            .firstResultOptional()
-            .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
-    reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setRead(Boolean.TRUE);
-    reportingFlowEntity.update();
-    log.debug("FdrPublishEntity red");
-  }
+  //  @WithSpan(kind = SERVER)
+  //  public void changeReadFlag(String action, String pspId, String reportingFlowName) {
+  //    log.infof(AppMessageUtil.logExecute(action));
+  //
+  //    Instant now = Instant.now();
+  //    log.debugf(
+  //        "Existence check FdrPublishEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
+  //    FdrPublishEntity reportingFlowEntity =
+  //        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
+  //            .project(FdrPublishEntity.class)
+  //            .firstResultOptional()
+  //            .orElseThrow(
+  //                () ->
+  //                    new AppException(
+  //                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+  //    reportingFlowEntity.setUpdated(now);
+  //    reportingFlowEntity.setRead(Boolean.TRUE);
+  //    reportingFlowEntity.update();
+  //    log.debug("FdrPublishEntity red");
+  //  }
 }

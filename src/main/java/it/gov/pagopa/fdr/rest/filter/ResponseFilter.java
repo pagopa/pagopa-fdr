@@ -11,8 +11,10 @@ import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse.ErrorMessage;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
 import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.util.AppReUtil;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -24,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 import org.mockserver.model.HttpStatusCode;
 import org.slf4j.MDC;
 
@@ -47,12 +50,23 @@ public class ResponseFilter implements ContainerResponseFilter {
       String ec = MDC.get(EC_ID);
       String flow = MDC.get(FLOW_NAME);
 
+      FlowActionEnum flowActionEnum =
+          AppReUtil.getFlowNamebyAnnotation(
+              ((ContainerRequestContextImpl) requestContext)
+                  .getServerRequestContext()
+                  .getResteasyReactiveResourceInfo()
+                  .getAnnotations());
+
+      if (flowActionEnum == null) {
+        log.warn("Attention, missing annotation Re on this action");
+      }
+
       String sessionId = MDC.get(TRX_ID);
       String requestMethod = requestContext.getMethod();
       String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
       reService.sendEvent(
           ReInterface.builder()
-              .appVersion(AppVersionEnum.PHASE_3)
+              .appVersion(AppVersionEnum.NEW_FDR)
               .created(Instant.now())
               .sessionId(sessionId)
               .eventType(EventTypeEnum.INTERFACE)
@@ -71,6 +85,8 @@ public class ResponseFilter implements ContainerResponseFilter {
                                       .collect(Collectors.toList()))))
               .pspId(psp)
               .flowName(flow)
+              .ecId(ec)
+              .flowAction(flowActionEnum)
               .build());
 
       int httpStatus = responseContext.getStatus();

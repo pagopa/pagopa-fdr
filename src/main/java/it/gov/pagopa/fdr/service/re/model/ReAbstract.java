@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.service.re.model;
 
-import java.io.Serializable;
 import java.time.Instant;
 import lombok.Data;
 import lombok.ToString;
@@ -9,8 +8,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @ToString
-// @Jacksonized
-public abstract class ReAbstract implements Serializable {
+public abstract class ReAbstract {
 
   private AppVersionEnum appVersion;
 
@@ -21,4 +19,8 @@ public abstract class ReAbstract implements Serializable {
   private String flowName;
 
   private String pspId;
+
+  private String ecId;
+
+  private FlowActionEnum flowAction;
 }

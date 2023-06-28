@@ -1,13 +1,16 @@
 package it.gov.pagopa.fdr.rest.filter;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
 import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
 import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.AppReUtil;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -19,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 import org.slf4j.MDC;
 
 @Provider
@@ -40,10 +44,24 @@ public class RequestFilter implements ContainerRequestFilter {
     String requestPath = containerRequestContext.getUriInfo().getAbsolutePath().getPath();
     String pspPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("psp");
     String flowPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("fdr");
+    String ecPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("ec");
+
+    FlowActionEnum flowActionEnum =
+        AppReUtil.getFlowNamebyAnnotation(
+            ((ContainerRequestContextImpl) containerRequestContext)
+                .getServerRequestContext()
+                .getResteasyReactiveResourceInfo()
+                .getAnnotations());
+
+    if (flowActionEnum == null) {
+      log.warn("Attention, missing annotation Re on this action");
+    }
+
+    MDC.put(ACTION, flowActionEnum.name());
 
     reService.sendEvent(
         ReInterface.builder()
-            .appVersion(AppVersionEnum.PHASE_3)
+            .appVersion(AppVersionEnum.NEW_FDR)
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERFACE)
@@ -56,6 +74,8 @@ public class RequestFilter implements ContainerRequestFilter {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
             .pspId(pspPathParam)
             .flowName(flowPathParam)
+            .ecId(ecPathParam)
+            .flowAction(flowActionEnum)
             .build());
 
     MultivaluedMap<String, String> pathparam =

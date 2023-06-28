@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.service.re;
 
-import com.azure.core.amqp.AmqpTransportType;
 import com.azure.messaging.eventhubs.EventData;
 import com.azure.messaging.eventhubs.EventDataBatch;
 import com.azure.messaging.eventhubs.EventHubClientBuilder;
@@ -35,7 +34,7 @@ public class ReService {
   public void init() {
     EventHubProducerClient producer =
         new EventHubClientBuilder()
-            .transportType(AmqpTransportType.AMQP_WEB_SOCKETS)
+            //            .transportType(AmqpTransportType.AMQP_WEB_SOCKETS)
             .connectionString(eHubConnectStr, eHubName)
             .buildProducerClient();
 
@@ -83,6 +82,6 @@ public class ReService {
     if (eventDataBatch.getCount() > 0) {
       producer.send(eventDataBatch);
     }
-    producer.close();
+    //    producer.close();
   }
 }

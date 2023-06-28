@@ -13,9 +13,7 @@ public class ReInternal extends ReAbstract {
   private boolean flowPhisicalDelete;
   private FlowStatusEnum flowStatus;
 
-  private boolean flowRead;
+  //  private boolean flowRead;
 
   private Long revision;
-
-  private FlowActionEnum flowAction;
 }
