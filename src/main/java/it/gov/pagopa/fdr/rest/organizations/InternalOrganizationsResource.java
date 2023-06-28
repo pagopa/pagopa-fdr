@@ -46,11 +46,6 @@ import org.slf4j.MDC;
 @Produces("application/json")
 public class InternalOrganizationsResource {
 
-  //  private static final String GET_ALL_PUBLISHED_FLOW = "getAllPublishedFlowInternal";
-  //  private static final String GET_REPORTING_FLOW = "getReportingFlowInternal";
-  //  private static final String GET_REPORTING_FLOW_PAYMENTS = "getReportingFlowPaymentsInternal";
-  //  private static final String CHANGE_READ_FLAG = "changeReadFlagInternal";
-
   @Inject Config config;
   @Inject Logger log;
 
@@ -191,42 +186,4 @@ public class InternalOrganizationsResource {
 
     return mapper.toGetPaymentResponse(flowNameInternals);
   }
-
-  //  @Operation(
-  //      summary = "Change internal read flag of reporting flow",
-  //      description = "Change internal read flag of reporting flow")
-  //  @APIResponses(
-  //      value = {
-  //        @APIResponse(ref = "#/components/responses/InternalServerError"),
-  //        @APIResponse(ref = "#/components/responses/AppException400"),
-  //        @APIResponse(ref = "#/components/responses/AppException404"),
-  //        @APIResponse(
-  //            responseCode = "200",
-  //            description = "Success",
-  //            content =
-  //                @Content(
-  //                    mediaType = MediaType.APPLICATION_JSON,
-  //                    schema = @Schema(implementation = GenericResponse.class)))
-  //      })
-  //  @PUT
-  //  @Path("/{fdr}/rev/{rev}/psps/{psp}/read")
-  //  public GenericResponse changeInternalReadFlag(
-  //      @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
-  //    MDC.put(ACTION, CHANGE_READ_FLAG);
-  //    MDC.put(EC_ID, NDP);
-  //    MDC.put(FLOW_NAME, fdr);
-  //    MDC.put(PSP_ID, psp);
-  //
-  //    log.infof(AppMessageUtil.logProcess("%s with id:[%s]"), CHANGE_READ_FLAG, fdr);
-  //
-  //    ConfigDataV1 configData = config.getClonedCache();
-  //    // validation
-  //    internalValidator.validateChangeInternalReadFlag(CHANGE_READ_FLAG, fdr, psp, configData);
-  //
-  //    // change on DB
-  //    internalService.changeInternalReadFlag(CHANGE_READ_FLAG, fdr, rev, psp);
-  //
-  //    return GenericResponse.builder().message(String.format("Flow [%s] internal read",
-  // fdr)).build();
-  //  }
 }

@@ -134,25 +134,4 @@ public class OrganizationsService {
         .data(mapper.toPagamentoDtos(list))
         .build();
   }
-
-  //  @WithSpan(kind = SERVER)
-  //  public void changeReadFlag(String action, String pspId, String reportingFlowName) {
-  //    log.infof(AppMessageUtil.logExecute(action));
-  //
-  //    Instant now = Instant.now();
-  //    log.debugf(
-  //        "Existence check FdrPublishEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
-  //    FdrPublishEntity reportingFlowEntity =
-  //        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
-  //            .project(FdrPublishEntity.class)
-  //            .firstResultOptional()
-  //            .orElseThrow(
-  //                () ->
-  //                    new AppException(
-  //                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
-  //    reportingFlowEntity.setUpdated(now);
-  //    reportingFlowEntity.setRead(Boolean.TRUE);
-  //    reportingFlowEntity.update();
-  //    log.debug("FdrPublishEntity red");
-  //  }
 }

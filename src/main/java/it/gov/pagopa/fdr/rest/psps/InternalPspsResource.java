@@ -48,6 +48,8 @@ import org.slf4j.MDC;
 @Produces("application/json")
 public class InternalPspsResource {
 
+  public static final String S_BY_PSP_S_WITH_FDR_S = "%s by psp:[%s] with fdr:[%s]";
+
   @Inject Logger log;
 
   @Inject PspsValidationService validator;
@@ -134,7 +136,7 @@ public class InternalPspsResource {
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
-    log.infof(AppMessageUtil.logProcess("%s by psp:[%s] with fdr:[%s]"), action, fdr, psp);
+    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, psp);
 
     ConfigDataV1 configData = config.getClonedCache();
 
@@ -175,7 +177,7 @@ public class InternalPspsResource {
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
-    log.infof(AppMessageUtil.logProcess("%s by psp:[%s] with fdr:[%s]"), action, fdr, psp);
+    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, psp);
 
     ConfigDataV1 configData = config.getClonedCache();
 
@@ -214,7 +216,7 @@ public class InternalPspsResource {
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
-    log.infof(AppMessageUtil.logProcess("%s by psp:[%s] with fdr:[%s]"), action, fdr, psp);
+    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, psp);
 
     ConfigDataV1 configData = config.getClonedCache();
 
@@ -250,7 +252,7 @@ public class InternalPspsResource {
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
-    log.infof(AppMessageUtil.logProcess("%s by psp:[%s] with fdr:[%s]"), action, fdr, psp);
+    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, psp);
 
     ConfigDataV1 configData = config.getClonedCache();
 

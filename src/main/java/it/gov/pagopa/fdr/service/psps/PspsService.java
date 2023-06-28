@@ -281,16 +281,14 @@ public class PspsService {
   public void internalPublishByReportingFlowName(
       String action, String pspId, String reportingFlowName) {
     Consumer<FdrInsertEntity> consumer =
-        (reportingFlowEntity) -> {
-          log.debug("NOT Add FdrInsertEntity in queue flow message");
-        };
+        reportingFlowEntity -> log.debug("NOT Add FdrInsertEntity in queue flow message");
     basePublishByReportingFlowName(action, pspId, reportingFlowName, consumer);
   }
 
   @WithSpan(kind = SERVER)
   public void publishByReportingFlowName(String action, String pspId, String reportingFlowName) {
     Consumer<FdrInsertEntity> consumer =
-        (reportingFlowEntity) -> {
+        reportingFlowEntity -> {
           log.debug("Add FdrInsertEntity in queue flow message");
           conversionQueue.addQueueFlowMessage(
               FlowMessage.builder()

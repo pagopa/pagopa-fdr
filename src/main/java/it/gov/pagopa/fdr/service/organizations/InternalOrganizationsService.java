@@ -145,27 +145,4 @@ public class InternalOrganizationsService {
         .data(mapper.historyToPagamentoDtos(list))
         .build();
   }
-
-  //  @WithSpan(kind = SERVER)
-  //  public void changeInternalReadFlag(
-  //      String action, String reportingFlowName, Long rev, String pspId) {
-  //    log.infof(AppMessageUtil.logExecute(action));
-  //
-  //    Instant now = Instant.now();
-  //    log.debugf(
-  //        "Existence check FdrHistoryEntity by flowName[%s], rev[%d], psp[%s]",
-  //        reportingFlowName, rev, pspId);
-  //    FdrHistoryEntity reportingFlowEntity =
-  //        FdrHistoryEntity.findByFlowNameAndRevAndPspId(reportingFlowName, rev, pspId)
-  //            .project(FdrHistoryEntity.class)
-  //            .firstResultOptional()
-  //            .orElseThrow(
-  //                () ->
-  //                    new AppException(
-  //                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
-  //    reportingFlowEntity.setUpdated(now);
-  //    reportingFlowEntity.setInternalNdpRead(Boolean.TRUE);
-  //    reportingFlowEntity.update();
-  //    log.debug("FdrHistoryEntity red");
-  //  }
 }

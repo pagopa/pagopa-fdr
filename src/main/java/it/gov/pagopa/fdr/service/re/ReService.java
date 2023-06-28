@@ -32,14 +32,12 @@ public class ReService {
   @Inject ObjectMapper objectMapper;
 
   public void init() {
-    EventHubProducerClient producer =
+    log.infof("EventHub re init. EventHub name [%s]", eHubName);
+    this.producer =
         new EventHubClientBuilder()
             //            .transportType(AmqpTransportType.AMQP_WEB_SOCKETS)
             .connectionString(eHubConnectStr, eHubName)
             .buildProducerClient();
-
-    log.infof("EventHub re init. EventHub name [%s]", eHubName);
-    this.producer = producer;
   }
 
   public <T extends ReAbstract> void sendEvent(T... reList) {
@@ -87,6 +85,5 @@ public class ReService {
     if (eventDataBatch.getCount() > 0) {
       producer.send(eventDataBatch);
     }
-    //    producer.close();
   }
 }

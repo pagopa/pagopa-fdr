@@ -46,11 +46,6 @@ import org.slf4j.MDC;
 @Produces("application/json")
 public class OrganizationsResource {
 
-  //  private static final String GET_ALL_PUBLISHED_FLOW = "getAllPublishedFlow";
-  //  private static final String GET_REPORTING_FLOW = "getReportingFlow";
-  //  private static final String GET_REPORTING_FLOW_PAYMENTS = "getReportingFlowPayments";
-  //  private static final String CHANGE_READ_FLAG = "changeReadFlag";
-
   @Inject Config config;
   @Inject Logger log;
 
@@ -211,49 +206,4 @@ public class OrganizationsResource {
 
     return mapper.toGetPaymentResponse(reportingFlowGetPaymentDto);
   }
-
-  //  @Operation(
-  //      summary = "Change read flag of reporting flow",
-  //      description = "Change read flag of reporting flow")
-  //  @APIResponses(
-  //      value = {
-  //        @APIResponse(ref = "#/components/responses/InternalServerError"),
-  //        @APIResponse(ref = "#/components/responses/AppException400"),
-  //        @APIResponse(ref = "#/components/responses/AppException404"),
-  //        @APIResponse(
-  //            responseCode = "200",
-  //            description = "Success",
-  //            content =
-  //                @Content(
-  //                    mediaType = MediaType.APPLICATION_JSON,
-  //                    schema = @Schema(implementation = GenericResponse.class)))
-  //      })
-  //  @PUT
-  //  @Path("/{fdr}/psps/{psp}/read")
-  //  public GenericResponse changeReadFlag(
-  //      @PathParam(AppConstant.PATH_PARAM_EC) String ec,
-  //      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
-  //      @PathParam(AppConstant.PATH_PARAM_PSP) String psp) {
-  //    MDC.put(ACTION, CHANGE_READ_FLAG);
-  //    MDC.put(EC_ID, ec);
-  //    MDC.put(FLOW_NAME, fdr);
-  //    MDC.put(PSP_ID, psp);
-  //
-  //    log.infof(
-  //        AppMessageUtil.logProcess("%s by ec=[%s] with fdr:[%s], psp:[%s]"),
-  //        CHANGE_READ_FLAG,
-  //        fdr,
-  //        ec,
-  //        psp);
-  //
-  //    ConfigDataV1 configData = config.getClonedCache();
-  //
-  //    // validation
-  //    validator.validateChangeReadFlag(CHANGE_READ_FLAG, fdr, ec, psp, configData);
-  //
-  //    // change on DB
-  //    service.changeReadFlag(CHANGE_READ_FLAG, psp, fdr);
-  //
-  //    return GenericResponse.builder().message(String.format("Flow [%s] read", fdr)).build();
-  //  }
 }

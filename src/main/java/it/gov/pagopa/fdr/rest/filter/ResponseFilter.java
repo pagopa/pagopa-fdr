@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 import org.mockserver.model.HttpStatusCode;
@@ -79,10 +80,7 @@ public class ResponseFilter implements ContainerResponseFilter {
                       .collect(
                           Collectors.toMap(
                               Map.Entry::getKey,
-                              a ->
-                                  a.getValue().stream()
-                                      .map(Object::toString)
-                                      .collect(Collectors.toList()))))
+                              a -> Stream.of(a.getValue()).map(Object::toString).toList())))
               .pspId(psp)
               .flowName(flow)
               .ecId(ec)
