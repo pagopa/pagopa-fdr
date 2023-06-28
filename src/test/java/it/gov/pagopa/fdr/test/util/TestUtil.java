@@ -82,7 +82,7 @@ public class TestUtil {
       """;
 
   public static void pspSunnyDay(String flowName) {
-    String urlPspFlow = FLOWS_URL.formatted(PSP_CODE);
+    String urlPspFlow = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,

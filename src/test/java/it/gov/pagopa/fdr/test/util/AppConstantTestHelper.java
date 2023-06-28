@@ -4,7 +4,7 @@ import io.restassured.http.Header;
 
 public class AppConstantTestHelper {
 
-  public static final String FLOWS_URL = "/psps/%s/flows";
+  public static final String FLOWS_URL = "/psps/%s/flows/%s";
   public static final String FLOWS_PUBLISH_URL = "/psps/%s/flows/%s/publish";
   public static final String FLOWS_DELETE_URL = "/psps/%s/flows/%s";
   public static final String PAYMENTS_ADD_URL = "/psps/%s/flows/%s/payments/add";

@@ -1,6 +1,8 @@
 package it.gov.pagopa.fdr.service.re.model;
 
 public enum FlowActionEnum {
+  INFO,
+
   CREATE_FLOW,
   DELETE_FLOW,
   ADD_PAYMENT,

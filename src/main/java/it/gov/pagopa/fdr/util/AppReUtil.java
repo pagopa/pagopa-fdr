@@ -26,7 +26,7 @@ public class AppReUtil {
                     throw new RuntimeException(e);
                   }
                 })
-            .orElseGet(null);
+            .orElse(null);
 
     return flowActionEnum;
   }

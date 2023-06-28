@@ -43,21 +43,26 @@ public class ReService {
   }
 
   public <T extends ReAbstract> void sendEvent(T... reList) {
-    List<EventData> allEvents =
-        Arrays.stream(reList)
-            .map(
-                re -> {
-                  try {
-                    log.info(re.toString());
-                    return new EventData(objectMapper.writeValueAsString("Foo"));
-                  } catch (JsonProcessingException e) {
-                    log.errorf("Producer SDK Azure RE event error", e);
-                    throw new AppException(AppErrorCodeMessageEnum.EVENT_HUB_RE_PARSE_JSON);
-                  }
-                })
-            .toList();
+    if (this.producer == null) {
+      log.debugf("EventHub re NOT INITIALIZED. EventHub name [%s] not send message.", eHubName);
+    } else {
+      log.infof("Send message. EventHub name [%s]", eHubName);
+      List<EventData> allEvents =
+          Arrays.stream(reList)
+              .map(
+                  re -> {
+                    try {
+                      log.info(re.toString());
+                      return new EventData(objectMapper.writeValueAsString("Foo"));
+                    } catch (JsonProcessingException e) {
+                      log.errorf("Producer SDK Azure RE event error", e);
+                      throw new AppException(AppErrorCodeMessageEnum.EVENT_HUB_RE_PARSE_JSON);
+                    }
+                  })
+              .toList();
 
-    publishEvents(allEvents);
+      publishEvents(allEvents);
+    }
   }
 
   private void publishEvents(List<EventData> allEvents) {

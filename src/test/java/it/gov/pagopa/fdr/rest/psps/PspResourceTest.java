@@ -198,7 +198,7 @@ class PspResourceTest {
   @DisplayName("PSPS - OK - inserimento di un flusso per tipo ABI_CODE")
   void test_psp_ABICODE_createFlow_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = TestUtil.FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.ABI_CODE.name(), PSP_CODE,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -219,7 +219,7 @@ class PspResourceTest {
   @DisplayName("PSPS - OK - inserimento di un flusso per tipo BIC_CODE")
   void test_psp_BIC_CODE_createFlow_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.BIC_CODE.name(), PSP_CODE,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -240,7 +240,7 @@ class PspResourceTest {
   @DisplayName("PSPS - OK - inserimento e cancellazione di un flusso")
   void test_psp_deleteFlow_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -288,7 +288,7 @@ class PspResourceTest {
   @DisplayName("PSPS - OK - inserimento completo e cancellazione del flusso con payments")
   void test_psp_deleteFlowWithPayment_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -335,7 +335,7 @@ class PspResourceTest {
   @DisplayName("PSPS - OK - inserimento completo e cancellazione dei payments")
   void test_psp_deletePayments_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -386,15 +386,15 @@ class PspResourceTest {
         .statusCode(400)
         .extract()
         .as(ErrorResponse.class);
-    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] exist but in [CREATED] status", flowName)))));
+    assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX.errorCode()));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Index of payment not match with index loaded on reporting flow [%s]", flowName)))));
   }
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e cancellazione parziale dei payments")
   void test_psp_deletePayments_partial_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -442,7 +442,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0701 - flow not found in publish")
   void test_psp_publish_KO_FDR0701() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -490,7 +490,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0701 - flow not found in add payments new flowName")
   void test_psp_payments_add_KO_FDR0701() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -525,7 +525,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0701 - flow not found in delete payments new flowName")
   void test_psp_payments_delete_KO_FDR0701() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -559,7 +559,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0702 - flow already exists")
   void test_psp_KO_FDR0702() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -592,7 +592,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0703 - flow not found in publish flow CREATED")
   void test_psp_CREATED_publish_KO_FDR0703() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -625,7 +625,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0703 - reporting flow wrong action delete payments")
   void test_psp_payments_delete_KO_FDR0703() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -661,7 +661,7 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String pspNotMatch = "PSP_NOT_MATCH";
 
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), pspNotMatch,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
     ErrorResponse resDelError = given()
@@ -681,7 +681,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0705 - add payments with same index in same request")
   void test_psp_payments_add_KO_FDR0705() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -716,7 +716,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0705 - delete payments with same index in same request")
   void test_psp_payments_delete_KO_FDR0705() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -771,7 +771,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0706 - payments with same index")
   void test_psp_KO_FDR0706() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -817,7 +817,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0707 - payments unknown index delete")
   void test_psp_KO_FDR0707() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE);
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -866,7 +866,7 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String pspUnknown = "PSP_UNKNOWN";
 
-    String url = FLOWS_URL.formatted(pspUnknown);
+    String url = FLOWS_URL.formatted(pspUnknown, flowName);
     String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), pspUnknown,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
     ErrorResponse res = given()
@@ -886,7 +886,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0709 - psp not enabled")
   void test_psp_KO_FDR0709() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = "/psps/%s/flows".formatted(PSP_CODE_NOT_ENABLED);
+    String url = FLOWS_URL.formatted(PSP_CODE_NOT_ENABLED, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
             PSP_CODE_NOT_ENABLED, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -908,7 +908,7 @@ class PspResourceTest {
   void test_brokerpsp_KO_FDR0710() {
     String flowName = TestUtil.getDynamicFlowName();
     String brokerPspUnknown = "BROKERPSP_UNKNOWN";
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE, brokerPspUnknown,
             CHANNEL_CODE, EC_CODE);
@@ -930,7 +930,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0711 - brokerPsp not enabled")
   void test_brokerpsp_KO_FDR0711() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE_NOT_ENABLED, CHANNEL_CODE, EC_CODE);
@@ -953,7 +953,7 @@ class PspResourceTest {
   void test_channel_KO_FDR0712() {
     String flowName = TestUtil.getDynamicFlowName();
     String channelUnknown = "CHANNEL_UNKNOWN";
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, channelUnknown, EC_CODE);
@@ -975,7 +975,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0713 - channel not enabled")
   void test_channel_KO_FDR0713() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE_NOT_ENABLED, EC_CODE);
@@ -997,7 +997,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0714 - channel with brokerPsp not authorized")
   void test_channelBroker_KO_FDR0714() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE_2, CHANNEL_CODE, EC_CODE);
@@ -1019,7 +1019,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0715 - channel with psp not authorized")
   void test_channelPsp_KO_FDR0715() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE_2);
+    String url = FLOWS_URL.formatted(PSP_CODE_2, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
             PSP_CODE_2, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -1042,7 +1042,7 @@ class PspResourceTest {
   void test_ecId_KO_FDR0716() {
     String flowName = TestUtil.getDynamicFlowName();
     String ecUnknown = "EC_UNKNOWN";
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE, ecUnknown);
@@ -1064,7 +1064,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0717 - ec not enabled")
   void test_ecId_KO_FDR0717() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE, EC_CODE_NOT_ENABLED);
@@ -1085,7 +1085,7 @@ class PspResourceTest {
   @Test
   @DisplayName("PSPS - KO FDR-0718 - flow format wrong date")
   void test_flowName_KO_FDR0718() {
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, REPORTING_FLOW_NAME_DATE_WRONG_FORMAT);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, SenderTypeEnumDto.LEGAL_PERSON.name(),
             PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -1106,7 +1106,7 @@ class PspResourceTest {
   @Test
   @DisplayName("PSPS - KO FDR-0719 - flow format wrong psp")
   void test_flowName_KO_FDR0719() {
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, REPORTING_FLOW_NAME_PSP_WRONG_FORMAT);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, SenderTypeEnumDto.LEGAL_PERSON.name(),
             PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -1128,7 +1128,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0400 - JSON input wrong fields")
   void test_psp_KO_FDR0400() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt = FLOW_TEMPLATE_WRONG_FIELDS.formatted(
         flowName,
         SenderTypeEnum.LEGAL_PERSON.name(),
@@ -1176,7 +1176,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0402 - JSON invalid input instant")
   void test_psp_KO_FDR0402() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String wrongFormatDate = "2023-04-05";
     String bodyFmt = FLOW_TEMPLATE_WRONG_INSTANT.formatted(
         flowName,
@@ -1204,7 +1204,7 @@ class PspResourceTest {
   @DisplayName("PSPS - KO FDR-0403 - JSON invalid input enum")
   void test_psp_KO_FDR0403() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String wrongEnum = "WRONG_ENUM";
     String bodyFmt = FLOW_TEMPLATE.formatted(
         flowName,
@@ -1249,7 +1249,8 @@ class PspResourceTest {
   @Test
   @DisplayName("PSPS - KO FDR-0405 - JSON malformed")
   void test_psp_KO_FDR0405() {
-    String url = FLOWS_URL.formatted(PSP_CODE);
+    String flowName = TestUtil.getDynamicFlowName();
+    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
 
     ErrorResponse res = given()
         .body(MALFORMED_JSON)
