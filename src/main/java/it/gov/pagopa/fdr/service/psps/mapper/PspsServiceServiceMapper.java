@@ -39,8 +39,6 @@ public interface PspsServiceServiceMapper {
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "totPayments", ignore = true)
   @Mapping(target = "sumPayments", ignore = true)
-  @Mapping(target = "internalNdpRead", ignore = true)
-  @Mapping(target = "read", ignore = true)
   FdrInsertEntity toReportingFlow(ReportingFlowDto reportingFlowDto);
 
   //  @Mapping(source = "payStatus", target = "pay_status")

@@ -51,11 +51,6 @@ public class FdrPublishEntity extends PanacheMongoEntity {
   @BsonProperty("sum_payments")
   private Double sumPayments;
 
-  @BsonProperty("internal_ndp_read")
-  private Boolean internalNdpRead;
-
-  private Boolean read;
-
   public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
       String reportingFlowName, String pspId) {
     return find(
@@ -73,14 +68,6 @@ public class FdrPublishEntity extends PanacheMongoEntity {
 
   public static PanacheQuery<FdrPublishEntity> findByEcId(String ecId, Sort sort) {
     return find("receiver.ec_id = :ecId", sort, Parameters.with("ecId", ecId).map());
-  }
-
-  public static PanacheQuery<FdrPublishEntity> findByInternalRead(
-      Boolean internalNdpRead, Sort sort) {
-    return find(
-        "receiver.internal_ndp_read = :internalRead",
-        sort,
-        Parameters.with("internalRead", internalNdpRead).map());
   }
 
   public static long deleteByFlowNameAndPspId(String reportingFlowName, String pspId) {
