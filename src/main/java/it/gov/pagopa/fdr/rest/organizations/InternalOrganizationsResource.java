@@ -74,7 +74,7 @@ public class InternalOrganizationsResource {
   @GET
   @Re(flowName = FlowActionEnum.INTERNAL_GET_ALL_FDR)
   public GetAllInternalResponse getAllPublishedFlow(
-      @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
+      @QueryParam("idPsp") @Pattern(regexp = "^(.{1,35})$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
     String action = MDC.get(ACTION);

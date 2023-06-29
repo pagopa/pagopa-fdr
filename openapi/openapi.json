@@ -1,1147 +1,363 @@
-{
-  "openapi": "3.0.3",
-  "info": {
-    "title": "FDR - Flussi di rendicontazione (local) ${service}",
-    "description": "Manage FDR ( aka \"Flussi di Rendicontazione\" ) exchanged between PSP and EC ${service}",
-    "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.0.0-SNAPSHOT"
-  },
-  "servers": [
-    {
-      "url": "${host}/fdr/api/v1 - APIM"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Info",
-      "description": "Info operations"
-    },
-    {
-      "name": "Internal Organizations",
-      "description": "Get reporting flow operations"
-    },
-    {
-      "name": "Internal PSP",
-      "description": "Psp operations"
-    },
-    {
-      "name": "Organizations",
-      "description": "Get reporting flow operations"
-    },
-    {
-      "name": "PSP",
-      "description": "Psp operations"
-    }
-  ],
-  "paths": {
-    "/organizations/{ec}/flows": {
-      "get": {
-        "tags": [
-          "Organizations"
-        ],
-        "summary": "Get all published reporting flow",
-        "description": "Get all published reporting flow by ec and idPsp(optional param)",
-        "parameters": [
-          {
-            "name": "ec",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "pattern": "^\\w{1,35}$",
-              "type": "string"
-            }
-          },
-          {
-            "name": "idPsp",
-            "in": "query",
-            "schema": {
-              "pattern": "^\\w{1,35}$",
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "format": "int64",
-              "default": 1,
-              "minimum": 1,
-              "type": "integer"
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "format": "int64",
-              "default": 50,
-              "minimum": 1,
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "400": {
-            "$ref": "#/components/responses/AppException400"
-          },
-          "404": {
-            "$ref": "#/components/responses/AppException404"
-          },
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetAllResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/psps/{psp}/flows/{fdr}/payments/del": {
-      "put": {
-        "tags": [
-          "PSP"
-        ],
-        "summary": "Delete payments to reporting flow",
-        "description": "Delete payments to reporting flow",
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "psp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeletePaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "400": {
-            "$ref": "#/components/responses/AppException400"
-          },
-          "404": {
-            "$ref": "#/components/responses/AppException404"
-          },
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/organizations/{ec}/flows/{fdr}/psps/{psp}/payments": {
-      "get": {
-        "tags": [
-          "Organizations"
-        ],
-        "summary": "Get payments of reporting flow",
-        "description": "Get only payments of reporting flow by id paginated",
-        "parameters": [
-          {
-            "name": "ec",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "psp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "format": "int64",
-              "default": 1,
-              "minimum": 1,
-              "type": "integer"
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "format": "int64",
-              "default": 50,
-              "minimum": 1,
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "400": {
-            "$ref": "#/components/responses/AppException400"
-          },
-          "404": {
-            "$ref": "#/components/responses/AppException404"
-          },
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetPaymentResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/organizations/{ec}/flows/{fdr}/psps/{psp}": {
-      "get": {
-        "tags": [
-          "Organizations"
-        ],
-        "summary": "Get reporting flow",
-        "description": "Get reporting flow by id but not payments",
-        "parameters": [
-          {
-            "name": "ec",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "psp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "400": {
-            "$ref": "#/components/responses/AppException400"
-          },
-          "404": {
-            "$ref": "#/components/responses/AppException404"
-          },
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetIdResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/psps/{psp}/flows/{fdr}/publish": {
-      "post": {
-        "tags": [
-          "PSP"
-        ],
-        "summary": "Publish reporting flow",
-        "description": "Publish reporting flow",
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "psp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "400": {
-            "$ref": "#/components/responses/AppException400"
-          },
-          "404": {
-            "$ref": "#/components/responses/AppException404"
-          },
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/psps/{psp}/flows/{fdr}": {
-      "post": {
-        "tags": [
-          "PSP"
-        ],
-        "summary": "Create reporting flow",
-        "description": "Create new reporting flow",
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "pattern": "[a-zA-Z0-9\\-_]{1,35}",
-              "type": "string"
-            }
-          },
-          {
-            "name": "psp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateFlowRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "400": {
-            "$ref": "#/components/responses/AppException400"
-          },
-          "404": {
-            "$ref": "#/components/responses/AppException404"
-          },
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "PSP"
-        ],
-        "summary": "Delete reporting flow",
-        "description": "Delete reporting flow",
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "psp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "400": {
-            "$ref": "#/components/responses/AppException400"
-          },
-          "404": {
-            "$ref": "#/components/responses/AppException404"
-          },
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/psps/{psp}/flows/{fdr}/payments/add": {
-      "put": {
-        "tags": [
-          "PSP"
-        ],
-        "summary": "Add payments to reporting flow",
-        "description": "Add payments to reporting flow",
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "psp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddPaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "400": {
-            "$ref": "#/components/responses/AppException400"
-          },
-          "404": {
-            "$ref": "#/components/responses/AppException404"
-          },
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/info": {
-      "get": {
-        "tags": [
-          "Info"
-        ],
-        "summary": "Get info of FDR",
-        "responses": {
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InfoResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "AddPaymentRequest": {
-        "required": [
-          "payments"
-        ],
-        "type": "object",
-        "properties": {
-          "payments": {
-            "maxItems": 1000,
-            "minItems": 1,
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Payment"
-            }
-          }
-        }
-      },
-      "CreateFlowRequest": {
-        "required": [
-          "reportingFlowName",
-          "reportingFlowDate",
-          "sender",
-          "receiver",
-          "regulation",
-          "regulationDate"
-        ],
-        "type": "object",
-        "properties": {
-          "reportingFlowName": {
-            "pattern": "[a-zA-Z0-9\\-_]{1,35}",
-            "type": "string",
-            "example": "2016-08-16pspTest-1178"
-          },
-          "reportingFlowDate": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Instant"
-              }
-            ],
-            "example": "2023-04-05T09:21:37.810000Z"
-          },
-          "sender": {
-            "$ref": "#/components/schemas/Sender"
-          },
-          "receiver": {
-            "$ref": "#/components/schemas/Receiver"
-          },
-          "regulation": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "SEPA - Bonifico xzy"
-          },
-          "regulationDate": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Instant"
-              }
-            ],
-            "example": "2023-04-03T12:00:30.900000Z"
-          },
-          "bicCodePouringBank": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "UNCRITMMXXX"
-          }
-        }
-      },
-      "DeletePaymentRequest": {
-        "required": [
-          "indexPayments"
-        ],
-        "type": "object",
-        "properties": {
-          "indexPayments": {
-            "maxItems": 1000,
-            "minItems": 1,
-            "type": "array",
-            "items": {
-              "format": "int64",
-              "type": "integer"
-            }
-          }
-        }
-      },
-      "ErrorCode": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "example": "FDR-0500"
-          },
-          "description": {
-            "type": "string",
-            "example": "An unexpected error has occurred. Please contact support."
-          },
-          "statusCode": {
-            "format": "int32",
-            "type": "integer",
-            "example": 500
-          }
-        }
-      },
-      "ErrorMessage": {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string",
-            "example": "demo.test"
-          },
-          "message": {
-            "type": "string",
-            "example": "An unexpected error has occurred. Please contact support."
-          }
-        }
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "errorId": {
-            "type": "string",
-            "example": "50905466-1881-457b-b42f-fb7b2bfb1610"
-          },
-          "httpStatusCode": {
-            "format": "int32",
-            "type": "integer",
-            "example": 500
-          },
-          "httpStatusDescription": {
-            "type": "string",
-            "example": "Internal Server Error"
-          },
-          "appErrorCode": {
-            "type": "string",
-            "example": "FDR-500"
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ErrorMessage"
-            }
-          }
-        }
-      },
-      "Flow": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "AAABBB"
-          },
-          "pspId": {
-            "type": "string",
-            "example": "1"
-          }
-        }
-      },
-      "FlowInternal": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "AAABBB"
-          },
-          "pspId": {
-            "type": "string",
-            "example": "1"
-          },
-          "revision": {
-            "format": "int64",
-            "type": "integer",
-            "example": 1
-          }
-        }
-      },
-      "GenericResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "Success"
-          }
-        }
-      },
-      "GetAllInternalResponse": {
-        "type": "object",
-        "properties": {
-          "metadata": {
-            "$ref": "#/components/schemas/Metadata"
-          },
-          "count": {
-            "format": "int64",
-            "type": "integer",
-            "example": 100
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/FlowInternal"
-            }
-          }
-        }
-      },
-      "GetAllResponse": {
-        "type": "object",
-        "properties": {
-          "metadata": {
-            "$ref": "#/components/schemas/Metadata"
-          },
-          "count": {
-            "format": "int64",
-            "type": "integer",
-            "example": 100
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Flow"
-            }
-          }
-        }
-      },
-      "GetIdResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ReportingFlowStatusEnum"
-              }
-            ],
-            "example": "CREATED"
-          },
-          "revision": {
-            "format": "int64",
-            "type": "integer",
-            "example": 4
-          },
-          "created": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Instant"
-              }
-            ],
-            "example": "2023-04-03T12:00:30.900000Z"
-          },
-          "updated": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Instant"
-              }
-            ],
-            "example": "2023-04-03T12:00:30.900000Z"
-          },
-          "reportingFlowName": {
-            "type": "string",
-            "example": "2016-08-16pspTest-1178"
-          },
-          "reportingFlowDate": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Instant"
-              }
-            ],
-            "example": "2023-04-05T09:21:37.810000Z"
-          },
-          "regulation": {
-            "type": "string",
-            "example": "SEPA - Bonifico xzy"
-          },
-          "regulationDate": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Instant"
-              }
-            ],
-            "example": "2023-04-03T12:00:30.900000Z"
-          },
-          "bicCodePouringBank": {
-            "type": "string",
-            "example": "UNCRITMMXXX"
-          },
-          "sender": {
-            "$ref": "#/components/schemas/Sender"
-          },
-          "receiver": {
-            "$ref": "#/components/schemas/Receiver"
-          },
-          "totPayments": {
-            "format": "int64",
-            "type": "integer",
-            "example": 100
-          },
-          "sumPayments": {
-            "format": "double",
-            "type": "number",
-            "example": 100.9
-          }
-        }
-      },
-      "GetPaymentResponse": {
-        "type": "object",
-        "properties": {
-          "metadata": {
-            "$ref": "#/components/schemas/Metadata"
-          },
-          "count": {
-            "format": "int64",
-            "type": "integer",
-            "example": 100
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Payment"
-            }
-          }
-        }
-      },
-      "InfoResponse": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "pagopa-fdr"
-          },
-          "version": {
-            "type": "string",
-            "example": "1.2.3"
-          },
-          "environment": {
-            "type": "string",
-            "example": "dev"
-          },
-          "description": {
-            "type": "string",
-            "example": "FDR - Flussi di rendicontazione"
-          },
-          "errorCodes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ErrorCode"
-            }
-          }
-        }
-      },
-      "Instant": {
-        "format": "date-time",
-        "type": "string",
-        "example": "2022-03-10T16:15:50Z"
-      },
-      "Metadata": {
-        "type": "object",
-        "properties": {
-          "pageSize": {
-            "format": "int32",
-            "type": "integer",
-            "example": 25
-          },
-          "pageNumber": {
-            "format": "int32",
-            "type": "integer",
-            "example": 1
-          },
-          "totPage": {
-            "format": "int32",
-            "type": "integer",
-            "example": 3
-          }
-        }
-      },
-      "Payment": {
-        "required": [
-          "iuv",
-          "iur",
-          "index",
-          "pay",
-          "payStatus",
-          "payDate"
-        ],
-        "type": "object",
-        "properties": {
-          "iuv": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "abcdefg"
-          },
-          "iur": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "abcdefg"
-          },
-          "index": {
-            "format": "int64",
-            "maximum": 5,
-            "minimum": 1,
-            "type": "integer",
-            "example": 1
-          },
-          "pay": {
-            "format": "double",
-            "minimum": 0,
-            "exclusiveMinimum": true,
-            "pattern": "^\\d{1,2147483647}([.]\\d{1,2})?$",
-            "type": "number",
-            "example": 0.01
-          },
-          "payStatus": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/PaymentStatusEnum"
-              }
-            ],
-            "example": "EXECUTED"
-          },
-          "payDate": {
-            "type": "string",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Instant"
-              }
-            ],
-            "example": "2023-02-03T12:00:30.900000Z"
-          }
-        }
-      },
-      "PaymentStatusEnum": {
-        "enum": [
-          "EXECUTED",
-          "REVOKED",
-          "NO_RPT"
-        ],
-        "type": "string"
-      },
-      "Receiver": {
-        "required": [
-          "id",
-          "ecId",
-          "ecName"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "APPBIT2B"
-          },
-          "ecId": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "20000000001"
-          },
-          "ecName": {
-            "pattern": "^(.{1,140})$",
-            "type": "string",
-            "example": "Comune di xyz"
-          }
-        }
-      },
-      "ReportingFlowStatusEnum": {
-        "enum": [
-          "CREATED",
-          "INSERTED",
-          "PUBLISHED"
-        ],
-        "type": "string"
-      },
-      "Sender": {
-        "required": [
-          "type",
-          "id",
-          "pspId",
-          "pspName",
-          "brokerId",
-          "channelId"
-        ],
-        "type": "object",
-        "properties": {
-          "type": {
-            "$ref": "#/components/schemas/SenderTypeEnum"
-          },
-          "id": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "SELBIT2B"
-          },
-          "pspId": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "60000000001"
-          },
-          "pspName": {
-            "pattern": "^(.{3,70})$",
-            "type": "string",
-            "example": "Bank"
-          },
-          "brokerId": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "70000000001"
-          },
-          "channelId": {
-            "pattern": "^(.{1,35})$",
-            "type": "string",
-            "example": "80000000001"
-          },
-          "password": {
-            "pattern": "^(\\w{8,15})$",
-            "type": "string",
-            "example": "1234567890",
-            "deprecated": true
-          }
-        }
-      },
-      "SenderTypeEnum": {
-        "enum": [
-          "LEGAL_PERSON",
-          "ABI_CODE",
-          "BIC_CODE"
-        ],
-        "type": "string"
-      }
-    },
-    "responses": {
-      "AppException400": {
-        "description": "Default app exception for status 400",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "examples": {
-              "Error": {
-                "value": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-0702",
-                  "errors": [
-                    {
-                      "message": "Reporting Flow id [<flow-id>] is invalid found"
-                    }
-                  ]
-                }
-              },
-              "Errors with path": {
-                "value": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-0702",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      },
-      "AppException404": {
-        "description": "Default app exception for status 404",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "httpStatusCode": 404,
-              "httpStatusDescription": "Not Found",
-              "appErrorCode": "FDR-0701",
-              "errors": [
-                {
-                  "message": "Reporting Flow id [<flow-id>] not found"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "InternalServerError": {
-        "description": "Internal Server Error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-              "httpStatusCode": 500,
-              "httpStatusDescription": "Internal Server Error",
-              "appErrorCode": "FDR-0500",
-              "errors": [
-                {
-                  "message": "An unexpected error has occurred. Please contact support."
-                }
-              ]
-            }
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "SecurityScheme": {
-        "type": "http",
-        "description": "Authentication",
-        "scheme": "basic"
-      }
-    }
-  }
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Error restarting Quarkus - io.quarkus.dev.appstate.ApplicationStartException</title>
+    <meta charset="utf-8">
+    <style>
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+    font-size: 100%;
+    font-weight: 100;
+    line-height: 1.4;
 }
+
+html {
+    overflow-y: scroll;
+}
+
+body {
+    background: #f9f9f9;
+}
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+.content {
+    padding: 1em 0 1em 0;
+}
+
+header, .component-name {
+    background-color: #ad1c1c;
+}
+
+ul {
+    line-height: 1.5rem;
+    margin: 0.25em 0 0.25em 0;
+}
+
+.exception-message {
+    background: #be2828;
+}
+
+h1, h2 {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #fff;
+    line-height: 3.75rem;
+    font-weight: 700;
+    padding: 0.4rem 0rem 0.4rem 0rem;
+}
+
+h2 {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 2.5rem;
+    font-weight: 400;
+    padding: 0.4rem 0rem 0.4rem 0rem;
+}
+
+.intro {    font-size: 1.2rem;
+    font-weight: 400;
+    margin: 0.25em 0 1em 0;
+}
+h3 {
+    font-size: 1.2rem;
+    line-height: 2.5rem;
+    font-weight: 400;
+    color: #555;
+    margin: 0.25em 0 0.25em 0;
+}
+
+.trace, .resources {
+    background: #fff;
+    padding: 15px;
+    margin: 15px auto;
+    border: 1px solid #ececec;
+}
+.trace {
+    overflow-y: scroll;
+}
+.hidden {
+   display: none;
+}
+
+pre {
+    white-space: pre;
+    font-family: Consolas, Monaco, Menlo, "Ubuntu Mono", "Liberation Mono", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #555;
+}
+</style>
+<script>
+	function toggleStackTraceOrder() {
+		var stElement = document.getElementById('stacktrace');
+		var current = stElement.getAttribute('data-current-setting');
+		if (current == 'original-stacktrace') {
+			var reverseOrder = document.getElementById('reversed-stacktrace');
+			stElement.innerHTML = reverseOrder.innerHTML;
+			stElement.setAttribute('data-current-setting', 'reversed-stacktrace');
+		} else {
+			var originalOrder = document.getElementById('original-stacktrace');
+			stElement.innerHTML = originalOrder.innerHTML;
+			stElement.setAttribute('data-current-setting', 'original-stacktrace');
+		}
+		return;
+	}
+	function showDefaultStackTraceOrder() {
+		var reverseOrder = document.getElementById('reversed-stacktrace');
+		var stElement = document.getElementById('stacktrace');
+       if (reverseOrder == null || stElement == null) {
+           return;
+       }
+		// default to reverse ordered stacktrace
+		stElement.innerHTML = reverseOrder.innerHTML;
+		stElement.setAttribute('data-current-setting', 'reversed-stacktrace');
+		return;
+	}
+</script>
+</head>
+<body  onload="showDefaultStackTraceOrder()">
+<header>
+    <h1 class="container">Error restarting Quarkus</h1>
+    <div class="exception-message">
+        <h2 class="container">io.quarkus.dev.appstate.ApplicationStartException: java.lang.RuntimeException: Failed to start quarkus</h2>
+    </div>
+</header>
+<div class="container content">
+    <div id="original-stacktrace" class="trace hidden">
+<p><em><a href="" onClick="toggleStackTraceOrder(); return false;">Click Here</a> to see the stacktrace in reversed  order (root-cause first)</em></p>        <pre>io.quarkus.dev.appstate.ApplicationStartException: java.lang.RuntimeException: Failed to start quarkus
+	at io.quarkus.dev.appstate.ApplicationStateNotification.waitForApplicationStart(ApplicationStateNotification.java:58)
+	at io.quarkus.runner.bootstrap.StartupActionImpl.runMainClass(StartupActionImpl.java:123)
+	at io.quarkus.deployment.dev.IsolatedDevModeMain.restartApp(IsolatedDevModeMain.java:222)
+	at io.quarkus.deployment.dev.IsolatedDevModeMain.restartCallback(IsolatedDevModeMain.java:203)
+	at io.quarkus.deployment.dev.RuntimeUpdatesProcessor.doScan(RuntimeUpdatesProcessor.java:543)
+	at io.quarkus.deployment.dev.RuntimeUpdatesProcessor.doScan(RuntimeUpdatesProcessor.java:441)
+	at io.quarkus.vertx.http.runtime.devmode.VertxHttpHotReplacementSetup$4.handle(VertxHttpHotReplacementSetup.java:152)
+	at io.quarkus.vertx.http.runtime.devmode.VertxHttpHotReplacementSetup$4.handle(VertxHttpHotReplacementSetup.java:139)
+	at io.vertx.core.impl.ContextBase.lambda$null$0(ContextBase.java:137)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:264)
+	at io.vertx.core.impl.ContextBase.lambda$executeBlocking$1(ContextBase.java:135)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2513)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1538)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:29)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:29)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Caused by: java.lang.RuntimeException: Failed to start quarkus
+	at io.quarkus.runner.ApplicationImpl.doStart(Unknown Source)
+	at io.quarkus.runtime.Application.start(Application.java:101)
+	at io.quarkus.runtime.ApplicationLifecycleManager.run(ApplicationLifecycleManager.java:111)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:71)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:44)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:124)
+	at io.quarkus.runner.GeneratedMain.main(Unknown Source)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at io.quarkus.runner.bootstrap.StartupActionImpl$1.run(StartupActionImpl.java:104)
+	... 1 more
+Caused by: jakarta.ws.rs.ProcessingException: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/127.0.0.1:52352
+	at org.jboss.resteasy.reactive.client.handlers.ClientSendRequestHandler$3.accept(ClientSendRequestHandler.java:223)
+	at org.jboss.resteasy.reactive.client.handlers.ClientSendRequestHandler$3.accept(ClientSendRequestHandler.java:215)
+	at io.smallrye.context.impl.wrappers.SlowContextualConsumer.accept(SlowContextualConsumer.java:21)
+	at io.smallrye.mutiny.helpers.UniCallbackSubscriber.onFailure(UniCallbackSubscriber.java:62)
+	at io.smallrye.mutiny.operators.uni.UniOperatorProcessor.onFailure(UniOperatorProcessor.java:55)
+	at io.smallrye.mutiny.operators.uni.UniOperatorProcessor.onFailure(UniOperatorProcessor.java:55)
+	at org.jboss.resteasy.reactive.client.AsyncResultUni.lambda$subscribe$1(AsyncResultUni.java:37)
+	at io.vertx.core.impl.future.FutureImpl$3.onFailure(FutureImpl.java:153)
+	at io.vertx.core.impl.future.FutureBase.lambda$emitFailure$1(FutureBase.java:69)
+	at io.vertx.core.impl.EventLoopContext.execute(EventLoopContext.java:86)
+	at io.vertx.core.impl.DuplicatedContext.execute(DuplicatedContext.java:163)
+	at io.vertx.core.impl.future.FutureBase.emitFailure(FutureBase.java:66)
+	at io.vertx.core.impl.future.FutureImpl.tryFail(FutureImpl.java:230)
+	at io.vertx.core.impl.future.PromiseImpl.tryFail(PromiseImpl.java:23)
+	at io.vertx.core.http.impl.HttpClientImpl.lambda$doRequest$6(HttpClientImpl.java:689)
+	at io.vertx.core.net.impl.pool.Endpoint.lambda$getConnection$0(Endpoint.java:52)
+	at io.vertx.core.http.impl.SharedClientHttpStreamEndpoint$Request.handle(SharedClientHttpStreamEndpoint.java:162)
+	at io.vertx.core.http.impl.SharedClientHttpStreamEndpoint$Request.handle(SharedClientHttpStreamEndpoint.java:123)
+	at io.vertx.core.impl.EventLoopContext.emit(EventLoopContext.java:55)
+	at io.vertx.core.impl.ContextBase.emit(ContextBase.java:239)
+	at io.vertx.core.net.impl.pool.SimpleConnectionPool$ConnectFailed$1.run(SimpleConnectionPool.java:384)
+	at io.vertx.core.net.impl.pool.CombinerExecutor.submit(CombinerExecutor.java:56)
+	at io.vertx.core.net.impl.pool.SimpleConnectionPool.execute(SimpleConnectionPool.java:245)
+	at io.vertx.core.net.impl.pool.SimpleConnectionPool.lambda$connect$2(SimpleConnectionPool.java:259)
+	at io.vertx.core.http.impl.SharedClientHttpStreamEndpoint.lambda$connect$2(SharedClientHttpStreamEndpoint.java:104)
+	at io.vertx.core.impl.future.FutureImpl$3.onFailure(FutureImpl.java:153)
+	at io.vertx.core.impl.future.FutureBase.emitFailure(FutureBase.java:75)
+	at io.vertx.core.impl.future.FutureImpl.tryFail(FutureImpl.java:230)
+	at io.vertx.core.impl.future.Composition$1.onFailure(Composition.java:66)
+	at io.vertx.core.impl.future.FutureBase.emitFailure(FutureBase.java:75)
+	at io.vertx.core.impl.future.FailedFuture.addListener(FailedFuture.java:98)
+	at io.vertx.core.impl.future.Composition.onFailure(Composition.java:55)
+	at io.vertx.core.impl.future.FutureBase.emitFailure(FutureBase.java:75)
+	at io.vertx.core.impl.future.FutureImpl.tryFail(FutureImpl.java:230)
+	at io.vertx.core.impl.future.PromiseImpl.tryFail(PromiseImpl.java:23)
+	at io.vertx.core.impl.EventLoopContext.emit(EventLoopContext.java:55)
+	at io.vertx.core.impl.ContextBase.emit(ContextBase.java:239)
+	at io.vertx.core.net.impl.NetClientImpl.failed(NetClientImpl.java:339)
+	at io.vertx.core.net.impl.NetClientImpl.lambda$connectInternal2$6(NetClientImpl.java:311)
+	at io.netty.util.concurrent.DefaultPromise.notifyListener0(DefaultPromise.java:590)
+	at io.netty.util.concurrent.DefaultPromise.notifyListenersNow(DefaultPromise.java:557)
+	at io.netty.util.concurrent.DefaultPromise.notifyListeners(DefaultPromise.java:492)
+	at io.netty.util.concurrent.DefaultPromise.setValue0(DefaultPromise.java:636)
+	at io.netty.util.concurrent.DefaultPromise.setFailure0(DefaultPromise.java:629)
+	at io.netty.util.concurrent.DefaultPromise.setFailure(DefaultPromise.java:110)
+	at io.vertx.core.net.impl.ChannelProvider.lambda$handleConnect$0(ChannelProvider.java:157)
+	at io.netty.util.concurrent.DefaultPromise.notifyListener0(DefaultPromise.java:590)
+	at io.netty.util.concurrent.DefaultPromise.notifyListeners0(DefaultPromise.java:583)
+	at io.netty.util.concurrent.DefaultPromise.notifyListenersNow(DefaultPromise.java:559)
+	at io.netty.util.concurrent.DefaultPromise.notifyListeners(DefaultPromise.java:492)
+	at io.netty.util.concurrent.DefaultPromise.setValue0(DefaultPromise.java:636)
+	at io.netty.util.concurrent.DefaultPromise.setFailure0(DefaultPromise.java:629)
+	at io.netty.util.concurrent.DefaultPromise.tryFailure(DefaultPromise.java:118)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.fulfillConnectPromise(AbstractNioChannel.java:321)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:337)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:776)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:724)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:650)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997)
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	... 1 more
+Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/127.0.0.1:52352
+Caused by: java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:672)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:946)
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:337)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:334)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:776)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:724)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:650)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997)
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:833)</pre>
+    </div>
+    <div id="reversed-stacktrace" class="trace hidden">
+<p><em>The stacktrace below has been reversed to show the root cause first. <a href="" onClick="toggleStackTraceOrder(); return false;">Click Here</a> to see the original stacktrace</em></p>        <pre>java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:672)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:946)
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:337)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:334)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:776)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:724)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:650)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997)
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Resulted in: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/127.0.0.1:52352
+Resulted in: jakarta.ws.rs.ProcessingException: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: localhost/127.0.0.1:52352
+	at org.jboss.resteasy.reactive.client.handlers.ClientSendRequestHandler$3.accept(ClientSendRequestHandler.java:223)
+	at org.jboss.resteasy.reactive.client.handlers.ClientSendRequestHandler$3.accept(ClientSendRequestHandler.java:215)
+	at io.smallrye.context.impl.wrappers.SlowContextualConsumer.accept(SlowContextualConsumer.java:21)
+	at io.smallrye.mutiny.helpers.UniCallbackSubscriber.onFailure(UniCallbackSubscriber.java:62)
+	at io.smallrye.mutiny.operators.uni.UniOperatorProcessor.onFailure(UniOperatorProcessor.java:55)
+	at io.smallrye.mutiny.operators.uni.UniOperatorProcessor.onFailure(UniOperatorProcessor.java:55)
+	at org.jboss.resteasy.reactive.client.AsyncResultUni.lambda$subscribe$1(AsyncResultUni.java:37)
+	at io.vertx.core.impl.future.FutureImpl$3.onFailure(FutureImpl.java:153)
+	at io.vertx.core.impl.future.FutureBase.lambda$emitFailure$1(FutureBase.java:69)
+	at io.vertx.core.impl.EventLoopContext.execute(EventLoopContext.java:86)
+	at io.vertx.core.impl.DuplicatedContext.execute(DuplicatedContext.java:163)
+	at io.vertx.core.impl.future.FutureBase.emitFailure(FutureBase.java:66)
+	at io.vertx.core.impl.future.FutureImpl.tryFail(FutureImpl.java:230)
+	at io.vertx.core.impl.future.PromiseImpl.tryFail(PromiseImpl.java:23)
+	at io.vertx.core.http.impl.HttpClientImpl.lambda$doRequest$6(HttpClientImpl.java:689)
+	at io.vertx.core.net.impl.pool.Endpoint.lambda$getConnection$0(Endpoint.java:52)
+	at io.vertx.core.http.impl.SharedClientHttpStreamEndpoint$Request.handle(SharedClientHttpStreamEndpoint.java:162)
+	at io.vertx.core.http.impl.SharedClientHttpStreamEndpoint$Request.handle(SharedClientHttpStreamEndpoint.java:123)
+	at io.vertx.core.impl.EventLoopContext.emit(EventLoopContext.java:55)
+	at io.vertx.core.impl.ContextBase.emit(ContextBase.java:239)
+	at io.vertx.core.net.impl.pool.SimpleConnectionPool$ConnectFailed$1.run(SimpleConnectionPool.java:384)
+	at io.vertx.core.net.impl.pool.CombinerExecutor.submit(CombinerExecutor.java:56)
+	at io.vertx.core.net.impl.pool.SimpleConnectionPool.execute(SimpleConnectionPool.java:245)
+	at io.vertx.core.net.impl.pool.SimpleConnectionPool.lambda$connect$2(SimpleConnectionPool.java:259)
+	at io.vertx.core.http.impl.SharedClientHttpStreamEndpoint.lambda$connect$2(SharedClientHttpStreamEndpoint.java:104)
+	at io.vertx.core.impl.future.FutureImpl$3.onFailure(FutureImpl.java:153)
+	at io.vertx.core.impl.future.FutureBase.emitFailure(FutureBase.java:75)
+	at io.vertx.core.impl.future.FutureImpl.tryFail(FutureImpl.java:230)
+	at io.vertx.core.impl.future.Composition$1.onFailure(Composition.java:66)
+	at io.vertx.core.impl.future.FutureBase.emitFailure(FutureBase.java:75)
+	at io.vertx.core.impl.future.FailedFuture.addListener(FailedFuture.java:98)
+	at io.vertx.core.impl.future.Composition.onFailure(Composition.java:55)
+	at io.vertx.core.impl.future.FutureBase.emitFailure(FutureBase.java:75)
+	at io.vertx.core.impl.future.FutureImpl.tryFail(FutureImpl.java:230)
+	at io.vertx.core.impl.future.PromiseImpl.tryFail(PromiseImpl.java:23)
+	at io.vertx.core.impl.EventLoopContext.emit(EventLoopContext.java:55)
+	at io.vertx.core.impl.ContextBase.emit(ContextBase.java:239)
+	at io.vertx.core.net.impl.NetClientImpl.failed(NetClientImpl.java:339)
+	at io.vertx.core.net.impl.NetClientImpl.lambda$connectInternal2$6(NetClientImpl.java:311)
+	at io.netty.util.concurrent.DefaultPromise.notifyListener0(DefaultPromise.java:590)
+	at io.netty.util.concurrent.DefaultPromise.notifyListenersNow(DefaultPromise.java:557)
+	at io.netty.util.concurrent.DefaultPromise.notifyListeners(DefaultPromise.java:492)
+	at io.netty.util.concurrent.DefaultPromise.setValue0(DefaultPromise.java:636)
+	at io.netty.util.concurrent.DefaultPromise.setFailure0(DefaultPromise.java:629)
+	at io.netty.util.concurrent.DefaultPromise.setFailure(DefaultPromise.java:110)
+	at io.vertx.core.net.impl.ChannelProvider.lambda$handleConnect$0(ChannelProvider.java:157)
+	at io.netty.util.concurrent.DefaultPromise.notifyListener0(DefaultPromise.java:590)
+	at io.netty.util.concurrent.DefaultPromise.notifyListeners0(DefaultPromise.java:583)
+	at io.netty.util.concurrent.DefaultPromise.notifyListenersNow(DefaultPromise.java:559)
+	at io.netty.util.concurrent.DefaultPromise.notifyListeners(DefaultPromise.java:492)
+	at io.netty.util.concurrent.DefaultPromise.setValue0(DefaultPromise.java:636)
+	at io.netty.util.concurrent.DefaultPromise.setFailure0(DefaultPromise.java:629)
+	at io.netty.util.concurrent.DefaultPromise.tryFailure(DefaultPromise.java:118)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.fulfillConnectPromise(AbstractNioChannel.java:321)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:337)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:776)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:724)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:650)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997)
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Resulted in: java.lang.RuntimeException: Failed to start quarkus
+	at io.quarkus.runner.ApplicationImpl.doStart(Unknown Source)
+	at io.quarkus.runtime.Application.start(Application.java:101)
+	at io.quarkus.runtime.ApplicationLifecycleManager.run(ApplicationLifecycleManager.java:111)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:71)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:44)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:124)
+	at io.quarkus.runner.GeneratedMain.main(Unknown Source)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at io.quarkus.runner.bootstrap.StartupActionImpl$1.run(StartupActionImpl.java:104)
+	... 1 more
+Resulted in: io.quarkus.dev.appstate.ApplicationStartException: java.lang.RuntimeException: Failed to start quarkus
+	at io.quarkus.dev.appstate.ApplicationStateNotification.waitForApplicationStart(ApplicationStateNotification.java:58)
+	at io.quarkus.runner.bootstrap.StartupActionImpl.runMainClass(StartupActionImpl.java:123)
+	at io.quarkus.deployment.dev.IsolatedDevModeMain.restartApp(IsolatedDevModeMain.java:222)
+	at io.quarkus.deployment.dev.IsolatedDevModeMain.restartCallback(IsolatedDevModeMain.java:203)
+	at io.quarkus.deployment.dev.RuntimeUpdatesProcessor.doScan(RuntimeUpdatesProcessor.java:543)
+	at io.quarkus.deployment.dev.RuntimeUpdatesProcessor.doScan(RuntimeUpdatesProcessor.java:441)
+	at io.quarkus.vertx.http.runtime.devmode.VertxHttpHotReplacementSetup$4.handle(VertxHttpHotReplacementSetup.java:152)
+	at io.quarkus.vertx.http.runtime.devmode.VertxHttpHotReplacementSetup$4.handle(VertxHttpHotReplacementSetup.java:139)
+	at io.vertx.core.impl.ContextBase.lambda$null$0(ContextBase.java:137)
+	at io.vertx.core.impl.ContextInternal.dispatch(ContextInternal.java:264)
+	at io.vertx.core.impl.ContextBase.lambda$executeBlocking$1(ContextBase.java:135)
+	at org.jboss.threads.ContextHandler$1.runWith(ContextHandler.java:18)
+	at org.jboss.threads.EnhancedQueueExecutor$Task.run(EnhancedQueueExecutor.java:2513)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1538)
+	at org.jboss.threads.DelegatingRunnable.run(DelegatingRunnable.java:29)
+	at org.jboss.threads.ThreadLocalResettingRunnable.run(ThreadLocalResettingRunnable.java:29)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	... 1 more</pre>
+    </div>
+<div id="stacktrace"></div></div></body>
+</html>
