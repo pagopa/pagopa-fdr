@@ -86,7 +86,9 @@ public class OrganizationsResource {
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, ec);
-    MDC.put(PSP_ID, idPsp);
+    if (null != idPsp && !idPsp.isBlank()) {
+      MDC.put(PSP_ID, idPsp);
+    }
 
     // TODO aggiungere date from to per leggere al massimo n (as is 30) giorni con limite di 90 e
     // meglio mettere TTL sulla collections a 90 giorni

@@ -20,7 +20,9 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(log, pspId, configData);
+    if (null != pspId && !pspId.isBlank()) {
+      checkPaymentServiceProvider(log, pspId, configData);
+    }
   }
 
   @WithSpan(kind = SERVER)

@@ -79,7 +79,9 @@ public class InternalOrganizationsResource {
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, NDP);
-    MDC.put(PSP_ID, idPsp);
+    if (null != idPsp && !idPsp.isBlank()) {
+      MDC.put(PSP_ID, idPsp);
+    }
 
     log.infof(
         AppMessageUtil.logProcess("%s with idPsp:[%s] - page:[%s], pageSize:[%s]"),
