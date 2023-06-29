@@ -38,6 +38,6 @@ public class CreateFlowRequest {
   private Instant regulationDate;
 
   @Schema(example = "UNCRITMMXXX")
-  @Pattern(regexp = "^(\\w{1,35})$") // TODO non dovrebbe essere 5 numerici?
+  @Pattern(regexp = "^(.{1,35})$") // TODO non dovrebbe essere 5 numerici?
   private String bicCodePouringBank;
 }

@@ -16,12 +16,12 @@ public class Sender {
   @NotNull private SenderTypeEnum type;
 
   @NotNull
-  @Pattern(regexp = "^(\\w{1,35})$")
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "SELBIT2B")
   private String id;
 
   @NotNull
-  @Pattern(regexp = "^(\\w{1,35})$")
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "60000000001")
   private String pspId;
 
@@ -31,12 +31,12 @@ public class Sender {
   private String pspName;
 
   @NotNull
-  @Pattern(regexp = "^(\\w{1,35})$")
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "70000000001")
   private String brokerId;
 
   @NotNull
-  @Pattern(regexp = "^(\\w{1,35})$")
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "80000000001")
   private String channelId;
 

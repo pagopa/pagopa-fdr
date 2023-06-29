@@ -18,12 +18,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class Payment {
 
   @NotNull
-  @Pattern(regexp = "^(\\w{1,35})$")
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "abcdefg")
   private String iuv;
 
   @NotNull
-  @Pattern(regexp = "^(\\w{1,35})$")
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "abcdefg")
   private String iur;
 

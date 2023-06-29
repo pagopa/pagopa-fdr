@@ -13,12 +13,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class Receiver {
 
   @NotNull
-  @Pattern(regexp = "^(\\w{1,35})$")
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "APPBIT2B")
   private String id;
 
   @NotNull
-  @Pattern(regexp = "^(\\w{1,35})$")
+  @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "20000000001")
   private String ecId;
 
