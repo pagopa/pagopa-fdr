@@ -54,21 +54,31 @@ public class Config {
 
   @SneakyThrows
   public ConfigDataV1 getClonedCache() {
-    return objectMapper.readValue(objectMapper.writeValueAsString(this.cache), ConfigDataV1.class);
+    if (this.cache == null) {
+      log.debug("Api config cache NOT INITIALIZED");
+      return null;
+    } else {
+      return objectMapper.readValue(
+          objectMapper.writeValueAsString(this.cache), ConfigDataV1.class);
+    }
   }
 
   @Inject Logger log;
 
   @Scheduled(cron = "{api_config_cache.cron.expr}")
   void cronJobApiconfigCache(ScheduledExecution execution) {
-    log.debugf("Schedule api-config-cache %s", execution.getScheduledFireTime());
-    String version = cache.getVersion();
-    String newVersion = nodeCacheApi.idV1().getVersion();
-    if (version.equals(newVersion)) {
-      log.debugf("Cache NOT updated. Version [%s]", cache.getVersion());
+    if (this.cache == null) {
+      log.debug("Api config cache NOT INITIALIZED");
     } else {
-      log.debugf("Cache updated. Version  [%s] -> [%s]", version, newVersion);
-      this.cache = nodeCacheApi.cache(null);
+      log.debugf("Schedule api-config-cache %s", execution.getScheduledFireTime());
+      String version = cache.getVersion();
+      String newVersion = nodeCacheApi.idV1().getVersion();
+      if (version.equals(newVersion)) {
+        log.debugf("Cache NOT updated. Version [%s]", cache.getVersion());
+      } else {
+        log.debugf("Cache updated. Version  [%s] -> [%s]", version, newVersion);
+        this.cache = nodeCacheApi.cache(null);
+      }
     }
   }
 }
