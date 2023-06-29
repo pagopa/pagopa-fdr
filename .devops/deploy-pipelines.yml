@@ -260,8 +260,8 @@ stages:
                                 APP_NAME: "$(appName)-canary"
                                 VALUE_FILE: $(WEU_value_file)
                                 DEPLOY_VERSION: $(current_version)
-                                APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                                APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+                                #APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+                                #APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
                                 CHART_PATH: "helm"
                                 ARGUMENTS: >-
                                   --set fdr.image.tag="$(current_version)"
@@ -337,8 +337,8 @@ stages:
                         APP_NAME: $(appName)
                         VALUE_FILE: $(WEU_value_file)
                         DEPLOY_VERSION: $(current_version)
-                        APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                        APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+                        #APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+                        #APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
                         CHART_PATH: "helm"
                         ARGUMENTS: >-
                           --set fdr.image.tag="$(current_version)"
@@ -357,8 +357,8 @@ stages:
                             APP_NAME: "$(appName)-canary"
                             VALUE_FILE: $(WEU_value_file)
                             DEPLOY_VERSION: $(current_version)
-                            APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                            APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+                            #APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+                            #APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
                             CHART_PATH: "helm"
                             ARGUMENTS: "$(appName)-canary"
 
@@ -393,7 +393,7 @@ stages:
                             APP_NAME: "$(appName)-canary"
                             VALUE_FILE: $(WEU_value_file)
                             DEPLOY_VERSION: $(current_version)
-                            APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                            APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+                            #APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+                            #APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
                             CHART_PATH: "helm/fdr"
                             ARGUMENTS: "$(appName)-canary"
