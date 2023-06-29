@@ -34,7 +34,6 @@ generate_openapi () {
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Generate OpenAPI JSON [$version] [$conf]"
   docker run -i -d --name exportfdr_$conf --rm -p 8080:8080 $REPO:$version-$conf
-  exit 0
   sleep 10
   curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
   docker rm -f exportfdr_$conf
