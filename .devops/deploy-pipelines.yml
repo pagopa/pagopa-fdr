@@ -34,8 +34,6 @@ parameters:
     default: dev
     values:
       - dev
-      - it
-      - prf
       - uat
       - prod
   - name: SEMVER
@@ -87,28 +85,29 @@ variables:
   WEU_value_file: "helm/weu-${{ parameters['ENV'] }}/values-${{ parameters['ENV'] }}.yaml"
   NEU_value_file: "helm/neu-${{ parameters['ENV'] }}/values-${{ parameters['ENV'] }}.yaml"
 
-  API_CACHE_MOCK:
-
+  appName: 'pagopafdr'
 
   ${{ if eq(parameters['ENV'], 'dev') }}:
-    appName: 'fdr'
-    AZURE_SERVICE_CONNECTION: '$(TF_APPINSIGHTS_SERVICE_CONN_DEV)'
     WEU_dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
     WEU_dockerRegistryFqdn: $(DEV_CONTAINER_NAMESPACE)
     WEU_kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
-    WEU_poolImage: 'pagopa-dev-linux'
-    WEU_appInsightsServiceConn: "$(TF_APPINSIGHTS_SERVICE_CONN_DEV)"
-    WEU_appInsightsResourceId: "$(TF_APPINSIGHTS_RESOURCE_ID_DEV)"
-    NEU_dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
-    NEU_dockerRegistryFqdn: $(DEV_CONTAINER_NAMESPACE)
-    NEU_kubernetesServiceConnection: 'pagopa-neu-nodo-aks-dev'
-    NEU_poolImage: 'pagopa-neu-dev-linux'
-    NEU_appInsightsServiceConn: "$(TF_APPINSIGHTS_SERVICE_CONN_DEV)"
-    NEU_appInsightsResourceId: "$(TF_APPINSIGHTS_RESOURCE_ID_DEV)"
+    WEU_poolImage: '$(DEPLOY-POOL-DEV)'
+
+
+  ${{ if eq(parameters['ENV'], 'uat') }}:
+    WEU_dockerRegistryServiceConnection: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
+    WEU_dockerRegistryFqdn: $(UAT_CONTAINER_NAMESPACE)
+    WEU_kubernetesServiceConnection: '$(UAT_KUBERNETES_SERVICE_CONN)'
+    WEU_poolImage: '$(DEPLOY-POOL-UAT)'
+
+  ${{ if eq(parameters['ENV'], 'prod') }}:
+    WEU_dockerRegistryServiceConnection: $(PROD_CONTAINER_REGISTRY_SERVICE_CONN)
+    WEU_dockerRegistryFqdn: $(PROD_CONTAINER_NAMESPACE)
+    WEU_kubernetesServiceConnection: '$(PROD_KUBERNETES_SERVICE_CONN)'
+    WEU_poolImage: '$(DEPLOY-POOL-PROD)'
 
 
 stages:
-
   # Create a release on GitHub
   - stage: release
     displayName: "Release"
@@ -173,12 +172,12 @@ stages:
               git checkout $(sourceBranch)
             displayName: Checkout and update branch
 
-          - task: AzureKeyVault@2
-            displayName: "Get secrets"
-            inputs:
-              azureSubscription: $(AZURE_SERVICE_CONNECTION)
-              keyVaultName: 'pagopa-d-fdr-kv'
-              secretsFilter: 'api-config-cache-subscription-key-string'
+#          - task: AzureKeyVault@2
+#            displayName: "Get secrets"
+#            inputs:
+#              azureSubscription: $(AZURE_SERVICE_CONNECTION)
+#              keyVaultName: 'pagopa-d-fdr-kv'
+#              secretsFilter: 'api-config-cache-subscription-key-string'
 
           - template: templates/docker-release/template.yaml@pagopaCommons
             parameters:
@@ -187,8 +186,9 @@ stages:
               DOCKER_IMAGE_NAME: $(imageRepository)
               DOCKER_IMAGE_TAG: $(current_version)
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
-              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage"
-              DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository) --build-arg QUARKUS_PROFILE=prod --build-arg ADAPTER_API_CONFIG_CACHE_URL='https://api.dev.platform.pagopa.it/api-config-cache/p/v1' --build-arg ADAPTER_API_CONFIG_CACHE_KEY=$(api-config-cache-subscription-key-string)"
+              ##Attenzione si usa il file Dockerfile.multistage.jvm, e non Dockerfile.multistage, perchè la lib di azure non è compatibile per la build nativa
+              DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage.jvm"
+              DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository) --build-arg QUARKUS_PROFILE=prod"
 
   # Deploy Canary if prod or uat
   - ${{ if and( parameters.WEU , in( parameters.ENV, 'prod', 'uat') ) }}:
@@ -259,8 +259,8 @@ stages:
                                 APP_NAME: "$(appName)-canary"
                                 VALUE_FILE: $(WEU_value_file)
                                 DEPLOY_VERSION: $(current_version)
-                                APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                                APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+                                #APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+                                #APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
                                 CHART_PATH: "helm"
                                 ARGUMENTS: >-
                                   --set fdr.image.tag="$(current_version)"
@@ -336,8 +336,8 @@ stages:
                         APP_NAME: $(appName)
                         VALUE_FILE: $(WEU_value_file)
                         DEPLOY_VERSION: $(current_version)
-                        APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                        APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+                        #APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+                        #APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
                         CHART_PATH: "helm"
                         ARGUMENTS: >-
                           --set fdr.image.tag="$(current_version)"
@@ -356,8 +356,8 @@ stages:
                             APP_NAME: "$(appName)-canary"
                             VALUE_FILE: $(WEU_value_file)
                             DEPLOY_VERSION: $(current_version)
-                            APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                            APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+                            #APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+                            #APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
                             CHART_PATH: "helm"
                             ARGUMENTS: "$(appName)-canary"
 
@@ -392,7 +392,7 @@ stages:
                             APP_NAME: "$(appName)-canary"
                             VALUE_FILE: $(WEU_value_file)
                             DEPLOY_VERSION: $(current_version)
-                            APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
-                            APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
+                            #APPINSIGHTS_SERVICE_CONN: ${{ variables.WEU_appInsightsServiceConn }}
+                            #APPINSIGHTS_RESOURCE_ID: ${{ variables.WEU_appInsightsResourceId }}
                             CHART_PATH: "helm/fdr"
                             ARGUMENTS: "$(appName)-canary"

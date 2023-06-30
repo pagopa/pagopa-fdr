@@ -9,9 +9,8 @@ RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
 COPY src /code/src
 ARG QUARKUS_PROFILE
 ARG APP_NAME
-ARG ADAPTER_API_CONFIG_CACHE_URL
-ARG ADAPTER_API_CONFIG_CACHE_KEY
-RUN ./mvnw package -DskipTests=true -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Dadapter.api_config_cache.url=$ADAPTER_API_CONFIG_CACHE_URL -Dadapter.api_config_cache.api-key-value=$ADAPTER_API_CONFIG_CACHE_KEY
+
+RUN ./mvnw package -DskipTests=true -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE
 
 FROM registry.access.redhat.com/ubi8/openjdk-17:1.14
 
@@ -28,10 +27,8 @@ USER 185
 
 ARG QUARKUS_PROFILE
 ARG APP_NAME
-ARG ADAPTER_API_CONFIG_CACHE_URL
-ARG ADAPTER_API_CONFIG_CACHE_KEY
 
-ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dadapter.api_config_cache.url=$ADAPTER_API_CONFIG_CACHE_URL -Dadapter.api_config_cache.api-key-value=$ADAPTER_API_CONFIG_CACHE_KEY"
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
 

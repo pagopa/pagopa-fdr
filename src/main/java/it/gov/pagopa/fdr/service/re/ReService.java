@@ -40,7 +40,8 @@ public class ReService {
             .buildProducerClient();
   }
 
-  public <T extends ReAbstract> void sendEvent(T... reList) {
+  @SafeVarargs
+  public final <T extends ReAbstract> void sendEvent(T... reList) {
     if (this.producer == null) {
       log.debugf("EventHub re NOT INITIALIZED. EventHub name [%s] not send message.", eHubName);
     } else {

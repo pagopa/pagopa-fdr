@@ -47,7 +47,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "pattern": "^\\w{1,35}$",
+              "pattern": "^(.{1,35})$",
               "type": "string"
             }
           },
@@ -55,7 +55,7 @@
             "name": "idPsp",
             "in": "query",
             "schema": {
-              "pattern": "^\\w{1,35}$",
+              "pattern": "^(.{1,35})$",
               "type": "string"
             }
           },
@@ -589,7 +589,7 @@
             "example": "2023-04-03T12:00:30.900000Z"
           },
           "bicCodePouringBank": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "UNCRITMMXXX"
           }
@@ -915,12 +915,12 @@
         "type": "object",
         "properties": {
           "iuv": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "abcdefg"
           },
           "iur": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "abcdefg"
           },
@@ -976,12 +976,12 @@
         "type": "object",
         "properties": {
           "id": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "APPBIT2B"
           },
           "ecId": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "20000000001"
           },
@@ -1015,12 +1015,12 @@
             "$ref": "#/components/schemas/SenderTypeEnum"
           },
           "id": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "SELBIT2B"
           },
           "pspId": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "60000000001"
           },
@@ -1030,12 +1030,12 @@
             "example": "Bank"
           },
           "brokerId": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "70000000001"
           },
           "channelId": {
-            "pattern": "^(\\w{1,35})$",
+            "pattern": "^(.{1,35})$",
             "type": "string",
             "example": "80000000001"
           },

@@ -21,7 +21,9 @@ public class OrganizationsValidationService extends CommonValidationService {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
-    checkPaymentServiceProvider(log, pspId, configData);
+    if (null != pspId && !pspId.isBlank()) {
+      checkPaymentServiceProvider(log, pspId, configData);
+    }
 
     // check ec
     checkCreditorInstitution(log, ecId, configData);

@@ -50,11 +50,6 @@ public class FdrInsertEntity extends PanacheMongoEntity {
   @BsonProperty("sum_payments")
   private Double sumPayments;
 
-  @BsonProperty("internal_ndp_read")
-  private Boolean internalNdpRead;
-
-  private Boolean read;
-
   public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
       String reportingFlowName, String pspId) {
     return find(

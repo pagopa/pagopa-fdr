@@ -30,7 +30,7 @@
       <dependency>
         <groupId>com.azure</groupId>
         <artifactId>azure-sdk-bom</artifactId>
-        <version>1.2.13</version>
+        <version>1.2.14</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -123,6 +123,7 @@
       <groupId>io.quarkiverse.mockserver</groupId>
       <artifactId>quarkus-mockserver-test</artifactId>
       <version>1.0.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -150,6 +151,15 @@
       <version>2.10.1</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- solo per i mac M1 https://medium.com/@boysbee/unable-to-load-io-netty-resolver-dns-macos-macosdnsserveraddressstreamprovider-46d89bf74d42 -->
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-resolver-dns-native-macos</artifactId>
+      <version>4.1.76.Final</version>
+      <classifier>osx-aarch_64</classifier>
+    </dependency>
+
   </dependencies>
   <build>
     <plugins>

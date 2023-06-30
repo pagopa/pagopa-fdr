@@ -349,8 +349,6 @@ public class PspsService {
     }
 
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(reportingFlowEntity);
-    fdrPublishEntity.setInternalNdpRead(Boolean.FALSE);
-    fdrPublishEntity.setRead(Boolean.FALSE);
     fdrPublishEntity.persistEntity();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);

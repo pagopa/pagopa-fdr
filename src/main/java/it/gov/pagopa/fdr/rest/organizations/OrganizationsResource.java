@@ -80,13 +80,15 @@ public class OrganizationsResource {
   @GET
   @Re(flowName = FlowActionEnum.GET_ALL_FDR)
   public GetAllResponse getAllPublishedFlow(
-      @PathParam(AppConstant.PATH_PARAM_EC) @Pattern(regexp = "^\\w{1,35}$") String ec,
-      @QueryParam("idPsp") @Pattern(regexp = "^\\w{1,35}$") String idPsp,
+      @PathParam(AppConstant.PATH_PARAM_EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+      @QueryParam("idPsp") @Pattern(regexp = "^(.{1,35})$") String idPsp,
       @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
       @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, ec);
-    MDC.put(PSP_ID, idPsp);
+    if (null != idPsp && !idPsp.isBlank()) {
+      MDC.put(PSP_ID, idPsp);
+    }
 
     // TODO aggiungere date from to per leggere al massimo n (as is 30) giorni con limite di 90 e
     // meglio mettere TTL sulla collections a 90 giorni
