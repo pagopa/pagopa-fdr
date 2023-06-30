@@ -87,28 +87,24 @@ variables:
   WEU_value_file: "helm/weu-${{ parameters['ENV'] }}/values-${{ parameters['ENV'] }}.yaml"
   NEU_value_file: "helm/neu-${{ parameters['ENV'] }}/values-${{ parameters['ENV'] }}.yaml"
 
-  API_CACHE_MOCK:
-
 
   ${{ if eq(parameters['ENV'], 'dev') }}:
     appName: 'pagopafdr'
-    #AZURE_SERVICE_CONNECTION: '$(TF_APPINSIGHTS_SERVICE_CONN_DEV)'
     WEU_dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
     WEU_dockerRegistryFqdn: $(DEV_CONTAINER_NAMESPACE)
     WEU_kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
-    WEU_poolImage: 'pagopa-dev-linux'
-    #WEU_appInsightsServiceConn: "$(TF_APPINSIGHTS_SERVICE_CONN_DEV)"
-    #WEU_appInsightsResourceId: "$(TF_APPINSIGHTS_RESOURCE_ID_DEV)"
-    NEU_dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
-    NEU_dockerRegistryFqdn: $(DEV_CONTAINER_NAMESPACE)
-    NEU_kubernetesServiceConnection: 'pagopa-neu-nodo-aks-dev'
-    NEU_poolImage: 'pagopa-neu-dev-linux'
-    #NEU_appInsightsServiceConn: "$(TF_APPINSIGHTS_SERVICE_CONN_DEV)"
-    #NEU_appInsightsResourceId: "$(TF_APPINSIGHTS_RESOURCE_ID_DEV)"
+    WEU_poolImage: '$(DEPLOY-POOL-DEV)'
+
+
+  ${{ if eq(parameters['ENV'], 'uat') }}:
+    appName: 'pagopafdr'
+    WEU_dockerRegistryServiceConnection: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
+    WEU_dockerRegistryFqdn: $(UAT_CONTAINER_NAMESPACE)
+    WEU_kubernetesServiceConnection: '$(UAT_KUBERNETES_SERVICE_CONN)'
+    WEU_poolImage: '$(DEPLOY-POOL-UAT)'
 
 
 stages:
-
   # Create a release on GitHub
   - stage: release
     displayName: "Release"
