@@ -34,8 +34,6 @@ parameters:
     default: dev
     values:
       - dev
-      - it
-      - prf
       - uat
       - prod
   - name: SEMVER
@@ -87,9 +85,9 @@ variables:
   WEU_value_file: "helm/weu-${{ parameters['ENV'] }}/values-${{ parameters['ENV'] }}.yaml"
   NEU_value_file: "helm/neu-${{ parameters['ENV'] }}/values-${{ parameters['ENV'] }}.yaml"
 
+  appName: 'pagopafdr'
 
   ${{ if eq(parameters['ENV'], 'dev') }}:
-    appName: 'pagopafdr'
     WEU_dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
     WEU_dockerRegistryFqdn: $(DEV_CONTAINER_NAMESPACE)
     WEU_kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
@@ -97,11 +95,16 @@ variables:
 
 
   ${{ if eq(parameters['ENV'], 'uat') }}:
-    appName: 'pagopafdr'
     WEU_dockerRegistryServiceConnection: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
     WEU_dockerRegistryFqdn: $(UAT_CONTAINER_NAMESPACE)
     WEU_kubernetesServiceConnection: '$(UAT_KUBERNETES_SERVICE_CONN)'
     WEU_poolImage: '$(DEPLOY-POOL-UAT)'
+
+  ${{ if eq(parameters['ENV'], 'prod') }}:
+    WEU_dockerRegistryServiceConnection: $(PROD_CONTAINER_REGISTRY_SERVICE_CONN)
+    WEU_dockerRegistryFqdn: $(PROD_CONTAINER_NAMESPACE)
+    WEU_kubernetesServiceConnection: '$(PROD_KUBERNETES_SERVICE_CONN)'
+    WEU_poolImage: '$(DEPLOY-POOL-PROD)'
 
 
 stages:
