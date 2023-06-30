@@ -21,13 +21,13 @@ parameters:
     values:
       - False
       - True
-#  - name: "NEU"
-#    displayName: "Deploy in NEU"
-#    type: boolean
-#    default: False
-#    values:
-#      - False
-#      - True
+  - name: "NEU"
+    displayName: "Deploy in NEU"
+    type: boolean
+    default: False
+    values:
+      - False
+      - True
   - name: ENV
     displayName: Target Environment
     type: string
