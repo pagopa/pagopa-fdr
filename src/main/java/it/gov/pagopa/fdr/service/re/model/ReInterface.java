@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.service.re.model;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -19,7 +20,10 @@ public class ReInterface extends ReAbstract {
 
   private String httpUrl;
 
-  private String bodyRef;
+  private InputStream bodyRef;
+
+  private String blobContainerName;
+  private String blobFileName;
 
   private Map<String, List<String>> header;
 }

@@ -32,6 +32,16 @@ public class RequestFilter implements ContainerRequestFilter {
 
   @Inject ReService reService;
 
+  /*
+  private byte[] getBodyRequest(ContainerRequestContext containerRequestContext)
+      throws IOException {
+    InputStream entityStream = containerRequestContext.getEntityStream();
+    byte[] targetArray = new byte[entityStream.available()];
+    entityStream.read(targetArray);
+    return targetArray;
+  }
+  */
+
   @Override
   public void filter(ContainerRequestContext containerRequestContext) throws IOException {
     long requestStartTime = System.nanoTime();
@@ -68,7 +78,7 @@ public class RequestFilter implements ContainerRequestFilter {
             .httpType(HttpTypeEnum.REQ)
             .httpMethod(requestMethod)
             .httpUrl(requestPath)
-            .bodyRef("??REF??")
+            .bodyRef(containerRequestContext.getEntityStream())
             .header(
                 containerRequestContext.getHeaders().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))

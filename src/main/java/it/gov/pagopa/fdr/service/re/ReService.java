@@ -4,11 +4,16 @@ import com.azure.messaging.eventhubs.EventData;
 import com.azure.messaging.eventhubs.EventDataBatch;
 import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.azure.messaging.eventhubs.EventHubProducerClient;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.service.re.model.ReAbstract;
+import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Arrays;
@@ -27,17 +32,28 @@ public class ReService {
   @ConfigProperty(name = "ehub.re.name")
   String eHubName;
 
+  @ConfigProperty(name = "blob.re.connect-str")
+  String blobConnectStr;
+
+  @ConfigProperty(name = "blob.re.containername")
+  String blobContainerName;
+
   private EventHubProducerClient producer;
+
+  private BlobContainerClient blobContainerClient;
 
   @Inject ObjectMapper objectMapper;
 
   public void init() {
-    log.infof("EventHub re init. EventHub name [%s]", eHubName);
+    log.infof("EventHub re and blob service init. EventHub name [%s]", eHubName);
     this.producer =
         new EventHubClientBuilder()
-            //            .transportType(AmqpTransportType.AMQP_WEB_SOCKETS)
             .connectionString(eHubConnectStr, eHubName)
             .buildProducerClient();
+
+    BlobServiceClient blobServiceClient =
+        new BlobServiceClientBuilder().connectionString(blobConnectStr).buildClient();
+    this.blobContainerClient = blobServiceClient.getBlobContainerClient(blobContainerName);
   }
 
   @SafeVarargs
@@ -50,9 +66,24 @@ public class ReService {
           Arrays.stream(reList)
               .map(
                   re -> {
+                    if (re instanceof ReInterface) {
+                      String fileName =
+                          String.format(
+                              "%s_%s_%s",
+                              re.getSessionId(),
+                              ((ReInterface) re).getHttpType().name(),
+                              re.getFlowName());
+                      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+                      blobClient.upload(((ReInterface) re).getBodyRef());
+
+                      ((ReInterface) re).setBlobContainerName(blobContainerName);
+                      ((ReInterface) re).setBlobFileName(fileName);
+                      ((ReInterface) re).setBodyRef(null);
+                    }
+
                     try {
-                      log.info(re.toString());
-                      return new EventData(objectMapper.writeValueAsString("Foo"));
+                      log.debug(re.toString());
+                      return new EventData(objectMapper.writeValueAsString(re));
                     } catch (JsonProcessingException e) {
                       log.errorf("Producer SDK Azure RE event error", e);
                       throw new AppException(AppErrorCodeMessageEnum.EVENT_HUB_RE_PARSE_JSON);
