@@ -16,7 +16,10 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.Provider;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -31,16 +34,6 @@ public class RequestFilter implements ContainerRequestFilter {
   @Inject Logger log;
 
   @Inject ReService reService;
-
-  /*
-  private byte[] getBodyRequest(ContainerRequestContext containerRequestContext)
-      throws IOException {
-    InputStream entityStream = containerRequestContext.getEntityStream();
-    byte[] targetArray = new byte[entityStream.available()];
-    entityStream.read(targetArray);
-    return targetArray;
-  }
-  */
 
   @Override
   public void filter(ContainerRequestContext containerRequestContext) throws IOException {
@@ -69,6 +62,12 @@ public class RequestFilter implements ContainerRequestFilter {
       MDC.put(ACTION, flowActionEnum.name());
     }
 
+    String body =
+        new BufferedReader(new InputStreamReader(containerRequestContext.getEntityStream()))
+            .lines()
+            .collect(Collectors.joining("\n"));
+    containerRequestContext.setEntityStream(new ByteArrayInputStream(body.getBytes()));
+
     reService.sendEvent(
         ReInterface.builder()
             .appVersion(AppVersionEnum.NEW_FDR)
@@ -78,7 +77,7 @@ public class RequestFilter implements ContainerRequestFilter {
             .httpType(HttpTypeEnum.REQ)
             .httpMethod(requestMethod)
             .httpUrl(requestPath)
-            .bodyRef(containerRequestContext.getEntityStream())
+            .payload(body)
             .header(
                 containerRequestContext.getHeaders().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))

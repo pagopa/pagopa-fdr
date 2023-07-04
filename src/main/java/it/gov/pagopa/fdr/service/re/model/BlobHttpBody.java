@@ -11,5 +11,5 @@ public class BlobHttpBody {
   private String containerName;
   private String fileName;
 
-  private int fileLength;
+  private long fileLength;
 }

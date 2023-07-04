@@ -47,10 +47,10 @@ public class AppStartup {
     }
 
     if (eHubReEnabled) {
-      log.info("Start EventHub Re ENABLED");
+      log.info("Start EventHub Re and blob ENABLED");
       reService.init();
     } else {
-      log.info("Start EventHub Re DISABLED");
+      log.info("Start EventHub Re and blob DISABLED");
     }
   }
 }

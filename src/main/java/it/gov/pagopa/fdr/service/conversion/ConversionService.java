@@ -29,7 +29,7 @@ public class ConversionService {
   public void init() {
     QueueClient queueClient =
         new QueueClientBuilder().connectionString(connectStr).queueName(queueName).buildClient();
-    queueClient.create();
+    queueClient.createIfNotExists();
 
     log.infof("Queue conversion init. Queue name [%s]", queueName);
     this.queue = queueClient;

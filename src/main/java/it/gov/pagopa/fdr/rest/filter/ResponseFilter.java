@@ -6,6 +6,8 @@ import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse.ErrorMessage;
 import it.gov.pagopa.fdr.service.re.ReService;
@@ -39,6 +41,8 @@ public class ResponseFilter implements ContainerResponseFilter {
 
   @Inject ReService reService;
 
+  @Inject ObjectMapper objectMapper;
+
   @Override
   public void filter(
       ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
@@ -66,6 +70,14 @@ public class ResponseFilter implements ContainerResponseFilter {
       String sessionId = MDC.get(TRX_ID);
       String requestMethod = requestContext.getMethod();
       String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
+
+      String responsePayload = null;
+      try {
+        responsePayload = objectMapper.writeValueAsString(responseContext.getEntity());
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+
       reService.sendEvent(
           ReInterface.builder()
               .appVersion(AppVersionEnum.NEW_FDR)
@@ -75,7 +87,7 @@ public class ResponseFilter implements ContainerResponseFilter {
               .httpType(HttpTypeEnum.RES)
               .httpMethod(requestMethod)
               .httpUrl(requestPath)
-              .bodyRef("??REF??")
+              .payload(responsePayload)
               .header(
                   responseContext.getHeaders().entrySet().stream()
                       .collect(

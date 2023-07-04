@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.service.re;
 
+import com.azure.core.util.BinaryData;
 import com.azure.messaging.eventhubs.EventData;
 import com.azure.messaging.eventhubs.EventDataBatch;
 import com.azure.messaging.eventhubs.EventHubClientBuilder;
@@ -17,8 +18,8 @@ import it.gov.pagopa.fdr.service.re.model.ReAbstract;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -59,7 +60,7 @@ public class ReService {
 
     BlobServiceClient blobServiceClient =
         new BlobServiceClientBuilder().connectionString(blobConnectStr).buildClient();
-    this.blobContainerClient = blobServiceClient.getBlobContainerClient(blobContainerName);
+    this.blobContainerClient = blobServiceClient.createBlobContainerIfNotExists(blobContainerName);
   }
 
   @SafeVarargs
@@ -72,9 +73,7 @@ public class ReService {
           Arrays.stream(reList)
               .map(
                   re -> {
-                    if (re instanceof ReInterface) {
-                      writeBlob((ReInterface) re);
-                    }
+                    writeBlobIfExist(re);
                     try {
                       log.debugf("EventHub name [%s] send message: %s", re.toString());
                       return new EventData(objectMapper.writeValueAsString(re));
@@ -89,27 +88,31 @@ public class ReService {
     }
   }
 
-  private void writeBlob(ReInterface re) {
-    String fileName =
-        String.format("%s_%s_%s", re.getSessionId(), re.getHttpType().name(), re.getFlowName());
+  private <T extends ReAbstract> void writeBlobIfExist(T re) {
+    if (re instanceof ReInterface) {
+      String bodyStr = ((ReInterface) re).getPayload();
+      if (bodyStr != null && !bodyStr.isBlank()) {
+        String fileName =
+            String.format(
+                "%s_%s_%s",
+                re.getSessionId(), re.getFlowAction(), ((ReInterface) re).getHttpType().name());
 
-    InputStream body = re.getBodyRef();
+        BinaryData body =
+            BinaryData.fromStream(
+                new ByteArrayInputStream(bodyStr.getBytes(StandardCharsets.UTF_8)));
+        BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+        blobClient.upload(body);
 
-    BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
-    blobClient.upload(body);
-
-    try {
-      BlobHttpBody blobBodyRef =
-          BlobHttpBody.builder()
-              .storageAccount(blobContainerClient.getAccountName())
-              .containerName(blobContainerName)
-              .fileName(fileName)
-              .fileLength(body.available())
-              .build();
-      ((ReInterface) re).setBlobBodyRef(blobBodyRef);
-      ((ReInterface) re).setBodyRef(null);
-    } catch (IOException e) {
-      throw new AppException(AppErrorCodeMessageEnum.BLOB_RE_ERROR);
+        BlobHttpBody blobBodyRef =
+            BlobHttpBody.builder()
+                .storageAccount(blobContainerClient.getAccountName())
+                .containerName(blobContainerName)
+                .fileName(fileName)
+                .fileLength(body.getLength())
+                .build();
+        ((ReInterface) re).setBlobBodyRef(blobBodyRef);
+        ((ReInterface) re).setPayload(null);
+      }
     }
   }
 
