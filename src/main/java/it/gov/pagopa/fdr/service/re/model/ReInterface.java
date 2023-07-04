@@ -22,8 +22,7 @@ public class ReInterface extends ReAbstract {
 
   private InputStream bodyRef;
 
-  private String blobContainerName;
-  private String blobFileName;
+  private BlobHttpBody blobBodyRef;
 
   private Map<String, List<String>> header;
 }

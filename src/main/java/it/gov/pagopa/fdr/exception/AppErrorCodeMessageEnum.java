@@ -51,7 +51,10 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   REPORTING_FLOW_NAME_NOT_MATCH(
       "0720", "reporting-flow.name.notMatch", RestResponse.Status.BAD_REQUEST),
   EVENT_HUB_RE_PARSE_JSON("0721", "eHub.re.parse", Status.INTERNAL_SERVER_ERROR),
-  EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR);
+  EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR),
+
+  BLOB_RE_ERROR("0723", "blob.re.error", Status.INTERNAL_SERVER_ERROR);
+  ;
   private final String errorCode;
   private final String errorMessageKey;
   private final RestResponse.Status httpStatus;
