@@ -19,7 +19,9 @@ public class ReInterface extends ReAbstract {
 
   private String httpUrl;
 
-  private String bodyRef;
+  private String payload;
+
+  private BlobHttpBody blobBodyRef;
 
   private Map<String, List<String>> header;
 }

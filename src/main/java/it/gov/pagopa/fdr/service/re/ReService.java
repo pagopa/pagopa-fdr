@@ -1,16 +1,25 @@
 package it.gov.pagopa.fdr.service.re;
 
+import com.azure.core.util.BinaryData;
 import com.azure.messaging.eventhubs.EventData;
 import com.azure.messaging.eventhubs.EventDataBatch;
 import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.azure.messaging.eventhubs.EventHubProducerClient;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
+import it.gov.pagopa.fdr.service.re.model.BlobHttpBody;
 import it.gov.pagopa.fdr.service.re.model.ReAbstract;
+import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -27,32 +36,47 @@ public class ReService {
   @ConfigProperty(name = "ehub.re.name")
   String eHubName;
 
+  @ConfigProperty(name = "blob.re.connect-str")
+  String blobConnectStr;
+
+  @ConfigProperty(name = "blob.re.containername")
+  String blobContainerName;
+
   private EventHubProducerClient producer;
+
+  private BlobContainerClient blobContainerClient;
 
   @Inject ObjectMapper objectMapper;
 
   public void init() {
-    log.infof("EventHub re init. EventHub name [%s]", eHubName);
+    log.infof(
+        "EventHub re and blob service init. EventHub name [%s], container name [%s]",
+        eHubName, blobContainerName);
+
     this.producer =
         new EventHubClientBuilder()
-            //            .transportType(AmqpTransportType.AMQP_WEB_SOCKETS)
             .connectionString(eHubConnectStr, eHubName)
             .buildProducerClient();
+
+    BlobServiceClient blobServiceClient =
+        new BlobServiceClientBuilder().connectionString(blobConnectStr).buildClient();
+    this.blobContainerClient = blobServiceClient.createBlobContainerIfNotExists(blobContainerName);
   }
 
   @SafeVarargs
   public final <T extends ReAbstract> void sendEvent(T... reList) {
-    if (this.producer == null) {
-      log.debugf("EventHub re NOT INITIALIZED. EventHub name [%s] not send message.", eHubName);
+    if (this.producer == null || this.blobContainerClient == null) {
+      log.debugf(
+          "EventHub re [%s] or Blob container [%s] NOT INITIALIZED", eHubName, blobContainerName);
     } else {
-      log.infof("Send message. EventHub name [%s]", eHubName);
       List<EventData> allEvents =
           Arrays.stream(reList)
               .map(
                   re -> {
+                    writeBlobIfExist(re);
                     try {
-                      log.info(re.toString());
-                      return new EventData(objectMapper.writeValueAsString("Foo"));
+                      log.debugf("EventHub name [%s] send message: %s", re.toString());
+                      return new EventData(objectMapper.writeValueAsString(re));
                     } catch (JsonProcessingException e) {
                       log.errorf("Producer SDK Azure RE event error", e);
                       throw new AppException(AppErrorCodeMessageEnum.EVENT_HUB_RE_PARSE_JSON);
@@ -61,6 +85,34 @@ public class ReService {
               .toList();
 
       publishEvents(allEvents);
+    }
+  }
+
+  private <T extends ReAbstract> void writeBlobIfExist(T re) {
+    if (re instanceof ReInterface) {
+      String bodyStr = ((ReInterface) re).getPayload();
+      if (bodyStr != null && !bodyStr.isBlank()) {
+        String fileName =
+            String.format(
+                "%s_%s_%s",
+                re.getSessionId(), re.getFlowAction(), ((ReInterface) re).getHttpType().name());
+
+        BinaryData body =
+            BinaryData.fromStream(
+                new ByteArrayInputStream(bodyStr.getBytes(StandardCharsets.UTF_8)));
+        BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+        blobClient.upload(body);
+
+        BlobHttpBody blobBodyRef =
+            BlobHttpBody.builder()
+                .storageAccount(blobContainerClient.getAccountName())
+                .containerName(blobContainerName)
+                .fileName(fileName)
+                .fileLength(body.getLength())
+                .build();
+        ((ReInterface) re).setBlobBodyRef(blobBodyRef);
+        ((ReInterface) re).setPayload(null);
+      }
     }
   }
 

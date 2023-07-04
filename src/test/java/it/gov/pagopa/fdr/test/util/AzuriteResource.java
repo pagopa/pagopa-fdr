@@ -27,11 +27,13 @@ public class AzuriteResource implements QuarkusTestResourceLifecycleManager {
             + "/devstoreaccount1;TableEndpoint=http://127.0.0.1:"
             + azurite.getMappedPort(10002)
             + "/devstoreaccount1;";
-    String queueName = "queueconversiontest";
+    String queueName = "queueconversionTest";
+    String containerName = "blobContainerReTest";
 
     Map<String, String> conf = new HashMap<>();
     conf.put("mockserver.azurite.connection-string", connectStr);
     conf.put("mockserver.azurite.queue-name", queueName);
+    conf.put("mockserver.azurite.container-name", containerName);
     return conf;
   }
 
