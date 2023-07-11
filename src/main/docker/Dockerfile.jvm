@@ -94,10 +94,8 @@ ARG ADAPTER_API_CONFIG_CACHE_URL
 ARG ADAPTER_API_CONFIG_CACHE_KEY
 
 RUN if [[ -z "$QUARKUS_PROFILE" ]] ;  \
-  then ARG QUARKUS_PROFILE_OPTS="-Dquarkus.profile=$QUARKUS_PROFILE"; \
-  else ARG QUARKUS_PROFILE_OPTS=""; fi
-
-ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME $QUARKUS_PROFILE_OPTS -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+  then ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME -Djava.util.logging.manager=org.jboss.logmanager.LogManager" ; \
+  else ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Djava.util.logging.manager=org.jboss.logmanager.LogManager" ; fi
 
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 

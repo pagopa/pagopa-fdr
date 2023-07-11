@@ -12,10 +12,8 @@ ARG QUARKUS_PROFILE
 ARG APP_NAME
 
 RUN if [[ -z "$QUARKUS_PROFILE" ]] ;  \
-  then ARG QUARKUS_PROFILE_OPTS="-Dquarkus.profile=$QUARKUS_PROFILE"; \
-  else ARG QUARKUS_PROFILE_OPTS=""; fi
-
-RUN ./mvnw package -DskipTests=true -Pnative -Dquarkus.application.name=$APP_NAME $QUARKUS_PROFILE_OPTS
+  then RUN ./mvnw package -DskipTests=true -Pnative -Dquarkus.application.name=$APP_NAME ; \
+  else RUN ./mvnw package -DskipTests=true -Pnative -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE ; fi
 
 ## Stage 2 : create the docker final image
 FROM quay.io/quarkus/quarkus-micro-image:2.0
