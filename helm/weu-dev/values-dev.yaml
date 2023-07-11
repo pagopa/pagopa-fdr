@@ -34,9 +34,9 @@ fdr:
       ADAPTER_API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
       OTEL_AUTH_BEARER: "otel-auth-bearer"
       MONGODB_CONNECTION_STRING: "mongodb-connection-string"
-      QUEUE_CONVERSION_CONNECTION_STRING: "azure-queue-conversion-connection-string"
+      QUEUE_CONVERSION_CONNECTION_STRING: "fdr-sa-connection-string"
       EVENT_HUB_RE_CONNECTION_STRING: "azure-event-hub-re-connection-string"
-      BLOB_RE_CONNECTION_STRING: "blob-re-connection-string"
+      BLOB_RE_CONNECTION_STRING: "fdr-re-sa-connection-string"
     keyvault:
       name: "pagopa-d-fdr-kv"
       tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
