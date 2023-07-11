@@ -8,6 +8,8 @@ import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse.ErrorMessage;
 import it.gov.pagopa.fdr.service.re.ReService;
@@ -75,7 +77,7 @@ public class ResponseFilter implements ContainerResponseFilter {
       try {
         responsePayload = objectMapper.writeValueAsString(responseContext.getEntity());
       } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
+        throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
       }
 
       reService.sendEvent(
