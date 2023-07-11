@@ -96,7 +96,7 @@ public class ResponseFilter implements ContainerResponseFilter {
                               a -> Stream.of(a.getValue()).map(Object::toString).toList())))
               .pspId(psp)
               .flowName(flow)
-              .ecId(ec)
+              .organizationId(ec)
               .flowAction(flowActionEnum)
               .build());
 
