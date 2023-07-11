@@ -92,7 +92,7 @@ variables:
     WEU_dockerRegistryFqdn: $(DEV_CONTAINER_NAMESPACE)
     WEU_kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
     WEU_poolImage: '$(DEPLOY-POOL-DEV)'
-    BUILD_ARG: "--build-arg QUARKUS_PROFILE=dev"
+    BUILD_ARG: "--build-arg QUARKUS_PROFILE=-Dquarkus.profile=dev"
 
 
   ${{ if eq(parameters['ENV'], 'uat') }}:
