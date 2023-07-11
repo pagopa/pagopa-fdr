@@ -80,7 +80,7 @@ public class ResponseFilter implements ContainerResponseFilter {
 
       reService.sendEvent(
           ReInterface.builder()
-              .appVersion(AppVersionEnum.NEW_FDR)
+              .appVersion(AppVersionEnum.FDR003)
               .created(Instant.now())
               .sessionId(sessionId)
               .eventType(EventTypeEnum.INTERFACE)
