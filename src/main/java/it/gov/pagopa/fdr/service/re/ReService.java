@@ -111,7 +111,7 @@ public class ReService {
                 .fileLength(body.getLength())
                 .build();
         ((ReInterface) re).setBlobBodyRef(blobBodyRef);
-        ((ReInterface) re).setPayload(null);
+        //        ((ReInterface) re).setPayload(null);
       }
     }
   }

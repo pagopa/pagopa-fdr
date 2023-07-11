@@ -107,7 +107,7 @@ public class PspsService {
             //            .flowRead(false)
             .flowName(reportingFlowName)
             .pspId(pspId)
-            .ecId(ecId)
+            .organizationId(ecId)
             .revision(revision)
             .flowAction(FlowActionEnum.CREATE_FLOW)
             .build());
@@ -192,7 +192,7 @@ public class PspsService {
             //            .flowRead(false)
             .flowName(reportingFlowName)
             .pspId(pspId)
-            .ecId(reportingFlowEntity.getReceiver().getEcId())
+            .organizationId(reportingFlowEntity.getReceiver().getEcId())
             .revision(reportingFlowEntity.getRevision())
             .flowAction(FlowActionEnum.ADD_PAYMENT)
             .build());
@@ -271,7 +271,7 @@ public class PspsService {
             //            .flowRead(false)
             .flowName(reportingFlowName)
             .pspId(pspId)
-            .ecId(reportingFlowEntity.getReceiver().getEcId())
+            .organizationId(reportingFlowEntity.getReceiver().getEcId())
             .revision(reportingFlowEntity.getRevision())
             .flowAction(FlowActionEnum.DELETE_PAYMENT)
             .build());
@@ -384,7 +384,7 @@ public class PspsService {
             //            .flowRead(false)
             .flowName(reportingFlowName)
             .pspId(pspId)
-            .ecId(reportingFlowEntity.getReceiver().getEcId())
+            .organizationId(reportingFlowEntity.getReceiver().getEcId())
             .revision(reportingFlowEntity.getRevision())
             .flowAction(FlowActionEnum.PUBLISH)
             .build());
@@ -422,7 +422,7 @@ public class PspsService {
             //            .flowRead(false)
             .flowName(reportingFlowName)
             .pspId(pspId)
-            .ecId(reportingFlowEntity.getReceiver().getEcId())
+            .organizationId(reportingFlowEntity.getReceiver().getEcId())
             .revision(reportingFlowEntity.getRevision())
             .flowAction(FlowActionEnum.DELETE_FLOW)
             .build());

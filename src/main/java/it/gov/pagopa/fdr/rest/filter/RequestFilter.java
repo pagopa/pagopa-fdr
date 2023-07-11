@@ -83,7 +83,7 @@ public class RequestFilter implements ContainerRequestFilter {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
             .pspId(pspPathParam)
             .flowName(flowPathParam)
-            .ecId(ecPathParam)
+            .organizationId(ecPathParam)
             .flowAction(flowActionEnum)
             .build());
 

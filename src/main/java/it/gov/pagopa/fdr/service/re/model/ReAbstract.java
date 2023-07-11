@@ -20,7 +20,7 @@ public abstract class ReAbstract {
 
   private String pspId;
 
-  private String ecId;
+  private String organizationId;
 
   private FlowActionEnum flowAction;
 }
