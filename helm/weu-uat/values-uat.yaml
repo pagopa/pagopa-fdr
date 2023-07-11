@@ -83,5 +83,5 @@ fdr:
     create: true
   ingress:
     create: true
-    host: "weuuat.fdr.internal.dev.platform.pagopa.it"
+    host: "weuuat.fdr.internal.uat.platform.pagopa.it"
     path: /pagopa-fdr-service(/|$)(.*)
