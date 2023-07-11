@@ -188,7 +188,8 @@ stages:
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
               ##Attenzione si usa il file Dockerfile.multistage.jvm, e non Dockerfile.multistage, perchè la lib di azure non è compatibile per la build nativa
               DOCKERFILE: "$(Build.SourcesDirectory)/src/main/docker/Dockerfile.multistage.jvm"
-              DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository) --build-arg QUARKUS_PROFILE=${{ parameters.ENV }}"
+#              DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository) --build-arg QUARKUS_PROFILE=${{ parameters.ENV }}"
+              DOCKER_BUILD_ARGS: "--build-arg APP_NAME=$(imageRepository)"
 
   # Deploy Canary if prod or uat
   - ${{ if and( parameters.WEU , in( parameters.ENV, 'prod', 'uat') ) }}:
