@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.service.re.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(value = {"payload"})
 public class ReInterface extends ReAbstract {
 
   private HttpTypeEnum httpType;

@@ -147,6 +147,14 @@ stages:
                     git add "$VALUES_FILE"
                   fi
                 fi
+                
+                CHART_FILE="helm/Chart.yaml"
+                if [[ -f "$CHART_FILE" ]]; then
+                  yq -i ".version = \"$(next_version.value)\"" "$CHART_FILE"
+                  yq -i ".appVersion = \"$(next_version.value)\"" "$CHART_FILE"
+                  git add "$CHART_FILE"
+                fi
+
           - template: templates/maven-github-current-version/template.yaml@pagopaCommons
 
   # Build and Push Docker Image

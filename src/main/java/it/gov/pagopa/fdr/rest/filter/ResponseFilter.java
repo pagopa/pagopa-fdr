@@ -8,6 +8,8 @@ import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse.ErrorMessage;
 import it.gov.pagopa.fdr.service.re.ReService;
@@ -75,12 +77,12 @@ public class ResponseFilter implements ContainerResponseFilter {
       try {
         responsePayload = objectMapper.writeValueAsString(responseContext.getEntity());
       } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
+        throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
       }
 
       reService.sendEvent(
           ReInterface.builder()
-              .appVersion(AppVersionEnum.NEW_FDR)
+              .appVersion(AppVersionEnum.FDR003)
               .created(Instant.now())
               .sessionId(sessionId)
               .eventType(EventTypeEnum.INTERFACE)
@@ -96,7 +98,7 @@ public class ResponseFilter implements ContainerResponseFilter {
                               a -> Stream.of(a.getValue()).map(Object::toString).toList())))
               .pspId(psp)
               .flowName(flow)
-              .ecId(ec)
+              .organizationId(ec)
               .flowAction(flowActionEnum)
               .build());
 

@@ -70,7 +70,7 @@ public class RequestFilter implements ContainerRequestFilter {
 
     reService.sendEvent(
         ReInterface.builder()
-            .appVersion(AppVersionEnum.NEW_FDR)
+            .appVersion(AppVersionEnum.FDR003)
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERFACE)
@@ -83,7 +83,7 @@ public class RequestFilter implements ContainerRequestFilter {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
             .pspId(pspPathParam)
             .flowName(flowPathParam)
-            .ecId(ecPathParam)
+            .organizationId(ecPathParam)
             .flowAction(flowActionEnum)
             .build());
 

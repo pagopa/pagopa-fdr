@@ -89,13 +89,13 @@ public class ReService {
   }
 
   private <T extends ReAbstract> void writeBlobIfExist(T re) {
-    if (re instanceof ReInterface) {
-      String bodyStr = ((ReInterface) re).getPayload();
+    if (re instanceof ReInterface reInterface) {
+      String bodyStr = reInterface.getPayload();
       if (bodyStr != null && !bodyStr.isBlank()) {
         String fileName =
             String.format(
                 "%s_%s_%s",
-                re.getSessionId(), re.getFlowAction(), ((ReInterface) re).getHttpType().name());
+                re.getSessionId(), re.getFlowAction(), reInterface.getHttpType().name());
 
         BinaryData body =
             BinaryData.fromStream(
@@ -110,8 +110,7 @@ public class ReService {
                 .fileName(fileName)
                 .fileLength(body.getLength())
                 .build();
-        ((ReInterface) re).setBlobBodyRef(blobBodyRef);
-        ((ReInterface) re).setPayload(null);
+        reInterface.setBlobBodyRef(blobBodyRef);
       }
     }
   }
