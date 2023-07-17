@@ -11,7 +11,9 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(
+    callSuper = true,
+    exclude = {"payload"})
 @JsonIgnoreProperties(value = {"payload"})
 public class ReInterface extends ReAbstract {
 
