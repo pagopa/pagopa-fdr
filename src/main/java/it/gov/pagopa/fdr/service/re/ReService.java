@@ -20,6 +20,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -73,6 +75,9 @@ public class ReService {
           Arrays.stream(reList)
               .map(
                   re -> {
+                    re.setUniqueId(
+                        String.format(
+                            "%s_%s", dateFormatter.format(re.getCreated()), re.hashCode()));
                     writeBlobIfExist(re);
                     try {
                       log.debugf("EventHub name [%s] send message: %s", re.toString());
@@ -87,6 +92,10 @@ public class ReService {
       publishEvents(allEvents);
     }
   }
+
+  private static final String PATTERN_DATE_FORMAT = "yyyy-MM-dd";
+  private static final DateTimeFormatter dateFormatter =
+      DateTimeFormatter.ofPattern(PATTERN_DATE_FORMAT).withZone(ZoneId.systemDefault());
 
   private <T extends ReAbstract> void writeBlobIfExist(T re) {
     if (re instanceof ReInterface reInterface) {

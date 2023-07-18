@@ -10,6 +10,8 @@ import lombok.experimental.SuperBuilder;
 @ToString
 public abstract class ReAbstract {
 
+  private String uniqueId;
+
   private AppVersionEnum appVersion;
 
   private Instant created;
