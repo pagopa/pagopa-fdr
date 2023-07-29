@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
@@ -20,6 +22,7 @@ public class Receiver {
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "20000000001")
+  @JsonProperty(AppConstant.EC)
   private String ecId;
 
   @NotNull

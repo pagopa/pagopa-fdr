@@ -17,6 +17,7 @@ import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowInternalDto;
 import it.gov.pagopa.fdr.service.organizations.InternalOrganizationsService;
 import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import it.gov.pagopa.fdr.util.Re;
 import jakarta.inject.Inject;
@@ -41,7 +42,7 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
 @Tag(name = "Internal Organizations", description = "Get reporting flow operations")
-@Path("/internal/history/organizations/ndp/flows")
+@Path("/internal/history/organizations/{" + AppConstant.EC + "}/flows")
 @Consumes("application/json")
 @Produces("application/json")
 public class InternalOrganizationsResource {
@@ -74,9 +75,12 @@ public class InternalOrganizationsResource {
   @GET
   @Re(flowName = FlowActionEnum.INTERNAL_GET_ALL_FDR)
   public GetAllInternalResponse getAllPublishedFlow(
-      @QueryParam("idPsp") @Pattern(regexp = "^(.{1,35})$") String idPsp,
-      @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
-      @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+      @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+      @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, NDP);
     if (null != idPsp && !idPsp.isBlank()) {
@@ -118,10 +122,20 @@ public class InternalOrganizationsResource {
                     schema = @Schema(implementation = GetIdResponse.class)))
       })
   @GET
-  @Path("/{fdr}/rev/{rev}/psps/{psp}")
+  @Path(
+      "/{"
+          + AppConstant.FDR
+          + "}/revision/{"
+          + AppConstant.REVISION
+          + "}/psps/{"
+          + AppConstant.PSP
+          + "}")
   @Re(flowName = FlowActionEnum.INTERNAL_GET_FDR)
   public GetIdResponse getReportingFlow(
-      @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
+      @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.REVISION) Long rev,
+      @PathParam(AppConstant.PSP) String psp) {
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, NDP);
     MDC.put(FLOW_NAME, fdr);
@@ -157,14 +171,25 @@ public class InternalOrganizationsResource {
                     schema = @Schema(implementation = GetPaymentResponse.class)))
       })
   @GET
-  @Path("/{fdr}/rev/{rev}/psps/{psp}/payments")
+  @Path(
+      "/{"
+          + AppConstant.FDR
+          + "}/revision/{"
+          + AppConstant.REVISION
+          + "}/psps/{"
+          + AppConstant.PSP
+          + "}/payments")
   @Re(flowName = FlowActionEnum.INTERNAL_GET_FDR_PAYMENT)
   public GetPaymentResponse getReportingFlowPayments(
-      @PathParam("fdr") String fdr,
-      @PathParam("rev") Long rev,
-      @PathParam("psp") String psp,
-      @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
-      @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+      @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.REVISION) Long rev,
+      @PathParam(AppConstant.PSP) String psp,
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
+
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, NDP);
     MDC.put(FLOW_NAME, fdr);

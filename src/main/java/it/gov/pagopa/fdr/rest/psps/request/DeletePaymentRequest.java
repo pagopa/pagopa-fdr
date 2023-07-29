@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.psps.request;
 
+import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
@@ -12,8 +13,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class DeletePaymentRequest {
 
-  // TODO mettere iuv+iur come key e farla mettere anche sulla collection
   @NotNull
-  @Size(min = 1, max = 1000)
-  private List<Long> indexPayments;
+  @Size(min = 1, max = AppConstant.MAX_PAYMENT)
+  private List<Long> indexList;
 }

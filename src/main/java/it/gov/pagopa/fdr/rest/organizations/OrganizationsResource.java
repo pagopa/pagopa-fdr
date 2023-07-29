@@ -41,7 +41,7 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
 @Tag(name = "Organizations", description = "Get reporting flow operations")
-@Path("/organizations/{ec}/flows")
+@Path("/organizations/{" + AppConstant.EC + "}/flows")
 @Consumes("application/json")
 @Produces("application/json")
 public class OrganizationsResource {
@@ -55,12 +55,6 @@ public class OrganizationsResource {
 
   @Inject OrganizationsService service;
 
-  // TODO in tutte le API bisogna fare dei check per identificare che il chiamante sia esattamente
-  // id messo nella richiesta o ci pensa nuova connettività/APIM??
-  /*TODO in tutte queste API vanno replicati tutti i controlli come nel vecchio? Ora ci sono solo
-   * i controlli sui campi in input altrimenti bisogna caricare tutto il resto dei campi utili solo a bloccare o no le richieste.
-   * Ha senso?
-   * */
   @Operation(
       summary = "Get all published reporting flow",
       description = "Get all published reporting flow by ec and idPsp(optional param)")
@@ -80,21 +74,17 @@ public class OrganizationsResource {
   @GET
   @Re(flowName = FlowActionEnum.GET_ALL_FDR)
   public GetAllResponse getAllPublishedFlow(
-      @PathParam(AppConstant.PATH_PARAM_EC) @Pattern(regexp = "^(.{1,35})$") String ec,
-      @QueryParam("idPsp") @Pattern(regexp = "^(.{1,35})$") String idPsp,
-      @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
-      @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+      @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+      @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, ec);
     if (null != idPsp && !idPsp.isBlank()) {
       MDC.put(PSP_ID, idPsp);
     }
-
-    // TODO aggiungere date from to per leggere al massimo n (as is 30) giorni con limite di 90 e
-    // meglio mettere TTL sulla collections a 90 giorni
-
-    // TODO si potrebbe aggiungere un API per metterle in stato già letto da PA in modo da non
-    // ripresentarle ogni volta
 
     log.infof(
         AppMessageUtil.logProcess("%s by ec:[%s] with psp:[%s] - page:[%s], pageSize:[%s]"),
@@ -132,12 +122,12 @@ public class OrganizationsResource {
                     schema = @Schema(implementation = GetIdResponse.class)))
       })
   @GET
-  @Path("/{fdr}/psps/{psp}")
+  @Path("/{" + AppConstant.FDR + "}/psps/{" + AppConstant.PSP + "}")
   @Re(flowName = FlowActionEnum.GET_FDR)
   public GetIdResponse getReportingFlow(
-      @PathParam(AppConstant.PATH_PARAM_EC) String ec,
-      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
-      @PathParam(AppConstant.PATH_PARAM_PSP) String psp) {
+      @PathParam(AppConstant.EC) String ec,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.PSP) String psp) {
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, ec);
     MDC.put(FLOW_NAME, fdr);
@@ -174,14 +164,16 @@ public class OrganizationsResource {
                     schema = @Schema(implementation = GetPaymentResponse.class)))
       })
   @GET
-  @Path("/{fdr}/psps/{psp}/payments")
+  @Path("/{" + AppConstant.FDR + "}/psps/{" + AppConstant.PSP + "}/payments")
   @Re(flowName = FlowActionEnum.GET_FDR_PAYMENT)
   public GetPaymentResponse getReportingFlowPayments(
-      @PathParam(AppConstant.PATH_PARAM_EC) String ec,
-      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
-      @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
-      @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
-      @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+      @PathParam(AppConstant.EC) String ec,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.PSP) String psp,
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
     String action = MDC.get(ACTION);
     MDC.put(EC_ID, ec);
     MDC.put(FLOW_NAME, fdr);

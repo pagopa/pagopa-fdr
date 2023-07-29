@@ -92,10 +92,10 @@ public class RequestFilter implements ContainerRequestFilter {
 
     String subject = "NA";
     if (!pathparam.isEmpty()) {
-      if (pathparam.containsKey(AppConstant.PATH_PARAM_PSP)) {
-        subject = pathparam.getFirst(AppConstant.PATH_PARAM_PSP);
-      } else if (pathparam.containsKey(AppConstant.PATH_PARAM_EC)) {
-        subject = pathparam.getFirst(AppConstant.PATH_PARAM_EC);
+      if (pathparam.containsKey(AppConstant.PSP)) {
+        subject = pathparam.getFirst(AppConstant.PSP);
+      } else if (pathparam.containsKey(AppConstant.EC)) {
+        subject = pathparam.getFirst(AppConstant.EC);
       }
 
       log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);

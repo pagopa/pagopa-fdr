@@ -1,6 +1,8 @@
 package it.gov.pagopa.fdr.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
@@ -23,6 +25,7 @@ public class Sender {
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
   @Schema(example = "60000000001")
+  @JsonProperty(AppConstant.PSP)
   private String pspId;
 
   @NotNull

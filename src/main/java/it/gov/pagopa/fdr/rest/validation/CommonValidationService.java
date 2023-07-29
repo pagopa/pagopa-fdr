@@ -125,7 +125,6 @@ public class CommonValidationService {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, reportingFlowName);
     }
-    // TODO non dovremmo verificare che la data sia uguale a regulationDate o reportingFlowDate
 
     log.debugf("Check psp format in flowName[%s] with psp[%s]", reportingFlowName, pspId);
     String name = reportingFlowName.substring(10);

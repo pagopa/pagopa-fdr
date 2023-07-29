@@ -63,7 +63,7 @@ public class PspsService {
 
     log.debugf(
         "Existence check FdrInsertEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
-    // TODO rivedere index  con fdr+psp
+
     Optional<FdrInsertEntity> byReportingFlowName =
         FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId).firstResultOptional();
 
@@ -128,7 +128,6 @@ public class PspsService {
 
     MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
-    // TODO revedere con iuv+iur
     log.debug("Check payments indexes");
     List<Long> indexList = addPaymentDto.getPayments().stream().map(PaymentDto::getIndex).toList();
     if (indexList.size() != indexList.stream().distinct().toList().size()) {
@@ -219,7 +218,6 @@ public class PspsService {
           reportingFlowEntity.getStatus());
     }
 
-    // TODO rivedere con iuv+iur
     List<Long> indexList = deletePaymentDto.getIndexPayments();
     if (indexList.size() != indexList.stream().distinct().toList().size()) {
       throw new AppException(

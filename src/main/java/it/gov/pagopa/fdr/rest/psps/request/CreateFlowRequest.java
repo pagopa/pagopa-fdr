@@ -1,7 +1,9 @@
 package it.gov.pagopa.fdr.rest.psps.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.fdr.rest.model.Receiver;
 import it.gov.pagopa.fdr.rest.model.Sender;
+import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -18,6 +20,7 @@ public class CreateFlowRequest {
   @NotNull
   @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
   @Schema(example = "2016-08-16pspTest-1178")
+  @JsonProperty(AppConstant.FDR)
   private String reportingFlowName;
 
   @NotNull

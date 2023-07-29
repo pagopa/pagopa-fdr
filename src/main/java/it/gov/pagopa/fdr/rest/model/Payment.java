@@ -2,7 +2,6 @@ package it.gov.pagopa.fdr.rest.model;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -29,7 +28,6 @@ public class Payment {
 
   @NotNull
   @Min(value = 1)
-  @Max(value = 5)
   @Schema(example = "1")
   private Long index;
 

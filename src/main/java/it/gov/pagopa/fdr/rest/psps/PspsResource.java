@@ -43,7 +43,7 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
 @Tag(name = "PSP", description = "Psp operations")
-@Path("/psps/{psp}/flows/{fdr}")
+@Path("/psps/{" + AppConstant.PSP + "}/flows/{" + AppConstant.FDR + "}")
 @Consumes("application/json")
 @Produces("application/json")
 public class PspsResource {
@@ -78,8 +78,8 @@ public class PspsResource {
   @POST
   @Re(flowName = FlowActionEnum.CREATE_FLOW)
   public RestResponse<GenericResponse> createFlow(
-      @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
-      @PathParam(AppConstant.PATH_PARAM_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
+      @PathParam(AppConstant.PSP) String psp,
+      @PathParam(AppConstant.FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
       @NotNull @Valid CreateFlowRequest createFlowRequest) {
 
     String action = MDC.get(ACTION);
@@ -129,8 +129,8 @@ public class PspsResource {
   @Path("/payments/add")
   @Re(flowName = FlowActionEnum.ADD_PAYMENT)
   public GenericResponse addPaymenTFlow(
-      @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
-      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
+      @PathParam(AppConstant.PSP) String psp,
+      @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid AddPaymentRequest addPaymentRequest) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
@@ -170,8 +170,8 @@ public class PspsResource {
   @Path("/payments/del")
   @Re(flowName = FlowActionEnum.DELETE_PAYMENT)
   public GenericResponse deletePaymentFlow(
-      @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
-      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr,
+      @PathParam(AppConstant.PSP) String psp,
+      @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid DeletePaymentRequest deletePaymentRequest) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
@@ -210,8 +210,7 @@ public class PspsResource {
   @Path("/publish")
   @Re(flowName = FlowActionEnum.PUBLISH)
   public GenericResponse publishReportingFlow(
-      @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
-      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr) {
+      @PathParam(AppConstant.PSP) String psp, @PathParam(AppConstant.FDR) String fdr) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
@@ -246,8 +245,7 @@ public class PspsResource {
   @DELETE
   @Re(flowName = FlowActionEnum.DELETE_FLOW)
   public GenericResponse deleteReportingFlow(
-      @PathParam(AppConstant.PATH_PARAM_PSP) String psp,
-      @PathParam(AppConstant.PATH_PARAM_FDR) String fdr) {
+      @PathParam(AppConstant.PSP) String psp, @PathParam(AppConstant.FDR) String fdr) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);

@@ -16,6 +16,7 @@ import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.service.re.model.BlobHttpBody;
 import it.gov.pagopa.fdr.service.re.model.ReAbstract;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -73,6 +74,7 @@ public class ReService {
     } else {
       List<EventData> allEvents =
           Arrays.stream(reList)
+              .filter(a -> AppConstant.sendReEvent(a.getFlowAction()))
               .map(
                   re -> {
                     re.setUniqueId(
@@ -88,8 +90,9 @@ public class ReService {
                     }
                   })
               .toList();
-
-      publishEvents(allEvents);
+      if (allEvents.size() > 0) {
+        publishEvents(allEvents);
+      }
     }
   }
 
