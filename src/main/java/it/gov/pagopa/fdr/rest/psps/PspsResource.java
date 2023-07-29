@@ -60,7 +60,10 @@ public class PspsResource {
 
   @Inject Config config;
 
-  @Operation(summary = "Create reporting flow", description = "Create new reporting flow")
+  @Operation(
+      operationId = "fdrCreate",
+      summary = "Create reporting flow",
+      description = "Create new reporting flow")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
       value = {
@@ -77,7 +80,7 @@ public class PspsResource {
       })
   @POST
   @Re(flowName = FlowActionEnum.CREATE_FLOW)
-  public RestResponse<GenericResponse> createFlow(
+  public RestResponse<GenericResponse> fdrCreate(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
       @NotNull @Valid CreateFlowRequest createFlowRequest) {
@@ -109,6 +112,7 @@ public class PspsResource {
   }
 
   @Operation(
+      operationId = "addFdrPayment",
       summary = "Add payments to reporting flow",
       description = "Add payments to reporting flow")
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
@@ -128,7 +132,7 @@ public class PspsResource {
   @PUT
   @Path("/payments/add")
   @Re(flowName = FlowActionEnum.ADD_PAYMENT)
-  public GenericResponse addPaymenTFlow(
+  public GenericResponse addFdrPayment(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid AddPaymentRequest addPaymentRequest) {
@@ -150,6 +154,7 @@ public class PspsResource {
   }
 
   @Operation(
+      operationId = "deleteFdrPayment",
       summary = "Delete payments to reporting flow",
       description = "Delete payments to reporting flow")
   @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
@@ -169,7 +174,7 @@ public class PspsResource {
   @PUT
   @Path("/payments/del")
   @Re(flowName = FlowActionEnum.DELETE_PAYMENT)
-  public GenericResponse deletePaymentFlow(
+  public GenericResponse deleteFdrPayment(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid DeletePaymentRequest deletePaymentRequest) {
@@ -192,7 +197,10 @@ public class PspsResource {
         .build();
   }
 
-  @Operation(summary = "Publish reporting flow", description = "Publish reporting flow")
+  @Operation(
+      operationId = "publishFdr",
+      summary = "Publish reporting flow",
+      description = "Publish reporting flow")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -209,7 +217,7 @@ public class PspsResource {
   @POST
   @Path("/publish")
   @Re(flowName = FlowActionEnum.PUBLISH)
-  public GenericResponse publishReportingFlow(
+  public GenericResponse publishFdr(
       @PathParam(AppConstant.PSP) String psp, @PathParam(AppConstant.FDR) String fdr) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
@@ -228,7 +236,10 @@ public class PspsResource {
     return GenericResponse.builder().message(String.format("Flow [%s] published", fdr)).build();
   }
 
-  @Operation(summary = "Delete reporting flow", description = "Delete reporting flow")
+  @Operation(
+      operationId = "deleteFdr",
+      summary = "Delete reporting flow",
+      description = "Delete reporting flow")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -244,7 +255,7 @@ public class PspsResource {
       })
   @DELETE
   @Re(flowName = FlowActionEnum.DELETE_FLOW)
-  public GenericResponse deleteReportingFlow(
+  public GenericResponse deleteFdr(
       @PathParam(AppConstant.PSP) String psp, @PathParam(AppConstant.FDR) String fdr) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);

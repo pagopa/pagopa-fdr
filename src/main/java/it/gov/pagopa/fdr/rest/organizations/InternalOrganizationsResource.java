@@ -57,6 +57,7 @@ public class InternalOrganizationsResource {
   @Inject InternalOrganizationsService internalService;
 
   @Operation(
+      operationId = "internalGetAllFdrWithRevision",
       summary = "Get all published reporting flow",
       description = "Get all published reporting flow by ec and idPsp(optional param)")
   @APIResponses(
@@ -74,7 +75,7 @@ public class InternalOrganizationsResource {
       })
   @GET
   @Re(flowName = FlowActionEnum.INTERNAL_GET_ALL_FDR)
-  public GetAllInternalResponse getAllPublishedFlow(
+  public GetAllInternalResponse internalGetAllFdrWithRevision(
       @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
       @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
@@ -106,6 +107,7 @@ public class InternalOrganizationsResource {
   }
 
   @Operation(
+      operationId = "internalGetFdrWithRevision",
       summary = "Get reporting flow",
       description = "Get reporting flow by id but not payments")
   @APIResponses(
@@ -131,7 +133,7 @@ public class InternalOrganizationsResource {
           + AppConstant.PSP
           + "}")
   @Re(flowName = FlowActionEnum.INTERNAL_GET_FDR)
-  public GetIdResponse getReportingFlow(
+  public GetIdResponse internalGetFdrWithRevision(
       @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,
@@ -155,6 +157,7 @@ public class InternalOrganizationsResource {
   }
 
   @Operation(
+      operationId = "internalGetFdrPayment",
       summary = "Get payments of reporting flow",
       description = "Get only payments of reporting flow by id paginated")
   @APIResponses(
@@ -180,7 +183,7 @@ public class InternalOrganizationsResource {
           + AppConstant.PSP
           + "}/payments")
   @Re(flowName = FlowActionEnum.INTERNAL_GET_FDR_PAYMENT)
-  public GetPaymentResponse getReportingFlowPayments(
+  public GetPaymentResponse internalGetFdrPayment(
       @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,

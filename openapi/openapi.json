@@ -34,6 +34,7 @@
         "tags" : [ "Organizations" ],
         "summary" : "Get all published reporting flow",
         "description" : "Get all published reporting flow by ec and idPsp(optional param)",
+        "operationId" : "getAllPublishFdr",
         "parameters" : [ {
           "name" : "ec",
           "in" : "path",
@@ -96,6 +97,7 @@
         "tags" : [ "PSP" ],
         "summary" : "Delete payments to reporting flow",
         "description" : "Delete payments to reporting flow",
+        "operationId" : "deleteFdrPayment",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -148,6 +150,7 @@
         "tags" : [ "Organizations" ],
         "summary" : "Get payments of reporting flow",
         "description" : "Get only payments of reporting flow by id paginated",
+        "operationId" : "getFdrPayment",
         "parameters" : [ {
           "name" : "ec",
           "in" : "path",
@@ -216,6 +219,7 @@
         "tags" : [ "Organizations" ],
         "summary" : "Get reporting flow",
         "description" : "Get reporting flow by id but not payments",
+        "operationId" : "getFdr",
         "parameters" : [ {
           "name" : "ec",
           "in" : "path",
@@ -266,6 +270,7 @@
         "tags" : [ "PSP" ],
         "summary" : "Publish reporting flow",
         "description" : "Publish reporting flow",
+        "operationId" : "publishFdr",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -309,6 +314,7 @@
         "tags" : [ "PSP" ],
         "summary" : "Create reporting flow",
         "description" : "Create new reporting flow",
+        "operationId" : "fdrCreate",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -360,6 +366,7 @@
         "tags" : [ "PSP" ],
         "summary" : "Delete reporting flow",
         "description" : "Delete reporting flow",
+        "operationId" : "deleteFdr",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -403,6 +410,7 @@
         "tags" : [ "PSP" ],
         "summary" : "Add payments to reporting flow",
         "description" : "Add payments to reporting flow",
+        "operationId" : "addFdrPayment",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",

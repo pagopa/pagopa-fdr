@@ -56,6 +56,7 @@ public class OrganizationsResource {
   @Inject OrganizationsService service;
 
   @Operation(
+      operationId = "getAllPublishFdr",
       summary = "Get all published reporting flow",
       description = "Get all published reporting flow by ec and idPsp(optional param)")
   @APIResponses(
@@ -73,7 +74,7 @@ public class OrganizationsResource {
       })
   @GET
   @Re(flowName = FlowActionEnum.GET_ALL_FDR)
-  public GetAllResponse getAllPublishedFlow(
+  public GetAllResponse getAllPublishFdr(
       @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
       @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
@@ -106,6 +107,7 @@ public class OrganizationsResource {
   }
 
   @Operation(
+      operationId = "getFdr",
       summary = "Get reporting flow",
       description = "Get reporting flow by id but not payments")
   @APIResponses(
@@ -124,7 +126,7 @@ public class OrganizationsResource {
   @GET
   @Path("/{" + AppConstant.FDR + "}/psps/{" + AppConstant.PSP + "}")
   @Re(flowName = FlowActionEnum.GET_FDR)
-  public GetIdResponse getReportingFlow(
+  public GetIdResponse getFdr(
       @PathParam(AppConstant.EC) String ec,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.PSP) String psp) {
@@ -148,6 +150,7 @@ public class OrganizationsResource {
   }
 
   @Operation(
+      operationId = "getFdrPayment",
       summary = "Get payments of reporting flow",
       description = "Get only payments of reporting flow by id paginated")
   @APIResponses(
@@ -166,7 +169,7 @@ public class OrganizationsResource {
   @GET
   @Path("/{" + AppConstant.FDR + "}/psps/{" + AppConstant.PSP + "}/payments")
   @Re(flowName = FlowActionEnum.GET_FDR_PAYMENT)
-  public GetPaymentResponse getReportingFlowPayments(
+  public GetPaymentResponse getFdrPayment(
       @PathParam(AppConstant.EC) String ec,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.PSP) String psp,

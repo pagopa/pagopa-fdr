@@ -34,6 +34,7 @@
         "tags" : [ "Internal PSP" ],
         "summary" : "Delete payments to reporting flow",
         "description" : "Delete payments to reporting flow",
+        "operationId" : "internalDeleteFdrPayment",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -86,6 +87,7 @@
         "tags" : [ "Internal Organizations" ],
         "summary" : "Get payments of reporting flow",
         "description" : "Get only payments of reporting flow by id paginated",
+        "operationId" : "internalGetFdrPayment",
         "parameters" : [ {
           "name" : "ec",
           "in" : "path",
@@ -163,6 +165,7 @@
         "tags" : [ "Internal PSP" ],
         "summary" : "Add payments to reporting flow",
         "description" : "Add payments to reporting flow",
+        "operationId" : "internalAddFdrPayment",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -215,6 +218,7 @@
         "tags" : [ "Internal PSP" ],
         "summary" : "Publish reporting flow",
         "description" : "Publish reporting flow",
+        "operationId" : "interenalPublishFdr",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -258,6 +262,7 @@
         "tags" : [ "Internal Organizations" ],
         "summary" : "Get all published reporting flow",
         "description" : "Get all published reporting flow by ec and idPsp(optional param)",
+        "operationId" : "internalGetAllFdrWithRevision",
         "parameters" : [ {
           "name" : "ec",
           "in" : "path",
@@ -320,6 +325,7 @@
         "tags" : [ "Internal Organizations" ],
         "summary" : "Get reporting flow",
         "description" : "Get reporting flow by id but not payments",
+        "operationId" : "internalGetFdrWithRevision",
         "parameters" : [ {
           "name" : "ec",
           "in" : "path",
@@ -379,6 +385,7 @@
         "tags" : [ "Internal PSP" ],
         "summary" : "Create reporting flow",
         "description" : "Create new reporting flow",
+        "operationId" : "internalFdrCreate",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -430,6 +437,7 @@
         "tags" : [ "Internal PSP" ],
         "summary" : "Delete reporting flow",
         "description" : "Delete reporting flow",
+        "operationId" : "internalDeleteFdr",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
