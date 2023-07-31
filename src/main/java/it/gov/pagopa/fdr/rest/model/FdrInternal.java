@@ -12,7 +12,7 @@ public class FdrInternal {
 
   @Schema(example = "AAABBB")
   @JsonProperty(AppConstant.FDR)
-  private String name;
+  private String fdr;
 
   @Schema(example = "1")
   @JsonProperty(AppConstant.PSP)

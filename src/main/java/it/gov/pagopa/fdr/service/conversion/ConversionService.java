@@ -3,7 +3,7 @@ package it.gov.pagopa.fdr.service.conversion;
 import com.azure.storage.queue.QueueClient;
 import com.azure.storage.queue.QueueClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.fdr.service.conversion.message.FlowMessage;
+import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.SneakyThrows;
@@ -36,16 +36,16 @@ public class ConversionService {
   }
 
   @SneakyThrows
-  public void addQueueFlowMessage(FlowMessage flowMessage) {
+  public void addQueueFlowMessage(FdrMessage fdrMessage) {
     if (this.queue == null) {
       log.debugf(
-          "Queue conversion NOT INITIALIZED. Queue name [%s], pspId [%s], flowName [%s] NOT SENDED",
-          queueName, flowMessage.getPspId(), flowMessage.getName());
+          "Queue conversion NOT INITIALIZED. Queue name [%s], pspId [%s], fdr [%s] NOT SENDED",
+          queueName, fdrMessage.getPspId(), fdrMessage.getFdr());
     } else {
       log.infof(
-          "Send message. Queue name [%s], pspId [%s], flowName [%s]",
-          queueName, flowMessage.getPspId(), flowMessage.getName());
-      this.queue.sendMessage(objectMapper.writeValueAsString(flowMessage));
+          "Send message. Queue name [%s], pspId [%s], fdr [%s]",
+          queueName, fdrMessage.getPspId(), fdrMessage.getFdr());
+      this.queue.sendMessage(objectMapper.writeValueAsString(fdrMessage));
     }
   }
 }

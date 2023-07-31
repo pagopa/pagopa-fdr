@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ReportingFlowByIdEcDto {
+public class FdrGetPaymentDto {
 
   private MetadataDto metadata;
 
   private Long count;
 
-  private List<FlowDto> data;
+  private List<PaymentDto> data;
 }

@@ -4,11 +4,11 @@ import io.restassured.http.Header;
 
 public class AppConstantTestHelper {
 
-  public static final String FLOWS_URL = "/psps/%s/flows/%s";
-  public static final String FLOWS_PUBLISH_URL = "/psps/%s/flows/%s/publish";
-  public static final String FLOWS_DELETE_URL = "/psps/%s/flows/%s";
-  public static final String PAYMENTS_ADD_URL = "/psps/%s/flows/%s/payments/add";
-  public static final String PAYMENTS_DELETE_URL = "/psps/%s/flows/%s/payments/del";
+  public static final String FLOWS_URL = "/psps/%s/fdrs/%s";
+  public static final String FLOWS_PUBLISH_URL = "/psps/%s/fdrs/%s/publish";
+  public static final String FLOWS_DELETE_URL = "/psps/%s/fdrs/%s";
+  public static final String PAYMENTS_ADD_URL = "/psps/%s/fdrs/%s/payments/add";
+  public static final String PAYMENTS_DELETE_URL = "/psps/%s/fdrs/%s/payments/del";
 
   public static final String REPORTING_FLOW_NAME_PSP_WRONG_FORMAT = "2016-08-16-psp-1176";
   public static final String REPORTING_FLOW_NAME_DATE_WRONG_FORMAT = "2016-aa-16pspTest-1176";

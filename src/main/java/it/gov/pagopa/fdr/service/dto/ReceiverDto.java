@@ -9,7 +9,7 @@ public class ReceiverDto {
 
   private String id;
 
-  private String ecId;
+  private String organizationId;
 
-  private String ecName;
+  private String organizationName;
 }

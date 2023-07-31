@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class FlowMessage {
+public class FdrMessage {
 
-  private String name;
+  private String fdr;
 
   private String pspId;
 

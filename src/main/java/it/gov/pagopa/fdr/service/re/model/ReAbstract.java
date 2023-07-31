@@ -18,11 +18,11 @@ public abstract class ReAbstract {
   private String sessionId;
   private EventTypeEnum eventType;
 
-  private String flowName;
+  private String fdr;
 
   private String pspId;
 
   private String organizationId;
 
-  private FlowActionEnum flowAction;
+  private FdrActionEnum fdrAction;
 }

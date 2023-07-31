@@ -40,7 +40,7 @@ public class OrganizationsValidationService extends CommonValidationService {
     // check ec
     checkCreditorInstitution(log, ecId, configData);
 
-    // check reportingFlowName format
+    // check fdr format
     checkReportingFlowFormat(log, fdr, pspId);
   }
 
@@ -55,7 +55,7 @@ public class OrganizationsValidationService extends CommonValidationService {
     // check ec
     checkCreditorInstitution(log, ecId, configData);
 
-    // check reportingFlowName format
+    // check fdr format
     checkReportingFlowFormat(log, fdr, pspId);
   }
 }

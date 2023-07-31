@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ReportingFlowGetDto {
+public class FdrGetDto {
 
   private Long revision;
 
@@ -14,11 +14,11 @@ public class ReportingFlowGetDto {
 
   private Instant updated;
 
-  private ReportingFlowStatusEnumDto status;
+  private FdrStatusEnumDto status;
 
-  private String reportingFlowName;
+  private String fdr;
 
-  private Instant reportingFlowDate;
+  private Instant fdrDate;
 
   private SenderDto sender;
 

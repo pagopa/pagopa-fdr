@@ -32,6 +32,7 @@ import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import java.util.List;
+import it.gov.pagopa.fdr.util.AppConstant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -40,10 +41,10 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(MongoResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationResourceTest {
-  private static final String GET_ALL_PUBLISHED_FLOW_URL = "/organizations/%s/flows?idPsp=%s";
-  private static final String GET_REPORTING_FLOW_URL = "/organizations/%s/flows/%s/psps/%s";
-  private static final String GET_REPORTING_FLOW_PAYMENTS_URL = "/organizations/%s/flows/%s/psps/%s/payments";
-  private static final String CHANGE_READ_FLAG_URL = "/organizations/%s/flows/%s/psps/%s/read";
+  private static final String GET_ALL_PUBLISHED_FLOW_URL = "/organizations/%s/fdrs?"+ AppConstant.PSP +"=%s";
+  private static final String GET_REPORTING_FLOW_URL = "/organizations/%s/fdrs/%s/psps/%s";
+  private static final String GET_REPORTING_FLOW_PAYMENTS_URL = "/organizations/%s/fdrs/%s/psps/%s/payments";
+  private static final String CHANGE_READ_FLAG_URL = "/organizations/%s/fdrs/%s/psps/%s/read";
 
   /** ############### getAllPublishedFlow ################ */
   @Test
@@ -217,7 +218,7 @@ class OrganizationResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found",flowNameWrong)))));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found",flowNameWrong)))));
   }
 
   /** ################# getReportingFlowPayments ############### */
@@ -309,7 +310,7 @@ class OrganizationResourceTest {
 //        .extract()
 //        .as(ErrorResponse.class);
 //    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-//    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found",flowNameWrong)))));
+//    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found",flowNameWrong)))));
 //  }
 
 }

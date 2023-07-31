@@ -67,7 +67,7 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
                                     "appErrorCode": "FDR-0702",
                                     "errors": [
                                       {
-                                        "message": "Reporting Flow id [<flow-id>] is invalid found"
+                                        "message": "Reporting Fdr [<fdr>] is invalid"
                                       }
                                     ]
                                   }"""),
@@ -103,7 +103,7 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
                                     "appErrorCode": "FDR-0701",
                                     "errors": [
                                       {
-                                        "message": "Reporting Flow id [<flow-id>] not found"
+                                        "message": "Reporting Fdr [<fdr>] not found"
                                       }
                                     ]
                                   }""")),

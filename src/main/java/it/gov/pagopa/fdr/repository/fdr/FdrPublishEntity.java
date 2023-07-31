@@ -56,22 +56,26 @@ public class FdrPublishEntity extends PanacheMongoEntity {
         Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
-  public static PanacheQuery<FdrPublishEntity> findByEcIdAndPspId(
-      String ecId, String pspId, Sort sort) {
+  public static PanacheQuery<FdrPublishEntity> findByOrganizationIdAndPspId(
+      String organizationId, String pspId, Sort sort) {
     return find(
-        "receiver.ec_id = :ecId and sender.psp_id = :pspId",
+        "receiver.organization_id = :organizationId and sender.psp_id = :pspId",
         sort,
-        Parameters.with("ecId", ecId).and("pspId", pspId).map());
+        Parameters.with("organizationId", organizationId).and("pspId", pspId).map());
   }
 
-  public static PanacheQuery<FdrPublishEntity> findByEcId(String ecId, Sort sort) {
-    return find("receiver.ec_id = :ecId", sort, Parameters.with("ecId", ecId).map());
+  public static PanacheQuery<FdrPublishEntity> findByOrganizationId(
+      String organizationId, Sort sort) {
+    return find(
+        "receiver.organization_id = :organizationId",
+        sort,
+        Parameters.with("organizationId", organizationId).map());
   }
 
-  public static long deleteByFlowNameAndPspId(String reportingFlowName, String pspId) {
+  public static long deleteByFdrAndPspId(String fdr, String pspId) {
     return delete(
-        "reporting_flow_name = :flowName and sender.psp_id = :pspId",
-        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
+        "fdr = :fdr and sender.psp_id = :pspId",
+        Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
   public void persistEntity() {

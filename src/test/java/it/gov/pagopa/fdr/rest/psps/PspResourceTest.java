@@ -85,7 +85,7 @@ class PspResourceTest {
   protected static String PAYMENTS_DELETE_WRONG_TEMPLATE =
       """
       {
-        "indexPayments": [
+        "indexList": [
             5
         ]
       }
@@ -114,21 +114,21 @@ class PspResourceTest {
   protected static String FLOW_TEMPLATE_WRONG_INSTANT =
     """
     {
-      "reportingFlowName": "%s",
-      "reportingFlowDate": "%s",
+      "fdr": "%s",
+      "fdrDate": "%s",
       "sender": {
         "type": "%s",
         "id": "SELBIT2B",
         "pspId": "%s",
         "pspName": "Bank",
-        "brokerId": "%s",
+        "pspBrokerId": "%s",
         "channelId": "%s",
         "password": "1234567890"
       },
       "receiver": {
         "id": "APPBIT2B",
-        "ecId": "%s",
-        "ecName": "Comune di xyz"
+        "organizationId": "%s",
+        "organizationName": "Comune di xyz"
       },
       "regulation": "SEPA - Bonifico xzy",
       "regulationDate": "2023-04-03T12:00:30.900000Z",
@@ -154,21 +154,21 @@ class PspResourceTest {
   protected static String FLOW_TEMPLATE_WRONG_FIELDS =
       """
       {
-        "flowName": "%s",
-        "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
+        "fdrFake": "%s",
+        "fdrDate": "2023-04-05T09:21:37.810000Z",
         "sender": {
           "type": "%s",
           "id": "SELBIT2B",
           "pspId": "%s",
           "pspName": "Bank",
-          "brokerId": "%s",
+          "pspBrokerId": "%s",
           "channelId": "%s",
           "password": "1234567890"
         },
         "receiver": {
           "id": "APPBIT2B",
-          "ecId": "%s",
-          "ecName": "Comune di xyz"
+          "organizationId": "%s",
+          "organizationName": "Comune di xyz"
         },
         "regulation": "SEPA - Bonifico xzy",
         "regulationDate": "2023-04-03T12:00:30.900000Z",
@@ -179,7 +179,7 @@ class PspResourceTest {
     protected static String PAYMENTS_DELETE_TEMPLATE =
       """
       {
-        "indexPayments": [
+        "indexList": [
             1,
             2,
             3
@@ -212,7 +212,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(res.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(res.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
   }
 
   @Test
@@ -233,7 +233,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(res.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(res.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
   }
 
   @Test
@@ -254,7 +254,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlDel = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
 
@@ -267,7 +267,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resDel.getMessage(), equalTo("Flow [%s] deleted".formatted(flowName)));
+    assertThat(resDel.getMessage(), equalTo("Fdr [%s] deleted".formatted(flowName)));
 
     String urlDel2 = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
 
@@ -281,7 +281,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found", flowName)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowName)))));
   }
 
   @Test
@@ -302,7 +302,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
@@ -315,7 +315,7 @@ class PspResourceTest {
             .statusCode(200)
             .extract()
             .as(GenericResponse.class);
-    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String urlDeleteFlow = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
 
@@ -328,7 +328,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resDelFlow.getMessage(), equalTo("Flow [%s] deleted".formatted(flowName)));
+    assertThat(resDelFlow.getMessage(), equalTo("Fdr [%s] deleted".formatted(flowName)));
   }
 
   @Test
@@ -349,7 +349,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
@@ -362,7 +362,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
 
@@ -375,7 +375,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resDelPays.getMessage(), equalTo("Flow [%s] payment deleted".formatted(flowName)));
+    assertThat(resDelPays.getMessage(), equalTo("Fdr [%s] payment deleted".formatted(flowName)));
 
     ErrorResponse resDelError = given()
         .body(PAYMENTS_DELETE_TEMPLATE)
@@ -387,7 +387,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Index of payment not match with index loaded on reporting flow [%s]", flowName)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Index of payment not match with index loaded on fdr [%s]", flowName)))));
   }
 
   @Test
@@ -408,7 +408,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
@@ -421,7 +421,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
 
@@ -434,7 +434,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resDelPays.getMessage(), equalTo("Flow [%s] payment deleted".formatted(flowName)));
+    assertThat(resDelPays.getMessage(), equalTo("Fdr [%s] payment deleted".formatted(flowName)));
   }
 
 
@@ -456,7 +456,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
@@ -469,7 +469,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String flowNameWrong = TestUtil.getDynamicFlowName();
     String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowNameWrong);
@@ -483,7 +483,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found", flowNameWrong)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowNameWrong)))));
   }
 
   @Test
@@ -504,7 +504,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String flowName2 = TestUtil.getDynamicFlowName();
     String urlAddPayments = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName2);
@@ -518,7 +518,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found", flowName2)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowName2)))));
   }
 
   @Test
@@ -538,7 +538,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String flowNameUnknown = TestUtil.getDynamicFlowName();
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowNameUnknown);
@@ -552,7 +552,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] not found", flowNameUnknown)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowNameUnknown)))));
   }
 
   @Test
@@ -573,7 +573,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     ErrorResponse resDelError = given()
         .body(bodyFmt)
@@ -585,7 +585,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] already exist in [CREATED] status", flowName)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] already exist in [CREATED] status", flowName)))));
   }
 
   @Test
@@ -606,7 +606,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
     ErrorResponse resPublish = given()
@@ -618,7 +618,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resPublish.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION.errorCode()));
-    assertThat(resPublish.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] exist but in [CREATED] status", flowName)))));
+    assertThat(resPublish.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] exist but in [CREATED] status", flowName)))));
   }
 
   @Test
@@ -639,7 +639,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
     ErrorResponse resDelError = given()
@@ -652,7 +652,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] exist but in [CREATED] status", flowName)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] exist but in [CREATED] status", flowName)))));
   }
 
   @Test
@@ -674,7 +674,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Reporting flow [%s] have sender.pspId [%s] but not match with query param [%s]", flowName, pspNotMatch, PSP_CODE)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] have sender.pspId [%s] but not match with query param [%s]", flowName, pspNotMatch, PSP_CODE)))));
   }
 
   @Test
@@ -695,7 +695,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlAddPays = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
     bodyFmt = PAYMENTS_SAME_INDEX_ADD_TEMPLATE;
@@ -709,7 +709,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Exist one or more payment index in same request on reporting flow [%s]", flowName)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Exist one or more payment index in same request on fdr [%s]", flowName)))));
   }
 
   @Test
@@ -730,7 +730,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
@@ -743,12 +743,12 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
     bodyFmt = """
         {
-          "indexPayments": [
+          "indexList": [
               1,
               1
           ]
@@ -764,7 +764,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Exist one or more payment index in same request on reporting flow [%s]", flowName)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Exist one or more payment index in same request on fdr [%s]", flowName)))));
   }
 
   @Test
@@ -785,7 +785,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
@@ -798,7 +798,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     ErrorResponse resSavePays2 = given()
         .body(PAYMENTS_2_ADD_TEMPLATE)
@@ -810,7 +810,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resSavePays2.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX.errorCode()));
-    assertThat(resSavePays2.getErrors(), hasItem(hasProperty("message", equalTo(String.format("One or more payment index already added on reporting flow [%s]", flowName)))));
+    assertThat(resSavePays2.getErrors(), hasItem(hasProperty("message", equalTo(String.format("One or more payment index already added on fdr [%s]", flowName)))));
   }
 
   @Test
@@ -831,7 +831,7 @@ class PspResourceTest {
         .statusCode(201)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSave.getMessage(), equalTo("Flow [%s] saved".formatted(flowName)));
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
@@ -844,7 +844,7 @@ class PspResourceTest {
         .statusCode(200)
         .extract()
         .as(GenericResponse.class);
-    assertThat(resSavePays.getMessage(), equalTo("Flow [%s] payment added".formatted(flowName)));
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
     ErrorResponse resDelError = given()
@@ -857,7 +857,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(resDelError.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX.errorCode()));
-    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Index of payment not match with index loaded on reporting flow [%s]", flowName)))));
+    assertThat(resDelError.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Index of payment not match with index loaded on fdr [%s]", flowName)))));
   }
 
   @Test
@@ -1100,7 +1100,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT.errorCode()));
-    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Reporting flow [2016-aa-16pspTest-1176] has wrong date"))));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Fdr [2016-aa-16pspTest-1176] has wrong date"))));
   }
 
   @Test
@@ -1121,7 +1121,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT.errorCode()));
-    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Reporting flow [2016-08-16-psp-1176] has wrong psp"))));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Fdr [2016-08-16-psp-1176] has wrong psp"))));
   }
 
   @Test
@@ -1148,7 +1148,7 @@ class PspResourceTest {
         .as(ErrorResponse.class);
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST.errorCode()));
     assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("non deve essere null"))));
-    assertThat(res.getErrors(), hasItem(hasProperty("path", equalTo("createFlow.createFlowRequest.reportingFlowName"))));
+    assertThat(res.getErrors(), hasItem(hasProperty("path", equalTo("create.createRequest.fdr"))));
   }
 
   @Test
@@ -1197,7 +1197,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_INSTANT.errorCode()));
-    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Bad request. Field [reportingFlowDate] is [%s]. Expected ISO-8601 [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]", wrongFormatDate)))));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Bad request. Field [fdrDate] is [%s]. Expected ISO-8601 [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]", wrongFormatDate)))));
   }
 
   @Test

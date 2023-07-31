@@ -30,21 +30,21 @@ public class TestUtil {
   public static String FLOW_TEMPLATE =
       """
     {
-      "reportingFlowName": "%s",
-      "reportingFlowDate": "2023-04-05T09:21:37.810000Z",
+      "fdr": "%s",
+      "fdrDate": "2023-04-05T09:21:37.810000Z",
       "sender": {
         "type": "%s",
         "id": "SELBIT2B",
         "pspId": "%s",
         "pspName": "Bank",
-        "brokerId": "%s",
+        "pspBrokerId": "%s",
         "channelId": "%s",
         "password": "1234567890"
       },
       "receiver": {
         "id": "APPBIT2B",
-        "ecId": "%s",
-        "ecName": "Comune di xyz"
+        "organizationId": "%s",
+        "organizationName": "Comune di xyz"
       },
       "regulation": "SEPA - Bonifico xzy",
       "regulationDate": "2023-04-03T12:00:30.900000Z",
@@ -103,7 +103,7 @@ public class TestUtil {
             .extract()
             .body()
             .as(GenericResponse.class);
-    assertThat(resPspFlow.getMessage(), equalTo(String.format("Flow [%s] saved", flowName)));
+    assertThat(resPspFlow.getMessage(), equalTo(String.format("Fdr [%s] saved", flowName)));
 
     String urlPayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
     String bodyPayment = PAYMENTS_ADD_TEMPLATE;
@@ -118,8 +118,7 @@ public class TestUtil {
             .extract()
             .body()
             .as(GenericResponse.class);
-    assertThat(
-        resPayment.getMessage(), equalTo(String.format("Flow [%s] payment added", flowName)));
+    assertThat(resPayment.getMessage(), equalTo(String.format("Fdr [%s] payment added", flowName)));
 
     String urlPublish = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
     GenericResponse resPublish =
@@ -132,6 +131,6 @@ public class TestUtil {
             .extract()
             .body()
             .as(GenericResponse.class);
-    assertThat(resPublish.getMessage(), equalTo(String.format("Flow [%s] published", flowName)));
+    assertThat(resPublish.getMessage(), equalTo(String.format("Fdr [%s] published", flowName)));
   }
 }

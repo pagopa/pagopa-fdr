@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.service.dto;
 
-public enum ReportingFlowStatusEnumDto {
+public enum FdrStatusEnumDto {
   CREATED,
   INSERTED,
   PUBLISHED;

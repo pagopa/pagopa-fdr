@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.util;
 
-import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,22 +22,22 @@ public class AppConstant {
     throw new IllegalStateException("Constants class");
   }
 
-  private static List<FlowActionEnum> flowActionExcludeToSendEvent = new ArrayList<>();
+  private static List<FdrActionEnum> fdrActionExcludeToSendEvent = new ArrayList<>();
 
   static {
-    flowActionExcludeToSendEvent.add(FlowActionEnum.INFO);
-    //    flowActionExcludeToSendEvent.add(FlowActionEnum.INTERNAL_CREATE_FLOW);
-    //    flowActionExcludeToSendEvent.add(FlowActionEnum.INTERNAL_DELETE_FLOW);
-    //    flowActionExcludeToSendEvent.add(FlowActionEnum.INTERNAL_ADD_PAYMENT);
-    //    flowActionExcludeToSendEvent.add(FlowActionEnum.INTERNAL_DELETE_PAYMENT);
-    //    flowActionExcludeToSendEvent.add(FlowActionEnum.INTERNAL_PUBLISH);
-    //    flowActionExcludeToSendEvent.add(FlowActionEnum.INTERNAL_GET_ALL_FDR);
-    //    flowActionExcludeToSendEvent.add(FlowActionEnum.INTERNAL_GET_FDR);
-    //    flowActionExcludeToSendEvent.add(FlowActionEnum.INTERNAL_GET_FDR_PAYMENT);
+    fdrActionExcludeToSendEvent.add(FdrActionEnum.INFO);
+    //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_CREATE_FLOW);
+    //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_DELETE_FLOW);
+    //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_ADD_PAYMENT);
+    //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_DELETE_PAYMENT);
+    //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_PUBLISH);
+    //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_GET_ALL_FDR);
+    //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_GET_FDR);
+    //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_GET_FDR_PAYMENT);
   }
   ;
 
-  public static boolean sendReEvent(FlowActionEnum flowActionEnum) {
-    return !flowActionExcludeToSendEvent.contains(flowActionEnum);
+  public static boolean sendReEvent(FdrActionEnum fdrActionEnum) {
+    return !fdrActionExcludeToSendEvent.contains(fdrActionEnum);
   }
 }

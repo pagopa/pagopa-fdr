@@ -50,10 +50,10 @@ public class PspsValidationService extends CommonValidationService {
     String ecId = createRequest.getReceiver().getOrganizationId();
     checkCreditorInstitution(log, ecId, configData);
 
-    // check reportingFlowName format
-    String reportingFlowName = createRequest.getFdr();
-    checkFlowName(log, fdr, reportingFlowName);
-    checkReportingFlowFormat(log, reportingFlowName, pspId);
+    // check fdr format
+    String createRequestFdr = createRequest.getFdr();
+    checkFlowName(log, fdr, createRequestFdr);
+    checkReportingFlowFormat(log, createRequestFdr, pspId);
   }
 
   @WithSpan(kind = SERVER)
@@ -63,7 +63,7 @@ public class PspsValidationService extends CommonValidationService {
     // check psp
     checkPaymentServiceProvider(log, psp, configData);
 
-    // check reportingFlowName format
+    // check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
 
@@ -75,7 +75,7 @@ public class PspsValidationService extends CommonValidationService {
     // check psp
     checkPaymentServiceProvider(log, psp, configData);
 
-    /// check reportingFlowName format
+    /// check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
 
@@ -86,7 +86,7 @@ public class PspsValidationService extends CommonValidationService {
     // check psp
     checkPaymentServiceProvider(log, psp, configData);
 
-    /// check reportingFlowName format
+    /// check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
 
@@ -97,7 +97,7 @@ public class PspsValidationService extends CommonValidationService {
     // check psp
     checkPaymentServiceProvider(log, psp, configData);
 
-    /// check reportingFlowName format
+    /// check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
 }

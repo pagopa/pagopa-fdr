@@ -10,8 +10,8 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class ReInternal extends ReAbstract {
-  private boolean flowPhysicalDelete;
-  private FlowStatusEnum flowStatus;
+  private boolean fdrPhysicalDelete;
+  private FdrStatusEnum fdrStatus;
 
   //  private boolean flowRead;
 

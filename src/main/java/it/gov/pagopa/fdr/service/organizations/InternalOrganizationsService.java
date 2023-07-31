@@ -12,11 +12,11 @@ import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrHistoryProjection;
-import it.gov.pagopa.fdr.service.dto.FlowInternalDto;
+import it.gov.pagopa.fdr.service.dto.FdrAllInternalDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
+import it.gov.pagopa.fdr.service.dto.FdrSimpleInternalDto;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowInternalDto;
 import it.gov.pagopa.fdr.service.organizations.mapper.InternalOrganizationsServiceServiceMapper;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
@@ -34,7 +34,7 @@ public class InternalOrganizationsService {
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowInternalDto findByInternals(
+  public FdrAllInternalDto findByInternals(
       String action, String pspId, long pageNumber, long pageSize) {
     log.infof(AppMessageUtil.logExecute(action));
 
@@ -48,27 +48,26 @@ public class InternalOrganizationsService {
       parameters.and("pspId", pspId);
     }
 
-    PanacheQuery<FdrHistoryEntity> reportingFlowPanacheQuery;
+    PanacheQuery<FdrHistoryEntity> fdrPanacheQuery;
     if (queryAnd.isEmpty()) {
       log.debugf("Get all FdrHistoryEntity");
-      reportingFlowPanacheQuery = FdrHistoryEntity.findAll(sort);
+      fdrPanacheQuery = FdrHistoryEntity.findAll(sort);
     } else {
       log.debugf("Get all FdrHistoryEntity with pspId[%s]", pspId);
-      reportingFlowPanacheQuery =
-          FdrHistoryEntity.find(String.join(" and ", queryAnd), sort, parameters);
+      fdrPanacheQuery = FdrHistoryEntity.find(String.join(" and ", queryAnd), sort, parameters);
     }
 
     log.debug("Get paging FdrHistoryReportingFlowNameProjection");
-    PanacheQuery<FdrHistoryProjection> reportingFlowNameProjectionPanacheQuery =
-        reportingFlowPanacheQuery.page(page).project(FdrHistoryProjection.class);
+    PanacheQuery<FdrHistoryProjection> fdrProjectionPanacheQuery =
+        fdrPanacheQuery.page(page).project(FdrHistoryProjection.class);
 
-    List<FdrHistoryProjection> reportingFlowIds = reportingFlowNameProjectionPanacheQuery.list();
+    List<FdrHistoryProjection> reportingFlowIds = fdrProjectionPanacheQuery.list();
 
-    long totPage = reportingFlowNameProjectionPanacheQuery.pageCount();
-    long countReportingFlow = reportingFlowNameProjectionPanacheQuery.count();
+    long totPage = fdrProjectionPanacheQuery.pageCount();
+    long countReportingFlow = fdrProjectionPanacheQuery.count();
 
     log.debug("Building ReportingFlowInternalDto");
-    return ReportingFlowInternalDto.builder()
+    return FdrAllInternalDto.builder()
         .metadata(
             MetadataDto.builder()
                 .pageSize(pageSize)
@@ -80,8 +79,8 @@ public class InternalOrganizationsService {
             reportingFlowIds.stream()
                 .map(
                     rf ->
-                        FlowInternalDto.builder()
-                            .name(rf.getReportingFlowName())
+                        FdrSimpleInternalDto.builder()
+                            .fdr(rf.getFdr())
                             .pspId(rf.getSender().getPspId())
                             .revision(rf.getRevision())
                             .build())
@@ -90,50 +89,41 @@ public class InternalOrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowGetDto findByReportingFlowNameInternals(
-      String action, String reportingFlowName, Long rev, String pspId) {
+  public FdrGetDto findByReportingFlowNameInternals(
+      String action, String fdr, Long rev, String pspId) {
     log.infof(AppMessageUtil.logExecute(action));
 
-    FdrHistoryEntity reportingFlowEntity =
-        FdrHistoryEntity.findByFlowNameAndRevAndPspId(reportingFlowName, rev, pspId)
+    FdrHistoryEntity fdrEntity =
+        FdrHistoryEntity.findByFdrAndRevAndPspId(fdr, rev, pspId)
             .project(FdrHistoryEntity.class)
             .firstResultOptional()
             .orElseThrow(
-                () ->
-                    new AppException(
-                        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+                () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, fdr));
 
     log.debug("Mapping ReportingFlowGetDto from FdrHistoryEntity");
-    return mapper.toReportingFlowGetDto(reportingFlowEntity);
+    return mapper.toFdrGetDtoByHistory(fdrEntity);
   }
 
   @WithSpan(kind = SERVER)
-  public ReportingFlowGetPaymentDto findPaymentByReportingFlowNameInternals(
-      String action,
-      String reportingFlowName,
-      Long rev,
-      String pspId,
-      long pageNumber,
-      long pageSize) {
+  public FdrGetPaymentDto findPaymentByFdrInternals(
+      String action, String fdr, Long rev, String pspId, long pageNumber, long pageSize) {
     log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = AppDBUtil.getSort(List.of("index,asc"));
 
     log.debugf(
-        "Existence check FdrPaymentHistoryEntity by flowName[%s], rev[%d], psp[%s]",
-        reportingFlowName, rev, pspId);
-    PanacheQuery<FdrPaymentHistoryEntity> reportingFlowPaymentEntityPanacheQuery =
-        FdrPaymentHistoryEntity.findByFlowNameAndRevAndPspId(reportingFlowName, rev, pspId, sort)
-            .page(page);
+        "Existence check FdrPaymentHistoryEntity by fdr[%s], rev[%d], psp[%s]", fdr, rev, pspId);
+    PanacheQuery<FdrPaymentHistoryEntity> fdrPaymentHistoryEntityPanacheQuery =
+        FdrPaymentHistoryEntity.findByFdrAndRevAndPspId(fdr, rev, pspId, sort).page(page);
 
-    List<FdrPaymentHistoryEntity> list = reportingFlowPaymentEntityPanacheQuery.list();
+    List<FdrPaymentHistoryEntity> list = fdrPaymentHistoryEntityPanacheQuery.list();
 
-    long totPage = reportingFlowPaymentEntityPanacheQuery.pageCount();
-    long countReportingFlowPayment = reportingFlowPaymentEntityPanacheQuery.count();
+    long totPage = fdrPaymentHistoryEntityPanacheQuery.pageCount();
+    long countReportingFlowPayment = fdrPaymentHistoryEntityPanacheQuery.count();
 
     log.debug("Mapping ReportingFlowGetPaymentDto from FdrPaymentHistoryEntity");
-    return ReportingFlowGetPaymentDto.builder()
+    return FdrGetPaymentDto.builder()
         .metadata(
             MetadataDto.builder()
                 .pageSize(pageSize)
@@ -141,7 +131,7 @@ public class InternalOrganizationsService {
                 .totPage(totPage)
                 .build())
         .count(countReportingFlowPayment)
-        .data(mapper.historyToPagamentoDtos(list))
+        .data(mapper.historyToPaymentDtoList(list))
         .build();
   }
 }

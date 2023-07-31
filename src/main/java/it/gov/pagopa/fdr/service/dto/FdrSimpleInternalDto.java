@@ -5,9 +5,11 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class FlowDto {
+public class FdrSimpleInternalDto {
 
-  private String name;
+  private String fdr;
 
   private String pspId;
+
+  private Long revision;
 }

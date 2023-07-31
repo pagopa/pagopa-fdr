@@ -1,8 +1,8 @@
 package it.gov.pagopa.fdr.rest.psps;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import it.gov.pagopa.fdr.Config;
@@ -13,7 +13,7 @@ import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.validation.PspsValidationService;
 import it.gov.pagopa.fdr.service.psps.PspsService;
-import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import it.gov.pagopa.fdr.util.Re;
@@ -42,8 +42,8 @@ import org.jboss.resteasy.reactive.RestResponse;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
-@Tag(name = "PSP", description = "Psp operations")
-@Path("/psps/{" + AppConstant.PSP + "}/flows/{" + AppConstant.FDR + "}")
+@Tag(name = "PSP", description = "PSP operations")
+@Path("/psps/{" + AppConstant.PSP + "}/fdrs/{" + AppConstant.FDR + "}")
 @Consumes("application/json")
 @Produces("application/json")
 public class PspsResource {
@@ -76,7 +76,7 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @POST
-  @Re(flowName = FlowActionEnum.CREATE_FLOW)
+  @Re(action = FdrActionEnum.CREATE_FLOW)
   public RestResponse<GenericResponse> create(
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
@@ -85,16 +85,16 @@ public class PspsResource {
     String action = MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
 
-    String ecId = createRequest.getReceiver().getOrganizationId();
-    MDC.put(EC_ID, ecId);
-    MDC.put(FLOW_NAME, fdr);
+    String organizationId = createRequest.getReceiver().getOrganizationId();
+    MDC.put(ORGANIZATION_ID, organizationId);
+    MDC.put(FDR, fdr);
 
     log.infof(
-        AppMessageUtil.logProcess("%s by psp:[%s] with flowName:[%s], ecId:[%s]"),
+        AppMessageUtil.logProcess("%s by psp:[%s] with fdr:[%s], organizationId:[%s]"),
         action,
         pspId,
         fdr,
-        ecId);
+        organizationId);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
@@ -105,7 +105,7 @@ public class PspsResource {
 
     return RestResponse.status(
         Status.CREATED,
-        GenericResponse.builder().message(String.format("Flow [%s] saved", fdr)).build());
+        GenericResponse.builder().message(String.format("Fdr [%s] saved", fdr)).build());
   }
 
   @Operation(
@@ -128,13 +128,13 @@ public class PspsResource {
       })
   @PUT
   @Path("/payments/add")
-  @Re(flowName = FlowActionEnum.ADD_PAYMENT)
+  @Re(action = FdrActionEnum.ADD_PAYMENT)
   public GenericResponse addPayment(
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid AddPaymentRequest addPaymentRequest) {
     String action = MDC.get(ACTION);
-    MDC.put(FLOW_NAME, fdr);
+    MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
 
     log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, pspId);
@@ -147,7 +147,7 @@ public class PspsResource {
     // save on DB
     service.addPayment(action, pspId, fdr, mapper.toAddPaymentDto(addPaymentRequest));
 
-    return GenericResponse.builder().message(String.format("Flow [%s] payment added", fdr)).build();
+    return GenericResponse.builder().message(String.format("Fdr [%s] payment added", fdr)).build();
   }
 
   @Operation(
@@ -170,13 +170,13 @@ public class PspsResource {
       })
   @PUT
   @Path("/payments/del")
-  @Re(flowName = FlowActionEnum.DELETE_PAYMENT)
+  @Re(action = FdrActionEnum.DELETE_PAYMENT)
   public GenericResponse deletePayment(
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid DeletePaymentRequest deletePaymentRequest) {
     String action = MDC.get(ACTION);
-    MDC.put(FLOW_NAME, fdr);
+    MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
 
     log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, pspId);
@@ -190,7 +190,7 @@ public class PspsResource {
     service.deletePayment(action, pspId, fdr, mapper.toDeletePaymentDto(deletePaymentRequest));
 
     return GenericResponse.builder()
-        .message(String.format("Flow [%s] payment deleted", fdr))
+        .message(String.format("Fdr [%s] payment deleted", fdr))
         .build();
   }
 
@@ -210,11 +210,11 @@ public class PspsResource {
       })
   @POST
   @Path("/publish")
-  @Re(flowName = FlowActionEnum.PUBLISH)
+  @Re(action = FdrActionEnum.PUBLISH)
   public GenericResponse publish(
       @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdr) {
     String action = MDC.get(ACTION);
-    MDC.put(FLOW_NAME, fdr);
+    MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
 
     log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, pspId);
@@ -225,9 +225,9 @@ public class PspsResource {
     validator.validatePublish(action, pspId, fdr, configData);
 
     // save on DB
-    service.publishByReportingFlowName(action, pspId, fdr);
+    service.publishByFdr(action, pspId, fdr);
 
-    return GenericResponse.builder().message(String.format("Flow [%s] published", fdr)).build();
+    return GenericResponse.builder().message(String.format("Fdr [%s] published", fdr)).build();
   }
 
   @Operation(operationId = "delete", summary = "Delete fdr", description = "Delete fdr")
@@ -245,11 +245,11 @@ public class PspsResource {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   @DELETE
-  @Re(flowName = FlowActionEnum.DELETE_FLOW)
+  @Re(action = FdrActionEnum.DELETE_FLOW)
   public GenericResponse delete(
       @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdr) {
     String action = MDC.get(ACTION);
-    MDC.put(FLOW_NAME, fdr);
+    MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
 
     log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, pspId);
@@ -260,8 +260,8 @@ public class PspsResource {
     validator.validateDelete(action, pspId, fdr, configData);
 
     // save on DB
-    service.deleteByReportingFlowName(action, pspId, fdr);
+    service.deleteByFdr(action, pspId, fdr);
 
-    return GenericResponse.builder().message(String.format("Flow [%s] deleted", fdr)).build();
+    return GenericResponse.builder().message(String.format("Fdr [%s] deleted", fdr)).build();
   }
 }

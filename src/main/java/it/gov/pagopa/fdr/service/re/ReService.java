@@ -74,7 +74,7 @@ public class ReService {
     } else {
       List<EventData> allEvents =
           Arrays.stream(reList)
-              .filter(a -> AppConstant.sendReEvent(a.getFlowAction()))
+              .filter(a -> AppConstant.sendReEvent(a.getFdrAction()))
               .map(
                   re -> {
                     re.setUniqueId(
@@ -106,8 +106,7 @@ public class ReService {
       if (bodyStr != null && !bodyStr.isBlank()) {
         String fileName =
             String.format(
-                "%s_%s_%s",
-                re.getSessionId(), re.getFlowAction(), reInterface.getHttpType().name());
+                "%s_%s_%s", re.getSessionId(), re.getFdrAction(), reInterface.getHttpType().name());
 
         BinaryData body =
             BinaryData.fromStream(

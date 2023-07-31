@@ -1,8 +1,8 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import it.gov.pagopa.fdr.Config;
@@ -11,11 +11,11 @@ import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.OrganizationsValidationService;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
+import it.gov.pagopa.fdr.service.dto.FdrAllDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
-import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import it.gov.pagopa.fdr.util.Re;
@@ -40,8 +40,8 @@ import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
-@Tag(name = "Organizations", description = "Get reporting flow operations")
-@Path("/organizations/{" + AppConstant.ORGANIZATION + "}/flows")
+@Tag(name = "Organizations", description = "Organizations operations")
+@Path("/organizations/{" + AppConstant.ORGANIZATION + "}/fdrs")
 @Consumes("application/json")
 @Produces("application/json")
 public class OrganizationsResource {
@@ -73,7 +73,7 @@ public class OrganizationsResource {
                     schema = @Schema(implementation = GetAllResponse.class)))
       })
   @GET
-  @Re(flowName = FlowActionEnum.GET_ALL_FDR)
+  @Re(action = FdrActionEnum.GET_ALL_FDR)
   public GetAllResponse getAllPublished(
       @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
@@ -82,7 +82,7 @@ public class OrganizationsResource {
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
     String action = MDC.get(ACTION);
-    MDC.put(EC_ID, organizationId);
+    MDC.put(ORGANIZATION_ID, organizationId);
     if (null != idPsp && !idPsp.isBlank()) {
       MDC.put(PSP_ID, idPsp);
     }
@@ -100,10 +100,9 @@ public class OrganizationsResource {
     validator.validateGetAllByEc(action, organizationId, idPsp, configData);
 
     // get from db
-    ReportingFlowByIdEcDto reportingFlowByIdEcDto =
-        service.findByIdEc(action, organizationId, idPsp, pageNumber, pageSize);
+    FdrAllDto fdrAllDto = service.findByIdEc(action, organizationId, idPsp, pageNumber, pageSize);
 
-    return mapper.toGetAllResponse(reportingFlowByIdEcDto);
+    return mapper.toGetAllResponse(fdrAllDto);
   }
 
   @Operation(operationId = "get", summary = "Get fdr", description = "Get fdr")
@@ -122,28 +121,32 @@ public class OrganizationsResource {
       })
   @GET
   @Path("/{" + AppConstant.FDR + "}/psps/{" + AppConstant.PSP + "}")
-  @Re(flowName = FlowActionEnum.GET_FDR)
+  @Re(action = FdrActionEnum.GET_FDR)
   public GetResponse get(
-      @PathParam(AppConstant.ORGANIZATION) String ec,
+      @PathParam(AppConstant.ORGANIZATION) String organizationId,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.PSP) String psp) {
     String action = MDC.get(ACTION);
-    MDC.put(EC_ID, ec);
-    MDC.put(FLOW_NAME, fdr);
+    MDC.put(ORGANIZATION_ID, organizationId);
+    MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
 
     log.infof(
-        AppMessageUtil.logProcess("%s by ec:[%s] with fdr=[%s], psp=[%s]"), action, fdr, ec, psp);
+        AppMessageUtil.logProcess("%s by ec:[%s] with fdr=[%s], psp=[%s]"),
+        action,
+        fdr,
+        organizationId,
+        psp);
 
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateGet(action, fdr, ec, psp, configData);
+    validator.validateGet(action, fdr, organizationId, psp, configData);
 
     // get from db
-    ReportingFlowGetDto reportingFlowGetDto = service.findByReportingFlowName(action, fdr, psp);
+    FdrGetDto fdrGetDto = service.findByReportingFlowName(action, fdr, psp);
 
-    return mapper.toGetIdResponse(reportingFlowGetDto);
+    return mapper.toGetIdResponse(fdrGetDto);
   }
 
   @Operation(
@@ -165,7 +168,7 @@ public class OrganizationsResource {
       })
   @GET
   @Path("/{" + AppConstant.FDR + "}/psps/{" + AppConstant.PSP + "}/payments")
-  @Re(flowName = FlowActionEnum.GET_FDR_PAYMENT)
+  @Re(action = FdrActionEnum.GET_FDR_PAYMENT)
   public GetPaymentResponse getPayment(
       @PathParam(AppConstant.ORGANIZATION) String organizationId,
       @PathParam(AppConstant.FDR) String fdr,
@@ -175,8 +178,8 @@ public class OrganizationsResource {
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
     String action = MDC.get(ACTION);
-    MDC.put(EC_ID, organizationId);
-    MDC.put(FLOW_NAME, fdr);
+    MDC.put(ORGANIZATION_ID, organizationId);
+    MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
 
     log.infof(
@@ -195,9 +198,9 @@ public class OrganizationsResource {
     validator.validateGetPayment(action, fdr, organizationId, psp, configData);
 
     // get from db
-    ReportingFlowGetPaymentDto reportingFlowGetPaymentDto =
+    FdrGetPaymentDto fdrGetPaymentDto =
         service.findPaymentByReportingFlowName(action, fdr, psp, pageNumber, pageSize);
 
-    return mapper.toGetPaymentResponse(reportingFlowGetPaymentDto);
+    return mapper.toGetPaymentResponse(fdrGetPaymentDto);
   }
 }

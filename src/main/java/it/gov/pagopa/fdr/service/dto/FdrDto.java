@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ReportingFlowDto {
+public class FdrDto {
 
   private String fdr;
 

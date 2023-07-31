@@ -1,8 +1,8 @@
 package it.gov.pagopa.fdr.rest.filter;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
+import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
@@ -15,7 +15,7 @@ import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse.ErrorMessage;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppReUtil;
@@ -55,17 +55,17 @@ public class ResponseFilter implements ContainerResponseFilter {
       String requestSubject = (String) requestContext.getProperty("subject");
       String action = MDC.get(ACTION);
       String psp = MDC.get(PSP_ID);
-      String ec = MDC.get(EC_ID);
-      String flow = MDC.get(FLOW_NAME);
+      String organizationId = MDC.get(ORGANIZATION_ID);
+      String fdr = MDC.get(FDR);
 
-      FlowActionEnum flowActionEnum =
+      FdrActionEnum fdrActionEnum =
           AppReUtil.getFlowNamebyAnnotation(
               ((ContainerRequestContextImpl) requestContext)
                   .getServerRequestContext()
                   .getResteasyReactiveResourceInfo()
                   .getAnnotations());
 
-      if (flowActionEnum == null) {
+      if (fdrActionEnum == null) {
         log.warn("Attention, missing annotation Re on this action");
       }
 
@@ -97,9 +97,9 @@ public class ResponseFilter implements ContainerResponseFilter {
                               Map.Entry::getKey,
                               a -> Stream.of(a.getValue()).map(Object::toString).toList())))
               .pspId(psp)
-              .flowName(flow)
-              .organizationId(ec)
-              .flowAction(flowActionEnum)
+              .fdr(fdr)
+              .organizationId(organizationId)
+              .fdrAction(fdrActionEnum)
               .build());
 
       int httpStatus = responseContext.getStatus();
@@ -128,8 +128,8 @@ public class ResponseFilter implements ContainerResponseFilter {
             requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       }
 
-      logJsonReq(action, requestPath, psp, ec);
-      logJsonRes(action, requestPath, psp, ec, elapsed, httpStatus, errorResponse);
+      logJsonReq(action, requestPath, psp, organizationId);
+      logJsonRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
 
       MDC.clear();
     }
@@ -155,10 +155,16 @@ public class ResponseFilter implements ContainerResponseFilter {
             .collect(Collectors.joining(", ")));
   }
 
-  private void logJsonReq(String action, String requestPath, String psp, String ec) {
+  private void logJsonReq(String action, String requestPath, String psp, String organizationId) {
     log.infof(
         jsonStringOperation(
-            action, requestPath, psp, ec, Optional.empty(), Optional.empty(), Optional.empty()));
+            action,
+            requestPath,
+            psp,
+            organizationId,
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()));
   }
 
   private void logJsonRes(
@@ -184,7 +190,7 @@ public class ResponseFilter implements ContainerResponseFilter {
       String action,
       String requestPath,
       String psp,
-      String ec,
+      String organizationId,
       Optional<Long> elapsed,
       Optional<Integer> statusCode,
       Optional<ErrorResponse> errorResponse) {
@@ -212,7 +218,8 @@ public class ResponseFilter implements ContainerResponseFilter {
     elapsed.ifPresent(v -> stringBuilder.append(",\"elapsed\":%d".formatted(v)));
     statusCode.ifPresent(s -> stringBuilder.append(",\"statusCode\":%d".formatted(s)));
     stringBuilder.append(",\"psp\":\"%s\"".formatted(psp != null ? psp : "NA"));
-    stringBuilder.append(",\"ec\":\"%s\"".formatted(ec != null ? ec : "NA"));
+    stringBuilder.append(
+        ",\"ec\":\"%s\"".formatted(organizationId != null ? organizationId : "NA"));
     stringBuilder.append("}");
 
     return stringBuilder.toString();

@@ -28,6 +28,7 @@ import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
+import it.gov.pagopa.fdr.util.AppConstant;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,13 +40,13 @@ import org.junit.jupiter.api.Test;
 class InternalOrganizationResourceTest {
 
   private static final String GET_ALL_PUBLISHED_FLOW_URL =
-      "/internal/history/organizations/ndp/flows?idPsp=%s";
+      "/internal/history/organizations/ndp/fdrs?" + AppConstant.PSP + "=%s";
   private static final String GET_REPORTING_FLOW_URL =
-      "/internal/history/organizations/ndp/flows/%s/rev/%s/psps/%s";
+      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s";
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL =
-      "/internal/history/organizations/ndp/flows/%s/rev/%s/psps/%s/payments";
+      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/payments";
   private static final String CHANGE_READ_FLAG_URL =
-      "/internal/history/organizations/ndp/flows/%s/rev/%s/psps/%s/read";
+      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/read";
 
   /** ############### getAllPublishedFlow ################ */
   @Test
@@ -203,9 +204,7 @@ class InternalOrganizationResourceTest {
     assertThat(
         res.getErrors(),
         hasItem(
-            hasProperty(
-                "message",
-                equalTo(String.format("Reporting flow [%s] not found", flowNameWrong)))));
+            hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowNameWrong)))));
   }
 
   /** ################# getReportingFlowPayments ############### */
@@ -256,7 +255,7 @@ class InternalOrganizationResourceTest {
   //            .statusCode(200)
   //            .extract()
   //            .as(GenericResponse.class);
-  //    assertThat(res.getMessage(), equalTo(String.format("Flow [%s] internal read", flowName)));
+  //    assertThat(res.getMessage(), equalTo(String.format("Fdr [%s] internal read", flowName)));
   //  }
   //
   //  @Test
@@ -285,6 +284,6 @@ class InternalOrganizationResourceTest {
   //        hasItem(
   //            hasProperty(
   //                "message",
-  //                equalTo(String.format("Reporting flow [%s] not found", flowNameWrong)))));
+  //                equalTo(String.format("Fdr [%s] not found", flowNameWrong)))));
   //  }
 }
