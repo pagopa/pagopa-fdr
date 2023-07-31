@@ -87,8 +87,10 @@ public class PspsService {
     fdrEntity.setCreated(now);
     fdrEntity.setUpdated(now);
     fdrEntity.setStatus(FdrStatusEnumEntity.CREATED);
-    fdrEntity.setTotPayments(0L);
-    fdrEntity.setSumPayments(0.0);
+    fdrEntity.setComputedTotPayments(0L);
+    fdrEntity.setComputedSumPayments(0.0);
+    fdrEntity.setTotPayments(fdrDto.getTotPayments());
+    fdrEntity.setSumPayments(fdrDto.getSumPayments());
     fdrEntity.setRevision(revision);
     fdrEntity.persist();
 
@@ -143,8 +145,8 @@ public class PspsService {
     List<FdrPaymentInsertEntity> reportingFlowPaymentEntities =
         mapper.toFdrPaymentInsertEntityList(addPaymentDto.getPayments());
 
-    fdrEntity.setTotPayments(addAndSumCount(fdrEntity, reportingFlowPaymentEntities));
-    fdrEntity.setSumPayments(addAndSum(fdrEntity, reportingFlowPaymentEntities));
+    fdrEntity.setComputedTotPayments(addAndSumCount(fdrEntity, reportingFlowPaymentEntities));
+    fdrEntity.setComputedSumPayments(addAndSum(fdrEntity, reportingFlowPaymentEntities));
 
     fdrEntity.setUpdated(now);
     fdrEntity.setStatus(FdrStatusEnumEntity.INSERTED);
@@ -222,10 +224,12 @@ public class PspsService {
     log.debugf("Delete FdrPaymentInsertEntity by fdr[%s], indexList", fdr);
     FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexList);
 
+    long tot = deleteAndSumCount(fdrEntity, paymentToDelete);
+    double sum = deleteAndSubtract(fdrEntity, paymentToDelete);
     FdrStatusEnumEntity status =
-        fdrEntity.getSumPayments() > 0 ? FdrStatusEnumEntity.INSERTED : FdrStatusEnumEntity.CREATED;
-    fdrEntity.setTotPayments(deleteAndSumCount(fdrEntity, paymentToDelete));
-    fdrEntity.setSumPayments(deleteAndSubtract(fdrEntity, paymentToDelete));
+        sum > 0 ? FdrStatusEnumEntity.INSERTED : FdrStatusEnumEntity.CREATED;
+    fdrEntity.setComputedTotPayments(tot);
+    fdrEntity.setComputedSumPayments(sum);
     fdrEntity.setUpdated(now);
     fdrEntity.setStatus(status);
     fdrEntity.update();
@@ -289,6 +293,22 @@ public class PspsService {
     if (FdrStatusEnumEntity.INSERTED != fdrEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION, fdr, fdrEntity.getStatus());
+    }
+
+    if (!fdrEntity.getTotPayments().equals(fdrEntity.getComputedTotPayments())) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_TOT_PAYMENT,
+          fdr,
+          fdrEntity.getTotPayments(),
+          fdrEntity.getComputedTotPayments());
+    }
+
+    if (!fdrEntity.getSumPayments().equals(fdrEntity.getComputedSumPayments())) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_SUM_PAYMENT,
+          fdr,
+          fdrEntity.getSumPayments(),
+          fdrEntity.getComputedSumPayments());
     }
 
     fdrEntity.setUpdated(now);
@@ -364,7 +384,7 @@ public class PspsService {
 
     MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    if (fdrEntity.getTotPayments() > 0L) {
+    if (fdrEntity.getComputedTotPayments() > 0L) {
       log.debugf("Delete FdrPaymentInsertEntity for FdrInsertEntity by fdr[%s]", fdr);
       FdrPaymentInsertEntity.deleteByFdr(fdr);
     }
@@ -392,7 +412,7 @@ public class PspsService {
   private static double addAndSum(
       FdrInsertEntity fdrEntity, List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
     return Double.sum(
-        Objects.requireNonNullElseGet(fdrEntity.getSumPayments(), () -> (double) 0),
+        Objects.requireNonNullElseGet(fdrEntity.getComputedSumPayments(), () -> (double) 0),
         reportingFlowPaymentEntities.stream()
             .map(FdrPaymentInsertEntity::getPay)
             .mapToDouble(Double::doubleValue)
@@ -402,7 +422,7 @@ public class PspsService {
   private static double deleteAndSubtract(
       FdrInsertEntity fdrEntity, List<FdrPaymentInsertEntity> paymentToDelete) {
     return BigDecimal.valueOf(
-            Objects.requireNonNullElseGet(fdrEntity.getSumPayments(), () -> (double) 0))
+            Objects.requireNonNullElseGet(fdrEntity.getComputedSumPayments(), () -> (double) 0))
         .subtract(
             BigDecimal.valueOf(
                 paymentToDelete.stream()
@@ -414,13 +434,13 @@ public class PspsService {
 
   private static long addAndSumCount(
       FdrInsertEntity fdrEntity, List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(fdrEntity.getTotPayments(), () -> (long) 0)
+    return Objects.requireNonNullElseGet(fdrEntity.getComputedTotPayments(), () -> (long) 0)
         + reportingFlowPaymentEntities.size();
   }
 
   private static long deleteAndSumCount(
       FdrInsertEntity fdrEntity, List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(fdrEntity.getTotPayments(), () -> (long) 0)
+    return Objects.requireNonNullElseGet(fdrEntity.getComputedTotPayments(), () -> (long) 0)
         - reportingFlowPaymentEntities.size();
   }
 

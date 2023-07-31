@@ -47,8 +47,10 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
       "0719", "fdr.name-psp.wrongFormat", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_NAME_NOT_MATCH("0720", "fdr.name.notMatch", RestResponse.Status.BAD_REQUEST),
   EVENT_HUB_RE_PARSE_JSON("0721", "eHub.re.parse", Status.INTERNAL_SERVER_ERROR),
-  EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR);
-  ;
+  EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR),
+
+  REPORTING_FLOW_WRONG_TOT_PAYMENT("0723", "fdr.wrongTotPayment", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_WRONG_SUM_PAYMENT("0724", "fdr.wrongSumPayment", RestResponse.Status.BAD_REQUEST);
   private final String errorCode;
   private final String errorMessageKey;
   private final RestResponse.Status httpStatus;

@@ -29,28 +29,30 @@ public class TestUtil {
 
   public static String FLOW_TEMPLATE =
       """
-    {
-      "fdr": "%s",
-      "fdrDate": "2023-04-05T09:21:37.810000Z",
-      "sender": {
-        "type": "%s",
-        "id": "SELBIT2B",
-        "pspId": "%s",
-        "pspName": "Bank",
-        "pspBrokerId": "%s",
-        "channelId": "%s",
-        "password": "1234567890"
-      },
-      "receiver": {
-        "id": "APPBIT2B",
-        "organizationId": "%s",
-        "organizationName": "Comune di xyz"
-      },
-      "regulation": "SEPA - Bonifico xzy",
-      "regulationDate": "2023-04-03T12:00:30.900000Z",
-      "bicCodePouringBank": "UNCRITMMXXX"
-    }
-    """;
+          {
+            "fdr": "%s",
+            "fdrDate": "2023-04-05T09:21:37.810000Z",
+            "sender": {
+              "type": "%s",
+              "id": "SELBIT2B",
+              "pspId": "%s",
+              "pspName": "Bank",
+              "pspBrokerId": "%s",
+              "channelId": "%s",
+              "password": "1234567890"
+            },
+            "receiver": {
+              "id": "APPBIT2B",
+              "organizationId": "%s",
+              "organizationName": "Comune di xyz"
+            },
+            "regulation": "SEPA - Bonifico xzy",
+            "regulationDate": "2023-04-03T12:00:30.900000Z",
+            "bicCodePouringBank": "UNCRITMMXXX",
+            "totPayments": 3,
+            "sumPayments": 0.03
+          }
+          """;
 
   public static String PAYMENTS_ADD_TEMPLATE =
       """
@@ -73,6 +75,35 @@ public class TestUtil {
             "iuv": "c",
             "iur": "abcdefg",
             "index": 3,
+            "pay": 0.01,
+            "payStatus": "NO_RPT",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          }
+        ]
+      }
+      """;
+
+  public static String PAYMENTS_ADD_TEMPLATE_2 =
+      """
+      {
+        "payments": [{
+            "iuv": "d",
+            "iur": "abcdefg",
+            "index": 4,
+            "pay": 0.01,
+            "payStatus": "EXECUTED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          },{
+            "iuv": "e",
+            "iur": "abcdefg",
+            "index": 5,
+            "pay": 0.01,
+            "payStatus": "REVOKED",
+            "payDate": "2023-02-03T12:00:30.900000Z"
+          },{
+            "iuv": "f",
+            "iur": "abcdefg",
+            "index": 6,
             "pay": 0.01,
             "payStatus": "NO_RPT",
             "payDate": "2023-02-03T12:00:30.900000Z"

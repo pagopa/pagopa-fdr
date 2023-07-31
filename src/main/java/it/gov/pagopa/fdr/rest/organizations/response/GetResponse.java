@@ -63,8 +63,8 @@ public class GetResponse {
   private String bicCodePouringBank;
 
   @Schema(example = "100")
-  public Long totPayments;
+  public Long computedTotPayments;
 
   @Schema(example = "100.90")
-  public Double sumPayments;
+  public Double computedSumPayments;
 }

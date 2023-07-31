@@ -21,4 +21,8 @@ public class FdrDto {
   private Instant regulationDate;
 
   private String bicCodePouringBank;
+
+  private Long totPayments;
+
+  private Double sumPayments;
 }

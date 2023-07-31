@@ -21,6 +21,7 @@ import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_N
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
 import static it.gov.pagopa.fdr.test.util.TestUtil.FLOW_TEMPLATE;
 import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE;
+import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE_2;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -113,28 +114,30 @@ class PspResourceTest {
 
   protected static String FLOW_TEMPLATE_WRONG_INSTANT =
     """
-    {
-      "fdr": "%s",
-      "fdrDate": "%s",
-      "sender": {
-        "type": "%s",
-        "id": "SELBIT2B",
-        "pspId": "%s",
-        "pspName": "Bank",
-        "pspBrokerId": "%s",
-        "channelId": "%s",
-        "password": "1234567890"
-      },
-      "receiver": {
-        "id": "APPBIT2B",
-        "organizationId": "%s",
-        "organizationName": "Comune di xyz"
-      },
-      "regulation": "SEPA - Bonifico xzy",
-      "regulationDate": "2023-04-03T12:00:30.900000Z",
-      "bicCodePouringBank": "UNCRITMMXXX"
-    }
-    """;
+        {
+          "fdr": "%s",
+          "fdrDate": "%s",
+          "sender": {
+            "type": "%s",
+            "id": "SELBIT2B",
+            "pspId": "%s",
+            "pspName": "Bank",
+            "pspBrokerId": "%s",
+            "channelId": "%s",
+            "password": "1234567890"
+          },
+          "receiver": {
+            "id": "APPBIT2B",
+            "organizationId": "%s",
+            "organizationName": "Comune di xyz"
+          },
+          "regulation": "SEPA - Bonifico xzy",
+          "regulationDate": "2023-04-03T12:00:30.900000Z",
+          "bicCodePouringBank": "UNCRITMMXXX",
+          "totPayments": 3,
+          "sumPayments": 0.03
+        }
+        """;
 
     protected static String PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE =
       """
@@ -153,28 +156,30 @@ class PspResourceTest {
 
   protected static String FLOW_TEMPLATE_WRONG_FIELDS =
       """
-      {
-        "fdrFake": "%s",
-        "fdrDate": "2023-04-05T09:21:37.810000Z",
-        "sender": {
-          "type": "%s",
-          "id": "SELBIT2B",
-          "pspId": "%s",
-          "pspName": "Bank",
-          "pspBrokerId": "%s",
-          "channelId": "%s",
-          "password": "1234567890"
-        },
-        "receiver": {
-          "id": "APPBIT2B",
-          "organizationId": "%s",
-          "organizationName": "Comune di xyz"
-        },
-        "regulation": "SEPA - Bonifico xzy",
-        "regulationDate": "2023-04-03T12:00:30.900000Z",
-        "bicCodePouringBank": "UNCRITMMXXX"
-      }
-      """;
+          {
+            "fdrFake": "%s",
+            "fdrDate": "2023-04-05T09:21:37.810000Z",
+            "sender": {
+              "type": "%s",
+              "id": "SELBIT2B",
+              "pspId": "%s",
+              "pspName": "Bank",
+              "pspBrokerId": "%s",
+              "channelId": "%s",
+              "password": "1234567890"
+            },
+            "receiver": {
+              "id": "APPBIT2B",
+              "organizationId": "%s",
+              "organizationName": "Comune di xyz"
+            },
+            "regulation": "SEPA - Bonifico xzy",
+            "regulationDate": "2023-04-03T12:00:30.900000Z",
+            "bicCodePouringBank": "UNCRITMMXXX",
+            "totPayments": 3,
+            "sumPayments": 0.03
+          }
+          """;
 
     protected static String PAYMENTS_DELETE_TEMPLATE =
       """
@@ -355,6 +360,17 @@ class PspResourceTest {
 
     GenericResponse resSavePays = given()
         .body(PAYMENTS_ADD_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlSavePayment)
+        .then()
+        .statusCode(200)
+        .extract()
+        .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
+
+    GenericResponse resSavePays2 = given()
+        .body(PAYMENTS_ADD_TEMPLATE_2)
         .header(HEADER)
         .when()
         .put(urlSavePayment)

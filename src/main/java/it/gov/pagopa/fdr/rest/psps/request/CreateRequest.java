@@ -5,6 +5,9 @@ import it.gov.pagopa.fdr.rest.model.Receiver;
 import it.gov.pagopa.fdr.rest.model.Sender;
 import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
@@ -54,4 +57,15 @@ public class CreateRequest {
   // TODO non dovrebbe essere 5 numerici?
   @Pattern(regexp = "^(.{1,35})$")
   private String bicCodePouringBank;
+
+  @NotNull
+  @Min(value = 1)
+  @Schema(example = "1", description = "[XML FlussoRiversamento]=[numeroTotalePagamenti]")
+  private Long totPayments;
+
+  @NotNull
+  @DecimalMin(value = "0.0", inclusive = false)
+  @Digits(integer = Integer.MAX_VALUE, fraction = 2)
+  @Schema(example = "0.01", description = "[XML FlussoRiversamento]=[importoTotalePagamenti]")
+  private Double sumPayments;
 }

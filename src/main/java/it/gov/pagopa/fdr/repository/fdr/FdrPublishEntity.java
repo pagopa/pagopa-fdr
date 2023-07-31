@@ -44,6 +44,12 @@ public class FdrPublishEntity extends PanacheMongoEntity {
 
   private FdrStatusEnumEntity status;
 
+  @BsonProperty("computed_tot_payments")
+  private Long computedTotPayments;
+
+  @BsonProperty("computed_sum_payments")
+  private Double computedSumPayments;
+
   @BsonProperty("tot_payments")
   private Long totPayments;
 

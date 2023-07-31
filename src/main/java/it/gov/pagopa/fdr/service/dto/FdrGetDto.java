@@ -30,7 +30,7 @@ public class FdrGetDto {
 
   private String bicCodePouringBank;
 
-  private Long totPayments;
+  private Long computedTotPayments;
 
-  private Double sumPayments;
+  private Double computedSumPayments;
 }

@@ -27,8 +27,8 @@ public interface PspsServiceServiceMapper {
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "updated", ignore = true)
   @Mapping(target = "status", ignore = true)
-  @Mapping(target = "totPayments", ignore = true)
-  @Mapping(target = "sumPayments", ignore = true)
+  @Mapping(target = "computedTotPayments", ignore = true)
+  @Mapping(target = "computedSumPayments", ignore = true)
   FdrInsertEntity toFdrInsertEntity(FdrDto fdrDto);
 
   @Mapping(target = "id", ignore = true)

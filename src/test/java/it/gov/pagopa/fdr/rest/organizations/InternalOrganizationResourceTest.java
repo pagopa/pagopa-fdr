@@ -155,7 +155,7 @@ class InternalOrganizationResourceTest {
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-    assertThat(res.totPayments, equalTo(3L));
+    assertThat(res.getComputedTotPayments(), equalTo(3L));
   }
 
   @Test
