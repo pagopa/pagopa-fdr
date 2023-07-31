@@ -26,7 +26,7 @@ import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
@@ -163,16 +163,16 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
-    GetIdResponse res = given()
+    GetResponse res = given()
         .header(HEADER)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(GetIdResponse.class);
-    assertThat(res.getReportingFlowName(), equalTo(flowName));
-    assertThat(res.getReceiver().getEcId(), equalTo(EC_CODE));
+        .as(GetResponse.class);
+    assertThat(res.getFdr(), equalTo(flowName));
+    assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
     assertThat(res.totPayments, equalTo(3L));
@@ -186,15 +186,15 @@ class OrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
-    GetIdResponse res = given()
+    GetResponse res = given()
         .header(HEADER)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(GetIdResponse.class);
-    assertThat(res.getReportingFlowName(), equalTo(flowName));
+        .as(GetResponse.class);
+    assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getRevision(), equalTo(2L));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
   }

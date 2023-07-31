@@ -9,9 +9,9 @@ public class ReceiverEntity {
   @BsonProperty("id")
   private String id;
 
-  @BsonProperty("ec_id")
-  private String ecId;
+  @BsonProperty("organization_id")
+  private String organizationId;
 
-  @BsonProperty("ec_name")
-  private String ecName;
+  @BsonProperty("organization_name")
+  private String organizationName;
 }

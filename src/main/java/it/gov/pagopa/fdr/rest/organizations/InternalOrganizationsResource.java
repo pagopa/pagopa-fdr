@@ -9,8 +9,8 @@ import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.InternalOrganizationsValidationService;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
@@ -42,7 +42,7 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
 @Tag(name = "Internal Organizations", description = "Get reporting flow operations")
-@Path("/internal/history/organizations/{" + AppConstant.EC + "}/flows")
+@Path("/internal/history/organizations/{" + AppConstant.ORGANIZATION + "}/flows")
 @Consumes("application/json")
 @Produces("application/json")
 public class InternalOrganizationsResource {
@@ -57,9 +57,9 @@ public class InternalOrganizationsResource {
   @Inject InternalOrganizationsService internalService;
 
   @Operation(
-      operationId = "internalGetAllFdrWithRevision",
-      summary = "Get all published reporting flow",
-      description = "Get all published reporting flow by ec and idPsp(optional param)")
+      operationId = "internalGetAllPublishedWithRevision",
+      summary = "Get all fdr published with revision",
+      description = "Get all fdr published with revision")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -75,8 +75,8 @@ public class InternalOrganizationsResource {
       })
   @GET
   @Re(flowName = FlowActionEnum.INTERNAL_GET_ALL_FDR)
-  public GetAllInternalResponse internalGetAllFdrWithRevision(
-      @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+  public GetAllInternalResponse internalGetAllPublishedWithRevision(
+      @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
           long pageNumber,
@@ -107,7 +107,7 @@ public class InternalOrganizationsResource {
   }
 
   @Operation(
-      operationId = "internalGetFdrWithRevision",
+      operationId = "internalGetWithRevision",
       summary = "Get reporting flow",
       description = "Get reporting flow by id but not payments")
   @APIResponses(
@@ -121,7 +121,7 @@ public class InternalOrganizationsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetIdResponse.class)))
+                    schema = @Schema(implementation = GetResponse.class)))
       })
   @GET
   @Path(
@@ -133,8 +133,8 @@ public class InternalOrganizationsResource {
           + AppConstant.PSP
           + "}")
   @Re(flowName = FlowActionEnum.INTERNAL_GET_FDR)
-  public GetIdResponse internalGetFdrWithRevision(
-      @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+  public GetResponse internalGetWithRevision(
+      @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,
       @PathParam(AppConstant.PSP) String psp) {
@@ -157,9 +157,9 @@ public class InternalOrganizationsResource {
   }
 
   @Operation(
-      operationId = "internalGetFdrPayment",
-      summary = "Get payments of reporting flow",
-      description = "Get only payments of reporting flow by id paginated")
+      operationId = "internalGetPayment",
+      summary = "Get payments of fdr",
+      description = "Get payments of fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -184,7 +184,7 @@ public class InternalOrganizationsResource {
           + "}/payments")
   @Re(flowName = FlowActionEnum.INTERNAL_GET_FDR_PAYMENT)
   public GetPaymentResponse internalGetFdrPayment(
-      @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+      @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,
       @PathParam(AppConstant.PSP) String psp,

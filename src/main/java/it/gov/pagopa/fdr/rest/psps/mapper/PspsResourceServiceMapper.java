@@ -3,7 +3,7 @@ package it.gov.pagopa.fdr.rest.psps.mapper;
 import it.gov.pagopa.fdr.rest.model.Metadata;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
@@ -19,7 +19,7 @@ public interface PspsResourceServiceMapper {
 
   PspsResourceServiceMapper INSTANCE = Mappers.getMapper(PspsResourceServiceMapper.class);
 
-  ReportingFlowDto toReportingFlowDto(CreateFlowRequest createRequest);
+  ReportingFlowDto toReportingFlowDto(CreateRequest createRequest);
 
   AddPaymentDto toAddPaymentDto(AddPaymentRequest addPaymentRequest);
 

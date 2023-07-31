@@ -11,7 +11,7 @@ import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishReportingFlowNameProjection;
+import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishProjection;
 import it.gov.pagopa.fdr.service.dto.FlowDto;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
@@ -51,11 +51,10 @@ public class OrganizationsService {
     }
 
     log.debug("Get paging FdrPublishReportingFlowNameProjection");
-    PanacheQuery<FdrPublishReportingFlowNameProjection> reportingFlowNameProjectionPanacheQuery =
-        reportingFlowPanacheQuery.page(page).project(FdrPublishReportingFlowNameProjection.class);
+    PanacheQuery<FdrPublishProjection> reportingFlowNameProjectionPanacheQuery =
+        reportingFlowPanacheQuery.page(page).project(FdrPublishProjection.class);
 
-    List<FdrPublishReportingFlowNameProjection> reportingFlowIds =
-        reportingFlowNameProjectionPanacheQuery.list();
+    List<FdrPublishProjection> reportingFlowIds = reportingFlowNameProjectionPanacheQuery.list();
 
     long totPage = reportingFlowNameProjectionPanacheQuery.pageCount();
     long countReportingFlow = reportingFlowNameProjectionPanacheQuery.count();

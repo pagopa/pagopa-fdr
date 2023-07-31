@@ -40,27 +40,27 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
   @BsonProperty("ref_fdr_id")
   private ObjectId refFdrId;
 
-  @BsonProperty("ref_fdr_reporting_flow_name")
-  private String refFdrReportingFlowName;
+  @BsonProperty("ref_fdr")
+  private String refFdr;
 
-  @BsonProperty("ref_fdr_reporting_sender_psp_id")
-  private String refFdrReportingSenderPspId;
+  @BsonProperty("ref_fdr_sender_psp_id")
+  private String refFdrSenderPspId;
 
   @BsonProperty("ref_fdr_revision")
   private Long refFdrRevision;
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
-      String reportingFlowName, String pspId, Sort sort) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(
+      String fdr, String pspId, Sort sort) {
     return find(
-        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
+        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
         sort,
-        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
+        Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
-  public static long deleteByFlowNameAndPspId(String reportingFlowName, String pspId) {
+  public static long deleteByFdrAndPspId(String fdr, String pspId) {
     return delete(
-        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
-        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
+        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
+        Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
   public static void persistFdrPaymentPublishEntities(

@@ -13,7 +13,7 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.model.ReportingFlowStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FlowMessage;
@@ -57,7 +57,7 @@ public class PspsService {
     log.infof(AppMessageUtil.logExecute(action));
 
     Instant now = Instant.now();
-    String reportingFlowName = reportingFlowDto.getReportingFlowName();
+    String reportingFlowName = reportingFlowDto.getFdr();
     String pspId = reportingFlowDto.getSender().getPspId();
     String ecId = reportingFlowDto.getReceiver().getEcId();
 
@@ -89,7 +89,7 @@ public class PspsService {
 
     reportingFlowEntity.setCreated(now);
     reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.CREATED);
+    reportingFlowEntity.setStatus(FdrStatusEnumEntity.CREATED);
     reportingFlowEntity.setTotPayments(0L);
     reportingFlowEntity.setSumPayments(0.0);
     reportingFlowEntity.setRevision(revision);
@@ -158,7 +158,7 @@ public class PspsService {
         addAndSum(reportingFlowEntity, reportingFlowPaymentEntities));
 
     reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.INSERTED);
+    reportingFlowEntity.setStatus(FdrStatusEnumEntity.INSERTED);
     reportingFlowEntity.update();
     log.debug("FdrInsertEntity INSERTED");
 
@@ -211,7 +211,7 @@ public class PspsService {
 
     MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
-    if (ReportingFlowStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
+    if (FdrStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
@@ -243,10 +243,10 @@ public class PspsService {
     log.debugf("Delete FdrPaymentInsertEntity by flowName[%s], indexList", reportingFlowName);
     FdrPaymentInsertEntity.deleteByFlowNameAndIndexes(reportingFlowName, indexList);
 
-    ReportingFlowStatusEnumEntity status =
+    FdrStatusEnumEntity status =
         reportingFlowEntity.getSumPayments() > 0
-            ? ReportingFlowStatusEnumEntity.INSERTED
-            : ReportingFlowStatusEnumEntity.CREATED;
+            ? FdrStatusEnumEntity.INSERTED
+            : FdrStatusEnumEntity.CREATED;
     reportingFlowEntity.setTotPayments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
     reportingFlowEntity.setSumPayments(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
     reportingFlowEntity.setUpdated(now);
@@ -263,7 +263,7 @@ public class PspsService {
             .eventType(EventTypeEnum.INTERNAL)
             .flowPhysicalDelete(false)
             .flowStatus(
-                ReportingFlowStatusEnumEntity.INSERTED == status
+                FdrStatusEnumEntity.INSERTED == status
                     ? FlowStatusEnum.INSERTED
                     : FlowStatusEnum.CREATED)
             //            .flowRead(false)
@@ -315,7 +315,7 @@ public class PspsService {
 
     MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
 
-    if (ReportingFlowStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
+    if (FdrStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           reportingFlowName,
@@ -323,7 +323,7 @@ public class PspsService {
     }
 
     reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.PUBLISHED);
+    reportingFlowEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
     log.debug("FdrInsertEntity PUBLISHED");
 
     log.debugf(

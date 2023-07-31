@@ -8,16 +8,13 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Getter
 @Builder
-public class FlowInternal {
+public class Fdr {
 
   @Schema(example = "AAABBB")
   @JsonProperty(AppConstant.FDR)
-  private String name;
+  private String fdr;
 
   @Schema(example = "1")
   @JsonProperty(AppConstant.PSP)
   private String pspId;
-
-  @Schema(example = "1")
-  private Long revision;
 }

@@ -3,14 +3,12 @@ package it.gov.pagopa.fdr.repository.fdr.projection;
 import io.quarkus.mongodb.panache.common.ProjectionFor;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import lombok.Data;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 @ProjectionFor(FdrPublishEntity.class)
-public class FdrPublishReportingFlowNameProjection {
+public class FdrPublishProjection {
 
-  @BsonProperty("reporting_flow_name")
-  private String reportingFlowName;
+  private String fdr;
 
   private Sender sender;
 

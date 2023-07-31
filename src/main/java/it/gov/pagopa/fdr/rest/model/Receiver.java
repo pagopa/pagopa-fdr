@@ -16,17 +16,24 @@ public class Receiver {
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
-  @Schema(example = "APPBIT2B")
+  @Schema(
+      example = "APPBIT2B",
+      description =
+          "[XML FlussoRiversamento]=[istitutoRicevente.identificativoUnivocoRicevente.codiceIdentificativoUnivoco]")
   private String id;
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
-  @Schema(example = "20000000001")
-  @JsonProperty(AppConstant.EC)
-  private String ecId;
+  @Schema(
+      example = "20000000001",
+      description = "[XML NodoInviaFlussoRendicontazione]=[identificativoDominio]")
+  @JsonProperty(AppConstant.ORGANIZATION)
+  private String organizationId;
 
   @NotNull
   @Pattern(regexp = "^(.{1,140})$")
-  @Schema(example = "Comune di xyz")
-  private String ecName;
+  @Schema(
+      example = "Comune di xyz",
+      description = "[XML FlussoRiversamento]=[istitutoRicevente.denominazioneRicevente]")
+  private String organizationName;
 }

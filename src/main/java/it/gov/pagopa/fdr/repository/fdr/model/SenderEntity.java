@@ -17,8 +17,8 @@ public class SenderEntity {
   @BsonProperty("psp_name")
   private String pspName;
 
-  @BsonProperty("broker_id")
-  private String brokerId;
+  @BsonProperty("psp_broker_id")
+  private String pspBrokerId;
 
   @BsonProperty("channel_id")
   private String channelId;

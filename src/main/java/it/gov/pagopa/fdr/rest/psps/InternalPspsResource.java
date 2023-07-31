@@ -9,7 +9,7 @@ import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.validation.PspsValidationService;
 import it.gov.pagopa.fdr.service.psps.PspsService;
@@ -60,11 +60,8 @@ public class InternalPspsResource {
 
   @Inject Config config;
 
-  @Operation(
-      operationId = "internalFdrCreate",
-      summary = "Create reporting flow",
-      description = "Create new reporting flow")
-  @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
+  @Operation(operationId = "internalCreate", summary = "Create fdr", description = "Create fdr")
+  @RequestBody(content = @Content(schema = @Schema(implementation = CreateRequest.class)))
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -80,31 +77,31 @@ public class InternalPspsResource {
       })
   @POST
   @Re(flowName = FlowActionEnum.INTERNAL_CREATE_FLOW)
-  public RestResponse<GenericResponse> internalFdrCreate(
-      @PathParam(AppConstant.PSP) String psp,
+  public RestResponse<GenericResponse> internalCreate(
+      @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
-      @NotNull @Valid CreateFlowRequest createFlowRequest) {
+      @NotNull @Valid CreateRequest createRequest) {
 
     String action = MDC.get(ACTION);
-    MDC.put(PSP_ID, psp);
+    MDC.put(PSP_ID, pspId);
 
-    String ecId = createFlowRequest.getReceiver().getEcId();
+    String ecId = createRequest.getReceiver().getOrganizationId();
     MDC.put(EC_ID, ecId);
     MDC.put(FLOW_NAME, fdr);
 
     log.infof(
         AppMessageUtil.logProcess("%s by psp:[%s] with flowName:[%s], ecId:[%s]"),
         action,
-        psp,
+        pspId,
         fdr,
         ecId);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    validator.validateCreateFlow(action, psp, fdr, createFlowRequest, configData);
+    validator.validateCreateFlow(action, pspId, fdr, createRequest, configData);
 
     // save on DB
-    service.save(action, mapper.toReportingFlowDto(createFlowRequest));
+    service.save(action, mapper.toReportingFlowDto(createRequest));
 
     return RestResponse.status(
         Status.CREATED,
@@ -112,9 +109,9 @@ public class InternalPspsResource {
   }
 
   @Operation(
-      operationId = "internalAddFdrPayment",
-      summary = "Add payments to reporting flow",
-      description = "Add payments to reporting flow")
+      operationId = "internalAddPayment",
+      summary = "Add payments to fdr",
+      description = "Add payments to fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
   @APIResponses(
       value = {
@@ -132,31 +129,31 @@ public class InternalPspsResource {
   @PUT
   @Path("/payments/add")
   @Re(flowName = FlowActionEnum.INTERNAL_ADD_PAYMENT)
-  public GenericResponse internalAddFdrPayment(
-      @PathParam(AppConstant.PSP) String psp,
+  public GenericResponse internalAddPayment(
+      @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid AddPaymentRequest addPaymentRequest) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
-    MDC.put(PSP_ID, psp);
+    MDC.put(PSP_ID, pspId);
 
-    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, psp);
+    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, pspId);
 
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateAddPayment(action, psp, fdr, configData);
+    validator.validateAddPayment(action, pspId, fdr, configData);
 
     // save on DB
-    service.addPayment(action, psp, fdr, mapper.toAddPaymentDto(addPaymentRequest));
+    service.addPayment(action, pspId, fdr, mapper.toAddPaymentDto(addPaymentRequest));
 
     return GenericResponse.builder().message(String.format("Flow [%s] payment added", fdr)).build();
   }
 
   @Operation(
-      operationId = "internalDeleteFdrPayment",
-      summary = "Delete payments to reporting flow",
-      description = "Delete payments to reporting flow")
+      operationId = "internalDeletePayment",
+      summary = "Delete payments to fdr",
+      description = "Delete payments to fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
   @APIResponses(
       value = {
@@ -174,33 +171,30 @@ public class InternalPspsResource {
   @PUT
   @Path("/payments/del")
   @Re(flowName = FlowActionEnum.INTERNAL_DELETE_PAYMENT)
-  public GenericResponse internalDeleteFdrPayment(
-      @PathParam(AppConstant.PSP) String psp,
+  public GenericResponse internalDeletePayment(
+      @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid DeletePaymentRequest deletePaymentRequest) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
-    MDC.put(PSP_ID, psp);
+    MDC.put(PSP_ID, pspId);
 
-    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, psp);
+    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, pspId);
 
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateDeletePayment(action, psp, fdr, configData);
+    validator.validateDeletePayment(action, pspId, fdr, configData);
 
     // save on DB
-    service.deletePayment(action, psp, fdr, mapper.toDeletePaymentDto(deletePaymentRequest));
+    service.deletePayment(action, pspId, fdr, mapper.toDeletePaymentDto(deletePaymentRequest));
 
     return GenericResponse.builder()
         .message(String.format("Flow [%s] payment deleted", fdr))
         .build();
   }
 
-  @Operation(
-      operationId = "interenalPublishFdr",
-      summary = "Publish reporting flow",
-      description = "Publish reporting flow")
+  @Operation(operationId = "internalPublish", summary = "Publish fdr", description = "Publish fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -217,29 +211,26 @@ public class InternalPspsResource {
   @POST
   @Path("/publish")
   @Re(flowName = FlowActionEnum.INTERNAL_PUBLISH)
-  public GenericResponse interenalPublishFdr(
-      @PathParam(AppConstant.PSP) String psp, @PathParam(AppConstant.FDR) String fdr) {
+  public GenericResponse internalPublish(
+      @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdr) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
-    MDC.put(PSP_ID, psp);
+    MDC.put(PSP_ID, pspId);
 
-    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, psp);
+    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, pspId);
 
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validatePublish(action, psp, fdr, configData);
+    validator.validatePublish(action, pspId, fdr, configData);
 
     // save on DB
-    service.internalPublishByReportingFlowName(action, psp, fdr);
+    service.internalPublishByReportingFlowName(action, pspId, fdr);
 
     return GenericResponse.builder().message(String.format("Flow [%s] published", fdr)).build();
   }
 
-  @Operation(
-      operationId = "internalDeleteFdr",
-      summary = "Delete reporting flow",
-      description = "Delete reporting flow")
+  @Operation(operationId = "internalDelete", summary = "Delete fdr", description = "Delete fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -255,21 +246,21 @@ public class InternalPspsResource {
       })
   @DELETE
   @Re(flowName = FlowActionEnum.INTERNAL_DELETE_FLOW)
-  public GenericResponse internalDeleteFdr(
-      @PathParam(AppConstant.PSP) String psp, @PathParam(AppConstant.FDR) String fdr) {
+  public GenericResponse internalDelete(
+      @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdr) {
     String action = MDC.get(ACTION);
     MDC.put(FLOW_NAME, fdr);
-    MDC.put(PSP_ID, psp);
+    MDC.put(PSP_ID, pspId);
 
-    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, psp);
+    log.infof(AppMessageUtil.logProcess(S_BY_PSP_S_WITH_FDR_S), action, fdr, pspId);
 
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateDelete(action, psp, fdr, configData);
+    validator.validateDelete(action, pspId, fdr, configData);
 
     // save on DB
-    service.deleteByReportingFlowName(action, psp, fdr);
+    service.deleteByReportingFlowName(action, pspId, fdr);
 
     return GenericResponse.builder().message(String.format("Flow [%s] deleted", fdr)).build();
   }

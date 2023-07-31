@@ -45,9 +45,12 @@ public class RequestFilter implements ContainerRequestFilter {
 
     String requestMethod = containerRequestContext.getMethod();
     String requestPath = containerRequestContext.getUriInfo().getAbsolutePath().getPath();
-    String pspPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("psp");
-    String flowPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("fdr");
-    String ecPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("ec");
+    String pspPathParam =
+        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.PSP);
+    String flowPathParam =
+        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.FDR);
+    String ecPathParam =
+        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.ORGANIZATION);
 
     FlowActionEnum flowActionEnum =
         AppReUtil.getFlowNamebyAnnotation(
@@ -94,8 +97,8 @@ public class RequestFilter implements ContainerRequestFilter {
     if (!pathparam.isEmpty()) {
       if (pathparam.containsKey(AppConstant.PSP)) {
         subject = pathparam.getFirst(AppConstant.PSP);
-      } else if (pathparam.containsKey(AppConstant.EC)) {
-        subject = pathparam.getFirst(AppConstant.EC);
+      } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
+        subject = pathparam.getFirst(AppConstant.ORGANIZATION);
       }
 
       log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);

@@ -23,8 +23,8 @@ import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
@@ -141,7 +141,7 @@ class InternalOrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_REPORTING_FLOW_URL.formatted(flowName, 1, PSP_CODE);
-    GetIdResponse res =
+    GetResponse res =
         given()
             .header(HEADER)
             .when()
@@ -149,9 +149,9 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetIdResponse.class);
-    assertThat(res.getReportingFlowName(), equalTo(flowName));
-    assertThat(res.getReceiver().getEcId(), equalTo(EC_CODE));
+            .as(GetResponse.class);
+    assertThat(res.getFdr(), equalTo(flowName));
+    assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
     assertThat(res.totPayments, equalTo(3L));
@@ -165,7 +165,7 @@ class InternalOrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String url = GET_REPORTING_FLOW_URL.formatted(flowName, 2, PSP_CODE);
-    GetIdResponse res =
+    GetResponse res =
         given()
             .header(HEADER)
             .when()
@@ -173,8 +173,8 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetIdResponse.class);
-    assertThat(res.getReportingFlowName(), equalTo(flowName));
+            .as(GetResponse.class);
+    assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getRevision(), equalTo(2L));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
   }

@@ -28,7 +28,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
   "sender",
   "receiver"
 })
-public class GetIdResponse {
+public class GetResponse {
   @Schema(example = "4")
   @JsonProperty(AppConstant.REVISION)
   public Long revision;
@@ -44,10 +44,10 @@ public class GetIdResponse {
 
   @Schema(example = "2016-08-16pspTest-1178")
   @JsonProperty(AppConstant.FDR)
-  private String reportingFlowName;
+  private String fdr;
 
   @Schema(example = "2023-04-05T09:21:37.810000Z")
-  private Instant reportingFlowDate;
+  private Instant fdrDate;
 
   private Sender sender;
 

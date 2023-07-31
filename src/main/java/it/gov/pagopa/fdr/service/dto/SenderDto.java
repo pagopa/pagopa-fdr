@@ -15,7 +15,7 @@ public class SenderDto {
 
   private String pspName;
 
-  private String brokerId;
+  private String pspBrokerId;
 
   private String channelId;
 

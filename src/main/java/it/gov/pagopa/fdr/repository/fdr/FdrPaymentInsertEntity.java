@@ -39,45 +39,42 @@ public class FdrPaymentInsertEntity extends PanacheMongoEntity {
   @BsonProperty("ref_fdr_id")
   private ObjectId refFdrId;
 
-  @BsonProperty("ref_fdr_reporting_flow_name")
-  private String refFdrReportingFlowName;
+  @BsonProperty("ref_fdr")
+  private String refFdr;
 
-  @BsonProperty("ref_fdr_reporting_sender_psp_id")
-  private String refFdrReportingSenderPspId;
+  @BsonProperty("ref_fdr_sender_psp_id")
+  private String refFdrSenderPspId;
 
   @BsonProperty("ref_fdr_revision")
   private Long refFdrRevision;
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndIndexes(
-      String reportingFlowName, List<Long> indexList) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndIndexes(
+      String fdr, List<Long> indexList) {
     return find(
-        "ref_fdr_reporting_flow_name = :flowName and index in :indexes",
-        Parameters.with("flowName", reportingFlowName).and("indexes", indexList).map());
+        "ref_fdr = :fdr and index in :indexes",
+        Parameters.with("fdr", fdr).and("indexes", indexList).map());
   }
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
-      String reportingFlowName, String pspId) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String fdr, String pspId) {
     return find(
-        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
-        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
+        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
+        Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
-  public static long deleteByFlowNameAndIndexes(String reportingFlowName, List<Long> indexList) {
+  public static long deleteByFdrAndIndexes(String fdr, List<Long> indexList) {
     return delete(
-        "ref_fdr_reporting_flow_name = :flowName and index in :indexes",
-        Parameters.with("flowName", reportingFlowName).and("indexes", indexList).map());
+        "ref_fdr = :fdr and index in :indexes",
+        Parameters.with("fdr", fdr).and("indexes", indexList).map());
   }
 
-  public static long deleteByFlowNameAndPspId(String reportingFlowName, String pspId) {
+  public static long deleteByFdrAndPspId(String fdr, String pspId) {
     return delete(
-        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_reporting_sender_psp_id = :pspId",
-        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
+        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
+        Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
-  public static long deleteByFlowName(String reportingFlowName) {
-    return delete(
-        "ref_fdr_reporting_flow_name = :flowName",
-        Parameters.with("flowName", reportingFlowName).map());
+  public static long deleteByFdr(String fdr) {
+    return delete("ref_fdr = :fdr", Parameters.with("fdr", fdr).map());
   }
 
   public static void persistFdrPaymentsInsert(

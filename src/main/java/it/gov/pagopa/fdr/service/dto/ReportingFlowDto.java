@@ -8,9 +8,9 @@ import lombok.Getter;
 @Builder
 public class ReportingFlowDto {
 
-  private String reportingFlowName;
+  private String fdr;
 
-  private Instant reportingFlowDate;
+  private Instant fdrDate;
 
   private SenderDto sender;
 

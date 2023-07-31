@@ -3,8 +3,8 @@ package it.gov.pagopa.fdr.rest.organizations.mapper;
 import it.gov.pagopa.fdr.rest.model.Metadata;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
@@ -20,7 +20,7 @@ public interface OrganizationsResourceServiceMapper {
   OrganizationsResourceServiceMapper INSTANCE =
       Mappers.getMapper(OrganizationsResourceServiceMapper.class);
 
-  GetIdResponse toGetIdResponse(ReportingFlowGetDto reportingFlowGetDto);
+  GetResponse toGetIdResponse(ReportingFlowGetDto reportingFlowGetDto);
 
   GetPaymentResponse toGetPaymentResponse(ReportingFlowGetPaymentDto reportingFlowGetDto);
 

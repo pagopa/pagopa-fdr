@@ -16,16 +16,20 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
-public class CreateFlowRequest {
+public class CreateRequest {
   @NotNull
   @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
-  @Schema(example = "2016-08-16pspTest-1178")
+  @Schema(
+      example = "2016-08-16pspTest-1178",
+      description = "[XML NodoInviaFlussoRendicontazione]=[identificativoFlusso]")
   @JsonProperty(AppConstant.FDR)
-  private String reportingFlowName;
+  private String fdr;
 
   @NotNull
-  @Schema(example = "2023-04-05T09:21:37.810000Z")
-  private Instant reportingFlowDate;
+  @Schema(
+      example = "2023-04-05T09:21:37.810000Z",
+      description = "[XML NodoInviaFlussoRendicontazione]=[dataOraFlusso]")
+  private Instant fdrDate;
 
   @NotNull @Valid private Sender sender;
 
@@ -33,14 +37,21 @@ public class CreateFlowRequest {
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
-  @Schema(example = "SEPA - Bonifico xzy")
+  @Schema(
+      example = "SEPA - Bonifico xzy",
+      description = "[XML FlussoRiversamento]=[identificativoUnivocoRegolamento]")
   private String regulation;
 
   @NotNull
-  @Schema(example = "2023-04-03T12:00:30.900000Z")
+  @Schema(
+      example = "2023-04-03T12:00:30.900000Z",
+      description = "[XML FlussoRiversamento]=[dataRegolamento]")
   private Instant regulationDate;
 
-  @Schema(example = "UNCRITMMXXX")
-  @Pattern(regexp = "^(.{1,35})$") // TODO non dovrebbe essere 5 numerici?
+  @Schema(
+      example = "UNCRITMMXXX",
+      description = "[XML FlussoRiversamento]=[codiceBicBancaDiRiversamento]")
+  // TODO non dovrebbe essere 5 numerici?
+  @Pattern(regexp = "^(.{1,35})$")
   private String bicCodePouringBank;
 }

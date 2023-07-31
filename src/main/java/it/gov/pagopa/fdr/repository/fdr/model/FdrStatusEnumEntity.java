@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.repository.fdr.model;
 
-public enum ReportingFlowStatusEnumEntity {
+public enum FdrStatusEnumEntity {
   CREATED,
   INSERTED,
   PUBLISHED;

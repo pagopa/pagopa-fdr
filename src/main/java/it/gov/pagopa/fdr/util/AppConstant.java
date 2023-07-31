@@ -8,8 +8,8 @@ public class AppConstant {
 
   public static final String SERVICE_CODE_APP = "FDR";
 
-  public static final String PSP = "psp";
-  public static final String EC = "ec";
+  public static final String PSP = "pspId";
+  public static final String ORGANIZATION = "organizationId";
   public static final String FDR = "fdr";
   public static final String REVISION = "revision";
   public static final String PAGE = "page";

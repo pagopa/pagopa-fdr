@@ -8,8 +8,8 @@ import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.OrganizationsValidationService;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
 import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
@@ -41,7 +41,7 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
 @Tag(name = "Organizations", description = "Get reporting flow operations")
-@Path("/organizations/{" + AppConstant.EC + "}/flows")
+@Path("/organizations/{" + AppConstant.ORGANIZATION + "}/flows")
 @Consumes("application/json")
 @Produces("application/json")
 public class OrganizationsResource {
@@ -56,9 +56,9 @@ public class OrganizationsResource {
   @Inject OrganizationsService service;
 
   @Operation(
-      operationId = "getAllPublishFdr",
-      summary = "Get all published reporting flow",
-      description = "Get all published reporting flow by ec and idPsp(optional param)")
+      operationId = "getAllPublished",
+      summary = "Get all fdr published",
+      description = "Get all fdr published")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -74,15 +74,15 @@ public class OrganizationsResource {
       })
   @GET
   @Re(flowName = FlowActionEnum.GET_ALL_FDR)
-  public GetAllResponse getAllPublishFdr(
-      @PathParam(AppConstant.EC) @Pattern(regexp = "^(.{1,35})$") String ec,
+  public GetAllResponse getAllPublished(
+      @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
           long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
     String action = MDC.get(ACTION);
-    MDC.put(EC_ID, ec);
+    MDC.put(EC_ID, organizationId);
     if (null != idPsp && !idPsp.isBlank()) {
       MDC.put(PSP_ID, idPsp);
     }
@@ -90,26 +90,23 @@ public class OrganizationsResource {
     log.infof(
         AppMessageUtil.logProcess("%s by ec:[%s] with psp:[%s] - page:[%s], pageSize:[%s]"),
         action,
-        ec,
+        organizationId,
         idPsp,
         pageNumber,
         pageSize);
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    validator.validateGetAllByEc(action, ec, idPsp, configData);
+    validator.validateGetAllByEc(action, organizationId, idPsp, configData);
 
     // get from db
     ReportingFlowByIdEcDto reportingFlowByIdEcDto =
-        service.findByIdEc(action, ec, idPsp, pageNumber, pageSize);
+        service.findByIdEc(action, organizationId, idPsp, pageNumber, pageSize);
 
     return mapper.toGetAllResponse(reportingFlowByIdEcDto);
   }
 
-  @Operation(
-      operationId = "getFdr",
-      summary = "Get reporting flow",
-      description = "Get reporting flow by id but not payments")
+  @Operation(operationId = "get", summary = "Get fdr", description = "Get fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -121,13 +118,13 @@ public class OrganizationsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetIdResponse.class)))
+                    schema = @Schema(implementation = GetResponse.class)))
       })
   @GET
   @Path("/{" + AppConstant.FDR + "}/psps/{" + AppConstant.PSP + "}")
   @Re(flowName = FlowActionEnum.GET_FDR)
-  public GetIdResponse getFdr(
-      @PathParam(AppConstant.EC) String ec,
+  public GetResponse get(
+      @PathParam(AppConstant.ORGANIZATION) String ec,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.PSP) String psp) {
     String action = MDC.get(ACTION);
@@ -150,9 +147,9 @@ public class OrganizationsResource {
   }
 
   @Operation(
-      operationId = "getFdrPayment",
-      summary = "Get payments of reporting flow",
-      description = "Get only payments of reporting flow by id paginated")
+      operationId = "getPayment",
+      summary = "Get payments of fdr",
+      description = "Get payments of fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -169,8 +166,8 @@ public class OrganizationsResource {
   @GET
   @Path("/{" + AppConstant.FDR + "}/psps/{" + AppConstant.PSP + "}/payments")
   @Re(flowName = FlowActionEnum.GET_FDR_PAYMENT)
-  public GetPaymentResponse getFdrPayment(
-      @PathParam(AppConstant.EC) String ec,
+  public GetPaymentResponse getPayment(
+      @PathParam(AppConstant.ORGANIZATION) String organizationId,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.PSP) String psp,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
@@ -178,7 +175,7 @@ public class OrganizationsResource {
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
     String action = MDC.get(ACTION);
-    MDC.put(EC_ID, ec);
+    MDC.put(EC_ID, organizationId);
     MDC.put(FLOW_NAME, fdr);
     MDC.put(PSP_ID, psp);
 
@@ -187,7 +184,7 @@ public class OrganizationsResource {
             "%s by ec:[%s] with fdr:[%s], psp:[%s] - page:[%s], pageSize:[%s]"),
         action,
         fdr,
-        ec,
+        organizationId,
         psp,
         pageNumber,
         pageSize);
@@ -195,7 +192,7 @@ public class OrganizationsResource {
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    validator.validateGetPayment(action, fdr, ec, psp, configData);
+    validator.validateGetPayment(action, fdr, organizationId, psp, configData);
 
     // get from db
     ReportingFlowGetPaymentDto reportingFlowGetPaymentDto =

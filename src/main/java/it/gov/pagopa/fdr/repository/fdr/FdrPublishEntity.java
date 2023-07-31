@@ -6,8 +6,8 @@ import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
+import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReceiverEntity;
-import it.gov.pagopa.fdr.repository.fdr.model.ReportingFlowStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.SenderEntity;
 import java.time.Instant;
 import lombok.Data;
@@ -25,11 +25,10 @@ public class FdrPublishEntity extends PanacheMongoEntity {
 
   private Instant updated;
 
-  @BsonProperty("reporting_flow_name")
-  private String reportingFlowName;
+  private String fdr;
 
-  @BsonProperty("reporting_flow_date")
-  private Instant reportingFlowDate;
+  @BsonProperty("fdr_date")
+  private Instant fdrDate;
 
   private SenderEntity sender;
 
@@ -43,7 +42,7 @@ public class FdrPublishEntity extends PanacheMongoEntity {
   @BsonProperty("bic_code_pouring_bank")
   private String bicCodePouringBank;
 
-  private ReportingFlowStatusEnumEntity status;
+  private FdrStatusEnumEntity status;
 
   @BsonProperty("tot_payments")
   private Long totPayments;
@@ -51,11 +50,10 @@ public class FdrPublishEntity extends PanacheMongoEntity {
   @BsonProperty("sum_payments")
   private Double sumPayments;
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndPspId(
-      String reportingFlowName, String pspId) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String fdr, String pspId) {
     return find(
-        "reporting_flow_name = :flowName and sender.psp_id = :pspId",
-        Parameters.with("flowName", reportingFlowName).and("pspId", pspId).map());
+        "fdr = :fdr and sender.psp_id = :pspId",
+        Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
   public static PanacheQuery<FdrPublishEntity> findByEcIdAndPspId(
