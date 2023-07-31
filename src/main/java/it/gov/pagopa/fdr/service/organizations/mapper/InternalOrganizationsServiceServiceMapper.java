@@ -4,8 +4,8 @@ import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
@@ -17,23 +17,15 @@ public interface InternalOrganizationsServiceServiceMapper {
   InternalOrganizationsServiceServiceMapper INSTANCE =
       Mappers.getMapper(InternalOrganizationsServiceServiceMapper.class);
 
-  //  @Mapping(source = "reporting_flow_name", target = "reportingFlowName")
-  //  @Mapping(source = "reporting_flow_date", target = "reportingFlowDate")
-  //  @Mapping(source = "regulation_date", target = "regulationDate")
-  //  @Mapping(source = "bic_code_pouring_bank", target = "bicCodePouringBank")
-  //  @Mapping(source = "tot_payments", target = "totPayments")
-  //  @Mapping(source = "sum_paymnents", target = "sumPayments")
-  ReportingFlowGetDto toReportingFlowGetDto(FdrPublishEntity reportingFlow);
+  FdrGetDto toFdrGetDto(FdrPublishEntity fdrPublishEntity);
 
-  ReportingFlowGetDto toReportingFlowGetDto(FdrHistoryEntity reportingFlow);
+  FdrGetDto toFdrGetDtoByHistory(FdrHistoryEntity fdrHistoryEntity);
 
-  //  @Mapping(source = "pay_status", target = "payStatus")
-  //  @Mapping(source = "pay_date", target = "payDate")
-  PaymentDto toPagamentoDto(FdrPaymentPublishEntity paymentEntity);
+  PaymentDto toPaymentDto(FdrPaymentPublishEntity paymentEntity);
 
-  List<PaymentDto> toPagamentoDtos(List<FdrPaymentPublishEntity> paymentEntities);
+  List<PaymentDto> toPaymentDtoList(List<FdrPaymentPublishEntity> paymentEntities);
 
-  PaymentDto historyToPagamentoDto(FdrPaymentHistoryEntity paymentEntity);
+  PaymentDto historyToPaymentDto(FdrPaymentHistoryEntity paymentEntity);
 
-  List<PaymentDto> historyToPagamentoDtos(List<FdrPaymentHistoryEntity> paymentEntities);
+  List<PaymentDto> historyToPaymentDtoList(List<FdrPaymentHistoryEntity> paymentEntities);
 }

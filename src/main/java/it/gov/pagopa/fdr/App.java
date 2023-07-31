@@ -1,17 +1,29 @@
 package it.gov.pagopa.fdr;
 
+
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Components;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirementsSet;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 
+@SecurityScheme(
+    type = SecuritySchemeType.APIKEY,
+    securitySchemeName = "api_key",
+    apiKeyName="Ocp-Apim-Subscription-Key",
+    in = SecuritySchemeIn.HEADER)
 @OpenAPIDefinition(
+    security = { @SecurityRequirement(name = "api_key") },
     components =
         @Components(
             responses = {
@@ -55,7 +67,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                     "appErrorCode": "FDR-0702",
                                     "errors": [
                                       {
-                                        "message": "Reporting Flow id [<flow-id>] is invalid found"
+                                        "message": "Reporting Fdr [<fdr>] is invalid"
                                       }
                                     ]
                                   }"""),
@@ -91,7 +103,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
                                     "appErrorCode": "FDR-0701",
                                     "errors": [
                                       {
-                                        "message": "Reporting Flow id [<flow-id>] not found"
+                                        "message": "Reporting Fdr [<fdr>] not found"
                                       }
                                     ]
                                   }""")),

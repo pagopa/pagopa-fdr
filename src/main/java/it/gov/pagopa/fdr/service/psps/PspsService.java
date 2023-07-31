@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.service.psps;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
-import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
@@ -13,20 +13,20 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.model.ReportingFlowStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
-import it.gov.pagopa.fdr.service.conversion.message.FlowMessage;
+import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
+import it.gov.pagopa.fdr.service.dto.FdrDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
-import it.gov.pagopa.fdr.service.re.model.FlowStatusEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrStatusEnum;
 import it.gov.pagopa.fdr.service.re.model.ReInternal;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -53,47 +53,46 @@ public class PspsService {
   @Inject ReService reService;
 
   @WithSpan(kind = SERVER)
-  public void save(String action, ReportingFlowDto reportingFlowDto) {
+  public void save(String action, FdrDto fdrDto) {
     log.infof(AppMessageUtil.logExecute(action));
 
     Instant now = Instant.now();
-    String reportingFlowName = reportingFlowDto.getReportingFlowName();
-    String pspId = reportingFlowDto.getSender().getPspId();
-    String ecId = reportingFlowDto.getReceiver().getEcId();
+    String fdr = fdrDto.getFdr();
+    String pspId = fdrDto.getSender().getPspId();
+    String ecId = fdrDto.getReceiver().getOrganizationId();
 
-    log.debugf(
-        "Existence check FdrInsertEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
-    // TODO rivedere index  con fdr+psp
-    Optional<FdrInsertEntity> byReportingFlowName =
-        FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId).firstResultOptional();
+    log.debugf("Existence check FdrInsertEntity by fdr[%s], psp[%s]", fdr, pspId);
 
-    if (byReportingFlowName.isPresent()) {
+    Optional<FdrInsertEntity> byfdr =
+        FdrInsertEntity.findByFdrAndPspId(fdr, pspId).firstResultOptional();
+
+    if (byfdr.isPresent()) {
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
-          reportingFlowName,
-          byReportingFlowName.get().getStatus());
+          AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST, fdr, byfdr.get().getStatus());
     }
 
-    log.debugf("Get FdrPublishRevision by flowName[%s], psp[%s]", reportingFlowName, pspId);
-    Optional<FdrPublishRevisionProjection> fdrPublishedByReportingFlowName =
-        FdrPublishEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
+    log.debugf("Get FdrPublishRevision by fdr[%s], psp[%s]", fdr, pspId);
+    Optional<FdrPublishRevisionProjection> fdrPublishedByfdr =
+        FdrPublishEntity.findByFdrAndPspId(fdr, pspId)
             .project(FdrPublishRevisionProjection.class)
             .firstResultOptional();
 
-    // sono stati tolti i check con il vecchio FDR, vale solo che se arriva stesso flowName con
+    // sono stati tolti i check con il vecchio FDR, vale solo che se arriva stesso fdr con
     // stesso pspId si crea la rev2
 
-    Long revision = fdrPublishedByReportingFlowName.map(r -> r.getRevision() + 1).orElse(1L);
+    Long revision = fdrPublishedByfdr.map(r -> r.getRevision() + 1).orElse(1L);
     log.debug("Mapping FdrInsertEntity from reportingFlowDto");
-    FdrInsertEntity reportingFlowEntity = mapper.toReportingFlow(reportingFlowDto);
+    FdrInsertEntity fdrEntity = mapper.toFdrInsertEntity(fdrDto);
 
-    reportingFlowEntity.setCreated(now);
-    reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.CREATED);
-    reportingFlowEntity.setTotPayments(0L);
-    reportingFlowEntity.setSumPayments(0.0);
-    reportingFlowEntity.setRevision(revision);
-    reportingFlowEntity.persist();
+    fdrEntity.setCreated(now);
+    fdrEntity.setUpdated(now);
+    fdrEntity.setStatus(FdrStatusEnumEntity.CREATED);
+    fdrEntity.setComputedTotPayments(0L);
+    fdrEntity.setComputedSumPayments(0.0);
+    fdrEntity.setTotPayments(fdrDto.getTotPayments());
+    fdrEntity.setSumPayments(fdrDto.getSumPayments());
+    fdrEntity.setRevision(revision);
+    fdrEntity.persist();
 
     String sessionId = org.slf4j.MDC.get(TRX_ID);
     reService.sendEvent(
@@ -102,65 +101,56 @@ public class PspsService {
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
-            .flowPhysicalDelete(false)
-            .flowStatus(FlowStatusEnum.CREATED)
+            .fdrPhysicalDelete(false)
+            .fdrStatus(FdrStatusEnum.CREATED)
             //            .flowRead(false)
-            .flowName(reportingFlowName)
+            .fdr(fdr)
             .pspId(pspId)
             .organizationId(ecId)
             .revision(revision)
-            .flowAction(FlowActionEnum.CREATE_FLOW)
+            .fdrAction(FdrActionEnum.CREATE_FLOW)
             .build());
     log.debug("FdrInsertEntity CREATED");
   }
 
   @WithSpan(kind = SERVER)
-  public void addPayment(
-      String action, String pspId, String reportingFlowName, AddPaymentDto addPaymentDto) {
+  public void addPayment(String action, String pspId, String fdr, AddPaymentDto addPaymentDto) {
     log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
-    FdrInsertEntity reportingFlowEntity =
+    FdrInsertEntity fdrEntity =
         checkFdrInsertEntity(
-            reportingFlowName,
-            pspId,
-            new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+            fdr, pspId, new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, fdr));
 
-    MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
+    MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    // TODO revedere con iuv+iur
     log.debug("Check payments indexes");
     List<Long> indexList = addPaymentDto.getPayments().stream().map(PaymentDto::getIndex).toList();
     if (indexList.size() != indexList.stream().distinct().toList().size()) {
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
-          reportingFlowName);
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST, fdr);
     }
 
-    log.debugf(
-        "Existence check FdrPaymentInsertEntity by flowName[%s], indexList", reportingFlowName);
+    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], indexList", fdr);
     List<FdrPaymentInsertEntity> paymentIndexAlreadyExist =
-        FdrPaymentInsertEntity.findByFlowNameAndIndexes(reportingFlowName, indexList)
+        FdrPaymentInsertEntity.findByFdrAndIndexes(fdr, indexList)
             .project(FdrPaymentInsertEntity.class)
             .list();
 
     if (paymentIndexAlreadyExist != null && !paymentIndexAlreadyExist.isEmpty()) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX, reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX, fdr);
     }
 
     log.debug("Mapping FdrPaymentInsertEntity from addPaymentDto.getPayments()");
     List<FdrPaymentInsertEntity> reportingFlowPaymentEntities =
-        mapper.toReportingFlowPaymentEntityList(addPaymentDto.getPayments());
+        mapper.toFdrPaymentInsertEntityList(addPaymentDto.getPayments());
 
-    reportingFlowEntity.setTotPayments(
-        addAndSumCount(reportingFlowEntity, reportingFlowPaymentEntities));
-    reportingFlowEntity.setSumPayments(
-        addAndSum(reportingFlowEntity, reportingFlowPaymentEntities));
+    fdrEntity.setComputedTotPayments(addAndSumCount(fdrEntity, reportingFlowPaymentEntities));
+    fdrEntity.setComputedSumPayments(addAndSum(fdrEntity, reportingFlowPaymentEntities));
 
-    reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.INSERTED);
-    reportingFlowEntity.update();
+    fdrEntity.setUpdated(now);
+    fdrEntity.setStatus(FdrStatusEnumEntity.INSERTED);
+    fdrEntity.update();
     log.debug("FdrInsertEntity INSERTED");
 
     log.debug("Mapping FdrPaymentInsertEntity from addPaymentDto.getPayments()");
@@ -170,12 +160,10 @@ public class PspsService {
                 reportingFlowPaymentEntity -> {
                   reportingFlowPaymentEntity.setCreated(now);
                   reportingFlowPaymentEntity.setUpdated(now);
-                  reportingFlowPaymentEntity.setRefFdrId(reportingFlowEntity.id);
-                  reportingFlowPaymentEntity.setRefFdrReportingFlowName(
-                      reportingFlowEntity.getReportingFlowName());
-                  reportingFlowPaymentEntity.setRefFdrReportingSenderPspId(
-                      reportingFlowEntity.getSender().getPspId());
-                  reportingFlowPaymentEntity.setRefFdrRevision(reportingFlowEntity.getRevision());
+                  reportingFlowPaymentEntity.setRefFdrId(fdrEntity.id);
+                  reportingFlowPaymentEntity.setRefFdr(fdrEntity.getFdr());
+                  reportingFlowPaymentEntity.setRefFdrSenderPspId(fdrEntity.getSender().getPspId());
+                  reportingFlowPaymentEntity.setRefFdrRevision(fdrEntity.getRevision());
                   return reportingFlowPaymentEntity;
                 })
             .toList());
@@ -187,74 +175,65 @@ public class PspsService {
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
-            .flowPhysicalDelete(false)
-            .flowStatus(FlowStatusEnum.INSERTED)
+            .fdrPhysicalDelete(false)
+            .fdrStatus(FdrStatusEnum.INSERTED)
             //            .flowRead(false)
-            .flowName(reportingFlowName)
+            .fdr(fdr)
             .pspId(pspId)
-            .organizationId(reportingFlowEntity.getReceiver().getEcId())
-            .revision(reportingFlowEntity.getRevision())
-            .flowAction(FlowActionEnum.ADD_PAYMENT)
+            .organizationId(fdrEntity.getReceiver().getOrganizationId())
+            .revision(fdrEntity.getRevision())
+            .fdrAction(FdrActionEnum.ADD_PAYMENT)
             .build());
   }
 
   @WithSpan(kind = SERVER)
   public void deletePayment(
-      String action, String pspId, String reportingFlowName, DeletePaymentDto deletePaymentDto) {
+      String action, String pspId, String fdr, DeletePaymentDto deletePaymentDto) {
     log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
-    FdrInsertEntity reportingFlowEntity =
+    FdrInsertEntity fdrEntity =
         checkFdrInsertEntity(
-            reportingFlowName,
-            pspId,
-            new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+            fdr, pspId, new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, fdr));
 
-    MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
+    MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    if (ReportingFlowStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
+    if (FdrStatusEnumEntity.INSERTED != fdrEntity.getStatus()) {
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
-          reportingFlowName,
-          reportingFlowEntity.getStatus());
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION, fdr, fdrEntity.getStatus());
     }
 
-    // TODO rivedere con iuv+iur
-    List<Long> indexList = deletePaymentDto.getIndexPayments();
+    List<Long> indexList = deletePaymentDto.getIndexList();
     if (indexList.size() != indexList.stream().distinct().toList().size()) {
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
-          reportingFlowName);
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST, fdr);
     }
 
-    log.debugf(
-        "Existence check FdrPaymentInsertEntity to delete by flowName[%s], indexList",
-        reportingFlowName);
+    log.debugf("Existence check FdrPaymentInsertEntity to delete by fdr[%s], indexList", fdr);
     List<FdrPaymentInsertEntity> paymentToDelete =
-        FdrPaymentInsertEntity.findByFlowNameAndIndexes(reportingFlowName, indexList)
+        FdrPaymentInsertEntity.findByFdrAndIndexes(fdr, indexList)
             .project(FdrPaymentInsertEntity.class)
             .list();
     if (!paymentToDelete.stream()
         .map(FdrPaymentInsertEntity::getIndex)
         .collect(Collectors.toSet())
         .containsAll(indexList)) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX, reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX, fdr);
     }
 
-    log.debugf("Delete FdrPaymentInsertEntity by flowName[%s], indexList", reportingFlowName);
-    FdrPaymentInsertEntity.deleteByFlowNameAndIndexes(reportingFlowName, indexList);
+    log.debugf("Delete FdrPaymentInsertEntity by fdr[%s], indexList", fdr);
+    FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexList);
 
-    ReportingFlowStatusEnumEntity status =
-        reportingFlowEntity.getSumPayments() > 0
-            ? ReportingFlowStatusEnumEntity.INSERTED
-            : ReportingFlowStatusEnumEntity.CREATED;
-    reportingFlowEntity.setTotPayments(deleteAndSumCount(reportingFlowEntity, paymentToDelete));
-    reportingFlowEntity.setSumPayments(deleteAndSubtract(reportingFlowEntity, paymentToDelete));
-    reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setStatus(status);
-    reportingFlowEntity.update();
-    log.debugf("FdrInsertEntity %s", reportingFlowEntity.getStatus().name());
+    long tot = deleteAndSumCount(fdrEntity, paymentToDelete);
+    double sum = deleteAndSubtract(fdrEntity, paymentToDelete);
+    FdrStatusEnumEntity status =
+        sum > 0 ? FdrStatusEnumEntity.INSERTED : FdrStatusEnumEntity.CREATED;
+    fdrEntity.setComputedTotPayments(tot);
+    fdrEntity.setComputedSumPayments(sum);
+    fdrEntity.setUpdated(now);
+    fdrEntity.setStatus(status);
+    fdrEntity.update();
+    log.debugf("FdrInsertEntity %s", fdrEntity.getStatus().name());
 
     String sessionId = org.slf4j.MDC.get(TRX_ID);
     reService.sendEvent(
@@ -263,99 +242,105 @@ public class PspsService {
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
-            .flowPhysicalDelete(false)
-            .flowStatus(
-                ReportingFlowStatusEnumEntity.INSERTED == status
-                    ? FlowStatusEnum.INSERTED
-                    : FlowStatusEnum.CREATED)
+            .fdrPhysicalDelete(false)
+            .fdrStatus(
+                FdrStatusEnumEntity.INSERTED == status
+                    ? FdrStatusEnum.INSERTED
+                    : FdrStatusEnum.CREATED)
             //            .flowRead(false)
-            .flowName(reportingFlowName)
+            .fdr(fdr)
             .pspId(pspId)
-            .organizationId(reportingFlowEntity.getReceiver().getEcId())
-            .revision(reportingFlowEntity.getRevision())
-            .flowAction(FlowActionEnum.DELETE_PAYMENT)
+            .organizationId(fdrEntity.getReceiver().getOrganizationId())
+            .revision(fdrEntity.getRevision())
+            .fdrAction(FdrActionEnum.DELETE_PAYMENT)
             .build());
   }
 
   @WithSpan(kind = SERVER)
-  public void internalPublishByReportingFlowName(
-      String action, String pspId, String reportingFlowName) {
+  public void internalPublishByFdr(String action, String pspId, String fdr) {
     Consumer<FdrInsertEntity> consumer =
-        reportingFlowEntity -> log.debug("NOT Add FdrInsertEntity in queue flow message");
-    basePublishByReportingFlowName(action, pspId, reportingFlowName, consumer);
+        fdrEntity -> log.debug("NOT Add FdrInsertEntity in queue fdr message");
+    basePublishByfdr(action, pspId, fdr, consumer);
   }
 
   @WithSpan(kind = SERVER)
-  public void publishByReportingFlowName(String action, String pspId, String reportingFlowName) {
+  public void publishByFdr(String action, String pspId, String fdr) {
     Consumer<FdrInsertEntity> consumer =
-        reportingFlowEntity -> {
-          log.debug("Add FdrInsertEntity in queue flow message");
+        fdrEntity -> {
+          log.debug("Add FdrInsertEntity in queue fdr message");
           conversionQueue.addQueueFlowMessage(
-              FlowMessage.builder()
-                  .name(reportingFlowEntity.getReportingFlowName())
-                  .pspId(reportingFlowEntity.getSender().getPspId())
+              FdrMessage.builder()
+                  .fdr(fdrEntity.getFdr())
+                  .pspId(fdrEntity.getSender().getPspId())
                   .retry(0L)
-                  .revision(reportingFlowEntity.getRevision())
+                  .revision(fdrEntity.getRevision())
                   .build());
         };
-    basePublishByReportingFlowName(action, pspId, reportingFlowName, consumer);
+    basePublishByfdr(action, pspId, fdr, consumer);
   }
 
-  private void basePublishByReportingFlowName(
-      String action,
-      String pspId,
-      String reportingFlowName,
-      Consumer<FdrInsertEntity> funcConversionQueue) {
+  private void basePublishByfdr(
+      String action, String pspId, String fdr, Consumer<FdrInsertEntity> funcConversionQueue) {
     log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
-    FdrInsertEntity reportingFlowEntity =
+    FdrInsertEntity fdrEntity =
         checkFdrInsertEntity(
-            reportingFlowName,
-            pspId,
-            new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+            fdr, pspId, new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, fdr));
 
-    MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
+    MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    if (ReportingFlowStatusEnumEntity.INSERTED != reportingFlowEntity.getStatus()) {
+    if (FdrStatusEnumEntity.INSERTED != fdrEntity.getStatus()) {
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
-          reportingFlowName,
-          reportingFlowEntity.getStatus());
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION, fdr, fdrEntity.getStatus());
     }
 
-    reportingFlowEntity.setUpdated(now);
-    reportingFlowEntity.setStatus(ReportingFlowStatusEnumEntity.PUBLISHED);
+    if (!fdrEntity.getTotPayments().equals(fdrEntity.getComputedTotPayments())) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_TOT_PAYMENT,
+          fdr,
+          fdrEntity.getTotPayments(),
+          fdrEntity.getComputedTotPayments());
+    }
+
+    if (!fdrEntity.getSumPayments().equals(fdrEntity.getComputedSumPayments())) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_SUM_PAYMENT,
+          fdr,
+          fdrEntity.getSumPayments(),
+          fdrEntity.getComputedSumPayments());
+    }
+
+    fdrEntity.setUpdated(now);
+    fdrEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
     log.debug("FdrInsertEntity PUBLISHED");
 
-    log.debugf(
-        "Existence check FdrPaymentInsertEntity by flowName[%s], pspId[%s]",
-        reportingFlowName, pspId);
+    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, pspId);
     List<FdrPaymentInsertEntity> paymentInsertEntities =
-        FdrPaymentInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
+        FdrPaymentInsertEntity.findByFdrAndPspId(fdr, pspId)
             .project(FdrPaymentInsertEntity.class)
             .list();
 
-    if (reportingFlowEntity.getRevision() > 1L) {
+    if (fdrEntity.getRevision() > 1L) {
       log.debugf(
-          "Delete FdrPublishEntity for FdrInsertEntity in revision[%d] by flowName[%s], pspId[%s]",
-          reportingFlowEntity.getRevision(), reportingFlowName, pspId);
-      FdrPublishEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);
+          "Delete FdrPublishEntity for FdrInsertEntity in revision[%d] by fdr[%s], pspId[%s]",
+          fdrEntity.getRevision(), fdr, pspId);
+      FdrPublishEntity.deleteByFdrAndPspId(fdr, pspId);
       log.debugf(
-          "Delete FdrPaymentPublishEntity for FdrInsertEntity in revision[%d] by flowName[%s],"
+          "Delete FdrPaymentPublishEntity for FdrInsertEntity in revision[%d] by fdr[%s],"
               + " pspId[%s]",
-          reportingFlowEntity.getRevision(), reportingFlowName, pspId);
-      FdrPaymentPublishEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);
+          fdrEntity.getRevision(), fdr, pspId);
+      FdrPaymentPublishEntity.deleteByFdrAndPspId(fdr, pspId);
     }
 
-    FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(reportingFlowEntity);
+    FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(fdrEntity);
     fdrPublishEntity.persistEntity();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
     FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
 
-    log.debug("Mapping FdrHistoryEntity from reportingFlowEntity");
-    FdrHistoryEntity fdrHistoryEntity = mapper.toFdrHistoryEntity(reportingFlowEntity);
+    log.debug("Mapping FdrHistoryEntity from fdrEntity");
+    FdrHistoryEntity fdrHistoryEntity = mapper.toFdrHistoryEntity(fdrEntity);
     fdrHistoryEntity.persist();
     log.debug("Mapping FdrPaymentHistoryEntity from paymentInsertEntities");
     List<FdrPaymentHistoryEntity> fdrPaymentHistoryEntities =
@@ -363,14 +348,13 @@ public class PspsService {
     FdrPaymentHistoryEntity.persistFdrPaymentHistoryEntities(fdrPaymentHistoryEntities);
 
     log.debug("Delete FdrInsertEntity");
-    reportingFlowEntity.delete();
+    fdrEntity.delete();
     log.debugf(
-        "Delete FdrPaymentInsertEntity by flowName[%s], pspId[%s]",
-        reportingFlowEntity.getRevision(), reportingFlowName, pspId);
-    FdrPaymentInsertEntity.deleteByFlowNameAndPspId(reportingFlowName, pspId);
+        "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
+    FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
 
     // add to conversion queue
-    funcConversionQueue.accept(reportingFlowEntity);
+    funcConversionQueue.accept(fdrEntity);
 
     String sessionId = org.slf4j.MDC.get(TRX_ID);
     reService.sendEvent(
@@ -379,36 +363,33 @@ public class PspsService {
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
-            .flowPhysicalDelete(false)
-            .flowStatus(FlowStatusEnum.PUBLISHED)
+            .fdrPhysicalDelete(false)
+            .fdrStatus(FdrStatusEnum.PUBLISHED)
             //            .flowRead(false)
-            .flowName(reportingFlowName)
+            .fdr(fdr)
             .pspId(pspId)
-            .organizationId(reportingFlowEntity.getReceiver().getEcId())
-            .revision(reportingFlowEntity.getRevision())
-            .flowAction(FlowActionEnum.PUBLISH)
+            .organizationId(fdrEntity.getReceiver().getOrganizationId())
+            .revision(fdrEntity.getRevision())
+            .fdrAction(FdrActionEnum.PUBLISH)
             .build());
   }
 
   @WithSpan(kind = SERVER)
-  public void deleteByReportingFlowName(String action, String pspId, String reportingFlowName) {
+  public void deleteByFdr(String action, String pspId, String fdr) {
     log.infof(AppMessageUtil.logExecute(action));
 
-    FdrInsertEntity reportingFlowEntity =
+    FdrInsertEntity fdrEntity =
         checkFdrInsertEntity(
-            reportingFlowName,
-            pspId,
-            new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, reportingFlowName));
+            fdr, pspId, new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, fdr));
 
-    MDC.put(EC_ID, reportingFlowEntity.getReceiver().getEcId());
+    MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    if (reportingFlowEntity.getTotPayments() > 0L) {
-      log.debugf(
-          "Delete FdrPaymentInsertEntity for FdrInsertEntity by flowName[%s]", reportingFlowName);
-      FdrPaymentInsertEntity.deleteByFlowName(reportingFlowName);
+    if (fdrEntity.getComputedTotPayments() > 0L) {
+      log.debugf("Delete FdrPaymentInsertEntity for FdrInsertEntity by fdr[%s]", fdr);
+      FdrPaymentInsertEntity.deleteByFdr(fdr);
     }
     log.debug("Delete FdrInsertEntity");
-    reportingFlowEntity.delete();
+    fdrEntity.delete();
 
     String sessionId = org.slf4j.MDC.get(TRX_ID);
     reService.sendEvent(
@@ -417,22 +398,21 @@ public class PspsService {
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
-            .flowPhysicalDelete(true)
-            .flowStatus(FlowStatusEnum.DELETED)
+            .fdrPhysicalDelete(true)
+            .fdrStatus(FdrStatusEnum.DELETED)
             //            .flowRead(false)
-            .flowName(reportingFlowName)
+            .fdr(fdr)
             .pspId(pspId)
-            .organizationId(reportingFlowEntity.getReceiver().getEcId())
-            .revision(reportingFlowEntity.getRevision())
-            .flowAction(FlowActionEnum.DELETE_FLOW)
+            .organizationId(fdrEntity.getReceiver().getOrganizationId())
+            .revision(fdrEntity.getRevision())
+            .fdrAction(FdrActionEnum.DELETE_FLOW)
             .build());
   }
 
   private static double addAndSum(
-      FdrInsertEntity reportingFlowEntity,
-      List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
+      FdrInsertEntity fdrEntity, List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
     return Double.sum(
-        Objects.requireNonNullElseGet(reportingFlowEntity.getSumPayments(), () -> (double) 0),
+        Objects.requireNonNullElseGet(fdrEntity.getComputedSumPayments(), () -> (double) 0),
         reportingFlowPaymentEntities.stream()
             .map(FdrPaymentInsertEntity::getPay)
             .mapToDouble(Double::doubleValue)
@@ -440,9 +420,9 @@ public class PspsService {
   }
 
   private static double deleteAndSubtract(
-      FdrInsertEntity reportingFlowEntity, List<FdrPaymentInsertEntity> paymentToDelete) {
+      FdrInsertEntity fdrEntity, List<FdrPaymentInsertEntity> paymentToDelete) {
     return BigDecimal.valueOf(
-            Objects.requireNonNullElseGet(reportingFlowEntity.getSumPayments(), () -> (double) 0))
+            Objects.requireNonNullElseGet(fdrEntity.getComputedSumPayments(), () -> (double) 0))
         .subtract(
             BigDecimal.valueOf(
                 paymentToDelete.stream()
@@ -453,23 +433,21 @@ public class PspsService {
   }
 
   private static long addAndSumCount(
-      FdrInsertEntity reportingFlowEntity,
-      List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(reportingFlowEntity.getTotPayments(), () -> (long) 0)
+      FdrInsertEntity fdrEntity, List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
+    return Objects.requireNonNullElseGet(fdrEntity.getComputedTotPayments(), () -> (long) 0)
         + reportingFlowPaymentEntities.size();
   }
 
   private static long deleteAndSumCount(
-      FdrInsertEntity reportingFlowEntity,
-      List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
-    return Objects.requireNonNullElseGet(reportingFlowEntity.getTotPayments(), () -> (long) 0)
+      FdrInsertEntity fdrEntity, List<FdrPaymentInsertEntity> reportingFlowPaymentEntities) {
+    return Objects.requireNonNullElseGet(fdrEntity.getComputedTotPayments(), () -> (long) 0)
         - reportingFlowPaymentEntities.size();
   }
 
   private FdrInsertEntity checkFdrInsertEntity(
-      String reportingFlowName, String pspId, AppException appException) {
-    log.debugf("Find FdrInsertEntity by flowName[%s], psp[%s]", reportingFlowName, pspId);
-    return FdrInsertEntity.findByFlowNameAndPspId(reportingFlowName, pspId)
+      String fdr, String pspId, AppException appException) {
+    log.debugf("Find FdrInsertEntity by fdr[%s], psp[%s]", fdr, pspId);
+    return FdrInsertEntity.findByFdrAndPspId(fdr, pspId)
         .project(FdrInsertEntity.class)
         .firstResultOptional()
         .orElseThrow(() -> appException);

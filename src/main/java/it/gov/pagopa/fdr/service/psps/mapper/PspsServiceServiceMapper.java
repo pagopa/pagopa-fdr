@@ -6,9 +6,9 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.service.dto.FdrDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,40 +20,28 @@ public interface PspsServiceServiceMapper {
 
   PspsServiceServiceMapper INSTANCE = Mappers.getMapper(PspsServiceServiceMapper.class);
 
-  //  @Mapping(source = "reporting_flow_name", target = "reportingFlowName")
-  //  @Mapping(source = "reporting_flow_date", target = "reportingFlowDate")
-  //  @Mapping(source = "regulation_date", target = "regulationDate")
-  //  @Mapping(source = "bic_code_pouring_bank", target = "bicCodePouringBank")
-  //  @Mapping(source = "tot_payments", target = "totPayments")
-  //  @Mapping(source = "sum_paymnents", target = "sumPayments")
-  ReportingFlowGetDto toReportingFlowGetDto(FdrInsertEntity reportingFlow);
+  FdrGetDto toFdrGetDto(FdrInsertEntity reportingFlow);
 
-  //  @Mapping(source = "reportingFlowName", target = "reporting_flow_name")
-  //  @Mapping(source = "reportingFlowDate", target = "reporting_flow_date")
-  //  @Mapping(source = "regulationDate", target = "regulation_date")
-  //  @Mapping(source = "bicCodePouringBank", target = "bic_code_pouring_bank")
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "revision", ignore = true)
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "updated", ignore = true)
   @Mapping(target = "status", ignore = true)
-  @Mapping(target = "totPayments", ignore = true)
-  @Mapping(target = "sumPayments", ignore = true)
-  FdrInsertEntity toReportingFlow(ReportingFlowDto reportingFlowDto);
+  @Mapping(target = "computedTotPayments", ignore = true)
+  @Mapping(target = "computedSumPayments", ignore = true)
+  FdrInsertEntity toFdrInsertEntity(FdrDto fdrDto);
 
-  //  @Mapping(source = "payStatus", target = "pay_status")
-  //  @Mapping(source = "payDate", target = "pay_date")
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "revision", ignore = true)
   @Mapping(target = "created", ignore = true)
   @Mapping(target = "updated", ignore = true)
   @Mapping(target = "refFdrId", ignore = true)
-  @Mapping(target = "refFdrReportingFlowName", ignore = true)
-  @Mapping(target = "refFdrReportingSenderPspId", ignore = true)
+  @Mapping(target = "refFdr", ignore = true)
+  @Mapping(target = "refFdrSenderPspId", ignore = true)
   @Mapping(target = "refFdrRevision", ignore = true)
-  FdrPaymentInsertEntity toReportingFlowPaymentEntity(PaymentDto paymentDto);
+  FdrPaymentInsertEntity toFdrPaymentInsertEntity(PaymentDto paymentDto);
 
-  List<FdrPaymentInsertEntity> toReportingFlowPaymentEntityList(List<PaymentDto> paymentDto);
+  List<FdrPaymentInsertEntity> toFdrPaymentInsertEntityList(List<PaymentDto> paymentDto);
 
   FdrPublishEntity toFdrPublishEntity(FdrInsertEntity fdrInsertEntity);
 

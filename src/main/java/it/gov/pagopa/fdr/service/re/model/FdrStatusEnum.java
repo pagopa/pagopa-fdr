@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.service.re.model;
 
-public enum FlowStatusEnum {
+public enum FdrStatusEnum {
   CREATED,
   INSERTED,
   PUBLISHED,

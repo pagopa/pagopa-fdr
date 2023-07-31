@@ -3,13 +3,13 @@ package it.gov.pagopa.fdr.rest.organizations.mapper;
 import it.gov.pagopa.fdr.rest.model.Metadata;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.service.dto.FdrAllDto;
+import it.gov.pagopa.fdr.service.dto.FdrAllInternalDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowByIdEcDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowInternalDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
@@ -20,13 +20,13 @@ public interface OrganizationsResourceServiceMapper {
   OrganizationsResourceServiceMapper INSTANCE =
       Mappers.getMapper(OrganizationsResourceServiceMapper.class);
 
-  GetIdResponse toGetIdResponse(ReportingFlowGetDto reportingFlowGetDto);
+  GetResponse toGetIdResponse(FdrGetDto fdrGetDto);
 
-  GetPaymentResponse toGetPaymentResponse(ReportingFlowGetPaymentDto reportingFlowGetDto);
+  GetPaymentResponse toGetPaymentResponse(FdrGetPaymentDto fdrGetPaymentDto);
 
-  GetAllResponse toGetAllResponse(ReportingFlowByIdEcDto reportingFlowByIdEcDto);
+  GetAllResponse toGetAllResponse(FdrAllDto fdrAllDto);
 
-  GetAllInternalResponse toGetAllInternalResponse(ReportingFlowInternalDto reportingFlowByIdEcDto);
+  GetAllInternalResponse toGetAllInternalResponse(FdrAllInternalDto fdrAllInternalDto);
 
   Metadata toMetadata(MetadataDto metadataDto);
 }

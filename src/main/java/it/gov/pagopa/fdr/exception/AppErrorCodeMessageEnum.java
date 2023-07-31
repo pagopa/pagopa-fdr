@@ -19,20 +19,17 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT(
       "0405", "bad.request.inputJson.notValidJsonFormat", RestResponse.Status.BAD_REQUEST),
 
-  REPORTING_FLOW_NOT_FOUND("0701", "reporting-flow.notFound", RestResponse.Status.NOT_FOUND),
-  REPORTING_FLOW_ALREADY_EXIST(
-      "0702", "reporting-flow.alreadyExist", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_WRONG_ACTION(
-      "0703", "reporting-flow.wrongAction", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_PSP_ID_NOT_MATCH(
-      "0704", "reporting-flow.pspId.notMatch", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_NOT_FOUND("0701", "fdr.notFound", RestResponse.Status.NOT_FOUND),
+  REPORTING_FLOW_ALREADY_EXIST("0702", "fdr.alreadyExist", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_WRONG_ACTION("0703", "fdr.wrongAction", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_PSP_ID_NOT_MATCH("0704", "fdr.pspId.notMatch", RestResponse.Status.BAD_REQUEST),
 
   REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST(
-      "0705", "reporting-flow.sameIndexInSameRequest", RestResponse.Status.BAD_REQUEST),
+      "0705", "fdr.sameIndexInSameRequest", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX(
-      "0706", "reporting-flow.duplicateIndex", RestResponse.Status.BAD_REQUEST),
+      "0706", "fdr.duplicateIndex", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX(
-      "0707", "reporting-flow.noMatchIndex", RestResponse.Status.BAD_REQUEST),
+      "0707", "fdr.noMatchIndex", RestResponse.Status.BAD_REQUEST),
   PSP_UNKNOWN("0708", "pspId.unknown", RestResponse.Status.BAD_REQUEST),
   PSP_NOT_ENABLED("0709", "pspId.notEnabled", RestResponse.Status.BAD_REQUEST),
   BROKER_UNKNOWN("0710", "brokerId.unknown", RestResponse.Status.BAD_REQUEST),
@@ -45,14 +42,15 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   EC_UNKNOWN("0716", "ecId.unknown", RestResponse.Status.BAD_REQUEST),
   EC_NOT_ENABLED("0717", "ecId.notEnabled", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_NAME_DATE_WRONG_FORMAT(
-      "0718", "reporting-flow.name-date.wrongFormat", RestResponse.Status.BAD_REQUEST),
+      "0718", "fdr.name-date.wrongFormat", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_NAME_PSP_WRONG_FORMAT(
-      "0719", "reporting-flow.name-psp.wrongFormat", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_NAME_NOT_MATCH(
-      "0720", "reporting-flow.name.notMatch", RestResponse.Status.BAD_REQUEST),
+      "0719", "fdr.name-psp.wrongFormat", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_NAME_NOT_MATCH("0720", "fdr.name.notMatch", RestResponse.Status.BAD_REQUEST),
   EVENT_HUB_RE_PARSE_JSON("0721", "eHub.re.parse", Status.INTERNAL_SERVER_ERROR),
-  EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR);
-  ;
+  EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR),
+
+  REPORTING_FLOW_WRONG_TOT_PAYMENT("0723", "fdr.wrongTotPayment", RestResponse.Status.BAD_REQUEST),
+  REPORTING_FLOW_WRONG_SUM_PAYMENT("0724", "fdr.wrongSumPayment", RestResponse.Status.BAD_REQUEST);
   private final String errorCode;
   private final String errorMessageKey;
   private final RestResponse.Status httpStatus;

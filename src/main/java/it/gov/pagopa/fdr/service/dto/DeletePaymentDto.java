@@ -8,5 +8,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class DeletePaymentDto {
 
-  private List<Long> indexPayments;
+  private List<Long> indexList;
 }

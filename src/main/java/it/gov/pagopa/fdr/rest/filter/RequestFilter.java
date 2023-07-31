@@ -6,7 +6,7 @@ import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppConstant;
@@ -45,21 +45,24 @@ public class RequestFilter implements ContainerRequestFilter {
 
     String requestMethod = containerRequestContext.getMethod();
     String requestPath = containerRequestContext.getUriInfo().getAbsolutePath().getPath();
-    String pspPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("psp");
-    String flowPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("fdr");
-    String ecPathParam = containerRequestContext.getUriInfo().getPathParameters().getFirst("ec");
+    String pspPathParam =
+        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.PSP);
+    String fdrPathParam =
+        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.FDR);
+    String ecPathParam =
+        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.ORGANIZATION);
 
-    FlowActionEnum flowActionEnum =
+    FdrActionEnum fdrActionEnum =
         AppReUtil.getFlowNamebyAnnotation(
             ((ContainerRequestContextImpl) containerRequestContext)
                 .getServerRequestContext()
                 .getResteasyReactiveResourceInfo()
                 .getAnnotations());
 
-    if (flowActionEnum == null) {
+    if (fdrActionEnum == null) {
       log.warn("Attention, missing annotation Re on this action");
     } else {
-      MDC.put(ACTION, flowActionEnum.name());
+      MDC.put(ACTION, fdrActionEnum.name());
     }
 
     String body =
@@ -82,9 +85,9 @@ public class RequestFilter implements ContainerRequestFilter {
                 containerRequestContext.getHeaders().entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
             .pspId(pspPathParam)
-            .flowName(flowPathParam)
+            .fdr(fdrPathParam)
             .organizationId(ecPathParam)
-            .flowAction(flowActionEnum)
+            .fdrAction(fdrActionEnum)
             .build());
 
     MultivaluedMap<String, String> pathparam =
@@ -92,10 +95,10 @@ public class RequestFilter implements ContainerRequestFilter {
 
     String subject = "NA";
     if (!pathparam.isEmpty()) {
-      if (pathparam.containsKey(AppConstant.PATH_PARAM_PSP)) {
-        subject = pathparam.getFirst(AppConstant.PATH_PARAM_PSP);
-      } else if (pathparam.containsKey(AppConstant.PATH_PARAM_EC)) {
-        subject = pathparam.getFirst(AppConstant.PATH_PARAM_EC);
+      if (pathparam.containsKey(AppConstant.PSP)) {
+        subject = pathparam.getFirst(AppConstant.PSP);
+      } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
+        subject = pathparam.getFirst(AppConstant.ORGANIZATION);
       }
 
       log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);

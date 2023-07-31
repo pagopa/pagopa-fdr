@@ -16,19 +16,19 @@ import org.openapi.quarkus.api_config_cache_json.model.PspChannelPaymentType;
 @ApplicationScoped
 public class CommonValidationService {
 
-  public void checkPspSender(Logger log, String psp, String pspId, String reportingFlowName) {
+  public void checkPspSender(Logger log, String psp, String pspId, String fdr) {
     log.debugf("Check match between psp[%s], sender.pspId[%s]", psp, pspId);
     if (!psp.equals(pspId)) {
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH, reportingFlowName, pspId, psp);
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH, fdr, pspId, psp);
     }
   }
 
-  public void checkFlowName(Logger log, String fdr, String reportingFlowName) {
-    log.debugf("Check match between fdr[%s], reportingFlowName[%s]", fdr, reportingFlowName);
-    if (!fdr.equals(reportingFlowName)) {
+  public void checkFlowName(Logger log, String fdr, String createRequestFdr) {
+    log.debugf("Check match between fdr[%s], createRequestFdr[%s]", fdr, createRequestFdr);
+    if (!fdr.equals(createRequestFdr)) {
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH, reportingFlowName, fdr);
+          AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH, createRequestFdr, fdr);
     }
   }
 
@@ -115,24 +115,21 @@ public class CommonValidationService {
     }
   }
 
-  public void checkReportingFlowFormat(Logger log, String reportingFlowName, String pspId) {
-    log.debugf("Check date format in flowName[%s] with psp[%s]", reportingFlowName, pspId);
-    String date = reportingFlowName.substring(0, 10);
+  public void checkReportingFlowFormat(Logger log, String fdr, String pspId) {
+    log.debugf("Check date format in fdr[%s] with psp[%s]", fdr, pspId);
+    String date = fdr.substring(0, 10);
     try {
       // default, ISO_LOCAL_DATE ("2016-08-16")
       LocalDate.parse(date);
     } catch (RuntimeException e) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT, fdr);
     }
-    // TODO non dovremmo verificare che la data sia uguale a regulationDate o reportingFlowDate
 
-    log.debugf("Check psp format in flowName[%s] with psp[%s]", reportingFlowName, pspId);
-    String name = reportingFlowName.substring(10);
+    log.debugf("Check psp format in fdr[%s] with psp[%s]", fdr, pspId);
+    String name = fdr.substring(10);
     boolean nameWrongFromat = !name.startsWith(String.format("%s-", pspId));
     if (nameWrongFromat) {
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, reportingFlowName);
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT, fdr);
     }
   }
 }

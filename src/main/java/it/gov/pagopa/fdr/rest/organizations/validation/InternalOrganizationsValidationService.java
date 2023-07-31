@@ -33,7 +33,7 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
     // check psp
     checkPaymentServiceProvider(log, pspId, configData);
 
-    // check reportingFlowName format
+    // check fdr format
     checkReportingFlowFormat(log, fdr, pspId);
   }
 
@@ -45,7 +45,7 @@ public class InternalOrganizationsValidationService extends CommonValidationServ
     // check psp
     checkPaymentServiceProvider(log, pspId, configData);
 
-    // check reportingFlowName format
+    // check fdr format
     checkReportingFlowFormat(log, fdr, pspId);
   }
 }

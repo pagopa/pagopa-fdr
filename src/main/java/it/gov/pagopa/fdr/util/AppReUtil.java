@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.util;
 
-import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -8,18 +8,18 @@ import java.util.Optional;
 
 public class AppReUtil {
 
-  public static FlowActionEnum getFlowNamebyAnnotation(Annotation[] annotations) {
+  public static FdrActionEnum getFlowNamebyAnnotation(Annotation[] annotations) {
     Optional<Annotation> reAnnotaion =
         Arrays.stream(annotations)
             .filter(a -> a.annotationType().isAssignableFrom(Re.class))
             .findFirst();
 
-    FlowActionEnum flowActionEnum =
+    FdrActionEnum fdrActionEnum =
         reAnnotaion
             .map(
                 a -> {
                   try {
-                    return (FlowActionEnum) a.annotationType().getMethod("flowName").invoke(a);
+                    return (FdrActionEnum) a.annotationType().getMethod("action").invoke(a);
                   } catch (IllegalAccessException
                       | InvocationTargetException
                       | NoSuchMethodException e) {
@@ -28,6 +28,6 @@ public class AppReUtil {
                 })
             .orElse(null);
 
-    return flowActionEnum;
+    return fdrActionEnum;
   }
 }

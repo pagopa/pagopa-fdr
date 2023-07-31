@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ReportingFlowDto {
+public class FdrDto {
 
-  private String reportingFlowName;
+  private String fdr;
 
-  private Instant reportingFlowDate;
+  private Instant fdrDate;
 
   private SenderDto sender;
 
@@ -21,4 +21,8 @@ public class ReportingFlowDto {
   private Instant regulationDate;
 
   private String bicCodePouringBank;
+
+  private Long totPayments;
+
+  private Double sumPayments;
 }

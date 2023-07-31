@@ -1,9 +1,11 @@
 package it.gov.pagopa.fdr.rest.organizations.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import it.gov.pagopa.fdr.rest.model.Receiver;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.model.Sender;
+import it.gov.pagopa.fdr.util.AppConstant;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,16 +20,17 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
   "revision",
   "created",
   "updated",
-  "reportingFlowName",
-  "reportingFlowDate",
+  "fdr",
+  "fdrDate",
   "regulation",
   "regulationDate",
   "bicCodePouringBank",
   "sender",
   "receiver"
 })
-public class GetIdResponse {
+public class GetResponse {
   @Schema(example = "4")
+  @JsonProperty(AppConstant.REVISION)
   public Long revision;
 
   @Schema(example = "2023-04-03T12:00:30.900000Z")
@@ -40,10 +43,11 @@ public class GetIdResponse {
   public ReportingFlowStatusEnum status;
 
   @Schema(example = "2016-08-16pspTest-1178")
-  private String reportingFlowName;
+  @JsonProperty(AppConstant.FDR)
+  private String fdr;
 
   @Schema(example = "2023-04-05T09:21:37.810000Z")
-  private Instant reportingFlowDate;
+  private Instant fdrDate;
 
   private Sender sender;
 
@@ -59,8 +63,8 @@ public class GetIdResponse {
   private String bicCodePouringBank;
 
   @Schema(example = "100")
-  public Long totPayments;
+  public Long computedTotPayments;
 
   @Schema(example = "100.90")
-  public Double sumPayments;
+  public Double computedSumPayments;
 }

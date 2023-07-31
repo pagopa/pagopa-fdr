@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.rest.psps.request;
 
 import it.gov.pagopa.fdr.rest.model.Payment;
+import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,7 +15,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class AddPaymentRequest {
   @NotNull
-  @Size(min = 1, max = 1000)
+  @Size(min = 1, max = AppConstant.MAX_PAYMENT)
   @Valid
   private List<Payment> payments;
 }

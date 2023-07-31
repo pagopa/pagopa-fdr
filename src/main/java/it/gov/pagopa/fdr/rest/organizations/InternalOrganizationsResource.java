@@ -1,22 +1,22 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.EC_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.FLOW_NAME;
-import static it.gov.pagopa.fdr.util.MDCKeys.NDP;
+import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetIdResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.InternalOrganizationsValidationService;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowGetPaymentDto;
-import it.gov.pagopa.fdr.service.dto.ReportingFlowInternalDto;
+import it.gov.pagopa.fdr.service.dto.FdrAllInternalDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.InternalOrganizationsService;
-import it.gov.pagopa.fdr.service.re.model.FlowActionEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import it.gov.pagopa.fdr.util.Re;
 import jakarta.inject.Inject;
@@ -40,8 +40,8 @@ import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
 
-@Tag(name = "Internal Organizations", description = "Get reporting flow operations")
-@Path("/internal/history/organizations/ndp/flows")
+@Tag(name = "Internal Organizations", description = "Organizations operations")
+@Path("/internal/history/organizations/{" + AppConstant.ORGANIZATION + "}/fdrs")
 @Consumes("application/json")
 @Produces("application/json")
 public class InternalOrganizationsResource {
@@ -56,8 +56,9 @@ public class InternalOrganizationsResource {
   @Inject InternalOrganizationsService internalService;
 
   @Operation(
-      summary = "Get all published reporting flow",
-      description = "Get all published reporting flow by ec and idPsp(optional param)")
+      operationId = "internalGetAllPublishedWithRevision",
+      summary = "Get all fdr published with revision",
+      description = "Get all fdr published with revision")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -72,13 +73,16 @@ public class InternalOrganizationsResource {
                     schema = @Schema(implementation = GetAllInternalResponse.class)))
       })
   @GET
-  @Re(flowName = FlowActionEnum.INTERNAL_GET_ALL_FDR)
-  public GetAllInternalResponse getAllPublishedFlow(
-      @QueryParam("idPsp") @Pattern(regexp = "^(.{1,35})$") String idPsp,
-      @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
-      @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+  @Re(action = FdrActionEnum.INTERNAL_GET_ALL_FDR)
+  public GetAllInternalResponse internalGetAllPublishedWithRevision(
+      @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
+      @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
     String action = MDC.get(ACTION);
-    MDC.put(EC_ID, NDP);
+    MDC.put(ORGANIZATION_ID, organizationId);
     if (null != idPsp && !idPsp.isBlank()) {
       MDC.put(PSP_ID, idPsp);
     }
@@ -95,15 +99,16 @@ public class InternalOrganizationsResource {
     internalValidator.validateGetAllInternal(action, idPsp, configData);
 
     // get from db
-    ReportingFlowInternalDto reportingFlowInternalDto =
+    FdrAllInternalDto fdrAllInternalDto =
         internalService.findByInternals(action, idPsp, pageNumber, pageSize);
 
-    return mapper.toGetAllInternalResponse(reportingFlowInternalDto);
+    return mapper.toGetAllInternalResponse(fdrAllInternalDto);
   }
 
   @Operation(
-      summary = "Get reporting flow",
-      description = "Get reporting flow by id but not payments")
+      operationId = "internalGetWithRevision",
+      summary = "Get fdr",
+      description = "Get fdr by id but not payments")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -115,16 +120,26 @@ public class InternalOrganizationsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetIdResponse.class)))
+                    schema = @Schema(implementation = GetResponse.class)))
       })
   @GET
-  @Path("/{fdr}/rev/{rev}/psps/{psp}")
-  @Re(flowName = FlowActionEnum.INTERNAL_GET_FDR)
-  public GetIdResponse getReportingFlow(
-      @PathParam("fdr") String fdr, @PathParam("rev") Long rev, @PathParam("psp") String psp) {
+  @Path(
+      "/{"
+          + AppConstant.FDR
+          + "}/revisions/{"
+          + AppConstant.REVISION
+          + "}/psps/{"
+          + AppConstant.PSP
+          + "}")
+  @Re(action = FdrActionEnum.INTERNAL_GET_FDR)
+  public GetResponse internalGetWithRevision(
+      @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.REVISION) Long rev,
+      @PathParam(AppConstant.PSP) String psp) {
     String action = MDC.get(ACTION);
-    MDC.put(EC_ID, NDP);
-    MDC.put(FLOW_NAME, fdr);
+    MDC.put(ORGANIZATION_ID, organizationId);
+    MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
 
     log.infof(AppMessageUtil.logProcess("%s with id:[%s]"), action, fdr);
@@ -134,15 +149,15 @@ public class InternalOrganizationsResource {
     internalValidator.validateGetInternal(action, fdr, psp, configData);
 
     // get from db
-    ReportingFlowGetDto flowNameInternals =
-        internalService.findByReportingFlowNameInternals(action, fdr, rev, psp);
+    FdrGetDto fdrInternal = internalService.findByReportingFlowNameInternals(action, fdr, rev, psp);
 
-    return mapper.toGetIdResponse(flowNameInternals);
+    return mapper.toGetIdResponse(fdrInternal);
   }
 
   @Operation(
-      summary = "Get payments of reporting flow",
-      description = "Get only payments of reporting flow by id paginated")
+      operationId = "internalGetPayment",
+      summary = "Get payments of fdr",
+      description = "Get payments of fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -157,17 +172,28 @@ public class InternalOrganizationsResource {
                     schema = @Schema(implementation = GetPaymentResponse.class)))
       })
   @GET
-  @Path("/{fdr}/rev/{rev}/psps/{psp}/payments")
-  @Re(flowName = FlowActionEnum.INTERNAL_GET_FDR_PAYMENT)
-  public GetPaymentResponse getReportingFlowPayments(
-      @PathParam("fdr") String fdr,
-      @PathParam("rev") Long rev,
-      @PathParam("psp") String psp,
-      @QueryParam("page") @DefaultValue("1") @Min(value = 1) long pageNumber,
-      @QueryParam("size") @DefaultValue("50") @Min(value = 1) long pageSize) {
+  @Path(
+      "/{"
+          + AppConstant.FDR
+          + "}/revisions/{"
+          + AppConstant.REVISION
+          + "}/psps/{"
+          + AppConstant.PSP
+          + "}/payments")
+  @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT)
+  public GetPaymentResponse internalGetFdrPayment(
+      @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.REVISION) Long rev,
+      @PathParam(AppConstant.PSP) String psp,
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
+
     String action = MDC.get(ACTION);
-    MDC.put(EC_ID, NDP);
-    MDC.put(FLOW_NAME, fdr);
+    MDC.put(ORGANIZATION_ID, organizationId);
+    MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
 
     log.infof(
@@ -182,10 +208,9 @@ public class InternalOrganizationsResource {
     internalValidator.validateGetPaymentInternal(action, fdr, psp, configData);
 
     // get from db
-    ReportingFlowGetPaymentDto flowNameInternals =
-        internalService.findPaymentByReportingFlowNameInternals(
-            action, fdr, rev, psp, pageNumber, pageSize);
+    FdrGetPaymentDto fdrInternal =
+        internalService.findPaymentByFdrInternals(action, fdr, rev, psp, pageNumber, pageSize);
 
-    return mapper.toGetPaymentResponse(flowNameInternals);
+    return mapper.toGetPaymentResponse(fdrInternal);
   }
 }

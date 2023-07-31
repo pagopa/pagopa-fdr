@@ -1,19 +1,18 @@
 package it.gov.pagopa.fdr.service.re.model;
 
-public enum FlowActionEnum {
+public enum FdrActionEnum {
   INFO,
 
   CREATE_FLOW,
   DELETE_FLOW,
   ADD_PAYMENT,
   DELETE_PAYMENT,
-
   PUBLISH,
+
   INTERNAL_CREATE_FLOW,
   INTERNAL_DELETE_FLOW,
   INTERNAL_ADD_PAYMENT,
   INTERNAL_DELETE_PAYMENT,
-
   INTERNAL_PUBLISH,
 
   GET_ALL_FDR,

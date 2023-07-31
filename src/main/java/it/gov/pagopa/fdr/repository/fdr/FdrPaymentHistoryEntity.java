@@ -40,11 +40,11 @@ public class FdrPaymentHistoryEntity extends PanacheMongoEntity {
   @BsonProperty("ref_fdr_id")
   private ObjectId refFdrId;
 
-  @BsonProperty("ref_fdr_reporting_flow_name")
-  private String refFdrReportingFlowName;
+  @BsonProperty("ref_fdr")
+  private String refFdr;
 
-  @BsonProperty("ref_fdr_reporting_sender_psp_id")
-  private String refFdrReportingSenderPspId;
+  @BsonProperty("ref_fdr_sender_psp_id")
+  private String refFdrSenderPspId;
 
   @BsonProperty("ref_fdr_revision")
   private Long refFdrRevision;
@@ -54,12 +54,11 @@ public class FdrPaymentHistoryEntity extends PanacheMongoEntity {
     persist(fdrPaymentHistoryEntities);
   }
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFlowNameAndRevAndPspId(
-      String reportingFlowName, Long rev, String pspId, Sort sort) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspId(
+      String fdr, Long rev, String pspId, Sort sort) {
     return find(
-        "ref_fdr_reporting_flow_name = :flowName and ref_fdr_revision = :rev and"
-            + " ref_fdr_reporting_sender_psp_id = :pspId",
+        "ref_fdr = :fdr and ref_fdr_revision = :rev and" + " ref_fdr_sender_psp_id = :pspId",
         sort,
-        Parameters.with("flowName", reportingFlowName).and("rev", rev).and("pspId", pspId).map());
+        Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).map());
   }
 }

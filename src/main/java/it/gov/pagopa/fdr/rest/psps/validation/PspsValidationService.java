@@ -3,7 +3,7 @@ package it.gov.pagopa.fdr.rest.psps.validation;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import it.gov.pagopa.fdr.rest.psps.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,27 +21,23 @@ public class PspsValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateCreateFlow(
-      String action,
-      String psp,
-      String fdr,
-      CreateFlowRequest createFlowRequest,
-      ConfigDataV1 configData) {
+      String action, String psp, String fdr, CreateRequest createRequest, ConfigDataV1 configData) {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp sender
-    String pspId = createFlowRequest.getSender().getPspId();
-    checkPspSender(log, psp, pspId, createFlowRequest.getReportingFlowName());
+    String pspId = createRequest.getSender().getPspId();
+    checkPspSender(log, psp, pspId, createRequest.getFdr());
 
     // check psp
     PaymentServiceProvider paymentServiceProvider =
         checkPaymentServiceProvider(log, psp, configData);
 
     // check broker
-    String brokerId = createFlowRequest.getSender().getBrokerId();
+    String brokerId = createRequest.getSender().getPspBrokerId();
     BrokerPsp brokerPsp = checkBrokerPsp(log, brokerId, configData);
 
     // check channel
-    String channelId = createFlowRequest.getSender().getChannelId();
+    String channelId = createRequest.getSender().getChannelId();
     Channel channel = checkChannel(log, channelId, configData);
 
     // check channel/broker
@@ -51,13 +47,13 @@ public class PspsValidationService extends CommonValidationService {
     checkChannelPsp(log, channel, channelId, paymentServiceProvider, pspId, configData);
 
     // check ec
-    String ecId = createFlowRequest.getReceiver().getEcId();
+    String ecId = createRequest.getReceiver().getOrganizationId();
     checkCreditorInstitution(log, ecId, configData);
 
-    // check reportingFlowName format
-    String reportingFlowName = createFlowRequest.getReportingFlowName();
-    checkFlowName(log, fdr, reportingFlowName);
-    checkReportingFlowFormat(log, reportingFlowName, pspId);
+    // check fdr format
+    String createRequestFdr = createRequest.getFdr();
+    checkFlowName(log, fdr, createRequestFdr);
+    checkReportingFlowFormat(log, createRequestFdr, pspId);
   }
 
   @WithSpan(kind = SERVER)
@@ -67,7 +63,7 @@ public class PspsValidationService extends CommonValidationService {
     // check psp
     checkPaymentServiceProvider(log, psp, configData);
 
-    // check reportingFlowName format
+    // check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
 
@@ -79,7 +75,7 @@ public class PspsValidationService extends CommonValidationService {
     // check psp
     checkPaymentServiceProvider(log, psp, configData);
 
-    /// check reportingFlowName format
+    /// check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
 
@@ -90,7 +86,7 @@ public class PspsValidationService extends CommonValidationService {
     // check psp
     checkPaymentServiceProvider(log, psp, configData);
 
-    /// check reportingFlowName format
+    /// check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
 
@@ -101,7 +97,7 @@ public class PspsValidationService extends CommonValidationService {
     // check psp
     checkPaymentServiceProvider(log, psp, configData);
 
-    /// check reportingFlowName format
+    /// check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
 }
