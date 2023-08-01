@@ -24,10 +24,10 @@
         "json": {
           "version": "15807041712995048",
           "creditorInstitutions": {
-            "12345678900": {
-              "creditor_institution_code": "12345678900",
+            "00000000099": {
+              "creditor_institution_code": "00000000099",
               "enabled": true,
-              "business_name": "paStress80",
+              "business_name": "00000000099",
               "description": null,
               "address": {
                 "location": null,
@@ -95,11 +95,11 @@
             "ibans": null,
             "creditorInstitutionInformations": null,
             "psps": {
-              "pspTest": {
-                "psp_code": "pspTest",
+              "nodo-doc-dev": {
+                "psp_code": "nodo-doc-dev",
                 "enabled": true,
-                "description": "pspStress1",
-                "business_name": "pspStress1",
+                "description": "nodo-doc-dev",
+                "business_name": "nodo-doc-dev",
                 "abi": "TBD",
                 "bic": "TBD",
                 "my_bank_code": null,
@@ -136,8 +136,8 @@
               }
             },
             "pspBrokers": {
-              "intTest": {
-                "broker_psp_code": "intTest",
+              "nodo-doc-dev": {
+                "broker_psp_code": "nodo-doc-dev",
                 "description": "Intermediario per mybankSvil",
                 "enabled": true,
                 "extended_fault_bean": false
@@ -214,9 +214,9 @@
               }
             },
             "pspChannelPaymentTypes": {
-              "pspTest_canaleTest_PAYPAL": {
-                "psp_code": "pspTest",
-                "channel_code": "canaleTest",
+              "nododocdev_nododocdev_PAYPAL": {
+                "psp_code": "nodo-doc-dev",
+                "channel_code": "nodo-doc-dev",
                 "payment_type": "PAYPAL"
               }
             },
@@ -224,12 +224,12 @@
             "pspInformationTemplates": null,
             "pspInformations": null,
             "channels": {
-              "canaleTest": {
-                "channel_code": "canaleTest",
+              "nodo-doc-dev": {
+                "channel_code": "nodo-doc-dev",
                 "description": null,
                 "enabled": true,
                 "password": null,
-                "broker_psp_code": "intTest",
+                "broker_psp_code": "nodo-doc-dev",
                 "connection": {
                   "protocol": "HTTPS",
                   "ip": "api.dev.platform.pagopa.it",
@@ -241,7 +241,7 @@
                 "description": null,
                 "enabled": false,
                 "password": null,
-                "broker_psp_code": "intTest",
+                "broker_psp_code": "intNotEnabled",
                 "connection": {
                   "protocol": "HTTPS",
                   "ip": "api.dev.platform.pagopa.it",
