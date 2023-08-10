@@ -9,6 +9,8 @@ public class AppConstant {
   public static final String SERVICE_CODE_APP = "FDR";
 
   public static final String PSP = "pspId";
+  public static final String PUBLISHED_GREATER_THAN = "publishedGt";
+  public static final String CREATED_GREATER_THAN = "createdGt";
   public static final String ORGANIZATION = "organizationId";
   public static final String FDR = "fdr";
   public static final String REVISION = "revision";

@@ -6,15 +6,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class FdrGetDto {
+public class FdrGetCreatedDto {
 
   private Long revision;
 
   private Instant created;
 
   private Instant updated;
-
-  private Instant published;
 
   private FdrStatusEnumDto status;
 

@@ -49,20 +49,33 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
   @BsonProperty("ref_fdr_revision")
   private Long refFdrRevision;
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(
-      String fdr, String pspId, Sort sort) {
+  public static void persistFdrPaymentHistoryEntities(
+      List<FdrPaymentPublishEntity> fdrPaymentHistoryEntities) {
+    persist(fdrPaymentHistoryEntities);
+  }
+
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspId(
+      String fdr, Long rev, String pspId, Sort sort) {
     return find(
-        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
+        "ref_fdr = :fdr and ref_fdr_revision = :rev and" + " ref_fdr_sender_psp_id = :pspId",
         sort,
-        Parameters.with("fdr", fdr).and("pspId", pspId).map());
+        Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).map());
   }
 
-  public static long deleteByFdrAndPspId(String fdr, String pspId) {
-    return delete(
-        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
-        Parameters.with("fdr", fdr).and("pspId", pspId).map());
-  }
-
+  //  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(
+  //      String fdr, String pspId, Sort sort) {
+  //    return find(
+  //        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
+  //        sort,
+  //        Parameters.with("fdr", fdr).and("pspId", pspId).map());
+  //  }
+  //
+  //  public static long deleteByFdrAndPspId(String fdr, String pspId) {
+  //    return delete(
+  //        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
+  //        Parameters.with("fdr", fdr).and("pspId", pspId).map());
+  //  }
+  //
   public static void persistFdrPaymentPublishEntities(
       List<FdrPaymentPublishEntity> fdrPaymentPublishEntities) {
     persist(fdrPaymentPublishEntities);

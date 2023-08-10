@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.organizations.response;
+package it.gov.pagopa.fdr.rest.psps.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -28,7 +28,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
   "sender",
   "receiver"
 })
-public class GetResponse {
+public class GetCreatedResponse {
   @Schema(example = "4")
   @JsonProperty(AppConstant.REVISION)
   private Long revision;
@@ -38,9 +38,6 @@ public class GetResponse {
 
   @Schema(example = "2023-04-03T12:00:30.900000Z")
   private Instant updated;
-
-  @Schema(example = "2023-04-03T12:00:30.900000Z")
-  private Instant published;
 
   @Schema(example = "CREATED")
   private ReportingFlowStatusEnum status;

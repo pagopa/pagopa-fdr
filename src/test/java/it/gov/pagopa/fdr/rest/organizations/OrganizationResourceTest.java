@@ -24,7 +24,6 @@ import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.Payment;
 import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
@@ -42,9 +41,8 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationResourceTest {
   private static final String GET_ALL_PUBLISHED_FLOW_URL = "/organizations/%s/fdrs?"+ AppConstant.PSP +"=%s";
-  private static final String GET_REPORTING_FLOW_URL = "/organizations/%s/fdrs/%s/psps/%s";
-  private static final String GET_REPORTING_FLOW_PAYMENTS_URL = "/organizations/%s/fdrs/%s/psps/%s/payments";
-  private static final String CHANGE_READ_FLAG_URL = "/organizations/%s/fdrs/%s/psps/%s/read";
+  private static final String GET_REPORTING_FLOW_URL = "/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
+  private static final String GET_REPORTING_FLOW_PAYMENTS_URL = "/organizations/%s/fdrs/%s/revisions/%s/psps/%s/payments";
 
   /** ############### getAllPublishedFlow ################ */
   @Test
@@ -53,7 +51,7 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
-    GetAllInternalResponse res =
+    GetAllResponse res =
         given()
             .header(HEADER)
             .when()
@@ -61,7 +59,7 @@ class OrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetAllInternalResponse.class);
+            .as(GetAllResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(res.getData(), hasItem(anyOf(
         hasProperty("name", equalTo(flowName)),
@@ -163,7 +161,7 @@ class OrganizationResourceTest {
   void testOrganization_getReportingFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
     GetResponse res = given()
         .header(HEADER)
         .when()
@@ -186,7 +184,7 @@ class OrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
     TestUtil.pspSunnyDay(flowName);
 
-    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, PSP_CODE);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2L, PSP_CODE);
     GetResponse res = given()
         .header(HEADER)
         .when()
@@ -207,7 +205,7 @@ class OrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String flowNameWrong = TestUtil.getDynamicFlowName();
-    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, PSP_CODE);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, 1L, PSP_CODE);
 
     ErrorResponse res = given()
         .header(HEADER)
@@ -228,7 +226,7 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
 
-    String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, PSP_CODE);
+    String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
 
     GetPaymentResponse res = given()
         .header(HEADER)
@@ -252,7 +250,7 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
 
-    String url = (GET_REPORTING_FLOW_PAYMENTS_URL+"?page=2&size=1").formatted(EC_CODE, flowName, PSP_CODE);
+    String url = (GET_REPORTING_FLOW_PAYMENTS_URL+"?page=2&size=1").formatted(EC_CODE, flowName, 1L, PSP_CODE);
     GetPaymentResponse res = given()
         .header(HEADER)
         .when()

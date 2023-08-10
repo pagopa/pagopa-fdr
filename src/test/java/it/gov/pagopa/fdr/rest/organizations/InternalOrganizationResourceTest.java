@@ -22,7 +22,7 @@ import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
@@ -40,13 +40,13 @@ import org.junit.jupiter.api.Test;
 class InternalOrganizationResourceTest {
 
   private static final String GET_ALL_PUBLISHED_FLOW_URL =
-      "/internal/history/organizations/ndp/fdrs?" + AppConstant.PSP + "=%s";
+      "/internal/organizations/ndp/fdrs?" + AppConstant.PSP + "=%s";
   private static final String GET_REPORTING_FLOW_URL =
-      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s";
+      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s";
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL =
-      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/payments";
+      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/payments";
   private static final String CHANGE_READ_FLAG_URL =
-      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/read";
+      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/read";
 
   /** ############### getAllPublishedFlow ################ */
   @Test
@@ -55,7 +55,7 @@ class InternalOrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE);
-    GetAllInternalResponse res =
+    GetAllResponse res =
         given()
             .header(HEADER)
             .when()
@@ -63,7 +63,7 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetAllInternalResponse.class);
+            .as(GetAllResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(
         res.getData(),
@@ -78,7 +78,7 @@ class InternalOrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_2);
-    GetAllInternalResponse res =
+    GetAllResponse res =
         given()
             .header(HEADER)
             .when()
@@ -86,7 +86,7 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetAllInternalResponse.class);
+            .as(GetAllResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 

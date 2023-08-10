@@ -1467,7 +1467,8 @@ class InternalPspResourceTest {
         equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT.errorCode()));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo("Fdr [2016-aa-16pspTest-1176] has wrong date"))));
+        hasItem(
+            hasProperty("message", equalTo("Fdr [2016-aa-16nodo-doc-dev-1176] has wrong date"))));
   }
 
   @Test

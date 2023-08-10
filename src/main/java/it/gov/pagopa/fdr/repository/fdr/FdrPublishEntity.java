@@ -25,6 +25,8 @@ public class FdrPublishEntity extends PanacheMongoEntity {
 
   private Instant updated;
 
+  private Instant published;
+
   private String fdr;
 
   @BsonProperty("fdr_date")
@@ -56,12 +58,20 @@ public class FdrPublishEntity extends PanacheMongoEntity {
   @BsonProperty("sum_payments")
   private Double sumPayments;
 
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspId(
+      String fdr, Long rev, String pspId) {
+    return find(
+        "fdr = :fdr and revision = :rev and sender.psp_id = :pspId",
+        Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).map());
+  }
+
   public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String fdr, String pspId) {
     return find(
         "fdr = :fdr and sender.psp_id = :pspId",
         Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
+  //
   public static PanacheQuery<FdrPublishEntity> findByOrganizationIdAndPspId(
       String organizationId, String pspId, Sort sort) {
     return find(
@@ -70,20 +80,21 @@ public class FdrPublishEntity extends PanacheMongoEntity {
         Parameters.with("organizationId", organizationId).and("pspId", pspId).map());
   }
 
-  public static PanacheQuery<FdrPublishEntity> findByOrganizationId(
-      String organizationId, Sort sort) {
-    return find(
-        "receiver.organization_id = :organizationId",
-        sort,
-        Parameters.with("organizationId", organizationId).map());
-  }
-
-  public static long deleteByFdrAndPspId(String fdr, String pspId) {
-    return delete(
-        "fdr = :fdr and sender.psp_id = :pspId",
-        Parameters.with("fdr", fdr).and("pspId", pspId).map());
-  }
-
+  //
+  //  public static PanacheQuery<FdrPublishEntity> findByOrganizationId(
+  //      String organizationId, Sort sort) {
+  //    return find(
+  //        "receiver.organization_id = :organizationId",
+  //        sort,
+  //        Parameters.with("organizationId", organizationId).map());
+  //  }
+  //
+  //  public static long deleteByFdrAndPspId(String fdr, String pspId) {
+  //    return delete(
+  //        "fdr = :fdr and sender.psp_id = :pspId",
+  //        Parameters.with("fdr", fdr).and("pspId", pspId).map());
+  //  }
+  //
   public void persistEntity() {
     persist();
   }

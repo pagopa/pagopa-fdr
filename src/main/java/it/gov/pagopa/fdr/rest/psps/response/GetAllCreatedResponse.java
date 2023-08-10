@@ -1,7 +1,7 @@
-package it.gov.pagopa.fdr.rest.organizations.response;
+package it.gov.pagopa.fdr.rest.psps.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import it.gov.pagopa.fdr.rest.model.FdrInternal;
+import it.gov.pagopa.fdr.rest.model.FdrInserted;
 import it.gov.pagopa.fdr.rest.model.Metadata;
 import java.util.List;
 import lombok.Getter;
@@ -13,12 +13,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"metadata", "count", "data"})
-public class GetAllInternalResponse {
+public class GetAllCreatedResponse {
 
   private Metadata metadata;
 
   @Schema(example = "100")
   private long count;
 
-  private List<FdrInternal> data;
+  private List<FdrInserted> data;
 }
