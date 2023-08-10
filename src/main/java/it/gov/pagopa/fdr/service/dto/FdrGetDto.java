@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class FdrGetDto2 {
+public class FdrGetDto {
 
   private Long revision;
 

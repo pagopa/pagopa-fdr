@@ -10,7 +10,7 @@ import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.InternalOrganizationsValidationService;
 import it.gov.pagopa.fdr.rest.organizations.validation.OrganizationsValidationService;
 import it.gov.pagopa.fdr.service.dto.FdrAllDto;
-import it.gov.pagopa.fdr.service.dto.FdrGetDto2;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
@@ -86,7 +86,7 @@ public abstract class BaseOrganizationsResource {
     }
 
     // get from db
-    FdrGetDto2 fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp);
+    FdrGetDto fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp);
 
     return mapper.toGetIdResponse(fdrGetDto);
   }
