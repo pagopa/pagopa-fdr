@@ -65,8 +65,8 @@ public abstract class BaseOrganizationsResource {
     FdrAllDto fdrAllDto =
         service.find(
             action,
-            organizationId,
-            internalGetAll ? null : idPsp,
+            internalGetAll ? null : organizationId,
+            idPsp,
             publishedGt,
             pageNumber,
             pageSize);
