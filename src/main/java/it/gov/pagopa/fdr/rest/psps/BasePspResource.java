@@ -7,6 +7,7 @@ import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
@@ -17,6 +18,7 @@ import it.gov.pagopa.fdr.rest.psps.validation.InternalPspValidationService;
 import it.gov.pagopa.fdr.rest.psps.validation.PspsValidationService;
 import it.gov.pagopa.fdr.service.dto.FdrAllCreatedDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
@@ -172,7 +174,7 @@ public abstract class BasePspResource {
     return mapper.toGetAllResponse(fdrAllDto);
   }
 
-  protected GetCreatedResponse baseGetCreated(String fdr, Long rev, String psp) {
+  protected GetCreatedResponse baseGetCreated(String fdr, String psp) {
     String action = MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
@@ -185,8 +187,33 @@ public abstract class BasePspResource {
     internalValidator.validateGetInternal(action, fdr, psp, configData);
 
     // get from db
-    FdrGetCreatedDto fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp);
+    FdrGetCreatedDto fdrGetDto = service.findByReportingFlowName(action, fdr, psp);
 
     return mapper.toGetCreatedResponse(fdrGetDto);
+  }
+
+  protected GetPaymentResponse baseGetCreatedFdrPayment(
+      String fdr, String psp, long pageNumber, long pageSize) {
+
+    String action = MDC.get(ACTION);
+    MDC.put(FDR, fdr);
+    MDC.put(PSP_ID, psp);
+
+    log.infof(
+        AppMessageUtil.logProcess("%s with id:[%s] - page:[%s], pageSize:[%s]"),
+        action,
+        fdr,
+        pageNumber,
+        pageSize);
+
+    ConfigDataV1 configData = config.getClonedCache();
+    // validation
+    internalValidator.validateGetPaymentInternal(action, fdr, psp, configData);
+
+    // get from db
+    FdrGetPaymentDto fdrGetPaymentDto =
+        service.findPaymentByReportingFlowName(action, fdr, psp, pageNumber, pageSize);
+
+    return mapper.toGetPaymentResponse(fdrGetPaymentDto);
   }
 }

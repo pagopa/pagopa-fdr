@@ -25,6 +25,7 @@ import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
 import it.gov.pagopa.fdr.service.dto.FdrAllCreatedDto;
 import it.gov.pagopa.fdr.service.dto.FdrDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.dto.FdrSimpleCreatedDto;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
@@ -492,13 +493,12 @@ public class PspsService {
   }
 
   @WithSpan(kind = SERVER)
-  public FdrGetCreatedDto findByReportingFlowName(
-      String action, String fdr, Long rev, String pspId) {
+  public FdrGetCreatedDto findByReportingFlowName(String action, String fdr, String pspId) {
     log.infof(AppMessageUtil.logExecute(action));
 
     log.debugf("Existence check FdrInsertEntity by fdr[%s], psp[%s]", fdr, pspId);
     FdrInsertEntity fdrInsertPanacheQuery =
-        FdrInsertEntity.findByFdrAndRevAndPspId(fdr, rev, pspId)
+        FdrInsertEntity.findByFdrAndRevAndPspId(fdr, pspId)
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -508,5 +508,35 @@ public class PspsService {
 
     log.debug("Mapping ReportingFlowGetDto from FdrInsertEntity");
     return mapper.toFdrGetCreatedDto(fdrInsertPanacheQuery);
+  }
+
+  @WithSpan(kind = SERVER)
+  public FdrGetPaymentDto findPaymentByReportingFlowName(
+      String action, String fdr, String pspId, long pageNumber, long pageSize) {
+    log.infof(AppMessageUtil.logExecute(action));
+
+    Page page = Page.of((int) pageNumber - 1, (int) pageSize);
+    Sort sort = AppDBUtil.getSort(List.of("index,asc"));
+
+    log.debugf("Existence check fdr by fdr[%s], psp[%s]", fdr, pspId);
+    PanacheQuery<FdrPaymentInsertEntity> fdrPaymentInsertPanacheQuery =
+        FdrPaymentInsertEntity.findByFdrAndPspIdSort(fdr, pspId, sort).page(page);
+
+    List<FdrPaymentInsertEntity> list = fdrPaymentInsertPanacheQuery.list();
+
+    long totPage = fdrPaymentInsertPanacheQuery.pageCount();
+    long countReportingFlowPayment = fdrPaymentInsertPanacheQuery.count();
+
+    log.debug("Mapping ReportingFlowGetPaymentDto from FdrPaymentPublishEntity");
+    return FdrGetPaymentDto.builder()
+        .metadata(
+            MetadataDto.builder()
+                .pageSize(pageSize)
+                .pageNumber(pageNumber)
+                .totPage(totPage)
+                .build())
+        .count(countReportingFlowPayment)
+        .data(mapper.toPaymentDtoList(list))
+        .build();
   }
 }

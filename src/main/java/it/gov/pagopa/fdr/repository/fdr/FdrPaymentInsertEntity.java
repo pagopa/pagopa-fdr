@@ -5,6 +5,7 @@ import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
+import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
 import java.time.Instant;
 import java.util.List;
@@ -80,5 +81,13 @@ public class FdrPaymentInsertEntity extends PanacheMongoEntity {
   public static void persistFdrPaymentsInsert(
       List<FdrPaymentInsertEntity> fdrPaymentInsertEntityList) {
     persist(fdrPaymentInsertEntityList);
+  }
+
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspIdSort(
+      String fdr, String pspId, Sort sort) {
+    return find(
+        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
+        sort,
+        Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 }

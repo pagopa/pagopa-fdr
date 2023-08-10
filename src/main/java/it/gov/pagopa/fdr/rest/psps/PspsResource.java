@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.rest.psps;
 
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
@@ -182,7 +182,7 @@ public class PspsResource extends BasePspResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetAllResponse.class)))
+                    schema = @Schema(implementation = GetAllCreatedResponse.class)))
       })
   @GET
   @Re(action = FdrActionEnum.GET_ALL_CREATED_FDR)
@@ -214,12 +214,40 @@ public class PspsResource extends BasePspResource {
                     schema = @Schema(implementation = GetCreatedResponse.class)))
       })
   @GET
-  @Path("/fdrs/{" + AppConstant.FDR + "}/revisions/{" + AppConstant.REVISION + "}")
+  @Path("/fdrs/{" + AppConstant.FDR + "}")
   @Re(action = FdrActionEnum.GET_CREATED_FDR)
   public GetCreatedResponse getCreated(
+      @PathParam(AppConstant.PSP) String psp, @PathParam(AppConstant.FDR) String fdr) {
+    return baseGetCreated(fdr, psp);
+  }
+
+  @Operation(
+      operationId = "getCreatedPayment",
+      summary = "Get created payments of fdr",
+      description = "Get created payments of fdr")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = GetPaymentResponse.class)))
+      })
+  @GET
+  @Path("/fdrs/{" + AppConstant.FDR + "}/payments")
+  @Re(action = FdrActionEnum.GET_CREATED_FDR_PAYMENT)
+  public GetPaymentResponse getCreatedPayment(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
-      @PathParam(AppConstant.REVISION) Long rev) {
-    return baseGetCreated(fdr, rev, psp);
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
+    return baseGetCreatedFdrPayment(fdr, psp, pageNumber, pageSize);
   }
 }

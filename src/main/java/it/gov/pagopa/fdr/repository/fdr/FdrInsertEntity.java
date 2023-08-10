@@ -62,9 +62,9 @@ public class FdrInsertEntity extends PanacheMongoEntity {
   }
 
   public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspId(
-      String fdr, Long rev, String pspId) {
+      String fdr, String pspId) {
     return find(
-        "fdr = :fdr and revision = :rev and sender.psp_id = :pspId",
-        Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).map());
+        "fdr = :fdr and sender.psp_id = :pspId",
+        Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 }
