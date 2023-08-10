@@ -15,6 +15,7 @@ import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
+import java.time.Instant;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
@@ -32,7 +33,12 @@ public abstract class BaseOrganizationsResource {
   @Inject OrganizationsService service;
 
   protected GetAllResponse baseGetAll(
-      String organizationId, String idPsp, long pageNumber, long pageSize, boolean internalGetAll) {
+      String organizationId,
+      String idPsp,
+      Instant publishedGt,
+      long pageNumber,
+      long pageSize,
+      boolean internalGetAll) {
     String action = MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
     if (null != idPsp && !idPsp.isBlank()) {
@@ -57,7 +63,13 @@ public abstract class BaseOrganizationsResource {
 
     // get from db
     FdrAllDto fdrAllDto =
-        service.find(action, organizationId, internalGetAll ? null : idPsp, pageNumber, pageSize);
+        service.find(
+            action,
+            organizationId,
+            internalGetAll ? null : idPsp,
+            publishedGt,
+            pageNumber,
+            pageSize);
 
     return mapper.toGetAllResponse(fdrAllDto);
   }

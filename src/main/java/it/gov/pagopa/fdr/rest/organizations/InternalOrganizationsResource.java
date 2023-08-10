@@ -16,6 +16,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import java.time.Instant;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -24,7 +25,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Tag(name = "Internal Organizations", description = "Organizations operations")
-@Path("/internal/history/organizations/{" + AppConstant.ORGANIZATION + "}/fdrs")
+@Path("/internal/organizations/{" + AppConstant.ORGANIZATION + "}/fdrs")
 @Consumes("application/json")
 @Produces("application/json")
 public class InternalOrganizationsResource extends BaseOrganizationsResource {
@@ -51,11 +52,12 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
   public GetAllResponse internalGetAllPublished(
       @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
+      @QueryParam(AppConstant.PUBLISHED_GREATER_THAN) Instant publishedGt,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
           long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
-    return baseGetAll(organizationId, idPsp, pageNumber, pageSize, true);
+    return baseGetAll(organizationId, idPsp, publishedGt, pageNumber, pageSize, true);
   }
 
   @Operation(

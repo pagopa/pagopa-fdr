@@ -23,6 +23,7 @@ import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.jboss.logging.Logger;
@@ -36,7 +37,13 @@ public class OrganizationsService {
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public FdrAllDto find(String action, String ecId, String pspId, long pageNumber, long pageSize) {
+  public FdrAllDto find(
+      String action,
+      String ecId,
+      String pspId,
+      Instant publishedGt,
+      long pageNumber,
+      long pageSize) {
     log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
@@ -52,6 +59,11 @@ public class OrganizationsService {
     if (ecId != null && !ecId.isBlank()) {
       queryAnd.add("receiver.organization_id = :organizationId");
       parameters.and("organizationId", ecId);
+    }
+
+    if (publishedGt != null) {
+      queryAnd.add("published > :publishedGt");
+      parameters.and("publishedGt", publishedGt);
     }
 
     log.debugf("Get all FdrPublishEntity");
@@ -89,6 +101,8 @@ public class OrganizationsService {
                     rf ->
                         FdrSimpleDto.builder()
                             .fdr(rf.getFdr())
+                            .published(rf.getPublished())
+                            .revision(rf.getRevision())
                             .pspId(rf.getSender().getPspId())
                             .build())
                 .toList())

@@ -40,13 +40,13 @@ import org.junit.jupiter.api.Test;
 class InternalOrganizationResourceTest {
 
   private static final String GET_ALL_PUBLISHED_FLOW_URL =
-      "/internal/history/organizations/ndp/fdrs?" + AppConstant.PSP + "=%s";
+      "/internal/organizations/ndp/fdrs?" + AppConstant.PSP + "=%s";
   private static final String GET_REPORTING_FLOW_URL =
-      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s";
+      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s";
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL =
-      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/payments";
+      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/payments";
   private static final String CHANGE_READ_FLAG_URL =
-      "/internal/history/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/read";
+      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/read";
 
   /** ############### getAllPublishedFlow ################ */
   @Test
