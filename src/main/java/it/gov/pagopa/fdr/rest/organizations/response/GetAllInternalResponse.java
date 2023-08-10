@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr.rest.organizations.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import it.gov.pagopa.fdr.rest.model.FdrInternal;
 import it.gov.pagopa.fdr.rest.model.Metadata;
 import java.util.List;
 import lombok.Getter;

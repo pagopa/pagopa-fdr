@@ -1,8 +1,6 @@
 package it.gov.pagopa.fdr.service.psps.mapper;
 
-import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrInsertEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;

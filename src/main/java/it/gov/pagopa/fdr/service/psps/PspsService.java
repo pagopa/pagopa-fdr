@@ -7,9 +7,7 @@ import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.fdr.FdrHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrInsertEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentHistoryEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
@@ -36,10 +34,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
-import org.jboss.logging.MDC;
+import org.slf4j.MDC;
 
 @ApplicationScoped
 public class PspsService {
@@ -156,7 +153,7 @@ public class PspsService {
     log.debug("Mapping FdrPaymentInsertEntity from addPaymentDto.getPayments()");
     FdrPaymentInsertEntity.persistFdrPaymentsInsert(
         reportingFlowPaymentEntities.stream()
-            .map(
+            .peek(
                 reportingFlowPaymentEntity -> {
                   reportingFlowPaymentEntity.setCreated(now);
                   reportingFlowPaymentEntity.setUpdated(now);
@@ -164,7 +161,6 @@ public class PspsService {
                   reportingFlowPaymentEntity.setRefFdr(fdrEntity.getFdr());
                   reportingFlowPaymentEntity.setRefFdrSenderPspId(fdrEntity.getSender().getPspId());
                   reportingFlowPaymentEntity.setRefFdrRevision(fdrEntity.getRevision());
-                  return reportingFlowPaymentEntity;
                 })
             .toList());
 
@@ -257,30 +253,7 @@ public class PspsService {
   }
 
   @WithSpan(kind = SERVER)
-  public void internalPublishByFdr(String action, String pspId, String fdr) {
-    Consumer<FdrInsertEntity> consumer =
-        fdrEntity -> log.debug("NOT Add FdrInsertEntity in queue fdr message");
-    basePublishByfdr(action, pspId, fdr, consumer);
-  }
-
-  @WithSpan(kind = SERVER)
-  public void publishByFdr(String action, String pspId, String fdr) {
-    Consumer<FdrInsertEntity> consumer =
-        fdrEntity -> {
-          log.debug("Add FdrInsertEntity in queue fdr message");
-          conversionQueue.addQueueFlowMessage(
-              FdrMessage.builder()
-                  .fdr(fdrEntity.getFdr())
-                  .pspId(fdrEntity.getSender().getPspId())
-                  .retry(0L)
-                  .revision(fdrEntity.getRevision())
-                  .build());
-        };
-    basePublishByfdr(action, pspId, fdr, consumer);
-  }
-
-  private void basePublishByfdr(
-      String action, String pspId, String fdr, Consumer<FdrInsertEntity> funcConversionQueue) {
+  public void publishByFdr(String action, String pspId, String fdr, boolean internalPublish) {
     log.infof(AppMessageUtil.logExecute(action));
     Instant now = Instant.now();
 
@@ -321,31 +294,11 @@ public class PspsService {
             .project(FdrPaymentInsertEntity.class)
             .list();
 
-    if (fdrEntity.getRevision() > 1L) {
-      log.debugf(
-          "Delete FdrPublishEntity for FdrInsertEntity in revision[%d] by fdr[%s], pspId[%s]",
-          fdrEntity.getRevision(), fdr, pspId);
-      FdrPublishEntity.deleteByFdrAndPspId(fdr, pspId);
-      log.debugf(
-          "Delete FdrPaymentPublishEntity for FdrInsertEntity in revision[%d] by fdr[%s],"
-              + " pspId[%s]",
-          fdrEntity.getRevision(), fdr, pspId);
-      FdrPaymentPublishEntity.deleteByFdrAndPspId(fdr, pspId);
-    }
-
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(fdrEntity);
     fdrPublishEntity.persistEntity();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
     FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
-
-    log.debug("Mapping FdrHistoryEntity from fdrEntity");
-    FdrHistoryEntity fdrHistoryEntity = mapper.toFdrHistoryEntity(fdrEntity);
-    fdrHistoryEntity.persist();
-    log.debug("Mapping FdrPaymentHistoryEntity from paymentInsertEntities");
-    List<FdrPaymentHistoryEntity> fdrPaymentHistoryEntities =
-        mapper.toFdrPaymentHistoryEntityList(paymentInsertEntities);
-    FdrPaymentHistoryEntity.persistFdrPaymentHistoryEntities(fdrPaymentHistoryEntities);
 
     log.debug("Delete FdrInsertEntity");
     fdrEntity.delete();
@@ -354,9 +307,20 @@ public class PspsService {
     FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
 
     // add to conversion queue
-    funcConversionQueue.accept(fdrEntity);
+    if (internalPublish) {
+      log.debug("NOT Add FdrInsertEntity in queue fdr message");
+    } else {
+      log.debug("Add FdrInsertEntity in queue fdr message");
+      conversionQueue.addQueueFlowMessage(
+          FdrMessage.builder()
+              .fdr(fdrEntity.getFdr())
+              .pspId(fdrEntity.getSender().getPspId())
+              .retry(0L)
+              .revision(fdrEntity.getRevision())
+              .build());
+    }
 
-    String sessionId = org.slf4j.MDC.get(TRX_ID);
+    String sessionId = MDC.get(TRX_ID);
     reService.sendEvent(
         ReInternal.builder()
             .appVersion(AppVersionEnum.FDR003)
@@ -368,8 +332,8 @@ public class PspsService {
             //            .flowRead(false)
             .fdr(fdr)
             .pspId(pspId)
-            .organizationId(fdrEntity.getReceiver().getOrganizationId())
-            .revision(fdrEntity.getRevision())
+            .organizationId(fdrPublishEntity.getReceiver().getOrganizationId())
+            .revision(fdrPublishEntity.getRevision())
             .fdrAction(FdrActionEnum.PUBLISH)
             .build());
   }

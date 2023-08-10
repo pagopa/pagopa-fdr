@@ -6,6 +6,7 @@ import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
@@ -22,6 +23,7 @@ import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import org.jboss.logging.Logger;
 import org.slf4j.MDC;
@@ -34,20 +36,33 @@ public class OrganizationsService {
   @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public FdrAllDto findByIdEc(
-      String action, String ecId, String pspId, long pageNumber, long pageSize) {
+  public FdrAllDto find(String action, String ecId, String pspId, long pageNumber, long pageSize) {
     log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
     Sort sort = AppDBUtil.getSort(List.of("_id,asc"));
 
+    List<String> queryAnd = new ArrayList<>();
+    Parameters parameters = new Parameters();
+
+    if (pspId != null && !pspId.isBlank()) {
+      queryAnd.add("sender.psp_id = :pspId");
+      parameters.and("pspId", pspId);
+    }
+    if (ecId != null && !ecId.isBlank()) {
+      queryAnd.add("receiver.organization_id = :organizationId");
+      parameters.and("organizationId", ecId);
+    }
+
+    log.debugf("Get all FdrPublishEntity");
     PanacheQuery<FdrPublishEntity> fdrPublishPanacheQuery;
-    if (pspId == null || pspId.isBlank()) {
-      log.debugf("Get all FdrPublishEntity by ecId[%s]", ecId);
-      fdrPublishPanacheQuery = FdrPublishEntity.findByOrganizationId(ecId, sort);
+    if (queryAnd.isEmpty()) {
+      log.debugf("Get all FdrPublishEntity");
+      fdrPublishPanacheQuery = FdrPublishEntity.findAll(sort);
     } else {
-      log.debugf("Get all FdrPublishEntity by ecId[%s], pspId[%s]", ecId, pspId);
-      fdrPublishPanacheQuery = FdrPublishEntity.findByOrganizationIdAndPspId(ecId, pspId, sort);
+      log.debugf("Get all FdrPublishEntity with pspId[%s] organizationId[%s]", pspId, ecId);
+      fdrPublishPanacheQuery =
+          FdrPublishEntity.find(String.join(" and ", queryAnd), sort, parameters);
     }
 
     log.debug("Get paging FdrPublishReportingFlowNameProjection");
@@ -81,12 +96,12 @@ public class OrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public FdrGetDto findByReportingFlowName(String action, String fdr, String pspId) {
+  public FdrGetDto findByReportingFlowName(String action, String fdr, Long rev, String pspId) {
     log.infof(AppMessageUtil.logExecute(action));
 
     log.debugf("Existence check FdrPublishEntity by fdr[%s], psp[%s]", fdr, pspId);
     FdrPublishEntity fdrPublishPanacheQuery =
-        FdrPublishEntity.findByFdrAndPspId(fdr, pspId)
+        FdrPublishEntity.findByFdrAndRevAndPspId(fdr, rev, pspId)
             .project(FdrPublishEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -100,7 +115,7 @@ public class OrganizationsService {
 
   @WithSpan(kind = SERVER)
   public FdrGetPaymentDto findPaymentByReportingFlowName(
-      String action, String fdr, String pspId, long pageNumber, long pageSize) {
+      String action, String fdr, Long rev, String pspId, long pageNumber, long pageSize) {
     log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
@@ -108,7 +123,7 @@ public class OrganizationsService {
 
     log.debugf("Existence check fdr by fdr[%s], psp[%s]", fdr, pspId);
     PanacheQuery<FdrPaymentPublishEntity> fdrPaymentPublishPanacheQuery =
-        FdrPaymentPublishEntity.findByFdrAndPspId(fdr, pspId, sort).page(page);
+        FdrPaymentPublishEntity.findByFdrAndRevAndPspId(fdr, rev, pspId, sort).page(page);
 
     List<FdrPaymentPublishEntity> list = fdrPaymentPublishPanacheQuery.list();
 

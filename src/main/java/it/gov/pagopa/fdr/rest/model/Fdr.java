@@ -17,4 +17,8 @@ public class Fdr {
   @Schema(example = "1")
   @JsonProperty(AppConstant.PSP)
   private String pspId;
+
+  @Schema(example = "1")
+  @JsonProperty(AppConstant.REVISION)
+  private Long revision;
 }

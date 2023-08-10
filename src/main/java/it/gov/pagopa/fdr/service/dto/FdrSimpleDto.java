@@ -10,4 +10,6 @@ public class FdrSimpleDto {
   private String fdr;
 
   private String pspId;
+
+  private Long revision;
 }
