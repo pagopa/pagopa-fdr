@@ -255,7 +255,6 @@ public class PspsService {
   @WithSpan(kind = SERVER)
   public void publishByFdr(String action, String pspId, String fdr, boolean internalPublish) {
     log.infof(AppMessageUtil.logExecute(action));
-    Instant now = Instant.now();
 
     FdrInsertEntity fdrEntity =
         checkFdrInsertEntity(
@@ -284,8 +283,6 @@ public class PspsService {
           fdrEntity.getComputedSumPayments());
     }
 
-    fdrEntity.setUpdated(now);
-    fdrEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
     log.debug("FdrInsertEntity PUBLISHED");
 
     log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, pspId);
@@ -295,6 +292,10 @@ public class PspsService {
             .list();
 
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(fdrEntity);
+    Instant now = Instant.now();
+    fdrPublishEntity.setUpdated(now);
+    fdrPublishEntity.setPublished(now);
+    fdrPublishEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
     fdrPublishEntity.persistEntity();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
@@ -329,7 +330,6 @@ public class PspsService {
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(false)
             .fdrStatus(FdrStatusEnum.PUBLISHED)
-            //            .flowRead(false)
             .fdr(fdr)
             .pspId(pspId)
             .organizationId(fdrPublishEntity.getReceiver().getOrganizationId())
@@ -364,7 +364,6 @@ public class PspsService {
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(true)
             .fdrStatus(FdrStatusEnum.DELETED)
-            //            .flowRead(false)
             .fdr(fdr)
             .pspId(pspId)
             .organizationId(fdrEntity.getReceiver().getOrganizationId())

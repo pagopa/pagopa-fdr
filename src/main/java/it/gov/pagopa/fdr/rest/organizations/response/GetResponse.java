@@ -31,16 +31,19 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class GetResponse {
   @Schema(example = "4")
   @JsonProperty(AppConstant.REVISION)
-  public Long revision;
+  private Long revision;
 
   @Schema(example = "2023-04-03T12:00:30.900000Z")
-  public Instant created;
+  private Instant created;
 
   @Schema(example = "2023-04-03T12:00:30.900000Z")
-  public Instant updated;
+  private Instant updated;
+
+  @Schema(example = "2023-04-03T12:00:30.900000Z")
+  private Instant published;
 
   @Schema(example = "CREATED")
-  public ReportingFlowStatusEnum status;
+  private ReportingFlowStatusEnum status;
 
   @Schema(example = "2016-08-16pspTest-1178")
   @JsonProperty(AppConstant.FDR)

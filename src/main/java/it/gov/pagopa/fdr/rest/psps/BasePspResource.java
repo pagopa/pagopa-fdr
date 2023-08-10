@@ -35,7 +35,7 @@ public abstract class BasePspResource {
 
   @Inject PspsService service;
 
-  protected RestResponse<GenericResponse> create(
+  protected RestResponse<GenericResponse> baseCreate(
       String pspId, String fdr, CreateRequest createRequest) {
     String action = MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
@@ -63,7 +63,7 @@ public abstract class BasePspResource {
         GenericResponse.builder().message(String.format("Fdr [%s] saved", fdr)).build());
   }
 
-  protected GenericResponse addPayment(
+  protected GenericResponse baseAddPayment(
       String pspId, String fdr, AddPaymentRequest addPaymentRequest) {
     String action = MDC.get(ACTION);
     MDC.put(FDR, fdr);
@@ -82,7 +82,7 @@ public abstract class BasePspResource {
     return GenericResponse.builder().message(String.format("Fdr [%s] payment added", fdr)).build();
   }
 
-  protected GenericResponse deletePayment(
+  protected GenericResponse baseDeletePayment(
       String pspId, String fdr, DeletePaymentRequest deletePaymentRequest) {
     String action = MDC.get(ACTION);
     MDC.put(FDR, fdr);
@@ -103,7 +103,7 @@ public abstract class BasePspResource {
         .build();
   }
 
-  protected GenericResponse publish(String pspId, String fdr, boolean internalPublish) {
+  protected GenericResponse basePublish(String pspId, String fdr, boolean internalPublish) {
     String action = MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
@@ -121,7 +121,7 @@ public abstract class BasePspResource {
     return GenericResponse.builder().message(String.format("Fdr [%s] published", fdr)).build();
   }
 
-  protected GenericResponse delete(String pspId, String fdr) {
+  protected GenericResponse baseDelete(String pspId, String fdr) {
     String action = MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);

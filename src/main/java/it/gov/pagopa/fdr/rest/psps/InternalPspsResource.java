@@ -55,7 +55,7 @@ public class InternalPspsResource extends BasePspResource {
       @PathParam(AppConstant.FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
       @NotNull @Valid CreateRequest createRequest) {
 
-    return create(pspId, fdr, createRequest);
+    return baseCreate(pspId, fdr, createRequest);
   }
 
   @Operation(
@@ -83,7 +83,7 @@ public class InternalPspsResource extends BasePspResource {
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid AddPaymentRequest addPaymentRequest) {
-    return addPayment(pspId, fdr, addPaymentRequest);
+    return baseAddPayment(pspId, fdr, addPaymentRequest);
   }
 
   @Operation(
@@ -111,7 +111,7 @@ public class InternalPspsResource extends BasePspResource {
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid DeletePaymentRequest deletePaymentRequest) {
-    return deletePayment(pspId, fdr, deletePaymentRequest);
+    return baseDeletePayment(pspId, fdr, deletePaymentRequest);
   }
 
   @Operation(operationId = "internalPublish", summary = "Publish fdr", description = "Publish fdr")
@@ -133,7 +133,7 @@ public class InternalPspsResource extends BasePspResource {
   @Re(action = FdrActionEnum.INTERNAL_PUBLISH)
   public GenericResponse internalPublish(
       @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdr) {
-    return publish(pspId, fdr, true);
+    return basePublish(pspId, fdr, true);
   }
 
   @Operation(operationId = "internalDelete", summary = "Delete fdr", description = "Delete fdr")
@@ -154,6 +154,6 @@ public class InternalPspsResource extends BasePspResource {
   @Re(action = FdrActionEnum.INTERNAL_DELETE_FLOW)
   public GenericResponse internalDelete(
       @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdr) {
-    return delete(pspId, fdr);
+    return baseDelete(pspId, fdr);
   }
 }

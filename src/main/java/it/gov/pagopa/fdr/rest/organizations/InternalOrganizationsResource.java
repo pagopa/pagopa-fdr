@@ -55,7 +55,7 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
           long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
-    return getAll(organizationId, idPsp, pageNumber, pageSize, true);
+    return baseGetAll(organizationId, idPsp, pageNumber, pageSize, true);
   }
 
   @Operation(
@@ -90,7 +90,7 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,
       @PathParam(AppConstant.PSP) String psp) {
-    return get(organizationId, fdr, rev, psp, true);
+    return baseGet(organizationId, fdr, rev, psp, true);
   }
 
   @Operation(
@@ -130,6 +130,6 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
 
-    return getFdrPayment(organizationId, fdr, rev, psp, pageNumber, pageSize, true);
+    return baseGetFdrPayment(organizationId, fdr, rev, psp, pageNumber, pageSize, true);
   }
 }

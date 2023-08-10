@@ -24,7 +24,6 @@ import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.model.Payment;
 import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllInternalResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
@@ -53,7 +52,7 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
-    GetAllInternalResponse res =
+    GetAllResponse res =
         given()
             .header(HEADER)
             .when()
@@ -61,7 +60,7 @@ class OrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetAllInternalResponse.class);
+            .as(GetAllResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(res.getData(), hasItem(anyOf(
         hasProperty("name", equalTo(flowName)),

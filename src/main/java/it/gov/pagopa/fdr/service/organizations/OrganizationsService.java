@@ -14,7 +14,7 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishProjection;
 import it.gov.pagopa.fdr.service.dto.FdrAllDto;
-import it.gov.pagopa.fdr.service.dto.FdrGetDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto2;
 import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.dto.FdrSimpleDto;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
@@ -96,7 +96,7 @@ public class OrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public FdrGetDto findByReportingFlowName(String action, String fdr, Long rev, String pspId) {
+  public FdrGetDto2 findByReportingFlowName(String action, String fdr, Long rev, String pspId) {
     log.infof(AppMessageUtil.logExecute(action));
 
     log.debugf("Existence check FdrPublishEntity by fdr[%s], psp[%s]", fdr, pspId);

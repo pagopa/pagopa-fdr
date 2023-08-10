@@ -5,7 +5,6 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.service.dto.FdrDto;
-import it.gov.pagopa.fdr.service.dto.FdrGetDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import java.util.List;
 import org.mapstruct.Mapper;
@@ -17,8 +16,6 @@ import org.mapstruct.factory.Mappers;
 public interface PspsServiceServiceMapper {
 
   PspsServiceServiceMapper INSTANCE = Mappers.getMapper(PspsServiceServiceMapper.class);
-
-  FdrGetDto toFdrGetDto(FdrInsertEntity reportingFlow);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "revision", ignore = true)
@@ -41,13 +38,9 @@ public interface PspsServiceServiceMapper {
 
   List<FdrPaymentInsertEntity> toFdrPaymentInsertEntityList(List<PaymentDto> paymentDto);
 
+  @Mapping(target = "published", ignore = true)
   FdrPublishEntity toFdrPublishEntity(FdrInsertEntity fdrInsertEntity);
 
   List<FdrPaymentPublishEntity> toFdrPaymentPublishEntityList(
-      List<FdrPaymentInsertEntity> fdrInsertEntityList);
-
-  FdrHistoryEntity toFdrHistoryEntity(FdrInsertEntity fdrInsertEntity);
-
-  List<FdrPaymentHistoryEntity> toFdrPaymentHistoryEntityList(
       List<FdrPaymentInsertEntity> fdrInsertEntityList);
 }

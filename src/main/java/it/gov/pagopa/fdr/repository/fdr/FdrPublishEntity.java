@@ -25,6 +25,8 @@ public class FdrPublishEntity extends PanacheMongoEntity {
 
   private Instant updated;
 
+  private Instant published;
+
   private String fdr;
 
   @BsonProperty("fdr_date")

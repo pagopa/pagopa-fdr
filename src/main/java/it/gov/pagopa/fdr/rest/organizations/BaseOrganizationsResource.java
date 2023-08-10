@@ -10,12 +10,11 @@ import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.validation.InternalOrganizationsValidationService;
 import it.gov.pagopa.fdr.rest.organizations.validation.OrganizationsValidationService;
 import it.gov.pagopa.fdr.service.dto.FdrAllDto;
-import it.gov.pagopa.fdr.service.dto.FdrGetDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto2;
 import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.slf4j.MDC;
@@ -32,7 +31,7 @@ public abstract class BaseOrganizationsResource {
 
   @Inject OrganizationsService service;
 
-  protected GetAllResponse getAll(
+  protected GetAllResponse baseGetAll(
       String organizationId, String idPsp, long pageNumber, long pageSize, boolean internalGetAll) {
     String action = MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
@@ -63,7 +62,7 @@ public abstract class BaseOrganizationsResource {
     return mapper.toGetAllResponse(fdrAllDto);
   }
 
-  protected GetResponse get(
+  protected GetResponse baseGet(
       String organizationId, String fdr, Long rev, String psp, boolean internalGet) {
     String action = MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
@@ -87,12 +86,12 @@ public abstract class BaseOrganizationsResource {
     }
 
     // get from db
-    FdrGetDto fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp);
+    FdrGetDto2 fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp);
 
     return mapper.toGetIdResponse(fdrGetDto);
   }
 
-  protected GetPaymentResponse getFdrPayment(
+  protected GetPaymentResponse baseGetFdrPayment(
       String organizationId,
       String fdr,
       Long rev,
