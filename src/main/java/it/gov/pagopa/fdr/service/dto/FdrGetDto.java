@@ -35,4 +35,8 @@ public class FdrGetDto {
   private Long computedTotPayments;
 
   private Double computedSumPayments;
+
+  private Long totPayments;
+
+  private Double sumPayments;
 }

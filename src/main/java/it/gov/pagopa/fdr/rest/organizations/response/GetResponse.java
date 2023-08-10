@@ -70,4 +70,10 @@ public class GetResponse {
 
   @Schema(example = "100.90")
   public Double computedSumPayments;
+
+  @Schema(example = "100")
+  public Long totPayments;
+
+  @Schema(example = "100.90")
+  public Double sumPayments;
 }
