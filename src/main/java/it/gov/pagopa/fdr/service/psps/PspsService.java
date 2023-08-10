@@ -5,6 +5,10 @@ import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
 import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import io.quarkus.mongodb.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Parameters;
+import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.fdr.FdrInsertEntity;
@@ -12,12 +16,17 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
 import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
+import it.gov.pagopa.fdr.service.dto.FdrAllCreatedDto;
 import it.gov.pagopa.fdr.service.dto.FdrDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
+import it.gov.pagopa.fdr.service.dto.FdrSimpleCreatedDto;
+import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
@@ -26,11 +35,13 @@ import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.service.re.model.FdrStatusEnum;
 import it.gov.pagopa.fdr.service.re.model.ReInternal;
+import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -414,5 +425,88 @@ public class PspsService {
         .project(FdrInsertEntity.class)
         .firstResultOptional()
         .orElseThrow(() -> appException);
+  }
+
+  @WithSpan(kind = SERVER)
+  public FdrAllCreatedDto find(
+      String action, String pspId, Instant createdGt, long pageNumber, long pageSize) {
+    log.infof(AppMessageUtil.logExecute(action));
+
+    Page page = Page.of((int) pageNumber - 1, (int) pageSize);
+    Sort sort = AppDBUtil.getSort(List.of("_id,asc"));
+
+    List<String> queryAnd = new ArrayList<>();
+    Parameters parameters = new Parameters();
+
+    if (pspId != null && !pspId.isBlank()) {
+      queryAnd.add("sender.psp_id = :pspId");
+      parameters.and("pspId", pspId);
+    }
+
+    if (createdGt != null) {
+      queryAnd.add("created > :createdGt");
+      parameters.and("createdGt", createdGt);
+    }
+
+    log.debugf("Get all FdrInsertedEntity");
+    PanacheQuery<FdrInsertEntity> fdrInsertEntityPanacheQuery;
+    if (queryAnd.isEmpty()) {
+      log.debugf("Get all FdrInsertedEntity");
+      fdrInsertEntityPanacheQuery = FdrInsertEntity.findAll(sort);
+    } else {
+      log.debugf("Get all FdrInsertedEntity with pspId[%s]", pspId);
+      fdrInsertEntityPanacheQuery =
+          FdrInsertEntity.find(String.join(" and ", queryAnd), sort, parameters);
+    }
+
+    log.debug("Get paging FdrInsertedReportingFlowNameProjection");
+    PanacheQuery<FdrInsertProjection> fdrProjectionPanacheQuery =
+        fdrInsertEntityPanacheQuery.page(page).project(FdrInsertProjection.class);
+
+    List<FdrInsertProjection> reportingFlowIds = fdrProjectionPanacheQuery.list();
+
+    long totPage = fdrProjectionPanacheQuery.pageCount();
+    long countReportingFlow = fdrProjectionPanacheQuery.count();
+
+    log.debug("Building ReportingFlowByIdEcDto");
+    return FdrAllCreatedDto.builder()
+        .metadata(
+            MetadataDto.builder()
+                .pageSize(pageSize)
+                .pageNumber(pageNumber)
+                .totPage(totPage)
+                .build())
+        .count(countReportingFlow)
+        .data(
+            reportingFlowIds.stream()
+                .map(
+                    rf ->
+                        FdrSimpleCreatedDto.builder()
+                            .fdr(rf.getFdr())
+                            .created(rf.getCreated())
+                            .revision(rf.getRevision())
+                            .pspId(rf.getSender().getPspId())
+                            .build())
+                .toList())
+        .build();
+  }
+
+  @WithSpan(kind = SERVER)
+  public FdrGetCreatedDto findByReportingFlowName(
+      String action, String fdr, Long rev, String pspId) {
+    log.infof(AppMessageUtil.logExecute(action));
+
+    log.debugf("Existence check FdrInsertEntity by fdr[%s], psp[%s]", fdr, pspId);
+    FdrInsertEntity fdrInsertPanacheQuery =
+        FdrInsertEntity.findByFdrAndRevAndPspId(fdr, rev, pspId)
+            .project(FdrInsertEntity.class)
+            .firstResultOptional()
+            .orElseThrow(
+                () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, fdr));
+
+    MDC.put(ORGANIZATION_ID, fdrInsertPanacheQuery.getReceiver().getOrganizationId());
+
+    log.debug("Mapping ReportingFlowGetDto from FdrInsertEntity");
+    return mapper.toFdrGetCreatedDto(fdrInsertPanacheQuery);
   }
 }

@@ -11,11 +11,17 @@ import it.gov.pagopa.fdr.rest.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
+import it.gov.pagopa.fdr.rest.psps.response.GetAllCreatedResponse;
+import it.gov.pagopa.fdr.rest.psps.response.GetCreatedResponse;
+import it.gov.pagopa.fdr.rest.psps.validation.InternalPspValidationService;
 import it.gov.pagopa.fdr.rest.psps.validation.PspsValidationService;
+import it.gov.pagopa.fdr.service.dto.FdrAllCreatedDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response.Status;
+import java.time.Instant;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
@@ -30,6 +36,8 @@ public abstract class BasePspResource {
   @Inject Config config;
 
   @Inject PspsValidationService validator;
+
+  @Inject InternalPspValidationService internalValidator;
 
   @Inject PspsResourceServiceMapper mapper;
 
@@ -137,5 +145,48 @@ public abstract class BasePspResource {
     service.deleteByFdr(action, pspId, fdr);
 
     return GenericResponse.builder().message(String.format("Fdr [%s] deleted", fdr)).build();
+  }
+
+  protected GetAllCreatedResponse baseGetAllCreated(
+      String idPsp, Instant createdGt, long pageNumber, long pageSize) {
+    String action = MDC.get(ACTION);
+    if (null != idPsp && !idPsp.isBlank()) {
+      MDC.put(PSP_ID, idPsp);
+    }
+
+    log.infof(
+        AppMessageUtil.logProcess("%s by psp:[%s] - page:[%s], pageSize:[%s]"),
+        action,
+        idPsp,
+        pageNumber,
+        pageSize);
+
+    ConfigDataV1 configData = config.getClonedCache();
+
+    // validation
+    internalValidator.validateGetAllInternal(action, idPsp, configData);
+
+    // get from db
+    FdrAllCreatedDto fdrAllDto = service.find(action, idPsp, createdGt, pageNumber, pageSize);
+
+    return mapper.toGetAllResponse(fdrAllDto);
+  }
+
+  protected GetCreatedResponse baseGetCreated(String fdr, Long rev, String psp) {
+    String action = MDC.get(ACTION);
+    MDC.put(FDR, fdr);
+    MDC.put(PSP_ID, psp);
+
+    log.infof(AppMessageUtil.logProcess("%s by fdr=[%s], psp=[%s]"), action, fdr, psp);
+
+    ConfigDataV1 configData = config.getClonedCache();
+
+    // validation
+    internalValidator.validateGetInternal(action, fdr, psp, configData);
+
+    // get from db
+    FdrGetCreatedDto fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp);
+
+    return mapper.toGetCreatedResponse(fdrGetDto);
   }
 }

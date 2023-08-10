@@ -84,8 +84,8 @@ public abstract class BaseOrganizationsResource {
     log.infof(
         AppMessageUtil.logProcess("%s by ec:[%s] with fdr=[%s], psp=[%s]"),
         action,
-        fdr,
         organizationId,
+        fdr,
         psp);
 
     ConfigDataV1 configData = config.getClonedCache();
