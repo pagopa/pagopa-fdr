@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.nio.charset.StandardCharsets;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -45,7 +46,10 @@ public class ConversionService {
       log.infof(
           "Send message. Queue name [%s], pspId [%s], fdr [%s]",
           queueName, fdrMessage.getPspId(), fdrMessage.getFdr());
-      this.queue.sendMessage(objectMapper.writeValueAsString(fdrMessage));
+      String rawString = objectMapper.writeValueAsString(fdrMessage);
+      byte[] bytes = rawString.getBytes(StandardCharsets.UTF_8);
+      String utf8EncodedString = new String(bytes, StandardCharsets.UTF_8);
+      this.queue.sendMessage(utf8EncodedString);
     }
   }
 }
