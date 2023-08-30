@@ -11,6 +11,8 @@ public class AppConstant {
   public static final String PSP = "pspId";
   public static final String PUBLISHED_GREATER_THAN = "publishedGt";
   public static final String CREATED_GREATER_THAN = "createdGt";
+  public static final String CREATED_FROM = "createdFrom";
+  public static final String CREATED_TO = "createdTo";
   public static final String ORGANIZATION = "organizationId";
   public static final String IUV = "iuv";
   public static final String IUR = "iur";

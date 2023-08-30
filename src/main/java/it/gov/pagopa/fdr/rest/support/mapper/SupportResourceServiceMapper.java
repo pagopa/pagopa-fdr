@@ -4,8 +4,7 @@ import it.gov.pagopa.fdr.rest.model.Metadata;
 import it.gov.pagopa.fdr.rest.support.response.FdrByIur;
 import it.gov.pagopa.fdr.rest.support.response.FdrByIuv;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
-import it.gov.pagopa.fdr.service.dto.PaymentByPspIdIurDTO;
-import it.gov.pagopa.fdr.service.dto.PaymentByPspIdIuvDTO;
+import it.gov.pagopa.fdr.service.dto.PaymentByPspIdIuvIurDTO;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
@@ -15,7 +14,7 @@ import org.mapstruct.factory.Mappers;
 public interface SupportResourceServiceMapper {
   SupportResourceServiceMapper INSTANCE =
       Mappers.getMapper(SupportResourceServiceMapper.class);
-  List<FdrByIuv> toFdrByIuvList(List<PaymentByPspIdIuvDTO> fdrGetPaymentDto);
-  List<FdrByIur> toFdrByIurList(List<PaymentByPspIdIurDTO> fdrGetPaymentDto);
+  List<FdrByIuv> toFdrByIuvList(List<PaymentByPspIdIuvIurDTO> fdrGetPaymentDto);
+  List<FdrByIur> toFdrByIurList(List<PaymentByPspIdIuvIurDTO> fdrGetPaymentDto);
   Metadata toMetadata(MetadataDto metadataDto);
 }

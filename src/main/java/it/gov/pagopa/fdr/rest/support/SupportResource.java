@@ -1,13 +1,13 @@
 package it.gov.pagopa.fdr.rest.support;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import it.gov.pagopa.fdr.rest.support.mapper.SupportResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.support.response.FdrByIurResponse;
 import it.gov.pagopa.fdr.rest.support.response.FdrByIuvResponse;
 import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIurDTO;
-import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIuvDTO;
+import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIuvIurDTO;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.service.support.SupportService;
 import it.gov.pagopa.fdr.util.AppConstant;
@@ -33,7 +33,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.MDC;
 
 @Tag(name = "Support", description = "Support operations")
-@Path("/internal/organizations/{" + AppConstant.ORGANIZATION+ "}/")
+@Path("/internal/psps/{" + AppConstant.PSP+ "}/")
 @Consumes("application/json")
 @Produces("application/json")
 public class SupportResource {
@@ -64,23 +64,26 @@ public class SupportResource {
       + AppConstant.IUV
       + "}/"
   )
-  @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_IUV_FDR)
+  @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_PSP_IUV_FDR)
   public FdrByIuvResponse getByIuv(
       @PathParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
       @PathParam(AppConstant.IUV) @Pattern(regexp = "^(.{1,35})$") String iuv,
-      @QueryParam(AppConstant.CREATED_GREATER_THAN) Instant createdGt,
+      @QueryParam(AppConstant.CREATED_FROM) Instant createdFrom,
+      @QueryParam(AppConstant.CREATED_TO) Instant createdTo,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
           long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
     String action = MDC.get(ACTION);
-    MDC.put(ORGANIZATION_ID, pspId);
-    PaymentGetByPspIdIuvDTO paymentDtoList=
-        service.findPaymentsByPspIdAndIuv(
+    MDC.put(PSP_ID, pspId);
+    PaymentGetByPspIdIuvIurDTO paymentDtoList=
+        service.findPaymentsByPspIdAndIuvIur(
             action,
             pspId,
             iuv,
-            createdGt,
+            null,
+            createdFrom,
+            createdTo,
             pageNumber,
             pageSize);
     return FdrByIuvResponse.builder()
@@ -90,9 +93,9 @@ public class SupportResource {
         .build();
   }
   @Operation(
-      operationId = "getAllPaymentsByOrgIdAndIur",
-      summary = "Get all payments by organization id and iur",
-      description = "Get all payments by organization id and iur")
+      operationId = "getAllPaymentsByPspIdAndIur",
+      summary = "Get all payments by psp id and iur",
+      description = "Get all payments by psp id and iur")
   @APIResponses(
       value = {
           @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -112,23 +115,26 @@ public class SupportResource {
           + AppConstant.IUR
           + "}/"
   )
-  @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_IUV_FDR)
+  @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_PSP_IUR_FDR)
   public FdrByIurResponse getByIur(
       @PathParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
       @PathParam(AppConstant.IUR) @Pattern(regexp = "^(.{1,35})$") String iur,
-      @QueryParam(AppConstant.CREATED_GREATER_THAN) Instant createdAt,
+      @QueryParam(AppConstant.CREATED_FROM) Instant createdFrom,
+      @QueryParam(AppConstant.CREATED_TO) Instant createdTo,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
       long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
       long pageSize) {
     String action = MDC.get(ACTION);
-    MDC.put(ORGANIZATION_ID, pspId);
-    PaymentGetByPspIdIurDTO paymentDtoList=
-        service.findPaymentsPspIdAndIur(
+    MDC.put(PSP_ID, pspId);
+    PaymentGetByPspIdIuvIurDTO paymentDtoList=
+        service.findPaymentsByPspIdAndIuvIur(
             action,
             pspId,
+            null,
             iur,
-            createdAt,
+            createdFrom,
+            createdTo,
             pageNumber,
             pageSize);
     return FdrByIurResponse.builder()

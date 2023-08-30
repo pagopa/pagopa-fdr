@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PaymentByPspIdIuvDTO {
+public class PaymentByPspIdIuvIurDTO {
   private String pspId;
   private String organizationId;
   private String fdr;

@@ -6,8 +6,8 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PaymentGetByPspIdIuvDTO {
+public class PaymentGetByPspIdIuvIurDTO {
   private MetadataDto metadata;
   private Long count;
-  private List<PaymentByPspIdIuvDTO> data;
+  private List<PaymentByPspIdIuvIurDTO> data;
 }

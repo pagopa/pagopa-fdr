@@ -41,3 +41,4 @@ nb-configuration.xml
 
 .cache
 .cache_ggshield
+/.quarkus/
