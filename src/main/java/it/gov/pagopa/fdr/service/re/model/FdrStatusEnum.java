@@ -4,5 +4,5 @@ public enum FdrStatusEnum {
   CREATED,
   INSERTED,
   PUBLISHED,
-  DELETED;
+  DELETED
 }

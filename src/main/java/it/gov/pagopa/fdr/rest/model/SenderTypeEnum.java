@@ -6,5 +6,5 @@ import lombok.Getter;
 public enum SenderTypeEnum {
   LEGAL_PERSON,
   ABI_CODE,
-  BIC_CODE;
+  BIC_CODE
 }

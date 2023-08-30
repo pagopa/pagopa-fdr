@@ -25,13 +25,13 @@ import it.gov.pagopa.fdr.rest.model.Payment;
 import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
-import java.util.List;
 import it.gov.pagopa.fdr.util.AppConstant;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
