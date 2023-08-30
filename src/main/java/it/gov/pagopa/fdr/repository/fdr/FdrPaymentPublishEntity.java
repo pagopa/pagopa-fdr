@@ -65,6 +65,33 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
         Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).map());
   }
 
+  public static PanacheQuery<PanacheMongoEntityBase> findByPspAndIuv(String psp, String iuv, Instant createdGt, Sort sort) {
+    String query = "iuv = :iuv and ref_fdr_sender_psp_id = :psp";
+    Parameters params = new Parameters().with("iuv", iuv).and("psp", psp);
+    if(createdGt != null) {
+      query += " and created > :createdGt";
+      params.and("createdGt", createdGt);
+    }
+    return find(
+        query,
+        sort,
+        params
+    );
+  }
+  public static PanacheQuery<PanacheMongoEntityBase> findByPspAndIur(String psp, String iur, Instant createdGt, Sort sort) {
+    String query = "iur = :iur and ref_fdr_sender_psp_id = :psp";
+    Parameters params = new Parameters().with("iur", iur).and("psp", psp);
+    if(createdGt != null) {
+      query += " and created > :createdGt";
+      params.and("createdGt", createdGt);
+    }
+    return find(
+        query,
+        sort,
+        params
+    );
+  }
+
   //  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(
   //      String fdr, String pspId, Sort sort) {
   //    return find(

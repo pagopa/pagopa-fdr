@@ -12,6 +12,9 @@ public class AppConstant {
   public static final String PUBLISHED_GREATER_THAN = "publishedGt";
   public static final String CREATED_GREATER_THAN = "createdGt";
   public static final String ORGANIZATION = "organizationId";
+  public static final String IUV = "iuv";
+  public static final String IUR = "iur";
+
   public static final String FDR = "fdr";
   public static final String REVISION = "revision";
   public static final String PAGE = "page";
@@ -24,7 +27,7 @@ public class AppConstant {
     throw new IllegalStateException("Constants class");
   }
 
-  private static List<FdrActionEnum> fdrActionExcludeToSendEvent = new ArrayList<>();
+  private static final List<FdrActionEnum> fdrActionExcludeToSendEvent = new ArrayList<>();
 
   static {
     fdrActionExcludeToSendEvent.add(FdrActionEnum.INFO);
@@ -37,7 +40,6 @@ public class AppConstant {
     //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_GET_FDR);
     //    fdrActionExcludeToSendEvent.add(FdrActionEnum.INTERNAL_GET_FDR_PAYMENT);
   }
-  ;
 
   public static boolean sendReEvent(FdrActionEnum fdrActionEnum) {
     return !fdrActionExcludeToSendEvent.contains(fdrActionEnum);

@@ -1,6 +1,9 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.*;
+import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
+import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
