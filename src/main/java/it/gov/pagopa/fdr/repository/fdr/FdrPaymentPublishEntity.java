@@ -49,6 +49,9 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
   @BsonProperty("ref_fdr_revision")
   private Long refFdrRevision;
 
+  @BsonProperty("ref_fdr_receiver_organization_id")
+  private String refFdrReceiverOrganizationId;
+
   public static void persistFdrPaymentHistoryEntities(
       List<FdrPaymentPublishEntity> fdrPaymentHistoryEntities) {
     persist(fdrPaymentHistoryEntities);

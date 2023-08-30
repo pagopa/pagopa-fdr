@@ -172,6 +172,7 @@ public class PspsService {
                   reportingFlowPaymentEntity.setRefFdrId(fdrEntity.id);
                   reportingFlowPaymentEntity.setRefFdr(fdrEntity.getFdr());
                   reportingFlowPaymentEntity.setRefFdrSenderPspId(fdrEntity.getSender().getPspId());
+                  reportingFlowPaymentEntity.setRefFdrReceiverOrganizationId(fdrEntity.getReceiver().getOrganizationId());
                   reportingFlowPaymentEntity.setRefFdrRevision(fdrEntity.getRevision());
                 })
             .toList());
