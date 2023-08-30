@@ -42,7 +42,7 @@ public class SupportResource {
   @Inject SupportService service;
 
   @Operation(
-      operationId = "getAllPaymentsByPspIdAndIur",
+      operationId = "getByIuv",
       summary = "Get all payments by psp id and iuv",
       description = "Get all payments by psp id and iuv")
   @APIResponses(
@@ -94,7 +94,7 @@ public class SupportResource {
         .build();
   }
   @Operation(
-      operationId = "getAllPaymentsByPspIdAndIur",
+      operationId = "getByIur",
       summary = "Get all payments by psp id and iur",
       description = "Get all payments by psp id and iur")
   @APIResponses(
