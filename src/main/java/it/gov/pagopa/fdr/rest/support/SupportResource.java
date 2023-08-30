@@ -6,9 +6,9 @@ import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 import it.gov.pagopa.fdr.rest.support.mapper.SupportResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.support.response.FdrByIurResponse;
 import it.gov.pagopa.fdr.rest.support.response.FdrByIuvResponse;
-import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIurDTO;
 import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIuvIurDTO;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.service.support.FindPaymentsByPspIdAndIuvIurArgs;
 import it.gov.pagopa.fdr.service.support.SupportService;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.Re;
@@ -42,9 +42,9 @@ public class SupportResource {
   @Inject SupportService service;
 
   @Operation(
-      operationId = "getAllPaymentsByOrgIdAndIur",
-      summary = "Get all payments by organization id and iuv",
-      description = "Get all payments by organization id and iuv")
+      operationId = "getAllPaymentsByPspIdAndIur",
+      summary = "Get all payments by psp id and iuv",
+      description = "Get all payments by psp id and iuv")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -78,14 +78,15 @@ public class SupportResource {
     MDC.put(PSP_ID, pspId);
     PaymentGetByPspIdIuvIurDTO paymentDtoList=
         service.findPaymentsByPspIdAndIuvIur(
-            action,
-            pspId,
-            iuv,
-            null,
-            createdFrom,
-            createdTo,
-            pageNumber,
-            pageSize);
+            FindPaymentsByPspIdAndIuvIurArgs.builder()
+                .action(action)
+                .pspId(pspId)
+                .iuv(iuv)
+                .iur(null)
+                .createdFrom(createdFrom)
+                .createdTo(createdTo)
+                .pageNumber(pageNumber)
+                .pageSize(pageSize).build());
     return FdrByIuvResponse.builder()
         .metadata(mapper.toMetadata(paymentDtoList.getMetadata()))
         .count(paymentDtoList.getCount())
@@ -129,14 +130,15 @@ public class SupportResource {
     MDC.put(PSP_ID, pspId);
     PaymentGetByPspIdIuvIurDTO paymentDtoList=
         service.findPaymentsByPspIdAndIuvIur(
-            action,
-            pspId,
-            null,
-            iur,
-            createdFrom,
-            createdTo,
-            pageNumber,
-            pageSize);
+            FindPaymentsByPspIdAndIuvIurArgs.builder()
+                .action(action)
+                .pspId(pspId)
+                .iuv(null)
+                .iur(iur)
+                .createdFrom(createdFrom)
+                .createdTo(createdTo)
+                .pageNumber(pageNumber)
+                .pageSize(pageSize).build());
     return FdrByIurResponse.builder()
         .metadata(mapper.toMetadata(paymentDtoList.getMetadata()))
         .count(paymentDtoList.getCount())

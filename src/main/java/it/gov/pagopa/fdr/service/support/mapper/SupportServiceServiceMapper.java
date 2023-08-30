@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr.service.support.mapper;
 
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.service.dto.PaymentByPspIdIurDTO;
 import it.gov.pagopa.fdr.service.dto.PaymentByPspIdIuvIurDTO;
 import java.util.List;
 import org.mapstruct.Mapper;
