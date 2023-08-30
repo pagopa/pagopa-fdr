@@ -49,6 +49,9 @@ public class FdrPaymentInsertEntity extends PanacheMongoEntity {
   @BsonProperty("ref_fdr_revision")
   private Long refFdrRevision;
 
+  @BsonProperty("ref_fdr_receiver_organization_id")
+  private String refFdrReceiverOrganizationId;
+
   public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndIndexes(
       String fdr, List<Long> indexList) {
     return find(
