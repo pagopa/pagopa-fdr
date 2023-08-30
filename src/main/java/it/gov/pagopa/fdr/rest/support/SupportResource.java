@@ -4,8 +4,7 @@ import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import it.gov.pagopa.fdr.rest.support.mapper.SupportResourceServiceMapper;
-import it.gov.pagopa.fdr.rest.support.response.FdrByIurResponse;
-import it.gov.pagopa.fdr.rest.support.response.FdrByIuvResponse;
+import it.gov.pagopa.fdr.rest.support.response.FdrByIuvIurResponse;
 import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIuvIurDTO;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.service.support.FindPaymentsByPspIdAndIuvIurArgs;
@@ -56,7 +55,7 @@ public class SupportResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FdrByIuvResponse.class)))
+                    schema = @Schema(implementation = FdrByIuvIurResponse.class)))
       })
   @GET
   @Path(
@@ -65,7 +64,7 @@ public class SupportResource {
       + "}/"
   )
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_PSP_IUV_FDR)
-  public FdrByIuvResponse getByIuv(
+  public FdrByIuvIurResponse getByIuv(
       @PathParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
       @PathParam(AppConstant.IUV) @Pattern(regexp = "^(.{1,35})$") String iuv,
       @QueryParam(AppConstant.CREATED_FROM) Instant createdFrom,
@@ -87,10 +86,10 @@ public class SupportResource {
                 .createdTo(createdTo)
                 .pageNumber(pageNumber)
                 .pageSize(pageSize).build());
-    return FdrByIuvResponse.builder()
+    return FdrByIuvIurResponse.builder()
         .metadata(mapper.toMetadata(paymentDtoList.getMetadata()))
         .count(paymentDtoList.getCount())
-        .data(mapper.toFdrByIuvList(paymentDtoList.getData()))
+        .data(mapper.toFdrByIuvIurList(paymentDtoList.getData()))
         .build();
   }
   @Operation(
@@ -108,7 +107,7 @@ public class SupportResource {
               content =
               @Content(
                   mediaType = MediaType.APPLICATION_JSON,
-                  schema = @Schema(implementation = FdrByIurResponse.class)))
+                  schema = @Schema(implementation = FdrByIuvIurResponse.class)))
       })
   @GET
   @Path(
@@ -117,7 +116,7 @@ public class SupportResource {
           + "}/"
   )
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_PSP_IUR_FDR)
-  public FdrByIurResponse getByIur(
+  public FdrByIuvIurResponse getByIur(
       @PathParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
       @PathParam(AppConstant.IUR) @Pattern(regexp = "^(.{1,35})$") String iur,
       @QueryParam(AppConstant.CREATED_FROM) Instant createdFrom,
@@ -139,10 +138,10 @@ public class SupportResource {
                 .createdTo(createdTo)
                 .pageNumber(pageNumber)
                 .pageSize(pageSize).build());
-    return FdrByIurResponse.builder()
+    return FdrByIuvIurResponse.builder()
         .metadata(mapper.toMetadata(paymentDtoList.getMetadata()))
         .count(paymentDtoList.getCount())
-        .data(mapper.toFdrByIurList(paymentDtoList.getData()))
+        .data(mapper.toFdrByIuvIurList(paymentDtoList.getData()))
         .build();
   }
 }

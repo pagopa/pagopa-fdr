@@ -18,7 +18,6 @@ import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.jboss.logging.Logger;

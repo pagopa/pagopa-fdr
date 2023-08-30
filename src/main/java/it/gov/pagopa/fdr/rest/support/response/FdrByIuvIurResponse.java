@@ -12,12 +12,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"metadata", "count", "data"})
-public class FdrByIurResponse {
+public class FdrByIuvIurResponse {
 
   private Metadata metadata;
 
   @Schema(example = "100")
   private long count;
 
-  private List<FdrByIur> data;
+  private List<FdrByIuvIur> data;
 }
