@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "8f74906a-116a-4358-ac75-ad4e769d7ac9",
-		"name": "fdr",
+		"_postman_id": "f617e267-84d3-4c17-a33b-10867e86271f",
+		"name": "FDR",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "2040508",
-		"_collection_link": "https://speeding-station-482612.postman.co/workspace/Nodo-doc~ec880f84-0a42-4ca9-bbd1-454d00bbe20c/collection/2040508-8f74906a-116a-4358-ac75-ad4e769d7ac9?action=share&creator=2040508&source=collection_link"
+		"_exporter_id": "26451960"
 	},
 	"item": [
 		{
@@ -571,6 +570,97 @@
 								{
 									"key": "idPsp",
 									"value": "{{psp}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "support",
+			"item": [
+				{
+					"name": "getPaymentsByPspId&Iuv",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FDR_URL}}/internal/psps/nodo-doc-dev/iuv/39910472543631a",
+							"host": [
+								"{{FDR_URL}}"
+							],
+							"path": [
+								"internal",
+								"psps",
+								"nodo-doc-dev",
+								"iuv",
+								"39910472543631a"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "1000",
+									"disabled": true
+								},
+								{
+									"key": "createdFrom",
+									"value": "2023-08-30T08:17:30.820Z",
+									"disabled": true
+								},
+								{
+									"key": "createdTo",
+									"value": "2023-08-31T08:17:30.821Z",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPaymentsByPspId&Iur",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FDR_URL}}/internal/psps/nodo-doc-dev/iur/3809527292a",
+							"host": [
+								"{{FDR_URL}}"
+							],
+							"path": [
+								"internal",
+								"psps",
+								"nodo-doc-dev",
+								"iur",
+								"3809527292a"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "1000",
+									"disabled": true
+								},
+								{
+									"key": "createdFrom",
+									"value": "2023-08-30T08:17:30.820Z",
+									"disabled": true
+								},
+								{
+									"key": "createdTo",
+									"value": "2023-08-31T08:17:30.821Z",
 									"disabled": true
 								}
 							]

@@ -37,22 +37,24 @@ public class SupportService{
 
   @WithSpan(kind = SERVER)
   public PaymentGetByPspIdIuvIurDTO findPaymentsByPspIdAndIuvIur(FindPaymentsByPspIdAndIuvIurArgs args) {
-    MDC.put(PSP_ID, args.pspId);
-    Optional.ofNullable(args.iuv).ifPresent(iuvz -> MDC.put(IUV, iuvz));
-    Optional.ofNullable(args.iur).ifPresent(iurz -> MDC.put(IUR, iurz));
+    MDC.put(PSP_ID, args.getPspId());
+    Optional.ofNullable(args.getIuv()).ifPresent(iuvz -> MDC.put(IUV, iuvz));
+    Optional.ofNullable(args.getIur()).ifPresent(iurz -> MDC.put(IUR, iurz));
     log.infof(
         AppMessageUtil.logProcess("%s with id:[%s] - page:[%s], pageSize:[%s]"),
-        args.action,
-        args.pspId,
-        args.pageNumber,
-        args.pageSize);
+        args.getAction(),
+        args.getPspId(),
+        args.getPageNumber(),
+        args.getPageSize());
 
-    Page page = Page.of((int) args.pageNumber - 1, (int) args.pageSize);
+    Page page = Page.of((int) args.getPageNumber() - 1, (int) args.getPageSize());
     Sort sort = AppDBUtil.getSort(List.of("index,asc"));
 
-    log.debugf("Existence check fdr by pspId[%s], iuv[%s], iur[%s], createdFrom: [%s], createdTo: [%s]", args.pspId, args.iuv, args.iur, args.createdFrom, args.createdTo);
+    log.debugf("Existence check fdr by pspId[%s], iuv[%s], iur[%s], createdFrom: [%s], createdTo: [%s]", args.getPspId(), args.getIuv(), args.getIur(),
+        args.getCreatedFrom(), args.getCreatedTo());
     PanacheQuery<FdrPaymentPublishEntity> fdrPaymentPublishPanacheQuery =
-        FdrPaymentPublishEntity.findByPspAndIuvIur(args.pspId, args.iuv, args.iur, args.createdFrom, args.createdTo, sort).page(page);
+        FdrPaymentPublishEntity.findByPspAndIuvIur(args.getPspId(), args.getIuv(), args.getIur(),
+            args.getCreatedFrom(), args.getCreatedTo(), sort).page(page);
 
     List<FdrPaymentPublishEntity> list = fdrPaymentPublishPanacheQuery.list();
 
@@ -63,8 +65,8 @@ public class SupportService{
     return PaymentGetByPspIdIuvIurDTO.builder()
         .metadata(
             MetadataDto.builder()
-                .pageSize(args.pageSize)
-                .pageNumber(args.pageNumber)
+                .pageSize(args.getPageSize())
+                .pageNumber(args.getPageNumber())
                 .totPage(totPage)
                 .build())
         .count(countReportingFlowPayment)

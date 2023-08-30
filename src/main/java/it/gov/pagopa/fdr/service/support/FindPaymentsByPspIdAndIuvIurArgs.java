@@ -2,15 +2,17 @@ package it.gov.pagopa.fdr.service.support;
 
 import java.time.Instant;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class FindPaymentsByPspIdAndIuvIurArgs {
-  public String action;
-  public String pspId;
-  public String iuv;
-  public String iur;
-  public Instant createdFrom;
-  public Instant createdTo;
-  public long pageNumber;
-  public long pageSize;
+  private String action;
+  private String pspId;
+  private String iuv;
+  private String iur;
+  private Instant createdFrom;
+  private Instant createdTo;
+  private long pageNumber;
+  private long pageSize;
 }
