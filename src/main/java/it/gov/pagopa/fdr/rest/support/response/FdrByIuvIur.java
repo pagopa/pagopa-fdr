@@ -10,7 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"pspId", "organizationId", "fdr", "revision", "created"})
-public class FdrByIuv {
+public class FdrByIuvIur {
   private String pspId;
   private String organizationId;
   private String fdr;
