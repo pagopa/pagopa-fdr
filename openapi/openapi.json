@@ -847,7 +847,7 @@
           }
         }
       },
-      "FdrByIur" : {
+      "FdrByPspIdIuvIurBase" : {
         "type" : "object",
         "properties" : {
           "pspId" : {
@@ -868,7 +868,7 @@
           }
         }
       },
-      "FdrByIurResponse" : {
+      "FdrByPspIdIuvIurResponse" : {
         "type" : "object",
         "properties" : {
           "metadata" : {
@@ -882,47 +882,7 @@
           "data" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/FdrByIur"
-            }
-          }
-        }
-      },
-      "FdrByIuv" : {
-        "type" : "object",
-        "properties" : {
-          "pspId" : {
-            "type" : "string"
-          },
-          "organizationId" : {
-            "type" : "string"
-          },
-          "fdr" : {
-            "type" : "string"
-          },
-          "revision" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "created" : {
-            "$ref" : "#/components/schemas/Instant"
-          }
-        }
-      },
-      "FdrByIuvResponse" : {
-        "type" : "object",
-        "properties" : {
-          "metadata" : {
-            "$ref" : "#/components/schemas/Metadata"
-          },
-          "count" : {
-            "format" : "int64",
-            "type" : "integer",
-            "example" : 100
-          },
-          "data" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/FdrByIuv"
+              "$ref" : "#/components/schemas/FdrByPspIdIuvIurBase"
             }
           }
         }
