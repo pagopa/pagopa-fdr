@@ -2,7 +2,6 @@ package it.gov.pagopa.fdr.service.re;
 
 import com.azure.core.util.BinaryData;
 import com.azure.messaging.eventhubs.EventData;
-import com.azure.messaging.eventhubs.EventDataBatch;
 import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.azure.messaging.eventhubs.EventHubProducerClient;
 import com.azure.storage.blob.BlobClient;
@@ -19,14 +18,15 @@ import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class ReService {
@@ -82,7 +82,7 @@ public class ReService {
                             "%s_%s", dateFormatter.format(re.getCreated()), re.hashCode()));
                     writeBlobIfExist(re);
                     try {
-                      log.debugf("EventHub name [%s] send message: %s", re.toString());
+                      log.debugf("EventHub name [%s] send message: %s", eHubName, re.toString());
                       return new EventData(objectMapper.writeValueAsString(re));
                     } catch (JsonProcessingException e) {
                       log.errorf("Producer SDK Azure RE event error", e);
@@ -100,7 +100,7 @@ public class ReService {
   private static final DateTimeFormatter dateFormatter =
       DateTimeFormatter.ofPattern(PATTERN_DATE_FORMAT).withZone(ZoneId.systemDefault());
 
-  private <T extends ReAbstract> void writeBlobIfExist(T re) {
+  public <T extends ReAbstract> void writeBlobIfExist(T re) {
     if (re instanceof ReInterface reInterface) {
       String bodyStr = reInterface.getPayload();
       if (bodyStr != null && !bodyStr.isBlank()) {
@@ -127,26 +127,26 @@ public class ReService {
   }
 
   private void publishEvents(List<EventData> allEvents) {
-    // create a batch
-    EventDataBatch eventDataBatch = producer.createBatch();
-
-    for (EventData eventData : allEvents) {
-      // try to add the event from the array to the batch
-      if (!eventDataBatch.tryAdd(eventData)) {
-        // if the batch is full, send it and then create a new batch
-        producer.send(eventDataBatch);
-        eventDataBatch = producer.createBatch();
-
-        // Try to add that event that couldn't fit before.
-        if (!eventDataBatch.tryAdd(eventData)) {
-          throw new AppException(
-              AppErrorCodeMessageEnum.EVENT_HUB_RE_TOO_LARGE, eventDataBatch.getMaxSizeInBytes());
-        }
-      }
-    }
-    // send the last batch of remaining events
-    if (eventDataBatch.getCount() > 0) {
-      producer.send(eventDataBatch);
-    }
+//    // create a batch
+//    EventDataBatch eventDataBatch = producer.createBatch();
+//
+//    for (EventData eventData : allEvents) {
+//      // try to add the event from the array to the batch
+//      if (!eventDataBatch.tryAdd(eventData)) {
+//        // if the batch is full, send it and then create a new batch
+//        producer.send(eventDataBatch);
+//        eventDataBatch = producer.createBatch();
+//
+//        // Try to add that event that couldn't fit before.
+//        if (!eventDataBatch.tryAdd(eventData)) {
+//          throw new AppException(
+//              AppErrorCodeMessageEnum.EVENT_HUB_RE_TOO_LARGE, eventDataBatch.getMaxSizeInBytes());
+//        }
+//      }
+//    }
+//    // send the last batch of remaining events
+//    if (eventDataBatch.getCount() > 0) {
+//      producer.send(eventDataBatch);
+//    }
   }
 }
