@@ -1,46 +1,98 @@
 package it.gov.pagopa.fdr.service.re;
 
+import com.azure.messaging.eventhubs.EventHubProducerClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkiverse.mockserver.test.MockServerTestResource;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
 import it.gov.pagopa.fdr.service.re.model.*;
+import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 
 @QuarkusTest
+@QuarkusTestResource(MockServerTestResource.class)
+@QuarkusTestResource(AzuriteResource.class)
 public class ReServiceTest {
 
     @Inject
-    ReService reService;
+    org.jboss.logging.Logger log;
+
+    @Inject
+    ObjectMapper objectMapper;
+
+    @InjectMock
+    ReService mock;
+
+    @ConfigProperty(name = "queue.conversion.connect-str")
+    String connString;
+
+    @ConfigProperty(name = "%dev.blob.re.containername")
+    String blobName;
 
     @BeforeEach
-    public void setup() {
-        ReService mock = Mockito.mock(ReService.class);
-        Mockito.doNothing().when(mock).sendEvent();
+    void init() throws NoSuchFieldException, IllegalAccessException {
+
+        Field field1 = ReService.class.getDeclaredField("producer");
+        Field field2 = ReService.class.getDeclaredField("blobContainerClient");
+        Field field3 = ReService.class.getDeclaredField("blobContainerName");
+        Field field4 = ReService.class.getDeclaredField("eHubName");
+
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(connString).buildClient();
+        BlobContainerClient blobContainerClientMock = blobServiceClient.createBlobContainerIfNotExists(blobName);
+        EventHubProducerClient producerMock = Mockito.mock(EventHubProducerClient.class);
+
+        field1.setAccessible(true);
+        field2.setAccessible(true);
+
+        field1.set(mock, producerMock);
+        field2.set(mock, blobContainerClientMock);
+        field3.set(mock, "blobcontainerre");
+        field4.set(mock, "eventHub");
+
+        Field logField = ReService.class.getDeclaredField("log");
+        Field objectMapperField = ReService.class.getDeclaredField("objectMapper");
+        logField.set(mock, Logger.getLogger(ReService.class));
+        objectMapperField.set(mock, objectMapper);
+
+        Mockito.doNothing().when(mock).init();
+        Mockito.doCallRealMethod().when(mock).sendEvent(Mockito.any(ReInterface.class));
+        Mockito.doCallRealMethod().when(mock).writeBlobIfExist(Mockito.any());
     }
 
     @Test
     public void testSend() {
         ReInterface reInterface =
                 ReInterface.builder()
-                    .appVersion(AppVersionEnum.FDR003)
-                    .created(Instant.now())
-                    .sessionId("sessionId")
-                    .eventType(EventTypeEnum.INTERFACE)
-                    .httpType(HttpTypeEnum.RES)
-                    .httpMethod("GET")
-                    .httpUrl("requestPath")
-                    .payload("responsePayload")
-                    .pspId("1")
-                    .fdr("1")
-                    .organizationId("1")
-                    .fdrAction(FdrActionEnum.GET_FDR)
-                    .build()
+                        .uniqueId("123")
+                        .appVersion(AppVersionEnum.FDR003)
+                        .created(Instant.now())
+                        .sessionId("sessionId")
+                        .eventType(EventTypeEnum.INTERFACE)
+                        .httpType(HttpTypeEnum.RES)
+                        .httpMethod("GET")
+                        .httpUrl("requestPath")
+                        .payload("responsePayload")
+                        .pspId("1")
+                        .fdr("1")
+                        .organizationId("1")
+                        .fdrAction(FdrActionEnum.GET_FDR)
+                        .build()
         ;
 
-        reService.sendEvent(reInterface);
-        Mockito.verify(reService, Mockito.times(1)).sendEvent(reInterface);
+        mock.sendEvent(reInterface);
+        Mockito.verify(mock, Mockito.times(1)).sendEvent(reInterface);
+        Mockito.verify(mock, Mockito.times(1)).writeBlobIfExist(Mockito.any());
     }
 }
