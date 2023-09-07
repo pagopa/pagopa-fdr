@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.service.re;
 
 import com.azure.core.util.BinaryData;
 import com.azure.messaging.eventhubs.EventData;
+import com.azure.messaging.eventhubs.EventDataBatch;
 import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.azure.messaging.eventhubs.EventHubProducerClient;
 import com.azure.storage.blob.BlobClient;
@@ -126,27 +127,27 @@ public class ReService {
     }
   }
 
-  private void publishEvents(List<EventData> allEvents) {
-//    // create a batch
-//    EventDataBatch eventDataBatch = producer.createBatch();
-//
-//    for (EventData eventData : allEvents) {
-//      // try to add the event from the array to the batch
-//      if (!eventDataBatch.tryAdd(eventData)) {
-//        // if the batch is full, send it and then create a new batch
-//        producer.send(eventDataBatch);
-//        eventDataBatch = producer.createBatch();
-//
-//        // Try to add that event that couldn't fit before.
-//        if (!eventDataBatch.tryAdd(eventData)) {
-//          throw new AppException(
-//              AppErrorCodeMessageEnum.EVENT_HUB_RE_TOO_LARGE, eventDataBatch.getMaxSizeInBytes());
-//        }
-//      }
-//    }
-//    // send the last batch of remaining events
-//    if (eventDataBatch.getCount() > 0) {
-//      producer.send(eventDataBatch);
-//    }
+  public void publishEvents(List<EventData> allEvents) {
+    // create a batch
+    EventDataBatch eventDataBatch = producer.createBatch();
+
+    for (EventData eventData : allEvents) {
+      // try to add the event from the array to the batch
+      if (!eventDataBatch.tryAdd(eventData)) {
+        // if the batch is full, send it and then create a new batch
+        producer.send(eventDataBatch);
+        eventDataBatch = producer.createBatch();
+
+        // Try to add that event that couldn't fit before.
+        if (!eventDataBatch.tryAdd(eventData)) {
+          throw new AppException(
+              AppErrorCodeMessageEnum.EVENT_HUB_RE_TOO_LARGE, eventDataBatch.getMaxSizeInBytes());
+        }
+      }
+    }
+    // send the last batch of remaining events
+    if (eventDataBatch.getCount() > 0) {
+      producer.send(eventDataBatch);
+    }
   }
 }
