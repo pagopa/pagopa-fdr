@@ -39,18 +39,20 @@ public class ReServiceTest {
     String connString;
 
     @ConfigProperty(name = "%dev.blob.re.containername")
-    String blobName;
-
+    static String blobName;
+    BlobContainerClient blobContainerClientMock;
+    static BlobServiceClient blobServiceClient;
+    Field field2;
     @BeforeEach
     void init() throws NoSuchFieldException, IllegalAccessException {
 
         Field field1 = ReService.class.getDeclaredField("producer");
-        Field field2 = ReService.class.getDeclaredField("blobContainerClient");
+        field2 = ReService.class.getDeclaredField("blobContainerClient");
         Field field3 = ReService.class.getDeclaredField("blobContainerName");
         Field field4 = ReService.class.getDeclaredField("eHubName");
 
-        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(connString).buildClient();
-        BlobContainerClient blobContainerClientMock = blobServiceClient.createBlobContainerIfNotExists(blobName);
+        blobServiceClient = new BlobServiceClientBuilder().connectionString(connString).buildClient();
+        blobContainerClientMock = blobServiceClient.createBlobContainerIfNotExists(blobName);
         EventHubProducerClient producerMock = Mockito.mock(EventHubProducerClient.class);
 
         field1.setAccessible(true);
@@ -67,6 +69,7 @@ public class ReServiceTest {
         objectMapperField.set(mock, objectMapper);
 
         Mockito.doNothing().when(mock).init();
+        Mockito.doNothing().when(mock).publishEvents(Mockito.any());
         Mockito.doCallRealMethod().when(mock).sendEvent(Mockito.any(ReInterface.class));
         Mockito.doCallRealMethod().when(mock).writeBlobIfExist(Mockito.any());
     }
@@ -94,5 +97,30 @@ public class ReServiceTest {
         mock.sendEvent(reInterface);
         Mockito.verify(mock, Mockito.times(1)).sendEvent(reInterface);
         Mockito.verify(mock, Mockito.times(1)).writeBlobIfExist(Mockito.any());
+    }
+    @Test
+    public void testSendActionInfo() {
+        ReInterface reInterface =
+            ReInterface.builder()
+                .uniqueId("123")
+                .appVersion(AppVersionEnum.FDR003)
+                .created(Instant.now())
+                .sessionId("sessionId")
+                .eventType(EventTypeEnum.INTERFACE)
+                .httpType(HttpTypeEnum.RES)
+                .httpMethod("GET")
+                .httpUrl("requestPath")
+                .payload("responsePayload")
+                .pspId("1")
+                .fdr("1")
+                .organizationId("1")
+                .fdrAction(FdrActionEnum.INFO)
+                .build()
+            ;
+
+        mock.sendEvent(reInterface);
+        Mockito.verify(mock, Mockito.times(1)).sendEvent(reInterface);
+        Mockito.verify(mock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
+        Mockito.verify(mock, Mockito.times(0)).publishEvents(Mockito.any());
     }
 }
