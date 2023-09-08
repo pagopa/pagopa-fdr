@@ -1,12 +1,11 @@
 package it.gov.pagopa.fdr.service.re;
-
 import com.azure.messaging.eventhubs.EventData;
 import com.azure.messaging.eventhubs.EventDataBatch;
-import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.azure.messaging.eventhubs.EventHubProducerClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -23,6 +22,8 @@ import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
@@ -45,7 +46,7 @@ public class ReServiceTest {
     static String blobName;
     BlobContainerClient blobContainerClientMock;
     static BlobServiceClient blobServiceClient;
-    EventHubProducerClient producerMock;
+    static EventHubProducerClient producerMock;
     Field field2;
     @BeforeEach
     void init() throws NoSuchFieldException, IllegalAccessException {
@@ -101,6 +102,7 @@ public class ReServiceTest {
         mock.sendEvent(reInterface);
         Mockito.verify(mock, Mockito.times(1)).sendEvent(reInterface);
         Mockito.verify(mock, Mockito.times(1)).writeBlobIfExist(Mockito.any());
+        Mockito.verify(mock, Mockito.times(1)).publishEvents(Mockito.any());
     }
     @Test
     public void testSendActionInfo() {
@@ -119,12 +121,42 @@ public class ReServiceTest {
                 .fdr("1")
                 .organizationId("1")
                 .fdrAction(FdrActionEnum.INFO)
-                .build()
-            ;
+                .build();
 
         mock.sendEvent(reInterface);
         Mockito.verify(mock, Mockito.times(1)).sendEvent(reInterface);
         Mockito.verify(mock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
         Mockito.verify(mock, Mockito.times(0)).publishEvents(Mockito.any());
+    }
+
+    @Test
+    public void testPublishEvent() throws JsonProcessingException {
+        Mockito.doCallRealMethod().when(mock).publishEvents(Mockito.any());
+        EventDataBatch eventDataBatch = Mockito.mock(EventDataBatch.class);
+        Mockito.when(producerMock.createBatch()).thenReturn(eventDataBatch);
+        Mockito.when(eventDataBatch.tryAdd(Mockito.any())).thenReturn(true);
+        Mockito.when(eventDataBatch.getCount()).thenReturn(1);
+        List<EventData> eventDataList = new ArrayList<>();
+        Mockito.doNothing().when(producerMock).send((EventDataBatch) Mockito.any());
+        ReInterface reInterface =
+                ReInterface.builder()
+                        .uniqueId("123")
+                        .appVersion(AppVersionEnum.FDR003)
+                        .created(Instant.now())
+                        .sessionId("sessionId")
+                        .eventType(EventTypeEnum.INTERFACE)
+                        .httpType(HttpTypeEnum.RES)
+                        .httpMethod("GET")
+                        .httpUrl("requestPath")
+                        .payload("responsePayload")
+                        .pspId("1")
+                        .fdr("1")
+                        .organizationId("1")
+                        .fdrAction(FdrActionEnum.INFO)
+                        .build();
+        EventData eventData = new EventData(objectMapper.writeValueAsString(reInterface));
+        eventDataList.add(eventData);
+        mock.publishEvents(eventDataList);
+        Mockito.verify(producerMock,Mockito.times(1)).send((EventDataBatch) Mockito.any());
     }
 }
