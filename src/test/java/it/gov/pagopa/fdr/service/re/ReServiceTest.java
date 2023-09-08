@@ -1,5 +1,8 @@
 package it.gov.pagopa.fdr.service.re;
 
+import com.azure.messaging.eventhubs.EventData;
+import com.azure.messaging.eventhubs.EventDataBatch;
+import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.azure.messaging.eventhubs.EventHubProducerClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
@@ -42,6 +45,7 @@ public class ReServiceTest {
     static String blobName;
     BlobContainerClient blobContainerClientMock;
     static BlobServiceClient blobServiceClient;
+    EventHubProducerClient producerMock;
     Field field2;
     @BeforeEach
     void init() throws NoSuchFieldException, IllegalAccessException {
@@ -53,7 +57,7 @@ public class ReServiceTest {
 
         blobServiceClient = new BlobServiceClientBuilder().connectionString(connString).buildClient();
         blobContainerClientMock = blobServiceClient.createBlobContainerIfNotExists(blobName);
-        EventHubProducerClient producerMock = Mockito.mock(EventHubProducerClient.class);
+        producerMock = Mockito.mock(EventHubProducerClient.class);
 
         field1.setAccessible(true);
         field2.setAccessible(true);
