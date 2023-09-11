@@ -77,11 +77,6 @@ public class ReServiceTest {
         objectMapperField = ReService.class.getDeclaredField("objectMapper");
         logField.set(reServiceMock, Logger.getLogger(ReService.class));
         objectMapperField.set(reServiceMock, objectMapper);
-
-        Mockito.doNothing().when(reServiceMock).init();
-        Mockito.doNothing().when(reServiceMock).publishEvents(Mockito.any());
-        Mockito.doCallRealMethod().when(reServiceMock).sendEvent(Mockito.any(ReInterface.class));
-        Mockito.doCallRealMethod().when(reServiceMock).writeBlobIfExist(Mockito.any());
     }
     @BeforeEach
     public void setReInterface() throws IllegalAccessException {
@@ -104,6 +99,11 @@ public class ReServiceTest {
                         .build();
         Mockito.clearInvocations(reServiceMock);
         Mockito.clearInvocations(producerMock);
+
+        Mockito.doNothing().when(reServiceMock).init();
+        Mockito.doNothing().when(reServiceMock).publishEvents(Mockito.any());
+        Mockito.doCallRealMethod().when(reServiceMock).sendEvent(Mockito.any(ReInterface.class));
+        Mockito.doCallRealMethod().when(reServiceMock).writeBlobIfExist(Mockito.any());
     }
 
     @Test
@@ -120,13 +120,13 @@ public class ReServiceTest {
         Mockito.verify(reServiceMock, Mockito.times(0)).publishEvents(Mockito.any());
     }
 
-//    @Test
-//    public void testSend_Producer_BlobContainerClient() throws IllegalAccessException {
-//        field1.set(reServiceMock,null);
-//        reServiceMock.sendEvent(reInterface);
-//        Mockito.verify(reServiceMock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
-//        Mockito.verify(reServiceMock, Mockito.times(0)).publishEvents(Mockito.any());
-//    }
+    @Test
+    public void testSend_Producer_BlobContainerClient() throws IllegalAccessException {
+        field1.set(reServiceMock, null);
+        reServiceMock.sendEvent(reInterface);
+        Mockito.verify(reServiceMock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
+        Mockito.verify(reServiceMock, Mockito.times(0)).publishEvents(Mockito.any());
+    }
 
     @Test
     public void testJsonProcessingException() {
