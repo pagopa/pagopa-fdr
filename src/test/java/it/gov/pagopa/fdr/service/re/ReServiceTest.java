@@ -42,45 +42,44 @@ public class ReServiceTest {
     ObjectMapper objectMapper;
     @InjectMock
     ReService reServiceMock;
-    @ConfigProperty(name = "queue.conversion.connect-str")
-    String connString;
+    @ConfigProperty(name = "blob.re.connect-str")
+    String blobConnString;
     @ConfigProperty(name = "%dev.blob.re.containername")
     static String blobName;
     BlobContainerClient blobContainerClient;
     static BlobServiceClient blobServiceClient;
     static EventHubProducerClient producerMock;
     static ReInterface reInterface;
-    Field field1;
-    Field field2;
-    Field field3;
-    Field field4;
-    Field logField;
+    Field producerField;
+    Field blobContainerClientField;
     Field objectMapperField;
+
     @BeforeAll
     void init() throws NoSuchFieldException, IllegalAccessException {
-        field1 = ReService.class.getDeclaredField("producer");
-        field2 = ReService.class.getDeclaredField("blobContainerClient");
-        field3 = ReService.class.getDeclaredField("blobContainerName");
-        field4 = ReService.class.getDeclaredField("eHubName");
-        blobServiceClient = new BlobServiceClientBuilder().connectionString(connString).buildClient();
+        producerField = ReService.class.getDeclaredField("producer");
+        blobContainerClientField = ReService.class.getDeclaredField("blobContainerClient");
+        Field blobContainerNameField = ReService.class.getDeclaredField("blobContainerName");
+        Field eHubNameField = ReService.class.getDeclaredField("eHubName");
+        blobServiceClient = new BlobServiceClientBuilder().connectionString(blobConnString).buildClient();
         blobContainerClient = blobServiceClient.createBlobContainerIfNotExists(blobName);
         producerMock = Mockito.mock(EventHubProducerClient.class);
 
-        field1.setAccessible(true);
-        field2.setAccessible(true);
+        producerField.setAccessible(true);
+        blobContainerClientField.setAccessible(true);
 
-        field2.set(reServiceMock, blobContainerClient);
-        field3.set(reServiceMock, "blobcontainerre");
-        field4.set(reServiceMock, "eventHub");
+        blobContainerClientField.set(reServiceMock, blobContainerClient);
+        blobContainerNameField.set(reServiceMock, "blobcontainerre");
+        eHubNameField.set(reServiceMock, "eventHub");
 
-        logField = ReService.class.getDeclaredField("log");
+        Field logField = ReService.class.getDeclaredField("log");
         objectMapperField = ReService.class.getDeclaredField("objectMapper");
         logField.set(reServiceMock, Logger.getLogger(ReService.class));
-        objectMapperField.set(reServiceMock, objectMapper);
     }
     @BeforeEach
     public void setReInterface() throws IllegalAccessException {
-        field1.set(reServiceMock, producerMock);
+        producerField.set(reServiceMock, producerMock);
+        blobContainerClientField.set(reServiceMock, blobContainerClient);
+        objectMapperField.set(reServiceMock,objectMapper);
         reInterface =
                 ReInterface.builder()
                         .uniqueId("123")
@@ -121,18 +120,37 @@ public class ReServiceTest {
     }
 
     @Test
-    public void testSend_Producer_BlobContainerClient() throws IllegalAccessException {
-        field1.set(reServiceMock, null);
+    public void testSend_Producer_Null() throws IllegalAccessException {
+        producerField.set(reServiceMock, null);
         reServiceMock.sendEvent(reInterface);
         Mockito.verify(reServiceMock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
         Mockito.verify(reServiceMock, Mockito.times(0)).publishEvents(Mockito.any());
     }
 
     @Test
-    public void testJsonProcessingException() {
-        reServiceMock.sendEvent(null);
+    public void testSend_BlobContainerClient_Null() throws IllegalAccessException {
+        blobContainerClientField.set(reServiceMock, null);
+        reServiceMock.sendEvent(reInterface);
         Mockito.verify(reServiceMock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
         Mockito.verify(reServiceMock, Mockito.times(0)).publishEvents(Mockito.any());
+    }
+
+    @Test
+    public void testSendJsonProcessingException() throws JsonProcessingException, IllegalAccessException {
+        ObjectMapper objectMapperMock = Mockito.mock(ObjectMapper.class);
+        objectMapperField.set(reServiceMock,objectMapperMock);
+        Mockito.when(objectMapperMock.writeValueAsString(Mockito.any())).thenThrow(JsonProcessingException.class);
+
+        Mockito.doNothing().when(reServiceMock).writeBlobIfExist(Mockito.any());
+        Assert.assertThrows(AppException.class, () -> {
+            reServiceMock.sendEvent(reInterface);
+        });
+    }
+
+    @Test
+    public void testSendAllEventGT0(){
+        reServiceMock.sendEvent(null);
+        Mockito.verify(reServiceMock, Mockito.times(0)).publishEvents(null);
     }
     @Test
     public void testWriteBlobIfExist_NoReInstance() {
@@ -163,7 +181,7 @@ public class ReServiceTest {
     }
 
     @Test
-    public void testPublishEvent_FullBatch() throws JsonProcessingException {
+    public void testPublishEvent_FullBatch_OK() throws JsonProcessingException {
         AtomicInteger counter = new AtomicInteger();
         Mockito.doCallRealMethod().when(reServiceMock).publishEvents(Mockito.any());
         EventDataBatch eventDataBatch = Mockito.mock(EventDataBatch.class);
@@ -203,5 +221,11 @@ public class ReServiceTest {
         }catch(AppException e){
             Assert.assertEquals(AppErrorCodeMessageEnum.EVENT_HUB_RE_TOO_LARGE, e.getCodeMessage());
         }
+    }
+
+    @Test
+    public void testSendEventDataBachGT0(){
+        reServiceMock.publishEvents(null);
+        Mockito.verify(producerMock, Mockito.times(0)).send((EventDataBatch) Mockito.any());
     }
 }
