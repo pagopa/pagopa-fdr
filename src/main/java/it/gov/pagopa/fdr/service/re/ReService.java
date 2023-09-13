@@ -91,7 +91,7 @@ public class ReService {
                     }
                   })
               .toList();
-      if (allEvents.size() > 0) {
+      if (!allEvents.isEmpty()) {
         publishEvents(allEvents);
       }
     }

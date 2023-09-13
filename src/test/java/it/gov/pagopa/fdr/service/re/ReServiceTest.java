@@ -19,10 +19,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
@@ -45,7 +42,7 @@ public class ReServiceTest {
     @ConfigProperty(name = "blob.re.connect-str")
     String blobConnString;
     @ConfigProperty(name = "%dev.blob.re.containername")
-    static String blobName;
+    String blobName;
     BlobContainerClient blobContainerClient;
     static BlobServiceClient blobServiceClient;
     static EventHubProducerClient producerMock;
@@ -75,8 +72,9 @@ public class ReServiceTest {
         objectMapperField = ReService.class.getDeclaredField("objectMapper");
         logField.set(reServiceMock, Logger.getLogger(ReService.class));
     }
+
     @BeforeEach
-    public void setReInterface() throws IllegalAccessException {
+    void setReInterface() throws IllegalAccessException {
         producerField.set(reServiceMock, producerMock);
         blobContainerClientField.set(reServiceMock, blobContainerClient);
         objectMapperField.set(reServiceMock,objectMapper);
@@ -106,13 +104,14 @@ public class ReServiceTest {
     }
 
     @Test
-    public void testSend() {
+    void testSend() {
         reServiceMock.sendEvent(reInterface);
         Mockito.verify(reServiceMock, Mockito.times(1)).writeBlobIfExist(Mockito.any());
         Mockito.verify(reServiceMock, Mockito.times(1)).publishEvents(Mockito.any());
     }
+
     @Test
-    public void testSend_ActionInfo() {
+    void testSend_ActionInfo() {
         reInterface.setFdrAction(FdrActionEnum.INFO);
         reServiceMock.sendEvent(reInterface);
         Mockito.verify(reServiceMock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
@@ -120,7 +119,7 @@ public class ReServiceTest {
     }
 
     @Test
-    public void testSend_Producer_Null() throws IllegalAccessException {
+    void testSend_Producer_Null() throws IllegalAccessException {
         producerField.set(reServiceMock, null);
         reServiceMock.sendEvent(reInterface);
         Mockito.verify(reServiceMock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
@@ -128,7 +127,7 @@ public class ReServiceTest {
     }
 
     @Test
-    public void testSend_BlobContainerClient_Null() throws IllegalAccessException {
+    void testSend_BlobContainerClient_Null() throws IllegalAccessException {
         blobContainerClientField.set(reServiceMock, null);
         reServiceMock.sendEvent(reInterface);
         Mockito.verify(reServiceMock, Mockito.times(0)).writeBlobIfExist(Mockito.any());
@@ -136,37 +135,36 @@ public class ReServiceTest {
     }
 
     @Test
-    public void testSendJsonProcessingException() throws JsonProcessingException, IllegalAccessException {
+    void testSendJsonProcessingException() throws JsonProcessingException, IllegalAccessException {
         ObjectMapper objectMapperMock = Mockito.mock(ObjectMapper.class);
         objectMapperField.set(reServiceMock,objectMapperMock);
         Mockito.when(objectMapperMock.writeValueAsString(Mockito.any())).thenThrow(JsonProcessingException.class);
 
         Mockito.doNothing().when(reServiceMock).writeBlobIfExist(Mockito.any());
-        Assert.assertThrows(AppException.class, () -> {
-            reServiceMock.sendEvent(reInterface);
-        });
+        Assert.assertThrows(AppException.class, () -> reServiceMock.sendEvent(reInterface));
     }
 
     @Test
-    public void testSendAllEventGT0(){
+    void testSendAllEventGT0() {
         reServiceMock.sendEvent(null);
         Mockito.verify(reServiceMock, Mockito.times(0)).publishEvents(null);
     }
+
     @Test
-    public void testWriteBlobIfExist_NoReInstance() {
+    void testWriteBlobIfExist_NoReInstance() {
         reServiceMock.writeBlobIfExist(ReInternal.builder().build());
         Mockito.verify(Mockito.spy(blobContainerClient), Mockito.times(0)).getBlobClient(Mockito.any());
     }
 
     @Test
-    public void testWriteBlobIfExist_BodyStringBlank() {
+    void testWriteBlobIfExist_BodyStringBlank() {
         reInterface.setPayload("");
         reServiceMock.writeBlobIfExist(reInterface);
         Mockito.verify(Mockito.spy(blobContainerClient), Mockito.times(0)).getBlobClient(Mockito.any());
     }
 
     @Test
-    public void testPublishEvent() throws JsonProcessingException {
+    void testPublishEvent() throws JsonProcessingException {
         Mockito.doCallRealMethod().when(reServiceMock).publishEvents(Mockito.any());
         EventDataBatch eventDataBatch = Mockito.mock(EventDataBatch.class);
         Mockito.when(producerMock.createBatch()).thenReturn(eventDataBatch);
@@ -181,16 +179,16 @@ public class ReServiceTest {
     }
 
     @Test
-    public void testPublishEvent_FullBatch_OK() throws JsonProcessingException {
+    void testPublishEvent_FullBatch_OK() throws JsonProcessingException {
         AtomicInteger counter = new AtomicInteger();
         Mockito.doCallRealMethod().when(reServiceMock).publishEvents(Mockito.any());
         EventDataBatch eventDataBatch = Mockito.mock(EventDataBatch.class);
         Mockito.when(producerMock.createBatch()).thenReturn(eventDataBatch);
         Mockito.when(eventDataBatch.tryAdd(Mockito.any())).thenAnswer(
                 invocation -> {
-                    if(counter.get() == 1){
+                    if(counter.get() == 1) {
                         return true;
-                    }else{
+                    } else {
                         counter.set(1);
                         return false;
                     }
@@ -205,7 +203,7 @@ public class ReServiceTest {
     }
 
     @Test
-    public void testPublishEvent_TooLarge() throws JsonProcessingException {
+    void testPublishEvent_TooLarge() throws JsonProcessingException {
         Mockito.doCallRealMethod().when(reServiceMock).publishEvents(Mockito.any());
         EventDataBatch eventDataBatch = Mockito.mock(EventDataBatch.class);
         Mockito.when(producerMock.createBatch()).thenReturn(eventDataBatch);
@@ -218,13 +216,13 @@ public class ReServiceTest {
         try {
             reServiceMock.publishEvents(eventDataList);
             fail();
-        }catch(AppException e){
-            Assert.assertEquals(AppErrorCodeMessageEnum.EVENT_HUB_RE_TOO_LARGE, e.getCodeMessage());
+        } catch(AppException e) {
+            Assertions.assertEquals(AppErrorCodeMessageEnum.EVENT_HUB_RE_TOO_LARGE, e.getCodeMessage());
         }
     }
 
     @Test
-    public void testSendEventDataBachGT0(){
+    void testSendEventDataBachGT0() {
         reServiceMock.publishEvents(null);
         Mockito.verify(producerMock, Mockito.times(0)).send((EventDataBatch) Mockito.any());
     }
