@@ -34,7 +34,7 @@ import static org.bson.assertions.Assertions.fail;
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ReServiceTest {
+class ReServiceTest {
     @Inject
     ObjectMapper objectMapper;
     @InjectMock
