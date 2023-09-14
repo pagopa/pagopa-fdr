@@ -18,25 +18,22 @@ import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.jboss.logging.Logger;
 import org.slf4j.MDC;
 
 @ApplicationScoped
-public class SupportService{
-  @Inject
-  Config config;
+public class SupportService {
+  @Inject Config config;
 
-  @Inject
-  SupportServiceServiceMapper mapper;
+  @Inject SupportServiceServiceMapper mapper;
 
-  @Inject
-  Logger log;
+  @Inject Logger log;
 
   @WithSpan(kind = SERVER)
-  public PaymentGetByPspIdIuvIurDTO findPaymentsByPspIdAndIuvIur(FindPaymentsByPspIdAndIuvIurArgs args) {
+  public PaymentGetByPspIdIuvIurDTO findPaymentsByPspIdAndIuvIur(
+      FindPaymentsByPspIdAndIuvIurArgs args) {
     MDC.put(PSP_ID, args.getPspId());
     Optional.ofNullable(args.getIuv()).ifPresent(iuvz -> MDC.put(IUV, iuvz));
     Optional.ofNullable(args.getIur()).ifPresent(iurz -> MDC.put(IUR, iurz));
@@ -50,11 +47,18 @@ public class SupportService{
     Page page = Page.of((int) args.getPageNumber() - 1, (int) args.getPageSize());
     Sort sort = AppDBUtil.getSort(List.of("index,asc"));
 
-    log.debugf("Existence check fdr by pspId[%s], iuv[%s], iur[%s], createdFrom: [%s], createdTo: [%s]", args.getPspId(), args.getIuv(), args.getIur(),
-        args.getCreatedFrom(), args.getCreatedTo());
+    log.debugf(
+        "Existence check fdr by pspId[%s], iuv[%s], iur[%s], createdFrom: [%s], createdTo: [%s]",
+        args.getPspId(), args.getIuv(), args.getIur(), args.getCreatedFrom(), args.getCreatedTo());
     PanacheQuery<FdrPaymentPublishEntity> fdrPaymentPublishPanacheQuery =
-        FdrPaymentPublishEntity.findByPspAndIuvIur(args.getPspId(), args.getIuv(), args.getIur(),
-            args.getCreatedFrom(), args.getCreatedTo(), sort).page(page);
+        FdrPaymentPublishEntity.findByPspAndIuvIur(
+                args.getPspId(),
+                args.getIuv(),
+                args.getIur(),
+                args.getCreatedFrom(),
+                args.getCreatedTo(),
+                sort)
+            .page(page);
 
     List<FdrPaymentPublishEntity> list = fdrPaymentPublishPanacheQuery.list();
 
@@ -73,5 +77,4 @@ public class SupportService{
         .data(mapper.toPaymentByPspIdIuvIurList(list))
         .build();
   }
-
 }
