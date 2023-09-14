@@ -11,13 +11,14 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = ComponentModel.JAKARTA)
 public interface SupportServiceServiceMapper {
 
-  SupportServiceServiceMapper INSTANCE =
-      Mappers.getMapper(SupportServiceServiceMapper.class);
+  SupportServiceServiceMapper INSTANCE = Mappers.getMapper(SupportServiceServiceMapper.class);
 
   @Mapping(source = "refFdrSenderPspId", target = "pspId")
   @Mapping(source = "refFdr", target = "fdr")
   @Mapping(source = "refFdrRevision", target = "revision")
   @Mapping(source = "refFdrReceiverOrganizationId", target = "organizationId")
   PaymentByPspIdIuvIurDTO toPaymentByPspIdIuvIur(FdrPaymentPublishEntity fdrPaymentPublishEntity);
-  List<PaymentByPspIdIuvIurDTO> toPaymentByPspIdIuvIurList(List<FdrPaymentPublishEntity> paymentEntities);
+
+  List<PaymentByPspIdIuvIurDTO> toPaymentByPspIdIuvIurList(
+      List<FdrPaymentPublishEntity> paymentEntities);
 }

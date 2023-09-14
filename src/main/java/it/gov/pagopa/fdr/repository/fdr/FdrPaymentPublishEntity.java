@@ -65,34 +65,31 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
         Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).map());
   }
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByPspAndIuvIur(String psp, String iuv, String iur, Instant createdFrom, Instant createdTo, Sort sort) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByPspAndIuvIur(
+      String psp, String iuv, String iur, Instant createdFrom, Instant createdTo, Sort sort) {
     String query = "ref_fdr_sender_psp_id = :psp";
     Parameters params = new Parameters().and("psp", psp);
-    if(iuv != null && iur != null){
+    if (iuv != null && iur != null) {
       query += " and iuv = :iuv and iur = :iur";
       params.and("iuv", iuv).and("iur", iur);
-    } else if(iuv != null) {
+    } else if (iuv != null) {
       query += " and iuv = :iuv";
       params.and("iuv", iuv);
-    } else if(iur != null) {
+    } else if (iur != null) {
       query += " and iur = :iur";
       params.and("iur", iur);
     }
-    if(createdFrom != null && createdTo != null) {
+    if (createdFrom != null && createdTo != null) {
       query += " and created >= :createdFrom and created <= :createdTo";
       params.and("createdFrom", createdFrom).and("createdTo", createdTo);
-    } else if(createdFrom != null) {
+    } else if (createdFrom != null) {
       query += " and created >= :createdFrom";
       params.and("createdFrom", createdFrom);
-    } else if(createdTo != null) {
+    } else if (createdTo != null) {
       query += " and created <= :createdTo";
       params.and("createdTo", createdTo);
     }
-    return find(
-        query,
-        sort,
-        params
-    );
+    return find(query, sort, params);
   }
 
   //  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(
