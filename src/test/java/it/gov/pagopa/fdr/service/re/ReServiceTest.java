@@ -65,7 +65,7 @@ class ReServiceTest {
         blobContainerClientField.setAccessible(true);
 
         blobContainerClientField.set(reServiceMock, blobContainerClient);
-        blobContainerNameField.set(reServiceMock, "blobcontainerre");
+        blobContainerNameField.set(reServiceMock, blobName);
         eHubNameField.set(reServiceMock, "eventHub");
 
         Field logField = ReService.class.getDeclaredField("log");
@@ -190,6 +190,8 @@ class ReServiceTest {
                         return true;
                     counter.set(1);
                         return false;
+                    counter.set(1);
+                    return false;
                 });
         Mockito.when(eventDataBatch.getCount()).thenReturn(1);
         List<EventData> eventDataList = new ArrayList<>();
