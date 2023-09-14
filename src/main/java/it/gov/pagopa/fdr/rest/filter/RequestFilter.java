@@ -73,7 +73,7 @@ public class RequestFilter implements ContainerRequestFilter {
 
     reService.sendEvent(
         ReInterface.builder()
-            .appVersion(AppVersionEnum.FDR003)
+            .serviceIdentifier(AppVersionEnum.FDR003)
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERFACE)
