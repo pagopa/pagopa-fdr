@@ -226,5 +226,4 @@ class ReServiceTest {
         reServiceMock.publishEvents(null);
         Mockito.verify(producerMock, Mockito.times(0)).send((EventDataBatch) Mockito.any());
     }
-
 }
