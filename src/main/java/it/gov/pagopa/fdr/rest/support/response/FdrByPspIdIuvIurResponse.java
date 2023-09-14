@@ -22,3 +22,4 @@ public class FdrByPspIdIuvIurResponse {
 
   private List<FdrByPspIdIuvIurBase> data;
 }
+

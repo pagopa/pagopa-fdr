@@ -32,7 +32,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.MDC;
 
 @Tag(name = "Support", description = "Support operations")
-@Path("/internal/psps/{" + AppConstant.PSP+ "}/")
+@Path("/internal/psps/{" + AppConstant.PSP + "}/")
 @Consumes("application/json")
 @Produces("application/json")
 public class SupportResource {
@@ -58,11 +58,7 @@ public class SupportResource {
                     schema = @Schema(implementation = FdrByPspIdIuvIurResponse.class)))
       })
   @GET
-  @Path(
-      "iuv/{"
-      + AppConstant.IUV
-      + "}/"
-  )
+  @Path("iuv/{" + AppConstant.IUV + "}/")
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_PSP_IUV_FDR)
   public FdrByPspIdIuvIurResponse getByIuv(
       @PathParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
@@ -75,7 +71,7 @@ public class SupportResource {
           long pageSize) {
     String action = MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
-    PaymentGetByPspIdIuvIurDTO paymentDtoList=
+    PaymentGetByPspIdIuvIurDTO paymentDtoList =
         service.findPaymentsByPspIdAndIuvIur(
             FindPaymentsByPspIdAndIuvIurArgs.builder()
                 .action(action)
@@ -92,6 +88,7 @@ public class SupportResource {
         .data(mapper.toFdrByIuvIurList(paymentDtoList.getData()))
         .build();
   }
+
   @Operation(
       operationId = "getByIur",
       summary = "Get all payments by psp id and iur",
@@ -110,11 +107,7 @@ public class SupportResource {
                   schema = @Schema(implementation = FdrByPspIdIuvIurResponse.class)))
       })
   @GET
-  @Path(
-      "iur/{"
-          + AppConstant.IUR
-          + "}/"
-  )
+  @Path("iur/{" + AppConstant.IUR + "}/")
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_PSP_IUR_FDR)
   public FdrByPspIdIuvIurResponse getByIur(
       @PathParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
@@ -122,12 +115,12 @@ public class SupportResource {
       @QueryParam(AppConstant.CREATED_FROM) Instant createdFrom,
       @QueryParam(AppConstant.CREATED_TO) Instant createdTo,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
-      long pageNumber,
+          long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
-      long pageSize) {
+          long pageSize) {
     String action = MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
-    PaymentGetByPspIdIuvIurDTO paymentDtoList=
+    PaymentGetByPspIdIuvIurDTO paymentDtoList =
         service.findPaymentsByPspIdAndIuvIur(
             FindPaymentsByPspIdAndIuvIurArgs.builder()
                 .action(action)

@@ -106,7 +106,7 @@ public class PspsService {
     String sessionId = org.slf4j.MDC.get(TRX_ID);
     reService.sendEvent(
         ReInternal.builder()
-            .appVersion(AppVersionEnum.FDR003)
+            .serviceIdentifier(AppVersionEnum.FDR003)
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
@@ -172,7 +172,8 @@ public class PspsService {
                   reportingFlowPaymentEntity.setRefFdrId(fdrEntity.id);
                   reportingFlowPaymentEntity.setRefFdr(fdrEntity.getFdr());
                   reportingFlowPaymentEntity.setRefFdrSenderPspId(fdrEntity.getSender().getPspId());
-                  reportingFlowPaymentEntity.setRefFdrReceiverOrganizationId(fdrEntity.getReceiver().getOrganizationId());
+                  reportingFlowPaymentEntity.setRefFdrReceiverOrganizationId(
+                      fdrEntity.getReceiver().getOrganizationId());
                   reportingFlowPaymentEntity.setRefFdrRevision(fdrEntity.getRevision());
                 })
             .toList());
@@ -180,7 +181,7 @@ public class PspsService {
     String sessionId = org.slf4j.MDC.get(TRX_ID);
     reService.sendEvent(
         ReInternal.builder()
-            .appVersion(AppVersionEnum.FDR003)
+            .serviceIdentifier(AppVersionEnum.FDR003)
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
@@ -247,7 +248,7 @@ public class PspsService {
     String sessionId = org.slf4j.MDC.get(TRX_ID);
     reService.sendEvent(
         ReInternal.builder()
-            .appVersion(AppVersionEnum.FDR003)
+            .serviceIdentifier(AppVersionEnum.FDR003)
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
@@ -337,7 +338,7 @@ public class PspsService {
     String sessionId = MDC.get(TRX_ID);
     reService.sendEvent(
         ReInternal.builder()
-            .appVersion(AppVersionEnum.FDR003)
+            .serviceIdentifier(AppVersionEnum.FDR003)
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
@@ -371,7 +372,7 @@ public class PspsService {
     String sessionId = org.slf4j.MDC.get(TRX_ID);
     reService.sendEvent(
         ReInternal.builder()
-            .appVersion(AppVersionEnum.FDR003)
+            .serviceIdentifier(AppVersionEnum.FDR003)
             .created(Instant.now())
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)

@@ -12,7 +12,7 @@ public abstract class ReAbstract {
 
   private String uniqueId;
 
-  private AppVersionEnum appVersion;
+  private AppVersionEnum serviceIdentifier;
 
   private Instant created;
   private String sessionId;
