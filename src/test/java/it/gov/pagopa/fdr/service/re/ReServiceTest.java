@@ -145,7 +145,7 @@ class ReServiceTest {
     }
 
     @Test
-    void testSendAllEventGT0() {
+    void testSendAllEventLT0() {
         reServiceMock.sendEvent((ReAbstract) null);
         Mockito.verify(reServiceMock, Mockito.times(0)).publishEvents(null);
     }
@@ -189,8 +189,6 @@ class ReServiceTest {
                     if(counter.get() == 1)
                         return true;
                     counter.set(1);
-                        return false;
-                    counter.set(1);
                     return false;
                 });
         Mockito.when(eventDataBatch.getCount()).thenReturn(1);
@@ -222,7 +220,7 @@ class ReServiceTest {
     }
 
     @Test
-    void testSendEventDataBachGT0() {
+    void testSendEventDataBachLT0() {
         reServiceMock.publishEvents(null);
         Mockito.verify(producerMock, Mockito.times(0)).send((EventDataBatch) Mockito.any());
     }
