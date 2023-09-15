@@ -19,14 +19,15 @@ import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class ReService {
@@ -82,7 +83,7 @@ public class ReService {
                             "%s_%s", dateFormatter.format(re.getCreated()), re.hashCode()));
                     writeBlobIfExist(re);
                     try {
-                      log.debugf("EventHub name [%s] send message: %s", re.toString());
+                      log.debugf("EventHub name [%s] send message: %s", eHubName, re.toString());
                       return new EventData(objectMapper.writeValueAsString(re));
                     } catch (JsonProcessingException e) {
                       log.errorf("Producer SDK Azure RE event error", e);
@@ -90,7 +91,7 @@ public class ReService {
                     }
                   })
               .toList();
-      if (allEvents.size() > 0) {
+      if (!allEvents.isEmpty()) {
         publishEvents(allEvents);
       }
     }
@@ -100,7 +101,7 @@ public class ReService {
   private static final DateTimeFormatter dateFormatter =
       DateTimeFormatter.ofPattern(PATTERN_DATE_FORMAT).withZone(ZoneId.systemDefault());
 
-  private <T extends ReAbstract> void writeBlobIfExist(T re) {
+  public <T extends ReAbstract> void writeBlobIfExist(T re) {
     if (re instanceof ReInterface reInterface) {
       String bodyStr = reInterface.getPayload();
       if (bodyStr != null && !bodyStr.isBlank()) {
@@ -126,7 +127,7 @@ public class ReService {
     }
   }
 
-  private void publishEvents(List<EventData> allEvents) {
+  public void publishEvents(List<EventData> allEvents) {
     // create a batch
     EventDataBatch eventDataBatch = producer.createBatch();
 
