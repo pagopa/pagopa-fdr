@@ -578,26 +578,31 @@
 					"response": []
 				}
 			]
-		},
-		{
+		},{
 			"name": "support",
 			"item": [
 				{
 					"name": "getPaymentsByPspId&Iuv",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{FDR_INTERNAL_KEY}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{FDR_URL}}/internal/psps/nodo-doc-dev/iuv/39910472543631a",
+							"raw": "{{FDR_INTERNAL_URL}}/internal/psps/nodo-doc-dev/iuv/30041018977658a",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_INTERNAL_URL}}"
 							],
 							"path": [
 								"internal",
 								"psps",
 								"nodo-doc-dev",
 								"iuv",
-								"39910472543631a"
+								"30041018977658a"
 							],
 							"query": [
 								{
@@ -629,18 +634,24 @@
 					"name": "getPaymentsByPspId&Iur",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Ocp-Apim-Subscription-Key",
+								"value": "{{FDR_INTERNAL_KEY}}",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{FDR_URL}}/internal/psps/nodo-doc-dev/iur/3809527292a",
+							"raw": "{{FDR_INTERNAL_URL}}/internal/psps/nodo-doc-dev/iur/0778600118a",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_INTERNAL_URL}}"
 							],
 							"path": [
 								"internal",
 								"psps",
 								"nodo-doc-dev",
 								"iur",
-								"3809527292a"
+								"0778600118a"
 							],
 							"query": [
 								{

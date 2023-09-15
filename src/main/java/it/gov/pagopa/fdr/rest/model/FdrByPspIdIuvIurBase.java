@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.support.response;
+package it.gov.pagopa.fdr.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.time.Instant;
@@ -10,7 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"pspId", "organizationId", "fdr", "revision", "created"})
-public class FdrByIuv {
+public class FdrByPspIdIuvIurBase {
   private String pspId;
   private String organizationId;
   private String fdr;
