@@ -11,8 +11,9 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = ComponentModel.JAKARTA)
 public interface SupportResourceServiceMapper {
-  SupportResourceServiceMapper INSTANCE =
-      Mappers.getMapper(SupportResourceServiceMapper.class);
+  SupportResourceServiceMapper INSTANCE = Mappers.getMapper(SupportResourceServiceMapper.class);
+
   List<FdrByPspIdIuvIurBase> toFdrByIuvIurList(List<PaymentByPspIdIuvIurDTO> fdrGetPaymentDto);
+
   Metadata toMetadata(MetadataDto metadataDto);
 }

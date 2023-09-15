@@ -81,7 +81,8 @@ public class SupportResource {
                 .createdFrom(createdFrom)
                 .createdTo(createdTo)
                 .pageNumber(pageNumber)
-                .pageSize(pageSize).build());
+                .pageSize(pageSize)
+                .build());
     return FdrByPspIdIuvIurResponse.builder()
         .metadata(mapper.toMetadata(paymentDtoList.getMetadata()))
         .count(paymentDtoList.getCount())
@@ -95,16 +96,16 @@ public class SupportResource {
       description = "Get all payments by psp id and iur")
   @APIResponses(
       value = {
-          @APIResponse(ref = "#/components/responses/InternalServerError"),
-          @APIResponse(ref = "#/components/responses/AppException400"),
-          @APIResponse(ref = "#/components/responses/AppException404"),
-          @APIResponse(
-              responseCode = "200",
-              description = "Success",
-              content =
-              @Content(
-                  mediaType = MediaType.APPLICATION_JSON,
-                  schema = @Schema(implementation = FdrByPspIdIuvIurResponse.class)))
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = FdrByPspIdIuvIurResponse.class)))
       })
   @GET
   @Path("iur/{" + AppConstant.IUR + "}/")
@@ -130,7 +131,8 @@ public class SupportResource {
                 .createdFrom(createdFrom)
                 .createdTo(createdTo)
                 .pageNumber(pageNumber)
-                .pageSize(pageSize).build());
+                .pageSize(pageSize)
+                .build());
     return FdrByPspIdIuvIurResponse.builder()
         .metadata(mapper.toMetadata(paymentDtoList.getMetadata()))
         .count(paymentDtoList.getCount())

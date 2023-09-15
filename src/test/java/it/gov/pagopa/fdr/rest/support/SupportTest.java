@@ -32,10 +32,10 @@ class SupportTest {
   @Nested
   @TestMethodOrder(OrderAnnotation.class)
   class getByPspIdIuvIuv {
-    private static final String GET_ALL_FDR_BY_PSP_ID_IUV=
-        "/internal/psps/"+ "%s"+"/iuv/"+"%s";
-    private static final String GET_ALL_FDR_BY_PSP_ID_IUR=
-        "/internal/psps/"+ "%s"+"/iur/"+"%s";
+    private static final String GET_ALL_FDR_BY_PSP_ID_IUV =
+        "/internal/psps/" + "%s" + "/iuv/" + "%s";
+    private static final String GET_ALL_FDR_BY_PSP_ID_IUR =
+        "/internal/psps/" + "%s" + "/iur/" + "%s";
 
     private static String flowName;
 
@@ -66,6 +66,7 @@ class SupportTest {
       assertThat(data.getRevision(), equalTo(1L));
       assertThat(data.getCreated(), notNullValue());
     }
+
     @Test
     @Order(2)
     @DisplayName("SUPPORT - OK - getFdrByPspIdIuv - NO RESULTS")
@@ -108,6 +109,7 @@ class SupportTest {
       assertThat(data.getRevision(), equalTo(1L));
       assertThat(data.getCreated(), notNullValue());
     }
+
     @Test
     @Order(4)
     @DisplayName("SUPPORT - OK - getFdrByPspIdIur - NO RESULTS")
