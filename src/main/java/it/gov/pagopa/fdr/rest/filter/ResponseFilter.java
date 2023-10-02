@@ -99,9 +99,6 @@ public class ResponseFilter implements ContainerResponseFilter {
               .organizationId(organizationId)
               .fdrAction(fdrActionEnum)
               .build());
-
-      MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
-
       int httpStatus = responseContext.getStatus();
       Optional<ErrorResponse> errorResponse = Optional.empty();
 
@@ -128,8 +125,7 @@ public class ResponseFilter implements ContainerResponseFilter {
             requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       }
 
-      putMDCReq(action, requestPath, psp, organizationId);
-      putMDCRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
+      putMDC(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
 
       MDC.clear();
     }
@@ -155,62 +151,29 @@ public class ResponseFilter implements ContainerResponseFilter {
             .collect(Collectors.joining(", ")));
   }
 
-  private void putMDCReq(String action, String requestPath, String psp, String organizationId) {
-      putMDC(
-          action,
-          requestPath,
-          psp,
-          organizationId,
-          Optional.empty(),
-          Optional.empty(),
-          Optional.empty());
-  }
-
-  private void putMDCRes(
-      String action,
-      String requestPath,
-      String psp,
-      String ec,
-      Long elapsed,
-      Integer httpStatus,
-      Optional<ErrorResponse> errorResponse) {
-      putMDC(
-          action,
-          requestPath,
-          psp,
-          ec,
-          Optional.of(elapsed),
-          Optional.of(httpStatus),
-          errorResponse);
-  }
-
   private void putMDC(
       String action,
       String requestPath,
       String psp,
       String organizationId,
-      Optional<Long> elapsed,
-      Optional<Integer> statusCode,
+      Long elapsed,
+      Integer statusCode,
       Optional<ErrorResponse> errorResponse) {
-    statusCode.ifPresentOrElse(
-        sc -> {
-          MDC.put(HTTP_TYPE, AppConstant.RESPONSE);
-          errorResponse.ifPresentOrElse(
-              er -> {
-                MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
-                MDC.put(MDCKeys.CODE, er.getAppErrorCode());
-                MDC.put(MDCKeys.MESSAGE, er.getErrors().stream()
-                        .map(ErrorMessage::getMessage)
-                        .collect(Collectors.joining(", ")));
-              },
-              () -> MDC.put(MDCKeys.OUTCOME, AppConstant.OK));
+    MDC.put(HTTP_TYPE, AppConstant.RESPONSE);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
+    errorResponse.ifPresentOrElse(
+        er -> {
+          MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
+          MDC.put(MDCKeys.CODE, er.getAppErrorCode());
+          MDC.put(MDCKeys.MESSAGE, er.getErrors().stream()
+                  .map(ErrorMessage::getMessage)
+                  .collect(Collectors.joining(", ")));
         },
-        () -> MDC.put(HTTP_TYPE, AppConstant.REQUEST));
-
+        () -> MDC.put(MDCKeys.OUTCOME, AppConstant.OK));
     MDC.put(ACTION, action != null ? action : "NA");
     MDC.put(URI, requestPath);
-    elapsed.ifPresent(v -> MDC.put(ELAPSED, v.toString()));
-    statusCode.ifPresent(s -> MDC.put(STATUS_CODE, s.toString()));
+    MDC.put(ELAPSED, elapsed.toString());
+    MDC.put(STATUS_CODE, statusCode.toString());
     MDC.put(PSP_ID, psp != null ? psp : "NA");
     MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
   }

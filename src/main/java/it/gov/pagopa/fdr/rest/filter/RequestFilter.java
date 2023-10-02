@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.filter;
 
+import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
@@ -8,6 +9,7 @@ import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
+import it.gov.pagopa.fdr.util.MDCKeys;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -36,6 +38,7 @@ public class RequestFilter implements ContainerRequestFilter {
 
   @Override
   public void filter(ContainerRequestContext containerRequestContext) throws IOException {
+    MDC.put(HTTP_TYPE, AppConstant.REQUEST);
     long requestStartTime = System.nanoTime();
     containerRequestContext.setProperty("requestStartTime", requestStartTime);
 
@@ -61,6 +64,7 @@ public class RequestFilter implements ContainerRequestFilter {
 
     if (fdrActionEnum == null) {
       log.warn("Attention, missing annotation Re on this action");
+      MDC.put(ACTION, "NA");
     } else {
       MDC.put(ACTION, fdrActionEnum.name());
     }
