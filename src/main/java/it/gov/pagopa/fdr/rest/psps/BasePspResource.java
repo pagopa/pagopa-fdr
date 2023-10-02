@@ -1,10 +1,5 @@
 package it.gov.pagopa.fdr.rest.psps;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
-import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
-
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
@@ -20,6 +15,7 @@ import it.gov.pagopa.fdr.service.dto.FdrAllCreatedDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.psps.PspsService;
+import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response.Status;
@@ -28,6 +24,8 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.jboss.logging.MDC;
+
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 public abstract class BasePspResource {
 
@@ -47,6 +45,7 @@ public abstract class BasePspResource {
 
   protected RestResponse<GenericResponse> baseCreate(
       String pspId, String fdr, CreateRequest createRequest) {
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
 
@@ -75,6 +74,7 @@ public abstract class BasePspResource {
 
   protected GenericResponse baseAddPayment(
       String pspId, String fdr, AddPaymentRequest addPaymentRequest) {
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
@@ -94,6 +94,7 @@ public abstract class BasePspResource {
 
   protected GenericResponse baseDeletePayment(
       String pspId, String fdr, DeletePaymentRequest deletePaymentRequest) {
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
@@ -114,6 +115,7 @@ public abstract class BasePspResource {
   }
 
   protected GenericResponse basePublish(String pspId, String fdr, boolean internalPublish) {
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
@@ -132,6 +134,7 @@ public abstract class BasePspResource {
   }
 
   protected GenericResponse baseDelete(String pspId, String fdr) {
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
@@ -151,6 +154,7 @@ public abstract class BasePspResource {
 
   protected GetAllCreatedResponse baseGetAllCreated(
       String idPsp, Instant createdGt, long pageNumber, long pageSize) {
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     if (null != idPsp && !idPsp.isBlank()) {
       MDC.put(PSP_ID, idPsp);
@@ -175,6 +179,7 @@ public abstract class BasePspResource {
   }
 
   protected GetCreatedResponse baseGetCreated(String fdr, String psp) {
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
@@ -194,7 +199,7 @@ public abstract class BasePspResource {
 
   protected GetPaymentResponse baseGetCreatedFdrPayment(
       String fdr, String psp, long pageNumber, long pageSize) {
-
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);

@@ -106,6 +106,7 @@ public class RequestFilter implements ContainerRequestFilter {
             .build());
 
     log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
+    MDC.remove(EVENT_CATEGORY);
   }
 
   private void putMDCReq(

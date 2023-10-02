@@ -388,7 +388,7 @@ public class PspsService {
             .revision(fdrEntity.getRevision())
             .fdrAction(FdrActionEnum.DELETE_FLOW)
             .build());
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+
   }
 
   private static double addAndSum(
