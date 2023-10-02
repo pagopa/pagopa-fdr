@@ -110,6 +110,7 @@ public class ResponseFilter implements ContainerResponseFilter {
               .fdrAction(fdrActionEnum)
               .build());
 
+      MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
       if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
           && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
         Object body = responseContext.getEntity();
@@ -166,7 +167,6 @@ public class ResponseFilter implements ContainerResponseFilter {
       Integer httpStatus,
       Optional<ErrorResponse> errorResponse) {
     MDC.put(HTTP_TYPE, AppConstant.RESPONSE);
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
     if(errorResponse.isPresent() ) {
       MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
       MDC.put(MDCKeys.CODE, errorResponse.get().getAppErrorCode());

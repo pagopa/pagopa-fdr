@@ -105,6 +105,7 @@ public class RequestFilter implements ContainerRequestFilter {
             .fdrAction(fdrActionEnum)
             .build());
 
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
     log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
     MDC.remove(EVENT_CATEGORY);
   }
@@ -117,7 +118,6 @@ public class RequestFilter implements ContainerRequestFilter {
           String organizationId) {
     MDC.put(TRX_ID, sessionId);
     MDC.put(HTTP_TYPE, AppConstant.REQUEST);
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
     MDC.put(ACTION, action != null ? action : "NA");
     MDC.put(URI, requestPath);
     MDC.put(PSP_ID, psp != null ? psp : "NA");
