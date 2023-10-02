@@ -1,8 +1,7 @@
 package it.gov.pagopa.fdr.service.psps;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
-import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -104,6 +103,7 @@ public class PspsService {
     fdrEntity.persist();
 
     String sessionId = org.slf4j.MDC.get(TRX_ID);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
         ReInternal.builder()
             .serviceIdentifier(AppVersionEnum.FDR003)
@@ -179,6 +179,7 @@ public class PspsService {
             .toList());
 
     String sessionId = org.slf4j.MDC.get(TRX_ID);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
         ReInternal.builder()
             .serviceIdentifier(AppVersionEnum.FDR003)
@@ -246,6 +247,7 @@ public class PspsService {
     log.debugf("FdrInsertEntity %s", fdrEntity.getStatus().name());
 
     String sessionId = org.slf4j.MDC.get(TRX_ID);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
         ReInternal.builder()
             .serviceIdentifier(AppVersionEnum.FDR003)
@@ -336,6 +338,7 @@ public class PspsService {
     }
 
     String sessionId = MDC.get(TRX_ID);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
         ReInternal.builder()
             .serviceIdentifier(AppVersionEnum.FDR003)
@@ -370,6 +373,7 @@ public class PspsService {
     fdrEntity.delete();
 
     String sessionId = org.slf4j.MDC.get(TRX_ID);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
         ReInternal.builder()
             .serviceIdentifier(AppVersionEnum.FDR003)
@@ -384,6 +388,7 @@ public class PspsService {
             .revision(fdrEntity.getRevision())
             .fdrAction(FdrActionEnum.DELETE_FLOW)
             .build());
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
   }
 
   private static double addAndSum(

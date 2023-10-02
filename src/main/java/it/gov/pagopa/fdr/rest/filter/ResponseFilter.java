@@ -100,6 +100,8 @@ public class ResponseFilter implements ContainerResponseFilter {
               .fdrAction(fdrActionEnum)
               .build());
 
+      MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
+
       int httpStatus = responseContext.getStatus();
       Optional<ErrorResponse> errorResponse = Optional.empty();
 

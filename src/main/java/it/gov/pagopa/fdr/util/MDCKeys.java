@@ -4,6 +4,7 @@ public class MDCKeys {
 
   public static final String TRX_ID = "trxId";
   public static final String HTTP_TYPE = "httpType";
+  public static final String EVENT_CATEGORY = "eventCategory";
   public static final String OUTCOME = "outcome";
   public static final String CODE = "code";
   public static final String MESSAGE = "message";
