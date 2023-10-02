@@ -178,8 +178,8 @@ public class ResponseFilter implements ContainerResponseFilter {
     }
     MDC.put(ACTION, action != null ? action : "NA");
     MDC.put(URI, requestPath);
-    MDC.put(ELAPSED, elapsed.toString());
-    MDC.put(STATUS_CODE, httpStatus.toString());
+    MDC.put(ELAPSED, elapsed);
+    MDC.put(STATUS_CODE, httpStatus);
     MDC.put(PSP_ID, psp != null ? psp : "NA");
     MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
   }
