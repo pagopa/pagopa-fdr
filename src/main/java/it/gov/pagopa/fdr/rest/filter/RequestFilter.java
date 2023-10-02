@@ -1,32 +1,26 @@
 package it.gov.pagopa.fdr.rest.filter;
 
-import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
-import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
-import it.gov.pagopa.fdr.util.MDCKeys;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.Provider;
+import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
+import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.jboss.logging.Logger;
-import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
-import org.slf4j.MDC;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.*;
 

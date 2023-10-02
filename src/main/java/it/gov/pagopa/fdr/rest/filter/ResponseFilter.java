@@ -7,11 +7,7 @@ import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse.ErrorMessage;
 import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
-import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
 import it.gov.pagopa.fdr.util.MDCKeys;
@@ -22,15 +18,16 @@ import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.Provider;
+import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
+import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.jboss.logging.Logger;
-import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
-import org.slf4j.MDC;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
@@ -51,10 +48,10 @@ public class ResponseFilter implements ContainerResponseFilter {
       long requestFinishTime = System.nanoTime();
       long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
       String requestSubject = (String) requestContext.getProperty("subject");
-      String action = MDC.get(ACTION);
-      String psp = MDC.get(PSP_ID);
-      String organizationId = MDC.get(ORGANIZATION_ID);
-      String fdr = MDC.get(FDR);
+      String action = (String) MDC.get(ACTION);
+      String psp = (String) MDC.get(PSP_ID);
+      String organizationId = (String) MDC.get(ORGANIZATION_ID);
+      String fdr = (String) MDC.get(FDR);
 
       FdrActionEnum fdrActionEnum =
           AppReUtil.getFlowNamebyAnnotation(
@@ -67,7 +64,7 @@ public class ResponseFilter implements ContainerResponseFilter {
         log.warn("Attention, missing annotation Re on this action");
       }
 
-      String sessionId = MDC.get(TRX_ID);
+      String sessionId = (String) MDC.get(TRX_ID);
       String requestMethod = requestContext.getMethod();
       String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
 
