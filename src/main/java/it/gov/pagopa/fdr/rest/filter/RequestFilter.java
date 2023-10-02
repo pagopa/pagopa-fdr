@@ -38,7 +38,6 @@ public class RequestFilter implements ContainerRequestFilter {
 
   @Override
   public void filter(ContainerRequestContext containerRequestContext) throws IOException {
-    MDC.put(HTTP_TYPE, AppConstant.REQUEST);
     long requestStartTime = System.nanoTime();
     containerRequestContext.setProperty("requestStartTime", requestStartTime);
 
