@@ -126,7 +126,6 @@ public class ResponseFilter implements ContainerResponseFilter {
             requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       }
 
-      putMDCReq(action, requestPath, psp, organizationId);
       putMDCRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
 
       MDC.clear();
@@ -151,15 +150,6 @@ public class ResponseFilter implements ContainerResponseFilter {
         errorResponse.getErrors().stream()
             .map(ErrorMessage::getMessage)
             .collect(Collectors.joining(", ")));
-  }
-
-  private void putMDCReq(String action, String requestPath, String psp, String organizationId) {
-    MDC.put(HTTP_TYPE, AppConstant.REQUEST);
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
-    MDC.put(ACTION, action != null ? action : "NA");
-    MDC.put(URI, requestPath);
-    MDC.put(PSP_ID, psp != null ? psp : "NA");
-    MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
   }
 
   private void putMDCRes(

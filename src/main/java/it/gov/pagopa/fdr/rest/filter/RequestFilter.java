@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
@@ -42,7 +43,6 @@ public class RequestFilter implements ContainerRequestFilter {
     containerRequestContext.setProperty("requestStartTime", requestStartTime);
 
     String sessionId = UUID.randomUUID().toString();
-    MDC.put(TRX_ID, sessionId);
 
     String requestMethod = containerRequestContext.getMethod();
     String requestPath = containerRequestContext.getUriInfo().getAbsolutePath().getPath();
@@ -52,7 +52,6 @@ public class RequestFilter implements ContainerRequestFilter {
         containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.FDR);
     String ecPathParam =
         containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.ORGANIZATION);
-    MDC.put(URI, requestPath);
 
     FdrActionEnum fdrActionEnum =
         AppReUtil.getFlowNamebyAnnotation(
@@ -61,11 +60,11 @@ public class RequestFilter implements ContainerRequestFilter {
                 .getResteasyReactiveResourceInfo()
                 .getAnnotations());
 
+    String fdrAction = null;
     if (fdrActionEnum == null) {
       log.warn("Attention, missing annotation Re on this action");
-      MDC.put(ACTION, "NA");
     } else {
-      MDC.put(ACTION, fdrActionEnum.name());
+      fdrAction = fdrActionEnum.name();
     }
 
     String body =
@@ -97,13 +96,15 @@ public class RequestFilter implements ContainerRequestFilter {
         containerRequestContext.getUriInfo().getPathParameters();
 
     String subject = "NA";
+    String pspId = null;
+    String organizationId = null;
     if (!pathparam.isEmpty()) {
       if (pathparam.containsKey(AppConstant.PSP)) {
         subject = pathparam.getFirst(AppConstant.PSP);
-        MDC.put(PSP_ID, subject);
+        pspId = subject;
       } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
         subject = pathparam.getFirst(AppConstant.ORGANIZATION);
-        MDC.put(ORGANIZATION_ID, subject);
+        organizationId = subject;
       }
 
       log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
@@ -111,5 +112,20 @@ public class RequestFilter implements ContainerRequestFilter {
       log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
     }
     containerRequestContext.setProperty("subject", subject);
+
+    putMDCReq(fdrAction, requestPath, pspId, organizationId);
+  }
+
+  private void putMDCReq(
+          String action,
+          String requestPath,
+          String psp,
+          String organizationId) {
+    MDC.put(HTTP_TYPE, AppConstant.REQUEST);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
+    MDC.put(ACTION, action != null ? action : "NA");
+    MDC.put(URI, requestPath);
+    MDC.put(PSP_ID, psp != null ? psp : "NA");
+    MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
   }
 }
