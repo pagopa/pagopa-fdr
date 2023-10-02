@@ -1,11 +1,5 @@
 package it.gov.pagopa.fdr.rest.filter;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
-import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
@@ -18,7 +12,9 @@ import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
+import it.gov.pagopa.fdr.util.MDCKeys;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -35,6 +31,8 @@ import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 import org.slf4j.MDC;
+
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 @Provider
 public class ResponseFilter implements ContainerResponseFilter {
@@ -128,8 +126,8 @@ public class ResponseFilter implements ContainerResponseFilter {
             requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       }
 
-      logJsonReq(action, requestPath, psp, organizationId);
-      logJsonRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
+      putMDCReq(action, requestPath, psp, organizationId);
+      putMDCRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
 
       MDC.clear();
     }
@@ -155,19 +153,18 @@ public class ResponseFilter implements ContainerResponseFilter {
             .collect(Collectors.joining(", ")));
   }
 
-  private void logJsonReq(String action, String requestPath, String psp, String organizationId) {
-    log.infof(
-        jsonStringOperation(
-            action,
-            requestPath,
-            psp,
-            organizationId,
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty()));
+  private void putMDCReq(String action, String requestPath, String psp, String organizationId) {
+      putMDC(
+          action,
+          requestPath,
+          psp,
+          organizationId,
+          Optional.empty(),
+          Optional.empty(),
+          Optional.empty());
   }
 
-  private void logJsonRes(
+  private void putMDCRes(
       String action,
       String requestPath,
       String psp,
@@ -175,18 +172,17 @@ public class ResponseFilter implements ContainerResponseFilter {
       Long elapsed,
       Integer httpStatus,
       Optional<ErrorResponse> errorResponse) {
-    log.infof(
-        jsonStringOperation(
-            action,
-            requestPath,
-            psp,
-            ec,
-            Optional.of(elapsed),
-            Optional.of(httpStatus),
-            errorResponse));
+      putMDC(
+          action,
+          requestPath,
+          psp,
+          ec,
+          Optional.of(elapsed),
+          Optional.of(httpStatus),
+          errorResponse);
   }
 
-  private String jsonStringOperation(
+  private void putMDC(
       String action,
       String requestPath,
       String psp,
@@ -194,34 +190,26 @@ public class ResponseFilter implements ContainerResponseFilter {
       Optional<Long> elapsed,
       Optional<Integer> statusCode,
       Optional<ErrorResponse> errorResponse) {
-    StringBuilder stringBuilder = new StringBuilder("{");
-    stringBuilder.append("\"isJsonLog\":\"%s\"".formatted(true));
     statusCode.ifPresentOrElse(
         sc -> {
-          stringBuilder.append(",\"httpType\":\"RES\"");
+          MDC.put(HTTP_TYPE, AppConstant.RESPONSE);
           errorResponse.ifPresentOrElse(
               er -> {
-                stringBuilder.append(",\"outcome\":\"KO\"");
-                stringBuilder.append(",\"code\":\"%s\"".formatted(er.getAppErrorCode()));
-                stringBuilder.append(
-                    ",\"message\":\"%s\""
-                        .formatted(
-                            er.getErrors().stream()
-                                .map(ErrorMessage::getMessage)
-                                .collect(Collectors.joining(", "))));
+                MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
+                MDC.put(MDCKeys.CODE, er.getAppErrorCode());
+                MDC.put(MDCKeys.MESSAGE, er.getErrors().stream()
+                        .map(ErrorMessage::getMessage)
+                        .collect(Collectors.joining(", ")));
               },
-              () -> stringBuilder.append(",\"outcome\":\"OK\""));
+              () -> MDC.put(MDCKeys.OUTCOME, AppConstant.OK));
         },
-        () -> stringBuilder.append(",\"httpType\":\"REQ\""));
-    stringBuilder.append(",\"action\":%s".formatted(action != null ? action : "NA"));
-    stringBuilder.append(",\"uri\":\"%s\"".formatted(requestPath));
-    elapsed.ifPresent(v -> stringBuilder.append(",\"elapsed\":%d".formatted(v)));
-    statusCode.ifPresent(s -> stringBuilder.append(",\"statusCode\":%d".formatted(s)));
-    stringBuilder.append(",\"psp\":\"%s\"".formatted(psp != null ? psp : "NA"));
-    stringBuilder.append(
-        ",\"ec\":\"%s\"".formatted(organizationId != null ? organizationId : "NA"));
-    stringBuilder.append("}");
+        () -> MDC.put(HTTP_TYPE, AppConstant.REQUEST));
 
-    return stringBuilder.toString();
+    MDC.put(ACTION, action != null ? action : "NA");
+    MDC.put(URI, requestPath);
+    elapsed.ifPresent(v -> MDC.put(ELAPSED, v.toString()));
+    statusCode.ifPresent(s -> MDC.put(STATUS_CODE, s.toString()));
+    MDC.put(PSP_ID, psp != null ? psp : "NA");
+    MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
   }
 }

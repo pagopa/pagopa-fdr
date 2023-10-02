@@ -1,8 +1,5 @@
 package it.gov.pagopa.fdr.rest.filter;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
-
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
@@ -28,6 +25,8 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 import org.slf4j.MDC;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
+
 @Provider
 public class RequestFilter implements ContainerRequestFilter {
 
@@ -51,6 +50,7 @@ public class RequestFilter implements ContainerRequestFilter {
         containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.FDR);
     String ecPathParam =
         containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.ORGANIZATION);
+    MDC.put(URI, requestPath);
 
     FdrActionEnum fdrActionEnum =
         AppReUtil.getFlowNamebyAnnotation(
@@ -97,8 +97,10 @@ public class RequestFilter implements ContainerRequestFilter {
     if (!pathparam.isEmpty()) {
       if (pathparam.containsKey(AppConstant.PSP)) {
         subject = pathparam.getFirst(AppConstant.PSP);
+        MDC.put(PSP_ID, subject);
       } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
         subject = pathparam.getFirst(AppConstant.ORGANIZATION);
+        MDC.put(ORGANIZATION_ID, subject);
       }
 
       log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
