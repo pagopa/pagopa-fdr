@@ -71,7 +71,20 @@ public class ResponseFilter implements ContainerResponseFilter {
       String requestMethod = requestContext.getMethod();
       String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
 
-      String responsePayload = null;
+      int httpStatus = responseContext.getStatus();
+      Optional<ErrorResponse> errorResponse = Optional.empty();
+
+      if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
+              && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
+        Object body = responseContext.getEntity();
+        if (body instanceof ErrorResponse) {
+          errorResponse = Optional.of((ErrorResponse) body);
+        }
+      }
+      putMDCRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
+
+
+      String responsePayload;
       try {
         responsePayload = objectMapper.writeValueAsString(responseContext.getEntity());
       } catch (JsonProcessingException e) {
@@ -100,9 +113,6 @@ public class ResponseFilter implements ContainerResponseFilter {
               .fdrAction(fdrActionEnum)
               .build());
 
-      int httpStatus = responseContext.getStatus();
-      Optional<ErrorResponse> errorResponse = Optional.empty();
-
       if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
           && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
         Object body = responseContext.getEntity();
@@ -125,8 +135,6 @@ public class ResponseFilter implements ContainerResponseFilter {
             "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d]",
             requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       }
-
-      putMDCRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
 
       MDC.clear();
     }

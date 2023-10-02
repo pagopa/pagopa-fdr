@@ -67,6 +67,25 @@ public class RequestFilter implements ContainerRequestFilter {
       fdrAction = fdrActionEnum.name();
     }
 
+    MultivaluedMap<String, String> pathparam =
+            containerRequestContext.getUriInfo().getPathParameters();
+
+    String subject = "NA";
+    String pspId = null;
+    String organizationId = null;
+    if (!pathparam.isEmpty()) {
+      if (pathparam.containsKey(AppConstant.PSP)) {
+        subject = pathparam.getFirst(AppConstant.PSP);
+        pspId = subject;
+      } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
+        subject = pathparam.getFirst(AppConstant.ORGANIZATION);
+        organizationId = subject;
+      }
+    }
+    containerRequestContext.setProperty("subject", subject);
+
+    putMDCReq(fdrAction, requestPath, pspId, organizationId);
+
     String body =
         new BufferedReader(new InputStreamReader(containerRequestContext.getEntityStream()))
             .lines()
@@ -92,28 +111,7 @@ public class RequestFilter implements ContainerRequestFilter {
             .fdrAction(fdrActionEnum)
             .build());
 
-    MultivaluedMap<String, String> pathparam =
-        containerRequestContext.getUriInfo().getPathParameters();
-
-    String subject = "NA";
-    String pspId = null;
-    String organizationId = null;
-    if (!pathparam.isEmpty()) {
-      if (pathparam.containsKey(AppConstant.PSP)) {
-        subject = pathparam.getFirst(AppConstant.PSP);
-        pspId = subject;
-      } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
-        subject = pathparam.getFirst(AppConstant.ORGANIZATION);
-        organizationId = subject;
-      }
-
-      log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
-    } else {
-      log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
-    }
-    containerRequestContext.setProperty("subject", subject);
-
-    putMDCReq(fdrAction, requestPath, pspId, organizationId);
+    log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
   }
 
   private void putMDCReq(
