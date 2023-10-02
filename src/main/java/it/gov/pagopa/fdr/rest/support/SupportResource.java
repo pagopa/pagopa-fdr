@@ -29,7 +29,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.slf4j.MDC;
+import org.jboss.logging.MDC;
 
 @Tag(name = "Support", description = "Support operations")
 @Path("/internal/psps/{" + AppConstant.PSP + "}/")
@@ -69,7 +69,7 @@ public class SupportResource {
           long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
     PaymentGetByPspIdIuvIurDTO paymentDtoList =
         service.findPaymentsByPspIdAndIuvIur(
@@ -119,7 +119,7 @@ public class SupportResource {
           long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
     PaymentGetByPspIdIuvIurDTO paymentDtoList =
         service.findPaymentsByPspIdAndIuvIur(

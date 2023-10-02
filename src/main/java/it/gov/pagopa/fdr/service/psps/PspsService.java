@@ -47,7 +47,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
-import org.slf4j.MDC;
+import org.jboss.logging.MDC;
 
 @ApplicationScoped
 public class PspsService {
@@ -337,7 +337,7 @@ public class PspsService {
               .build());
     }
 
-    String sessionId = MDC.get(TRX_ID);
+    String sessionId = (String) MDC.get(TRX_ID);
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
         ReInternal.builder()

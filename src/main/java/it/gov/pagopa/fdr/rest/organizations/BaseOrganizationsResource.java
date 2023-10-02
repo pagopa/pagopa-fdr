@@ -21,7 +21,7 @@ import jakarta.inject.Inject;
 import java.time.Instant;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
-import org.slf4j.MDC;
+import org.jboss.logging.MDC;
 
 public abstract class BaseOrganizationsResource {
 
@@ -42,7 +42,7 @@ public abstract class BaseOrganizationsResource {
       long pageNumber,
       long pageSize,
       boolean internalGetAll) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
     if (null != idPsp && !idPsp.isBlank()) {
       MDC.put(PSP_ID, idPsp);
@@ -79,7 +79,7 @@ public abstract class BaseOrganizationsResource {
 
   protected GetResponse baseGet(
       String organizationId, String fdr, Long rev, String psp, boolean internalGet) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
@@ -115,7 +115,7 @@ public abstract class BaseOrganizationsResource {
       long pageSize,
       boolean internalGetPayment) {
 
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);

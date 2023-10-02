@@ -27,7 +27,7 @@ import java.time.Instant;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
-import org.slf4j.MDC;
+import org.jboss.logging.MDC;
 
 public abstract class BasePspResource {
 
@@ -47,7 +47,7 @@ public abstract class BasePspResource {
 
   protected RestResponse<GenericResponse> baseCreate(
       String pspId, String fdr, CreateRequest createRequest) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
 
     String organizationId = createRequest.getReceiver().getOrganizationId();
@@ -75,7 +75,7 @@ public abstract class BasePspResource {
 
   protected GenericResponse baseAddPayment(
       String pspId, String fdr, AddPaymentRequest addPaymentRequest) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
 
@@ -94,7 +94,7 @@ public abstract class BasePspResource {
 
   protected GenericResponse baseDeletePayment(
       String pspId, String fdr, DeletePaymentRequest deletePaymentRequest) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
 
@@ -114,7 +114,7 @@ public abstract class BasePspResource {
   }
 
   protected GenericResponse basePublish(String pspId, String fdr, boolean internalPublish) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
 
@@ -132,7 +132,7 @@ public abstract class BasePspResource {
   }
 
   protected GenericResponse baseDelete(String pspId, String fdr) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, pspId);
 
@@ -151,7 +151,7 @@ public abstract class BasePspResource {
 
   protected GetAllCreatedResponse baseGetAllCreated(
       String idPsp, Instant createdGt, long pageNumber, long pageSize) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     if (null != idPsp && !idPsp.isBlank()) {
       MDC.put(PSP_ID, idPsp);
     }
@@ -175,7 +175,7 @@ public abstract class BasePspResource {
   }
 
   protected GetCreatedResponse baseGetCreated(String fdr, String psp) {
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
 
@@ -195,7 +195,7 @@ public abstract class BasePspResource {
   protected GetPaymentResponse baseGetCreatedFdrPayment(
       String fdr, String psp, long pageNumber, long pageSize) {
 
-    String action = MDC.get(ACTION);
+    String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
 

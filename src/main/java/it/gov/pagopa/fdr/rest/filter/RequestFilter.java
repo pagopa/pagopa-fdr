@@ -78,7 +78,7 @@ public class RequestFilter implements ContainerRequestFilter {
     }
     containerRequestContext.setProperty("subject", subject);
 
-    putMDCReq(fdrAction, requestPath, pspId, organizationId);
+    putMDCReq(sessionId, fdrAction, requestPath, pspId, organizationId);
 
     String body =
         new BufferedReader(new InputStreamReader(containerRequestContext.getEntityStream()))
@@ -109,10 +109,12 @@ public class RequestFilter implements ContainerRequestFilter {
   }
 
   private void putMDCReq(
+          String sessionId,
           String action,
           String requestPath,
           String psp,
           String organizationId) {
+    MDC.put(TRX_ID, sessionId);
     MDC.put(HTTP_TYPE, AppConstant.REQUEST);
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
     MDC.put(ACTION, action != null ? action : "NA");
