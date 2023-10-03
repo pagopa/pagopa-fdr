@@ -1,7 +1,7 @@
 locals {
   github = {
     org        = "pagopa"
-    repository = "pagopa-fdr-technical-support"
+    repository = "pagopa-fdr"
   }
 
   prefix         = "pagopa"
