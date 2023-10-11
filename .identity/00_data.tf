@@ -33,7 +33,7 @@ data "azurerm_key_vault_secret" "key_vault_bot_token" {
 }
 
 data "azurerm_key_vault_secret" "key_vault_slack_webhook_url" {
-  name         = "nodo5-slack-webhook-url"
+  name         = "slack-webhook-url"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
