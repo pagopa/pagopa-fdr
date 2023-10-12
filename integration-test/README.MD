@@ -21,3 +21,8 @@ If you use dev, uat or prod **you test the images on Azure ACR**
 sh ./run_integration_test.sh local
 ```
 
+
+
+# is used for global variables
+$ is used for local variables
+
