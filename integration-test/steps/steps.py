@@ -2,7 +2,6 @@ from behave import *
 import logging
 import requests
 import datetime
-import json
 
 import utils as utils
 
@@ -24,11 +23,14 @@ def step_impl(context):
 
             url = row.get("url") + row.get("healthcheck")
             logging.debug(f"calling -> {url}")
-            # headers = {'Host': 'api.dev.platform.pagopa.it:443'}
-            resp = requests.get(url, verify=False)
+            subscription_key = utils.get_subscription_key(context, "fdr")
+            headers = {'Content-Type': 'application/json'}
+            if subscription_key is not None:
+                headers['Ocp-Apim-Subscription-Key'] = subscription_key
+#             headers = {'Host': 'api.dev.platform.pagopa.it:443'}
+            resp = requests.get(url, headers=headers, verify=False)
             logging.debug(f"response: {resp.status_code}")
-            # TODO remove comment
-            # responses &= (resp.status_code == 200)
+            responses &= (resp.status_code == 200)
 
         if responses:
             context.precondition_cache.add("systems up")
@@ -44,17 +46,7 @@ def step_impl(context, field_type, field_name):
         setattr(context, field_name, fdr_name)
     elif field_type == 'date':
         today = datetime.datetime.today()
-        setattr(context, field_name, today.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
-
-
-@given('PSP should sends {number_of} payments to the FdR')
-def step_impl(context, number_of):
-    setattr(context, "number_of_payments", number_of)
-
-
-@given('PSP should sends payments to the FdR whose sum is {amount}')
-def step_impl(context, amount):
-    setattr(context, "payments_amount", amount)
+        setattr(context, field_name, today.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
 @given('an FdR flow like {payload}')
@@ -65,8 +57,9 @@ def step_impl(context, payload):
     setattr(context, payload, data)
 
 
-@when('PSP sends {request_type} request to fdr-microservice with {payload}')
+@when('PSP sends a {request_type} request to fdr-microservice with {payload}')
 def step_impl(context, request_type, payload):
+
     subscription_key = utils.get_subscription_key(context, "fdr")
     headers = {'Content-Type': 'application/json'}
     if subscription_key is not None:
@@ -78,88 +71,18 @@ def step_impl(context, request_type, payload):
     endpoint = utils.replace_global_variables(endpoint, context)
     endpoint_info["endpoint"] = endpoint
     url = fdr_config.get("url") + endpoint
-    data = None
-    if payload != 'None':
-        data = getattr(context, payload)
-    response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=data)
+    response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=getattr(context, payload))
     setattr(context, request_type + RESPONSE, response)
 
 
 @then('PSP receives the HTTP status code {http_status_code} to {request_type} request')
 def step_impl(context, http_status_code, request_type):
     response = getattr(context, request_type + RESPONSE)
-    result = response.status_code == int(http_status_code)
-    if not result:
-        logging.info(f"status_code {response.status_code}, expected {http_status_code}, content {response.content}")
-    assert result, f"status_code {response.status_code}, expected {http_status_code}"
+    assert (response.status_code == int(http_status_code)), f"status_code {response.status_code}, expected {http_status_code}"
 
-
-@step('the {name} scenario executed successfully')
-def step_impl(context, name):
-    phase = (
-            [phase for phase in context.feature.scenarios if name in phase.name] or [None])[0]
-    text_step = ''.join(
-        [step.keyword + " " + step.name + "\n\"\"\"\n" + (step.text or '') + "\n\"\"\"\n" for step in phase.steps])
-    context.execute_steps(text_step)
-
-
-@when('PSP adds {number} payments whose sum is {amount} to the FdR named {flow_name} like {payload}')
-def step_impl(context, number, amount, flow_name, payload):
-    payments = list()
-    single_amount = float("{:.2f}".format(float(amount) / int(number)))
-    today = datetime.datetime.today()
-    for i in range(0, int(number)):
-        pay_date = today - datetime.timedelta(days=i)
-        single_payment = {
-            "iuv": utils.generate_iuv(),
-            "iur": utils.generate_iur(),
-            "index": i+1,
-            "pay": single_amount,
-            "payStatus": "EXECUTED",
-            "payDate": pay_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-        }
-        payments.append(single_payment)
-    data = {
-        "payments": payments
-    }
-    setattr(context, payload, json.dumps(data))
-
-
-@when('PSP deletes {number_of} payments from the FdR named {flow_name} like {payload}')
-def step_impl(context, number_of, flow_name, payload):
-    data = {
-        "indexList": list(range(1, int(number_of) + 1))
-    }
-    setattr(context, payload, json.dumps(data))
-
-
-@then('PSP receives {number_of} payments in the response of {request_type} request')
-def step_impl(context, number_of, request_type):
-    response = getattr(context, request_type + RESPONSE)
-    payload = json.loads(response.content)
-    assert payload.get("count") == int(number_of)
-
-
-@then('PSP receives {field_name} {field_value} in the response of {request_type} request')
-def step_impl(context, field_name, field_value, request_type):
-    response = getattr(context, request_type + RESPONSE)
-    payload = json.loads(response.content)
-    expected = payload.get(field_name)
-    target = None
-    try:
-        target = int(field_value)
-    except ValueError:
-        target = field_value
-
-    assert expected == target, f"field: {field_name} expected {expected}, target {target}"
-
-
-@given('the FdR {revision} is {rev_number}')
-def step_impl(context, revision, rev_number):
-    setattr(context, revision, rev_number)
-
-
-@step('{test}')
+@given('{test}')
+@when('{test}')
+@then('{test}')
 def step_impl(context):
     print("TEST")
     pass
