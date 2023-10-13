@@ -37,7 +37,7 @@ def get_fdr_url(request_type=""):
 
 
 def execute_request(url, method, headers, payload=None):
-    return requests.request(method=method, url=url, headers=headers, data=payload)
+    return requests.request(method=method, url=url, headers=headers, data=payload, verify=False)
 
 
 

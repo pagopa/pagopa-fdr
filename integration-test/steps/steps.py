@@ -23,11 +23,14 @@ def step_impl(context):
 
             url = row.get("url") + row.get("healthcheck")
             logging.debug(f"calling -> {url}")
-            # headers = {'Host': 'api.dev.platform.pagopa.it:443'}
-            resp = requests.get(url, verify=False)
+            subscription_key = utils.get_subscription_key(context, "fdr")
+            headers = {'Content-Type': 'application/json'}
+            if subscription_key is not None:
+                headers['Ocp-Apim-Subscription-Key'] = subscription_key
+#             headers = {'Host': 'api.dev.platform.pagopa.it:443'}
+            resp = requests.get(url, headers=headers, verify=False)
             logging.debug(f"response: {resp.status_code}")
-            # TODO remove comment
-            # responses &= (resp.status_code == 200)
+            responses &= (resp.status_code == 200)
 
         if responses:
             context.precondition_cache.add("systems up")
@@ -43,8 +46,7 @@ def step_impl(context, field_type, field_name):
         setattr(context, field_name, fdr_name)
     elif field_type == 'date':
         today = datetime.datetime.today()
-        # TODO FIX: Bad request. Field [fdrDate] is [2023-10-12T19:42:33.768]. Expected ISO-8601 [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]"}]
-        setattr(context, field_name, today.isoformat(timespec='milliseconds'))
+        setattr(context, field_name, today.strftime('%Y-%m-%dT%H:%M:%SZ'))
 
 
 @given('an FdR flow like {payload}')
