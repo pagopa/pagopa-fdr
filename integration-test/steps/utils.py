@@ -31,7 +31,11 @@ def get_fdr_url(request_type=""):
         "create": {
             "endpoint": "/psps/#psp#/fdrs/$flow_name$",
             "method": "POST"
-        }
+        },
+         "addPayment": {
+            "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments/add",
+            "method": "PUT"
+         }
     }
     return request_type_mapping.get(request_type)
 

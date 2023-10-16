@@ -36,3 +36,22 @@ Feature: Happy case
       """
     When PSP sends a create request to fdr-microservice with payload
     Then PSP receives the HTTP status code 201 to create request
+
+  @runnable
+  Scenario Outline: Add Payment Fdr
+    Given The previously created flow flow_name
+    And a payment payload
+      """
+        {
+          "payments": [
+          ]
+        }
+      """
+    When PSP sends a addPayment request containing "<number>" payments
+    Then PSP receives the HTTP status code <http_status_code> to addPayment request
+  Examples:
+    | number | http_status_code |
+    | 1      | 200              |
+    | 10     | 200              |
+    | 1000   | 200              |
+    | 1001   | 400              |
