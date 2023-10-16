@@ -4,7 +4,6 @@ Feature: Happy case
     Given systems up
 
 
-  @runnable
   Scenario: Create FdR
     Given an unique FdR name named flow_name
     And an unique FdR date named flow_date
@@ -30,9 +29,23 @@ Feature: Happy case
           "regulation": "SEPA - Bonifico xzy",
           "regulationDate": "$flow_date$",
           "bicCodePouringBank": "UNCRITMMXXX",
-          "totPayments": 3,
-          "sumPayments": 0.03
+          "totPayments": $number_of_payments$,
+          "sumPayments": $payments_amount$
         }
       """
-    When PSP sends a create request to fdr-microservice with payload
+    When PSP sends create request to fdr-microservice with payload
     Then PSP receives the HTTP status code 201 to create request
+
+  @runnable
+  Scenario Outline: Add payments
+    Given PSP should sends <n> payments to the FdR
+    And PSP should sends payments to the FdR whose sum is <amount>
+    And the Create FdR scenario executed successfully
+    When PSP add <n> payments whose sum is <amount> to the FdR named flow_name like payload
+    And PSP sends add_payments request to fdr-microservice with payload
+    Then PSP receives the HTTP status code <code> to add_payments request
+    Examples:
+      | n                 | amount | code |
+      | 1                 | 3      | 200  |
+      | 1000              | 30000  | 200  |
+      | 1001              | 30000  | 400  |
