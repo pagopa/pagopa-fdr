@@ -43,8 +43,7 @@ def step_impl(context, field_type, field_name):
         setattr(context, field_name, fdr_name)
     elif field_type == 'date':
         today = datetime.datetime.today()
-        # TODO FIX: Bad request. Field [fdrDate] is [2023-10-12T19:42:33.768]. Expected ISO-8601 [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]"}]
-        setattr(context, field_name, today.isoformat(timespec='milliseconds'))
+        setattr(context, field_name, today.strftime("%Y-%M-%dT%H:%M:%SZ"))
 
 
 @given('an FdR flow like {payload}')
