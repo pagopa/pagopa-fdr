@@ -10,6 +10,8 @@ def before_all(context):
     # initialize precondition cache to avoid check systems up for each scenario
     context.precondition_cache = set()
 
+    context.config.setup_logging()
+
     print('Global settings...')
 
     more_userdata = json.load(open(os.path.join(context.config.base_dir + "/config/config.json")))

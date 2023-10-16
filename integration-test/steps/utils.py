@@ -3,6 +3,8 @@ import os
 import requests
 import logging
 import contextlib
+import string
+import random
 from http.client import HTTPConnection
 
 
@@ -58,6 +60,10 @@ def get_fdr_url(request_type=""):
         "create": {
             "endpoint": "/psps/#psp#/fdrs/$flow_name$",
             "method": "POST"
+        },
+        "add_payments": {
+            "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments/add",
+            "method": "PUT"
         }
     }
     return request_type_mapping.get(request_type)
@@ -65,9 +71,9 @@ def get_fdr_url(request_type=""):
 
 # @contextlib.contextmanager
 def execute_request(url, method, headers, payload=None):
-    debug_requests_on()
+    # debug_requests_on()
     req = requests.request(method=method, url=url, headers=headers, data=payload)
-    debug_requests_off()
+    # debug_requests_off()
     return req
 
 
@@ -77,3 +83,14 @@ def get_subscription_key(context, config):
         return os.getenv(data.get("subscription_key"))
 
     return None
+
+
+def generate_iuv():
+    return get_random_string(14)
+
+
+def generate_iur():
+    return get_random_string(10)
+
+def get_random_string(length):
+    return ''.join(random.choice(string.digits) for i in range(length))
