@@ -64,6 +64,18 @@ def get_fdr_url(request_type=""):
         "add_payments": {
             "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments/add",
             "method": "PUT"
+        },
+        "del_payments": {
+            "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments/del",
+            "method": "PUT"
+        },
+        "publish": {
+            "endpoint": "/psps/#psp#/fdrs/$flow_name$/publish",
+            "method": "POST"
+        },
+        "created_payments": {
+            "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments",
+            "method": "GET"
         }
     }
     return request_type_mapping.get(request_type)
@@ -71,9 +83,9 @@ def get_fdr_url(request_type=""):
 
 # @contextlib.contextmanager
 def execute_request(url, method, headers, payload=None):
-    # debug_requests_on()
+    debug_requests_on()
     req = requests.request(method=method, url=url, headers=headers, data=payload)
-    # debug_requests_off()
+    debug_requests_off()
     return req
 
 
@@ -91,6 +103,7 @@ def generate_iuv():
 
 def generate_iur():
     return get_random_string(10)
+
 
 def get_random_string(length):
     return ''.join(random.choice(string.digits) for i in range(length))

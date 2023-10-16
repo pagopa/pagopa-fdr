@@ -1,7 +1,9 @@
-Feature: Happy case
+Feature: Delete payments
 #  Create a FdR
 #  Add 3 payments
-#  Publish FdR
+#  Check FdR contains 3 payments
+#  Remove 1 payments
+#  Check FdR contains 2 payments
 
   Background:
     Given systems up
@@ -48,9 +50,21 @@ Feature: Happy case
     And PSP sends add_payments request to fdr-microservice with payload
     Then PSP receives the HTTP status code 200 to add_payments request
 
+  Scenario: Created payments after add
+    Given the Add payments scenario executed successfully
+    When PSP sends created_payments request to fdr-microservice with None
+    Then PSP receives the HTTP status code 200 to created_payments request
+    And PSP receives 3 payments in the response of created_payments request
+
+  Scenario: Delete payments
+    Given the Created payments scenario executed successfully
+    When PSP deletes 1 payments from the FdR named flow_name like payload
+    And PSP sends del_payments request to fdr-microservice with payload
+    Then PSP receives the HTTP status code 200 to del_payments request
 
   @runnable
-  Scenario: Publish FdR
-    Given the Add payments scenario executed successfully
-    When PSP sends publish request to fdr-microservice with None
-    Then PSP receives the HTTP status code 200 to publish request
+  Scenario: Created payments after delete
+    Given the Delete payments scenario executed successfully
+    When PSP sends created_payments request to fdr-microservice with None
+    Then PSP receives the HTTP status code 200 to created_payments request
+    And PSP receives 2 payments in the response of created_payments request

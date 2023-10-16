@@ -1,7 +1,7 @@
-Feature: Happy case
+Feature: Add multiple payments
 #  Create a FdR
-#  Add 3 payments
-#  Publish FdR
+#  Add 1, 1000 and 1001 payments
+#  Check responses are right
 
   Background:
     Given systems up
@@ -40,17 +40,16 @@ Feature: Happy case
     Then PSP receives the HTTP status code 201 to create request
 
 
-  Scenario: Add payments
-    Given PSP should sends 3 payments to the FdR
-    And PSP should sends payments to the FdR whose sum is 300
-    And the Create FdR scenario executed successfully
-    When PSP adds 3 payments whose sum is 300 to the FdR named flow_name like payload
-    And PSP sends add_payments request to fdr-microservice with payload
-    Then PSP receives the HTTP status code 200 to add_payments request
-
-
   @runnable
-  Scenario: Publish FdR
-    Given the Add payments scenario executed successfully
-    When PSP sends publish request to fdr-microservice with None
-    Then PSP receives the HTTP status code 200 to publish request
+  Scenario Outline: Add payments
+    Given PSP should sends <n> payments to the FdR
+    And PSP should sends payments to the FdR whose sum is <amount>
+    And the Create FdR scenario executed successfully
+    When PSP adds <n> payments whose sum is <amount> to the FdR named flow_name like payload
+    And PSP sends add_payments request to fdr-microservice with payload
+    Then PSP receives the HTTP status code <code> to add_payments request
+    Examples:
+      | n                 | amount | code |
+      | 1                 | 3      | 200  |
+      | 1000              | 3      | 200  |
+      | 1001              | 30000  | 400  |
