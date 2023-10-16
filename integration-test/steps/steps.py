@@ -78,7 +78,10 @@ def step_impl(context, request_type, payload):
     endpoint = utils.replace_global_variables(endpoint, context)
     endpoint_info["endpoint"] = endpoint
     url = fdr_config.get("url") + endpoint
-    response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=getattr(context, payload))
+    data = None
+    if payload != 'None':
+        data = getattr(context, payload)
+    response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=data)
     setattr(context, request_type + RESPONSE, response)
 
 
@@ -100,7 +103,7 @@ def step_impl(context, name):
     context.execute_steps(text_step)
 
 
-@when('PSP add {number} payments whose sum is {amount} to the FdR named {flow_name} like {payload}')
+@when('PSP adds {number} payments whose sum is {amount} to the FdR named {flow_name} like {payload}')
 def step_impl(context, number, amount, flow_name, payload):
     payments = list()
     single_amount = float("{:.2f}".format(float(amount) / int(number)))
@@ -120,6 +123,21 @@ def step_impl(context, number, amount, flow_name, payload):
         "payments": payments
     }
     setattr(context, payload, json.dumps(data))
+
+
+@when('PSP deletes {number_of} payments from the FdR named {flow_name} like {payload}')
+def step_impl(context, number_of, flow_name, payload):
+    data = {
+        "indexList": list(range(1, int(number_of) + 1))
+    }
+    setattr(context, payload, json.dumps(data))
+
+
+@then('PSP receives {number_of} payments in the response of {request_type} request')
+def step_impl(context, number_of, request_type):
+    response = getattr(context, request_type + RESPONSE)
+    payload = json.loads(response.content)
+    assert payload.get("count") == int(number_of)
 
 
 # @given('{test}')
