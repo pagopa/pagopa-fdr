@@ -1,6 +1,33 @@
 import re
 import os
 import requests
+import logging
+import contextlib
+from http.client import HTTPConnection
+
+
+def debug_requests_on():
+    '''Switches on logging of the requests module.'''
+    HTTPConnection.debuglevel = 1
+
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True
+
+
+def debug_requests_off():
+    '''Switches off logging of the requests module, might be some side-effects'''
+    HTTPConnection.debuglevel = 0
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.WARNING)
+    root_logger.handlers = []
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.WARNING)
+    requests_log.propagate = False
+
 
 def get_global_conf(context, field):
     return context.config.userdata.get("global_configuration").get(field)
@@ -36,9 +63,12 @@ def get_fdr_url(request_type=""):
     return request_type_mapping.get(request_type)
 
 
+# @contextlib.contextmanager
 def execute_request(url, method, headers, payload=None):
-    return requests.request(method=method, url=url, headers=headers, data=payload)
-
+    debug_requests_on()
+    req = requests.request(method=method, url=url, headers=headers, data=payload)
+    debug_requests_off()
+    return req
 
 
 def get_subscription_key(context, config):
