@@ -4,6 +4,7 @@ Feature: Delete payments
 #  Check FdR contains 3 payments
 #  Remove 1 payments
 #  Check FdR contains 2 payments
+#  Check publish FdR fails
 
   Background:
     Given systems up
@@ -62,9 +63,14 @@ Feature: Delete payments
     And PSP sends del_payments request to fdr-microservice with payload
     Then PSP receives the HTTP status code 200 to del_payments request
 
-  @runnable
   Scenario: Created payments after delete
     Given the Delete payments scenario executed successfully
     When PSP sends created_payments request to fdr-microservice with None
     Then PSP receives the HTTP status code 200 to created_payments request
     And PSP receives 2 payments in the response of created_payments request
+
+  @runnable
+  Scenario: Publish FdR
+    Given the Created payments after delete scenario executed successfully
+    When PSP sends publish request to fdr-microservice with None
+    Then PSP receives the HTTP status code 400 to publish request
