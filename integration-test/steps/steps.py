@@ -24,11 +24,14 @@ def step_impl(context):
 
             url = row.get("url") + row.get("healthcheck")
             logging.debug(f"calling -> {url}")
-            # headers = {'Host': 'api.dev.platform.pagopa.it:443'}
-            resp = requests.get(url, verify=False)
+            subscription_key = utils.get_subscription_key(context, "fdr")
+            headers = {'Content-Type': 'application/json'}
+            if subscription_key is not None:
+                headers['Ocp-Apim-Subscription-Key'] = subscription_key
+# x            headers = {'Host': 'api.dev.platform.pagopa.it:443'}
+            resp = requests.get(url, headers=headers, verify=False)
             logging.debug(f"response: {resp.status_code}")
-            # TODO remove comment
-            # responses &= (resp.status_code == 200)
+            responses &= (resp.status_code == 200)
 
         if responses:
             context.precondition_cache.add("systems up")
@@ -71,7 +74,6 @@ def step_impl(context, request_type, payload):
     headers = {'Content-Type': 'application/json'}
     if subscription_key is not None:
         headers['Ocp-Apim-Subscription-Key'] = subscription_key
-
     fdr_config = context.config.userdata.get("services").get("fdr")
     endpoint_info = utils.get_fdr_url(request_type)
     endpoint = utils.replace_local_variables(endpoint_info.get("endpoint"), context)

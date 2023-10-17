@@ -90,7 +90,6 @@ def get_fdr_url(request_type=""):
     return request_type_mapping.get(request_type)
 
 
-# @contextlib.contextmanager
 def execute_request(url, method, headers, payload=None):
     debug_requests_on()
     req = requests.request(method=method, url=url, headers=headers, data=payload)

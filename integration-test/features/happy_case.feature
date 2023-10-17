@@ -54,3 +54,4 @@ Feature: Happy case
     Given the Add payments scenario executed successfully
     When PSP sends publish request to fdr-microservice with None
     Then PSP receives the HTTP status code 200 to publish request
+
