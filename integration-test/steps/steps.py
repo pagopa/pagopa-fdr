@@ -140,9 +140,26 @@ def step_impl(context, number_of, request_type):
     assert payload.get("count") == int(number_of)
 
 
-# @given('{test}')
-# @when('{test}')
-# @then('{test}')
-# def step_impl(context):
-#     print("TEST")
-#     pass
+@then('PSP receives {field_name} {field_value} in the response of {request_type} request')
+def step_impl(context, field_name, field_value, request_type):
+    response = getattr(context, request_type + RESPONSE)
+    payload = json.loads(response.content)
+    expected = payload.get(field_name)
+    target = None
+    try:
+        target = int(field_value)
+    except ValueError:
+        target = field_value
+
+    assert expected == target, f"field: {field_name} expected {expected}, target {target}"
+
+
+@given('the FdR {revision} is {rev_number}')
+def step_impl(context, revision, rev_number):
+    setattr(context, revision, rev_number)
+
+
+@step('{test}')
+def step_impl(context):
+    print("TEST")
+    pass
