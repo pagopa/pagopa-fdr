@@ -161,7 +161,7 @@ def step_impl(context, revision, rev_number):
     setattr(context, revision, rev_number)
 
 
-@step('{test}')
-def step_impl(context):
-    print("TEST")
-    pass
+# @step('{test}')
+# def step_impl(context, test):
+#     print("TEST")
+#     pass
