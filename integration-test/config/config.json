@@ -16,6 +16,6 @@
     "broker_psp": "60000000001",
     "station": "15376371009_03",
     "station_password": "PLACEHOLDER",
-    "payment_payload": "{\n              \"iuv\": \"a\",\n              \"iur\": \"a\",\n              \"index\": 1,\n              \"pay\": 0.01,\n              \"payStatus\": \"EXECUTED\",\n              \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n            }"
+    "payment_payload": "{\"iuv\": \"a\",\"iur\": \"a\",\"index\": 1,\"pay\": 0.01,\"payStatus\": \"EXECUTED\",\"payDate\": \"2023-02-03T12:00:30.900000Z\"}"
   }
 }
