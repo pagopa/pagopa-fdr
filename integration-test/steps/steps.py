@@ -1,9 +1,9 @@
 from behave import *
+from datetime import timezone, timedelta
 import logging
 import requests
 import datetime
 import json
-
 import utils as utils
 
 # Constants
@@ -159,6 +159,20 @@ def step_impl(context, field_name, field_value, request_type):
 @given('the FdR {revision} is {rev_number}')
 def step_impl(context, revision, rev_number):
     setattr(context, revision, rev_number)
+
+@given('date {today_date} and a flow named {flow_name}')
+def step_impl(context, today_date, flow_name):
+    today = datetime.datetime.today().astimezone(timezone.utc) - timedelta(hours=1)
+    setattr(context, today_date, today.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
+
+@then('response to {request_type} contains field {field} equal to flow_name')
+def step_impl(context, request_type, field):
+    fdr_list = json.loads(getattr(context, request_type + RESPONSE).content)['data']
+    result = []
+    for fdr_element in fdr_list:
+        if fdr_element[field] == getattr(context, "flow_name"):
+            result = ["pass"]
+    assert "pass" in result
 
 
 @step('{test}')

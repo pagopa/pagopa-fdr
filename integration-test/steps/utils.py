@@ -85,7 +85,10 @@ def get_fdr_url(request_type=""):
             "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#",
             "method": "GET"
         },
-
+        "get_all_published": {
+            "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
+            "method": "GET"
+        },
     }
     return request_type_mapping.get(request_type)
 
