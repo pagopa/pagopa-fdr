@@ -82,7 +82,7 @@ public class PspsService {
 
     log.debugf("Get FdrPublishRevision by fdr[%s], psp[%s]", fdr, pspId);
     Optional<FdrPublishRevisionProjection> fdrPublishedByfdr =
-        FdrPublishEntity.findByFdrAndPspId(fdr, pspId)
+        FdrPublishEntity.findByFdrAndPspId(fdr, pspId, Sort.descending("revision"))
             .project(FdrPublishRevisionProjection.class)
             .firstResultOptional();
 
@@ -90,7 +90,7 @@ public class PspsService {
     // stesso pspId si crea la rev2
 
     Long revision = fdrPublishedByfdr.map(r -> r.getRevision() + 1).orElse(1L);
-    log.debug("Mapping FdrInsertEntity from reportingFlowDto");
+    log.debugf("Mapping FdrInsertEntity from reportingFlowDto for revision {}", revision);
     FdrInsertEntity fdrEntity = mapper.toFdrInsertEntity(fdrDto);
 
     fdrEntity.setCreated(now);
