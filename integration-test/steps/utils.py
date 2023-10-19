@@ -2,7 +2,7 @@ import re
 import os
 import requests
 import logging
-import contextlib
+import datetime
 import string
 import random
 from http.client import HTTPConnection
@@ -130,3 +130,8 @@ def append_to_query_params(context, query_param):
         query_params = getattr(context, "query_params") + "&"
     query_params += query_param
     setattr(context, "query_params", query_params)
+
+
+def get_yesterday():
+    today = datetime.datetime.today().astimezone()
+    return (today - datetime.timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.%fZ")

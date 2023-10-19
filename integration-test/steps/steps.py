@@ -182,24 +182,49 @@ def step_impl(context, field_value, field_key, request_type):
     assert result
 
 
-@then('Organization receives all FdR with the same {field} in the response of {request_type} request')
-def step_impl(context, field, request_type):
-    response = getattr(context, request_type + RESPONSE)
-    payload = json.loads(response.content)
-    psp = utils.get_global_conf(context, "psp")
-    target = True
-    for item in payload.get("data"):
-        if field == "pspId" and item.get(field) != psp:
-            target = False
-    assert target
-
-
-# TODO finish!
-# @then('Organization receives all FdR with the published field {operation} {field_value} in the response of {request_type} request')
-# def step_impl(context, operation, field_value, request_type):
+# TODO remove
+# @then('Organization receives all FdR with the same {field} in the response of {request_type} request')
+# def step_impl(context, field, request_type):
 #     response = getattr(context, request_type + RESPONSE)
 #     payload = json.loads(response.content)
 #     psp = utils.get_global_conf(context, "psp")
+#     target = True
+#     for item in payload.get("data"):
+#         if field == "pspId" and item.get(field) != psp:
+#             target = False
+#     assert target
+
+
+@then('Organization receives all FdR with {field_name} {operation} {field_value} '
+      'in the response of {request_type} request')
+def step_impl(context, field_name, operation, field_value, request_type):
+    response = getattr(context, request_type + RESPONSE)
+    payload = json.loads(response.content)
+    global_field = utils.get_global_conf(context, field_value)
+    if global_field is not None:
+        field_value = global_field
+    if hasattr(context, field_value):
+        field_value = getattr(context, field_value)
+    if field_value == "yesterday":
+        field_value = utils.get_yesterday()
+    target = True
+    for item in payload.get("data"):
+        if operation == "eq":
+            if item[field_name] != field_value:
+                target = False
+                break
+        if operation == "gt":
+            if item[field_name] <= field_value:
+                target = False
+                break
+    assert target
+
+
+# @then('Organization receives all FdR with the published field {operation} {field_value} '
+#       'in the response of {request_type} request')
+# def step_impl(context, operation, field_value, request_type):
+#     response = getattr(context, request_type + RESPONSE)
+#     payload = json.loads(response.content)
 #     target = True
 #     for item in payload.get("data"):
 #         if field == "pspId" and item.get(field) != psp:
@@ -216,8 +241,7 @@ def step_impl(context, field, field_key):
 @step('{partner} adds {field_value} as {field_key} in query_params')
 def step_impl(context, partner, field_value, field_key):
     if field_value == "yesterday":
-        today = datetime.datetime.today().astimezone()
-        field_value = today - datetime.timedelta(days=1)
+        field_value = utils.get_yesterday()
     elif hasattr(context, field_value):
         field_value = getattr(context, field_value)
     params = field_key + "=" + field_value
