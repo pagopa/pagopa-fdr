@@ -90,10 +90,9 @@ def get_fdr_url(request_type=""):
             "method": "GET"
         },
         "get_all_published_by_psp": {
-            "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#",
+            "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
             "method": "GET"
-        },
-
+        }
     }
     return request_type_mapping.get(request_type)
 
