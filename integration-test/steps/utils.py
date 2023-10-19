@@ -2,7 +2,7 @@ import re
 import os
 import requests
 import logging
-import contextlib
+import datetime
 import string
 import random
 from http.client import HTTPConnection
@@ -86,9 +86,13 @@ def get_fdr_url(request_type=""):
             "method": "GET"
         },
         "get_all_published": {
-            "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
+            "endpoint": "/organizations/#organization#/fdrs",
             "method": "GET"
         },
+        "get_all_published_by_psp": {
+            "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
+            "method": "GET"
+        }
     }
     return request_type_mapping.get(request_type)
 
@@ -118,3 +122,16 @@ def generate_iur():
 
 def get_random_string(length):
     return ''.join(random.choice(string.digits) for i in range(length))
+
+
+def append_to_query_params(context, query_param):
+    query_params = ""
+    if hasattr(context, "query_params"):
+        query_params = getattr(context, "query_params") + "&"
+    query_params += query_param
+    setattr(context, "query_params", query_params)
+
+
+def get_yesterday():
+    today = datetime.datetime.today().astimezone()
+    return (today - datetime.timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.%fZ")

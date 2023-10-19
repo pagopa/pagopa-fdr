@@ -10,6 +10,7 @@ import utils as utils
 RESPONSE = "RES"
 REQUEST = "REQ"
 
+
 @given('systems up')
 def step_impl(context):
     """
@@ -42,11 +43,11 @@ def step_impl(context):
 @given('an unique FdR {field_type} named {field_name}')
 def step_impl(context, field_type, field_name):
     if field_type == 'name':
-        today = datetime.datetime.today()
+        today = datetime.datetime.today().astimezone(timezone.utc)
         fdr_name = today.strftime('%Y-%m-%d') + utils.get_global_conf(context, "psp") + "-" + today.strftime("%H%M%S%f")
         setattr(context, field_name, fdr_name)
     elif field_type == 'date':
-        today = datetime.datetime.today()
+        today = datetime.datetime.today().astimezone(timezone.utc)
         setattr(context, field_name, today.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
 
 
@@ -115,7 +116,7 @@ def step_impl(context, name):
 def step_impl(context, number, amount, flow_name, payload):
     payments = list()
     single_amount = float("{:.2f}".format(float(amount) / int(number)))
-    today = datetime.datetime.today()
+    today = datetime.datetime.today().astimezone(timezone.utc)
     for i in range(0, int(number)):
         pay_date = today - datetime.timedelta(days=i)
         single_payment = {
@@ -166,36 +167,24 @@ def step_impl(context, field_name, field_value, request_type):
 def step_impl(context, revision, rev_number):
     setattr(context, revision, rev_number)
 
-@given('date {today_date} and a flow named {flow_name}')
-def step_impl(context, today_date, flow_name):
-    today = datetime.datetime.today().astimezone(timezone.utc) - timedelta(hours=1)
-    setattr(context, today_date, today.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
 
-@then('response to {request_type} contains field {field} equal to flow_name')
-def step_impl(context, request_type, field):
+@then('PSP gets the FdR list containing {field_value} as {field_key} in the response of {request_type} request')
+def step_impl(context, field_value, field_key, request_type):
     fdr_list = json.loads(getattr(context, request_type + RESPONSE).content)['data']
-    result = []
+    result = False
     for fdr_element in fdr_list:
-        if fdr_element[field] == getattr(context, "flow_name"):
-            result = ["pass"]
-    assert "pass" in result
+        if hasattr(context, field_value):
+            field_value = getattr(context, field_value)
+
+        if fdr_element[field_key] == field_value:
+            result = True
+            break
+    assert result
 
 
-@then('Organization receives all FdR with the same {field} in the response of {request_type} request')
-def step_impl(context, field, request_type):
-    response = getattr(context, request_type + RESPONSE)
-    payload = json.loads(response.content)
-    psp = utils.get_global_conf(context, "psp")
-    target = True
-    for item in payload.get("data"):
-        if field == "pspId" and item.get(field) != psp:
-            target = False
-    assert target
-
-
-# TODO finish!
-# @then('Organization receives all FdR with the published field {operation} {field_value} in the response of {request_type} request')
-# def step_impl(context, operation, field_value, request_type):
+# TODO remove
+# @then('Organization receives all FdR with the same {field} in the response of {request_type} request')
+# def step_impl(context, field, request_type):
 #     response = getattr(context, request_type + RESPONSE)
 #     payload = json.loads(response.content)
 #     psp = utils.get_global_conf(context, "psp")
@@ -206,18 +195,55 @@ def step_impl(context, field, request_type):
 #     assert target
 
 
-@step('the {field} configuration in query_params')
-def step_impl(context, field):
-    value = utils.get_global_conf(context, field)
-    utils.append_to_query_params(context, "pspId="+value)
-
-
-@step('Organization adds {field_value} as {field_key} in query_params')
-def step_impl(context, field_value, field_key):
-    value = utils.get_global_conf(context, field)
+@then('Organization receives all FdR with {field_name} {operation} {field_value} '
+      'in the response of {request_type} request')
+def step_impl(context, field_name, operation, field_value, request_type):
+    response = getattr(context, request_type + RESPONSE)
+    payload = json.loads(response.content)
+    global_field = utils.get_global_conf(context, field_value)
+    if global_field is not None:
+        field_value = global_field
+    if hasattr(context, field_value):
+        field_value = getattr(context, field_value)
     if field_value == "yesterday":
-        today = datetime.datetime.today()
-        field_value = today - datetime.timedelta(days=1)
+        field_value = utils.get_yesterday()
+    target = True
+    for item in payload.get("data"):
+        if operation == "eq":
+            if item[field_name] != field_value:
+                target = False
+                break
+        if operation == "gt":
+            if item[field_name] <= field_value:
+                target = False
+                break
+    assert target
+
+
+# @then('Organization receives all FdR with the published field {operation} {field_value} '
+#       'in the response of {request_type} request')
+# def step_impl(context, operation, field_value, request_type):
+#     response = getattr(context, request_type + RESPONSE)
+#     payload = json.loads(response.content)
+#     target = True
+#     for item in payload.get("data"):
+#         if field == "pspId" and item.get(field) != psp:
+#             target = False
+#     assert target
+
+
+@step('the {field} configuration as {field_key} in query_params')
+def step_impl(context, field, field_key):
+    value = utils.get_global_conf(context, field)
+    utils.append_to_query_params(context, field_key + "=" + value)
+
+
+@step('{partner} adds {field_value} as {field_key} in query_params')
+def step_impl(context, partner, field_value, field_key):
+    if field_value == "yesterday":
+        field_value = utils.get_yesterday()
+    elif hasattr(context, field_value):
+        field_value = getattr(context, field_value)
     params = field_key + "=" + field_value
     utils.append_to_query_params(context, params)
 
