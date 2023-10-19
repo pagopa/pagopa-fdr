@@ -10,16 +10,16 @@ microservice-chart:
     httpGet:
       path: /q/health/ready
       port: 8080
-    initialDelaySeconds: 8
+    initialDelaySeconds: 10
     failureThreshold: 10
-    periodSeconds: 2
+    periodSeconds: 5
   livenessProbe:
     httpGet:
       path: /q/health/live
       port: 8080
-    initialDelaySeconds: 8
+    initialDelaySeconds: 10
     failureThreshold: 10
-    periodSeconds: 2
+    periodSeconds: 5
   envConfig:
     APP_ENVIRONMENT: "dev"
     TZ: "Europe/Rome"
@@ -48,10 +48,10 @@ microservice-chart:
   resources:
     requests:
       memory: "2Gi"
-      cpu: "200m"
+      cpu: "400m"
     limits:
       memory: "3Gi"
-      cpu: "400m"
+      cpu: "800m"
   autoscaling:
     enable: true
     minReplica: 1
