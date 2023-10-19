@@ -68,8 +68,8 @@ def step_impl(context, payload):
     setattr(context, payload, data)
 
 
-@when('PSP sends {request_type} request to fdr-microservice with {payload}')
-def step_impl(context, request_type, payload):
+@when('{partner} sends {request_type} request to fdr-microservice with {payload}')
+def step_impl(context, partner, request_type, payload):
     subscription_key = utils.get_subscription_key(context, "fdr")
     headers = {'Content-Type': 'application/json'}
     if subscription_key is not None:
@@ -80,6 +80,12 @@ def step_impl(context, request_type, payload):
     endpoint = utils.replace_global_variables(endpoint, context)
     endpoint_info["endpoint"] = endpoint
     url = fdr_config.get("url") + endpoint
+
+    if hasattr(context, "query_params"):
+        query_params = getattr(context, "query_params")
+        delattr(context, "query_params")
+        url += "?" + query_params
+
     data = None
     if payload != 'None':
         data = getattr(context, payload)
@@ -87,8 +93,8 @@ def step_impl(context, request_type, payload):
     setattr(context, request_type + RESPONSE, response)
 
 
-@then('PSP receives the HTTP status code {http_status_code} to {request_type} request')
-def step_impl(context, http_status_code, request_type):
+@then('{partner} receives the HTTP status code {http_status_code} to {request_type} request')
+def step_impl(context, partner, http_status_code, request_type):
     response = getattr(context, request_type + RESPONSE)
     result = response.status_code == int(http_status_code)
     if not result:
@@ -160,6 +166,46 @@ def step_impl(context, field_name, field_value, request_type):
 def step_impl(context, revision, rev_number):
     setattr(context, revision, rev_number)
 
+
+@then('Organization receives all FdR with the same {field} in the response of {request_type} request')
+def step_impl(context, field, request_type):
+    response = getattr(context, request_type + RESPONSE)
+    payload = json.loads(response.content)
+    psp = utils.get_global_conf(context, "psp")
+    target = True
+    for item in payload.get("data"):
+        if field == "pspId" and item.get(field) != psp:
+            target = False
+    assert target
+
+
+# TODO finish!
+# @then('Organization receives all FdR with the published field {operation} {field_value} in the response of {request_type} request')
+# def step_impl(context, operation, field_value, request_type):
+#     response = getattr(context, request_type + RESPONSE)
+#     payload = json.loads(response.content)
+#     psp = utils.get_global_conf(context, "psp")
+#     target = True
+#     for item in payload.get("data"):
+#         if field == "pspId" and item.get(field) != psp:
+#             target = False
+#     assert target
+
+
+@step('the {field} configuration in query_params')
+def step_impl(context, field):
+    value = utils.get_global_conf(context, field)
+    utils.append_to_query_params(context, "pspId="+value)
+
+
+@step('Organization adds {field_value} as {field_key} in query_params')
+def step_impl(context, field_value, field_key):
+    value = utils.get_global_conf(context, field)
+    if field_value == "yesterday":
+        today = datetime.datetime.today()
+        field_value = today - datetime.timedelta(days=1)
+    params = field_key + "=" + field_value
+    utils.append_to_query_params(context, params)
 
 # @step('{test}')
 # def step_impl(context, test):

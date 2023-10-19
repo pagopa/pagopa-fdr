@@ -1,4 +1,4 @@
-Feature: Happy case
+Feature: PSP happy case
 #  Create a FdR
 #  Add 3 payments
 #  Publish FdR
