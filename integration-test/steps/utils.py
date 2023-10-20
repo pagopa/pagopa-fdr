@@ -69,6 +69,10 @@ def get_fdr_url(request_type=""):
             "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments/del",
             "method": "PUT"
         },
+        "del_flow": {
+          "endpoint": "/psps/#psp#/fdrs/$flow_name$",
+          "method": "DELETE"
+        },
         "publish": {
             "endpoint": "/psps/#psp#/fdrs/$flow_name$/publish",
             "method": "POST"
@@ -93,13 +97,17 @@ def get_fdr_url(request_type=""):
             "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#/payments",
             "method": "GET"
         },
+        "get_all_created": {
+            "endpoint": "/psps/#psp#",
+            "method": "GET"
+        }
     }
     return request_type_mapping.get(request_type)
 
 
 def execute_request(url, method, headers, payload=None):
     debug_requests_on()
-    req = requests.request(method=method, url=url, headers=headers, data=payload)
+    req = requests.request(method=method, url=url, headers=headers, data=payload, verify=False)
     debug_requests_off()
     return req
 
