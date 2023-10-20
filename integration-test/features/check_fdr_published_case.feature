@@ -3,6 +3,8 @@ Feature: Check FdR published
 #  Add 3 payments
 #  Publish FdR
 #  Check if it is published
+#  Delete FdR
+#  Check deletion of FdR
 
   Background:
     Given systems up
@@ -40,7 +42,6 @@ Feature: Check FdR published
     When PSP sends create request to fdr-microservice with payload
     Then PSP receives the HTTP status code 201 to create request
 
-
   Scenario: Add payments
     Given PSP should sends 3 payments to the FdR
     And PSP should sends payments to the FdR whose sum is 300
@@ -49,13 +50,11 @@ Feature: Check FdR published
     And PSP sends add_payments request to fdr-microservice with payload
     Then PSP receives the HTTP status code 200 to add_payments request
 
-
   Scenario: Publish FdR
     Given the Add payments scenario executed successfully
     When PSP sends publish request to fdr-microservice with None
     Then PSP receives the HTTP status code 200 to publish request
 
-  @runnable
   Scenario: Check FdR published
     Given the Publish FdR scenario executed successfully
     And the psp configuration as pspId in query_params

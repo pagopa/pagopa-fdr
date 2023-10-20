@@ -181,6 +181,18 @@ def step_impl(context, field_value, field_key, request_type):
             break
     assert result
 
+@then('PSP gets the FdR list not containing {field_value} as {field_key} in the response of {request_type} request')
+def step_impl(context, field_value, field_key, request_type):
+    fdr_list = json.loads(getattr(context, request_type + RESPONSE).content)['data']
+    result = True
+    for fdr_element in fdr_list:
+        if hasattr(context, field_value):
+            field_value = getattr(context, field_value)
+
+        if fdr_element[field_key] == field_value:
+            result = False
+            break
+    assert result
 
 @then('Organization receives all FdR with the same {field} in the response of {request_type} request')
 def step_impl(context, field, request_type):
