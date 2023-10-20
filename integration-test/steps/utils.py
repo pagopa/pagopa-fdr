@@ -2,7 +2,7 @@ import re
 import os
 import requests
 import logging
-import datetime
+import contextlib
 import string
 import random
 from http.client import HTTPConnection
@@ -69,6 +69,10 @@ def get_fdr_url(request_type=""):
             "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments/del",
             "method": "PUT"
         },
+        "del_flow": {
+          "endpoint": "/psps/#psp#/fdrs/$flow_name$",
+          "method": "DELETE"
+        },
         "publish": {
             "endpoint": "/psps/#psp#/fdrs/$flow_name$/publish",
             "method": "POST"
@@ -89,17 +93,21 @@ def get_fdr_url(request_type=""):
             "endpoint": "/organizations/#organization#/fdrs",
             "method": "GET"
         },
-        "get_payments": {
-            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#/payments",
+        "get_all_published_by_psp": {
+            "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
             "method": "GET"
         },
+        "get_all_created": {
+            "endpoint": "/psps/#psp#",
+            "method": "GET"
+        }
     }
     return request_type_mapping.get(request_type)
 
 
 def execute_request(url, method, headers, payload=None):
     debug_requests_on()
-    req = requests.request(method=method, url=url, headers=headers, data=payload)
+    req = requests.request(method=method, url=url, headers=headers, data=payload, verify=False)
     debug_requests_off()
     return req
 
@@ -130,8 +138,3 @@ def append_to_query_params(context, query_param):
         query_params = getattr(context, "query_params") + "&"
     query_params += query_param
     setattr(context, "query_params", query_params)
-
-
-def get_yesterday():
-    today = datetime.datetime.today().astimezone()
-    return (today - datetime.timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
