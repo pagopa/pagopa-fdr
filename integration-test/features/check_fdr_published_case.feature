@@ -4,6 +4,8 @@ Feature: Check FdR published
 #  Publish FdR
 #  Check if it is published
 #  Check failed deletion of published FdR
+#  Get FdR's details
+#  Get FdR's payments details
 
   Background:
     Given systems up
