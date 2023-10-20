@@ -93,8 +93,8 @@ def get_fdr_url(request_type=""):
             "endpoint": "/organizations/#organization#/fdrs",
             "method": "GET"
         },
-        "get_all_published_by_psp": {
-            "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
+        "get_payments": {
+            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#/payments",
             "method": "GET"
         },
         "get_all_created": {
