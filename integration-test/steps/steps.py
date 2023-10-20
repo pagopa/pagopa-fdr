@@ -142,8 +142,8 @@ def step_impl(context, number_of, flow_name, payload):
     setattr(context, payload, json.dumps(data))
 
 
-@then('PSP receives {number_of} payments in the response of {request_type} request')
-def step_impl(context, number_of, request_type):
+@then('{partner} receives {number_of} payments in the response of {request_type} request')
+def step_impl(context, partner, number_of, request_type):
     response = getattr(context, request_type + RESPONSE)
     payload = json.loads(response.content)
     assert payload.get("count") == int(number_of)
@@ -220,18 +220,6 @@ def step_impl(context, field_name, operation, field_value, request_type):
     assert target
 
 
-# @then('Organization receives all FdR with the published field {operation} {field_value} '
-#       'in the response of {request_type} request')
-# def step_impl(context, operation, field_value, request_type):
-#     response = getattr(context, request_type + RESPONSE)
-#     payload = json.loads(response.content)
-#     target = True
-#     for item in payload.get("data"):
-#         if field == "pspId" and item.get(field) != psp:
-#             target = False
-#     assert target
-
-
 @step('the {field} configuration as {field_key} in query_params')
 def step_impl(context, field, field_key):
     value = utils.get_global_conf(context, field)
@@ -246,6 +234,11 @@ def step_impl(context, partner, field_value, field_key):
         field_value = getattr(context, field_value)
     params = field_key + "=" + field_value
     utils.append_to_query_params(context, params)
+
+
+@given('the response of {request_type} request')
+def step_impl(context, request_type):
+    assert hasattr(context, request_type + RESPONSE)
 
 # @step('{test}')
 # def step_impl(context, test):
