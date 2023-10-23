@@ -3,8 +3,9 @@ Feature: Check FdR published
 #  Add 3 payments
 #  Publish FdR
 #  Check if it is published
-#  Delete FdR
-#  Check deletion of FdR
+#  Check failed deletion of published FdR
+#  Get FdR's details
+#  Get FdR's payments details
 
   Background:
     Given systems up
@@ -63,6 +64,11 @@ Feature: Check FdR published
     Then PSP receives the HTTP status code 200 to get_all_published request
     And PSP gets the FdR list containing flow_name as fdr in the response of get_all_published request
 
+  @runnable
+  Scenario: Delete FdR
+    Given the Check FdR published scenario executed successfully
+    When PSP sends del_flow request to fdr-microservice with None
+    Then PSP receives the HTTP status code 404 to del_flow request
 
   @runnable
   Scenario: Get FdR details
