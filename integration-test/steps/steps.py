@@ -93,6 +93,29 @@ def step_impl(context, partner, request_type, payload):
     setattr(context, request_type + RESPONSE, response)
 
 
+@when('{partner} with invalid subscription_key request {request_type} to fdr-microservice with {payload}')
+def step_impl(context, partner, request_type, payload):
+    headers = {'Content-Type': 'application/json'}
+    headers['Ocp-Apim-Subscription-Key'] = "00000000000000"
+
+    endpoint_info = utils.get_fdr_url(request_type)
+    endpoint = utils.replace_local_variables(endpoint_info.get("endpoint"), context)
+    endpoint = utils.replace_global_variables(endpoint, context)
+    endpoint_info["endpoint"] = endpoint
+    url = utils.get_url(context, partner) + endpoint
+
+    if hasattr(context, "query_params"):
+        query_params = getattr(context, "query_params")
+        delattr(context, "query_params")
+        url += "?" + query_params
+
+    data = None
+    if payload != 'None':
+        data = getattr(context, payload)
+    response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=data)
+    setattr(context, request_type + RESPONSE, response)
+
+
 @then('{partner} receives the HTTP status code {http_status_code} to {request_type} request')
 def step_impl(context, partner, http_status_code, request_type):
     response = getattr(context, request_type + RESPONSE)
@@ -194,20 +217,6 @@ def step_impl(context, field_value, field_key, request_type):
             break
     assert result
 
-
-# TODO remove
-# @then('Organization receives all FdR with the same {field} in the response of {request_type} request')
-# def step_impl(context, field, request_type):
-#     response = getattr(context, request_type + RESPONSE)
-#     payload = json.loads(response.content)
-#     psp = utils.get_global_conf(context, "psp")
-#     target = True
-#     for item in payload.get("data"):
-#         if field == "pspId" and item.get(field) != psp:
-#             target = False
-#     assert target
-
-
 @then('Organization receives all FdR with {field_name} {operation} {field_value} '
       'in the response of {request_type} request')
 def step_impl(context, field_name, operation, field_value, request_type):
@@ -252,7 +261,6 @@ def step_impl(context, partner, field_value, field_key):
 @given('the response of {request_type} request')
 def step_impl(context, request_type):
     assert hasattr(context, request_type + RESPONSE)
-
 
 # @step('{test}')
 # def step_impl(context, test):
