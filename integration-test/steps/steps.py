@@ -260,9 +260,15 @@ def step_impl(context, request_type):
 #     pass
 
 
-@step("PSP receives page {number} with {quantity} entries as response of {request_type} request")
-def step_impl(context, number, quantity, request_type):
+@step("{partner} receives page {number} with {quantity} entries as response of {request_type} request")
+def step_impl(context, partner, number, quantity, request_type):
     response_content = getattr(context, request_type + RESPONSE).content
     fdr_list = json.loads(response_content)['data']
 
     assert len(fdr_list) == int(quantity), f"Expected {quantity} elements but found {len(fdr_list)}"
+
+
+@step("{partner} specifies the flow name as {flow_name}")
+def step_impl(context, partner, flow_name):
+    setattr(context, "flow_name", flow_name)
+
