@@ -116,7 +116,7 @@ jobs:
     name: Notify
     needs: [ setup, release, deploy_aks ]
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ always() && inputs.environment != 'dev' }}
     steps:
       - name: Report Status
         if: always()

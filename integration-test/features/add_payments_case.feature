@@ -3,8 +3,8 @@ Feature: Add multiple payments
 #  Add 1, 1000 and 1001 payments
 #  Check responses are right
 
-Background:
-  Given systems up
+  Background:
+    Given systems up
 
 
   Scenario: Create FdR
@@ -38,6 +38,7 @@ Background:
       """
     When PSP sends create request to fdr-microservice with payload
     Then PSP receives the HTTP status code 201 to create request
+
 
   @runnable
   Scenario Outline: Add payments

@@ -65,9 +65,9 @@ public class FdrPublishEntity extends PanacheMongoEntity {
         Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).map());
   }
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String fdr, String pspId) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String fdr, String pspId, Sort sort) {
     return find(
-        "fdr = :fdr and sender.psp_id = :pspId",
+        "fdr = :fdr and sender.psp_id = :pspId", sort,
         Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 

@@ -36,7 +36,7 @@ def step_impl(context):
         if responses:
             context.precondition_cache.add("systems up")
 
-    assert responses
+    assert responses, f"health-check systems or subscription-key errors"
 
 
 @given('an unique FdR {field_type} named {field_name}')
@@ -93,29 +93,6 @@ def step_impl(context, partner, request_type, payload):
     setattr(context, request_type + RESPONSE, response)
 
 
-@when('{partner} with invalid subscription_key request {request_type} to fdr-microservice with {payload}')
-def step_impl(context, partner, request_type, payload):
-    headers = {'Content-Type': 'application/json'}
-    headers['Ocp-Apim-Subscription-Key'] = "00000000000000"
-
-    endpoint_info = utils.get_fdr_url(request_type)
-    endpoint = utils.replace_local_variables(endpoint_info.get("endpoint"), context)
-    endpoint = utils.replace_global_variables(endpoint, context)
-    endpoint_info["endpoint"] = endpoint
-    url = utils.get_url(context, partner) + endpoint
-
-    if hasattr(context, "query_params"):
-        query_params = getattr(context, "query_params")
-        delattr(context, "query_params")
-        url += "?" + query_params
-
-    data = None
-    if payload != 'None':
-        data = getattr(context, payload)
-    response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=data)
-    setattr(context, request_type + RESPONSE, response)
-
-
 @then('{partner} receives the HTTP status code {http_status_code} to {request_type} request')
 def step_impl(context, partner, http_status_code, request_type):
     response = getattr(context, request_type + RESPONSE)
@@ -144,7 +121,7 @@ def step_impl(context, number, amount, flow_name, payload):
         single_payment = {
             "iuv": utils.generate_iuv(),
             "iur": utils.generate_iur(),
-            "index": i + 1,
+            "index": i+1,
             "pay": single_amount,
             "payStatus": "EXECUTED",
             "payDate": pay_date.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -203,7 +180,6 @@ def step_impl(context, field_value, field_key, request_type):
             break
     assert result
 
-
 @then('PSP gets the FdR list not containing {field_value} as {field_key} in the response of {request_type} request')
 def step_impl(context, field_value, field_key, request_type):
     fdr_list = json.loads(getattr(context, request_type + RESPONSE).content)['data']
@@ -216,6 +192,19 @@ def step_impl(context, field_value, field_key, request_type):
             result = False
             break
     assert result
+
+# TODO remove
+# @then('Organization receives all FdR with the same {field} in the response of {request_type} request')
+# def step_impl(context, field, request_type):
+#     response = getattr(context, request_type + RESPONSE)
+#     payload = json.loads(response.content)
+#     psp = utils.get_global_conf(context, "psp")
+#     target = True
+#     for item in payload.get("data"):
+#         if field == "pspId" and item.get(field) != psp:
+#             target = False
+#     assert target
+
 
 @then('Organization receives all FdR with {field_name} {operation} {field_value} '
       'in the response of {request_type} request')
@@ -266,12 +255,3 @@ def step_impl(context, request_type):
 # def step_impl(context, test):
 #     print("TEST")
 #     pass
-
-
-@step("{partner} receives page {number} with {quantity} entries as response of {request_type} request")
-def step_impl(context, partner, number, quantity, request_type):
-    response_content = getattr(context, request_type + RESPONSE).content
-    fdr_list = json.loads(response_content)['data']
-
-    assert len(fdr_list) == int(quantity), f"Expected {quantity} elements but found {len(fdr_list)}"
-
