@@ -114,10 +114,7 @@ def execute_request(url, method, headers, payload=None):
 
 def get_subscription_key(context, partner):
     data = get_config_by_partner(context, partner)
-    if data.get("subscription_key") is not None:
-        return os.getenv(data.get("subscription_key"))
-
-    return None
+    return data.get("subscription_key")
 
 
 def get_url(context, partner):
