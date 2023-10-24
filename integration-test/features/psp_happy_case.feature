@@ -49,7 +49,7 @@ Feature: PSP happy case
     Then PSP receives the HTTP status code 200 to add_payments request
 
 
-  @runnable
+  @runnable @happy
   Scenario: Publish FdR
     Given the Add payments scenario executed successfully
     When PSP sends publish request to fdr-microservice with None

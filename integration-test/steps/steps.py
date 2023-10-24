@@ -20,12 +20,12 @@ def step_impl(context):
 
     if "systems up" not in context.precondition_cache:
 
-        for row in context.table:
-            logging.debug(f"calling: {row.get('name')} -> {row.get('url')}")
+        for key in context.config.userdata.get("services"):
+            row = context.config.userdata.get("services").get(key)
 
             url = row.get("url") + row.get("healthcheck")
-            logging.debug(f"calling -> {url}")
-            subscription_key = row[context.table.headings.index("subscription_key")]
+            logging.debug(f"calling: {row.get('name')} -> {url}")
+            subscription_key = row.get("subscription_key")
             headers = {'Content-Type': 'application/json'}
             if subscription_key is not None:
                 headers['Ocp-Apim-Subscription-Key'] = subscription_key
