@@ -121,7 +121,7 @@ def step_impl(context, number, amount, flow_name, payload):
         single_payment = {
             "iuv": utils.generate_iuv(),
             "iur": utils.generate_iur(),
-            "index": i+1,
+            "index": i + 1,
             "pay": single_amount,
             "payStatus": "EXECUTED",
             "payDate": pay_date.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -180,6 +180,7 @@ def step_impl(context, field_value, field_key, request_type):
             break
     assert result
 
+
 @then('PSP gets the FdR list not containing {field_value} as {field_key} in the response of {request_type} request')
 def step_impl(context, field_value, field_key, request_type):
     fdr_list = json.loads(getattr(context, request_type + RESPONSE).content)['data']
@@ -192,6 +193,7 @@ def step_impl(context, field_value, field_key, request_type):
             result = False
             break
     assert result
+
 
 # TODO remove
 # @then('Organization receives all FdR with the same {field} in the response of {request_type} request')
@@ -251,7 +253,16 @@ def step_impl(context, partner, field_value, field_key):
 def step_impl(context, request_type):
     assert hasattr(context, request_type + RESPONSE)
 
+
 # @step('{test}')
 # def step_impl(context, test):
 #     print("TEST")
 #     pass
+
+
+@step("PSP receives page {number} with {quantity} entries as response of {request_type} request")
+def step_impl(context, number, quantity, request_type):
+    response_content = getattr(context, request_type + RESPONSE).content
+    fdr_list = json.loads(response_content)['data']
+
+    assert len(fdr_list) == int(quantity), f"Expected {quantity} elements but found {len(fdr_list)}"
