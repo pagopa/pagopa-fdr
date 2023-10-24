@@ -39,7 +39,7 @@ Feature: PSP happy case
     When PSP sends create request to fdr-microservice with payload
     Then PSP receives the HTTP status code 201 to create request
 
-
+  @happy
   Scenario: Add payments
     Given PSP should sends 3 payments to the FdR
     And PSP should sends payments to the FdR whose sum is 300

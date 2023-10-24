@@ -36,7 +36,7 @@ def step_impl(context):
         if responses:
             context.precondition_cache.add("systems up")
 
-    assert responses
+    assert responses, f"health-check systems or subscription-key errors"
 
 
 @given('an unique FdR {field_type} named {field_name}')
