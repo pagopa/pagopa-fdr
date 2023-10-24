@@ -267,8 +267,3 @@ def step_impl(context, partner, number, quantity, request_type):
 
     assert len(fdr_list) == int(quantity), f"Expected {quantity} elements but found {len(fdr_list)}"
 
-
-@step("{partner} specifies the flow name as {flow_name}")
-def step_impl(context, partner, flow_name):
-    setattr(context, "flow_name", flow_name)
-
