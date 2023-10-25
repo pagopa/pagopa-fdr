@@ -11,6 +11,12 @@ locals {
 
   app_name = "github-${local.github.org}-${local.github.repository}-${var.prefix}-${local.domain}-${var.env}-aks"
 
+  integration_test = {
+    storage_account_name = "${local.prefix}${var.env_short}${local.location_short}sharedtxnmsa" # TODO change
+    storage_account_rg = "${local.prefix}-${var.env_short}-${local.location_short}-shared-txnm-rg" # TODO change
+    reports_folder = local.github.repository
+  }
+
   aks_cluster = {
     name                = "${local.product}-${local.location_short}-${var.env}-aks"
     resource_group_name = "${local.product}-${local.location_short}-${var.env}-aks-rg"

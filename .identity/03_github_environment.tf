@@ -32,6 +32,8 @@ locals {
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "DOMAIN" : local.domain,
     "NAMESPACE" : local.domain,
+    "INTEGRATION_TEST_STORAGE_ACCOUNT_NAME": local.integration_test.storage_account_name
+    "INTEGRATION_TEST_REPORTS_FOLDER": local.integration_test.reports_folder
   }
   repo_secrets = {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,

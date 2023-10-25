@@ -63,8 +63,8 @@ jobs:
       - name: Download old reports
         uses: azure/CLI@v1
         env:
-          STORAGE_NAME: pagopadweusharedtxnmsa
-          STORAGE_FOLDER: testfrancesco
+          STORAGE_NAME: ${{ vars.INTEGRATION_TEST_STORAGE_ACCOUNT_NAME }}
+          STORAGE_FOLDER: ${{ vars.INTEGRATION_TEST_REPORTS_FOLDER }}
         with:
           inlineScript: |
             az storage blob download-batch \
@@ -93,8 +93,8 @@ jobs:
       - name: Upload reports
         uses: azure/CLI@v1
         env:
-          STORAGE_NAME: pagopadweusharedtxnmsa
-          STORAGE_FOLDER: testfrancesco
+          STORAGE_NAME: ${{ vars.INTEGRATION_TEST_STORAGE_ACCOUNT_NAME }}
+          STORAGE_FOLDER: ${{ vars.INTEGRATION_TEST_REPORTS_FOLDER }}
         with:
           inlineScript: |
             az storage blob upload-batch \
