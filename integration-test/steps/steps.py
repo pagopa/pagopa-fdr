@@ -92,6 +92,28 @@ def step_impl(context, partner, request_type, payload):
     response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=data)
     setattr(context, request_type + RESPONSE, response)
 
+@when('{partner} with invalid subscription_key request {request_type} to fdr-microservice with {payload}')
+def step_impl(context, partner, request_type, payload):
+    headers = {'Content-Type': 'application/json'}
+    headers['Ocp-Apim-Subscription-Key'] = "00000000000000"
+
+    endpoint_info = utils.get_fdr_url(request_type)
+    endpoint = utils.replace_local_variables(endpoint_info.get("endpoint"), context)
+    endpoint = utils.replace_global_variables(endpoint, context)
+    endpoint_info["endpoint"] = endpoint
+    url = utils.get_url(context, partner) + endpoint
+
+    if hasattr(context, "query_params"):
+        query_params = getattr(context, "query_params")
+        delattr(context, "query_params")
+        url += "?" + query_params
+
+    data = None
+    if payload != 'None':
+        data = getattr(context, payload)
+    response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=data)
+    setattr(context, request_type + RESPONSE, response)
+
 
 @then('{partner} receives the HTTP status code {http_status_code} to {request_type} request')
 def step_impl(context, partner, http_status_code, request_type):
