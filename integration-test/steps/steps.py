@@ -215,18 +215,6 @@ def step_impl(context, field_value, field_key, request_type):
             break
     assert result
 
-# TODO remove
-# @then('Organization receives all FdR with the same {field} in the response of {request_type} request')
-# def step_impl(context, field, request_type):
-#     response = getattr(context, request_type + RESPONSE)
-#     payload = json.loads(response.content)
-#     psp = utils.get_global_conf(context, "psp")
-#     target = True
-#     for item in payload.get("data"):
-#         if field == "pspId" and item.get(field) != psp:
-#             target = False
-#     assert target
-
 
 @then('Organization receives all FdR with {field_name} {operation} {field_value} '
       'in the response of {request_type} request')
@@ -272,6 +260,20 @@ def step_impl(context, partner, field_value, field_key):
 @given('the response of {request_type} request')
 def step_impl(context, request_type):
     assert hasattr(context, request_type + RESPONSE)
+
+
+@given('PSP sets an invalid {field}')
+def step_impl(context,field):
+    psp = utils.get_global_conf(context, "psp")
+    if(field == "flow_name"):
+        setattr(context, "flow_name", '2999-10-25' + psp + '-99999999999')
+    else:
+        setattr(context, "flow_name", '2999-10-2500000000000-99999999999')
+
+
+
+
+
 
 # @step('{test}')
 # def step_impl(context, test):
