@@ -483,7 +483,7 @@
             "type" : "string",
             "example" : "AAABBB"
           },
-          "pspId" : {
+          "organizationId" : {
             "type" : "string",
             "example" : "1"
           },
@@ -493,6 +493,31 @@
             "example" : 1
           },
           "created" : {
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/Instant"
+            } ],
+            "example" : "2023-04-03T12:00:30.900000Z"
+          }
+        }
+      },
+      "FdrPublished" : {
+        "type" : "object",
+        "properties" : {
+          "fdr" : {
+            "type" : "string",
+            "example" : "AAABBB"
+          },
+          "organizationId" : {
+            "type" : "string",
+            "example" : "1"
+          },
+          "revision" : {
+            "format" : "int64",
+            "type" : "integer",
+            "example" : 1
+          },
+          "published" : {
             "type" : "string",
             "allOf" : [ {
               "$ref" : "#/components/schemas/Instant"
@@ -525,6 +550,25 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/FdrInserted"
+            }
+          }
+        }
+      },
+      "GetAllPublishedResponse" : {
+        "type" : "object",
+        "properties" : {
+          "metadata" : {
+            "$ref" : "#/components/schemas/Metadata"
+          },
+          "count" : {
+            "format" : "int64",
+            "type" : "integer",
+            "example" : 100
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FdrPublished"
             }
           }
         }

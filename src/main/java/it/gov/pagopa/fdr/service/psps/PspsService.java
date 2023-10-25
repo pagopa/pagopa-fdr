@@ -17,6 +17,7 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
+import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishByPspProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
@@ -481,19 +482,19 @@ public class PspsService {
                             .fdr(rf.getFdr())
                             .created(rf.getCreated())
                             .revision(rf.getRevision())
-                            .pspId(rf.getSender().getPspId())
+                            .organizationId(rf.getReceiver().getOrganizationId())
                             .build())
                 .toList())
         .build();
   }
 
   @WithSpan(kind = SERVER)
-  public FdrGetCreatedDto findByReportingFlowName(String action, String fdr, String pspId) {
+  public FdrGetCreatedDto findByReportingFlowName(String action, String fdr, String pspId, String organizationId) {
     log.infof(AppMessageUtil.logExecute(action));
 
     log.debugf("Existence check FdrInsertEntity by fdr[%s], psp[%s]", fdr, pspId);
     FdrInsertEntity fdrInsertPanacheQuery =
-        FdrInsertEntity.findByFdrAndRevAndPspId(fdr, pspId)
+        FdrInsertEntity.findByFdrAndRevAndPspIdAndOrganizationId(fdr, pspId,organizationId)
             .project(FdrInsertEntity.class)
             .firstResultOptional()
             .orElseThrow(
@@ -507,7 +508,7 @@ public class PspsService {
 
   @WithSpan(kind = SERVER)
   public FdrGetPaymentDto findPaymentByReportingFlowName(
-      String action, String fdr, String pspId, long pageNumber, long pageSize) {
+      String action, String fdr, String pspId, String organizationId, long pageNumber, long pageSize) {
     log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
@@ -515,7 +516,7 @@ public class PspsService {
 
     log.debugf("Existence check fdr by fdr[%s], psp[%s]", fdr, pspId);
     PanacheQuery<FdrPaymentInsertEntity> fdrPaymentInsertPanacheQuery =
-        FdrPaymentInsertEntity.findByFdrAndPspIdSort(fdr, pspId, sort).page(page);
+        FdrPaymentInsertEntity.findByFdrAndPspIAndOrganizationIdSort(fdr, pspId, organizationId, sort).page(page);
 
     List<FdrPaymentInsertEntity> list = fdrPaymentInsertPanacheQuery.list();
 
@@ -536,7 +537,7 @@ public class PspsService {
   }
 
   @WithSpan(kind = SERVER)
-  public FdrAllDto findAllPublished(
+  public FdrAllPublishedDto findAllPublished(
           String action,
           String pspId,
           String ecId,
@@ -571,16 +572,16 @@ public class PspsService {
 
 
     log.debug("Get paging FdrPublishReportingFlowNameProjection");
-    PanacheQuery<FdrPublishProjection> fdrProjectionPanacheQuery =
-            fdrPublishPanacheQuery.page(page).project(FdrPublishProjection.class);
+    PanacheQuery<FdrPublishByPspProjection> fdrProjectionPanacheQuery =
+            fdrPublishPanacheQuery.page(page).project(FdrPublishByPspProjection.class);
 
-    List<FdrPublishProjection> reportingFlowIds = fdrProjectionPanacheQuery.list();
+    List<FdrPublishByPspProjection> reportingFlowIds = fdrProjectionPanacheQuery.list();
 
     long totPage = fdrProjectionPanacheQuery.pageCount();
     long countReportingFlow = fdrProjectionPanacheQuery.count();
 
     log.debug("Building ReportingFlowByIdEcDto");
-    return FdrAllDto.builder()
+    return FdrAllPublishedDto.builder()
             .metadata(
                     MetadataDto.builder()
                             .pageSize(pageSize)
@@ -592,23 +593,23 @@ public class PspsService {
                     reportingFlowIds.stream()
                             .map(
                                     rf ->
-                                            FdrSimpleDto.builder()
+                                            FdrSimplePublishedDto.builder()
                                                     .fdr(rf.getFdr())
                                                     .published(rf.getPublished())
                                                     .revision(rf.getRevision())
-                                                    .pspId(rf.getSender().getPspId())
+                                                    .organizationId(rf.getReceiver().getOrganizationId())
                                                     .build())
                             .toList())
             .build();
   }
 
   @WithSpan(kind = SERVER)
-  public FdrGetDto findByReportingFlowNamePublished(String action, String fdr, Long rev, String pspId) {
+  public FdrGetDto findByReportingFlowNamePublished(String action, String fdr, Long rev, String pspId, String organizationId) {
     log.infof(AppMessageUtil.logExecute(action));
 
     log.debugf("Existence check FdrPublishEntity by fdr[%s], psp[%s]", fdr, pspId);
     FdrPublishEntity fdrPublishPanacheQuery =
-            FdrPublishEntity.findByFdrAndRevAndPspId(fdr, rev, pspId)
+            FdrPublishEntity.findByFdrAndRevAndPspIdAndOrganizationId(fdr, rev, pspId, organizationId)
                     .project(FdrPublishEntity.class)
                     .firstResultOptional()
                     .orElseThrow(
@@ -622,7 +623,7 @@ public class PspsService {
 
   @WithSpan(kind = SERVER)
   public FdrGetPaymentDto findPaymentByReportingFlowNamePublished(
-          String action, String fdr, Long rev, String pspId, long pageNumber, long pageSize) {
+          String action, String fdr, Long rev, String pspId, String organizationId, long pageNumber, long pageSize) {
     log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
@@ -630,7 +631,7 @@ public class PspsService {
 
     log.debugf("Existence check fdr by fdr[%s], psp[%s]", fdr, pspId);
     PanacheQuery<FdrPaymentPublishEntity> fdrPaymentPublishPanacheQuery =
-            FdrPaymentPublishEntity.findByFdrAndRevAndPspId(fdr, rev, pspId, sort).page(page);
+            FdrPaymentPublishEntity.findByFdrAndRevAndPspIdAndOrganizationId(fdr, rev, pspId, organizationId, sort).page(page);
 
     List<FdrPaymentPublishEntity> list = fdrPaymentPublishPanacheQuery.list();
 

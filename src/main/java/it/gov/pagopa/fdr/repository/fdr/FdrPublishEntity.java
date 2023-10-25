@@ -58,11 +58,11 @@ public class FdrPublishEntity extends PanacheMongoEntity {
   @BsonProperty("sum_payments")
   private Double sumPayments;
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspId(
-      String fdr, Long rev, String pspId) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspIdAndOrganizationId(
+      String fdr, Long rev, String pspId, String organizationId) {
     return find(
-        "fdr = :fdr and revision = :rev and sender.psp_id = :pspId",
-        Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).map());
+        "fdr = :fdr and revision = :rev and sender.psp_id = :pspId and receiver.organization_id = :organizationId",
+        Parameters.with("fdr", fdr).and("rev", rev).and("pspId", pspId).and("organizationId", organizationId).map());
   }
 
   public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String fdr, String pspId, Sort sort) {

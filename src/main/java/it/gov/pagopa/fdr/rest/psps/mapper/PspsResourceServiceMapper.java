@@ -9,6 +9,7 @@ import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.response.GetAllCreatedResponse;
+import it.gov.pagopa.fdr.rest.psps.response.GetAllPublishedResponse;
 import it.gov.pagopa.fdr.rest.psps.response.GetCreatedResponse;
 import it.gov.pagopa.fdr.service.dto.*;
 import org.mapstruct.Mapper;
@@ -39,4 +40,6 @@ public interface PspsResourceServiceMapper {
   GetAllResponse toGetAllResponsePublished(FdrAllDto fdrAllDto);
 
   GetResponse toGetIdResponsePublished(FdrGetDto fdrGetDto);
+
+  GetAllPublishedResponse toGetAllPublishedResponse(FdrAllPublishedDto fdrAllDto);
 }

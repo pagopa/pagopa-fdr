@@ -8,6 +8,7 @@ import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.response.GetAllCreatedResponse;
+import it.gov.pagopa.fdr.rest.psps.response.GetAllPublishedResponse;
 import it.gov.pagopa.fdr.rest.psps.response.GetCreatedResponse;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppConstant;
@@ -217,11 +218,18 @@ public class PspsResource extends BasePspResource {
                     schema = @Schema(implementation = GetCreatedResponse.class)))
       })
   @GET
-  @Path("/created/fdrs/{" + AppConstant.FDR + "}")
+  @Path(
+          "/created/fdrs/{"
+                  + AppConstant.FDR
+                  + "}/organizations/{"
+                  + AppConstant.ORGANIZATION
+                  + "}")
   @Re(action = FdrActionEnum.GET_CREATED_FDR)
   public GetCreatedResponse getCreated(
-      @PathParam(AppConstant.PSP) String psp, @PathParam(AppConstant.FDR) String fdr) {
-    return baseGetCreated(fdr, psp);
+      @PathParam(AppConstant.PSP) String psp,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.ORGANIZATION) String organizationId) {
+    return baseGetCreated(fdr, psp, organizationId);
   }
 
   @Operation(
@@ -242,20 +250,26 @@ public class PspsResource extends BasePspResource {
                     schema = @Schema(implementation = GetPaymentResponse.class)))
       })
   @GET
-  @Path("/created/fdrs/{" + AppConstant.FDR + "}/payments")
+  @Path(
+          "/created/fdrs/{"
+                  + AppConstant.FDR
+                  + "}/organizations/{"
+                  + AppConstant.ORGANIZATION
+                  + "}/payments")
   @Re(action = FdrActionEnum.GET_CREATED_FDR_PAYMENT)
   public GetPaymentResponse getCreatedPayment(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.ORGANIZATION) String organizationId,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
           long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
-    return baseGetCreatedFdrPayment(fdr, psp, pageNumber, pageSize);
+    return baseGetCreatedFdrPayment(fdr, psp, organizationId, pageNumber, pageSize);
   }
 
     @Operation(
-            operationId = "getAllPublished",
+            operationId = "getAllPublishedByPsp",
             summary = "Get all fdr published",
             description = "Get all fdr published")
     @APIResponses(
@@ -269,12 +283,12 @@ public class PspsResource extends BasePspResource {
                             content =
                             @Content(
                                     mediaType = MediaType.APPLICATION_JSON,
-                                    schema = @Schema(implementation = GetAllResponse.class)))
+                                    schema = @Schema(implementation = GetAllPublishedResponse.class)))
             })
     @GET
     @Path("/published")
     @Re(action = FdrActionEnum.GET_ALL_FDR_PUBLISHED_BY_PSP)
-    public GetAllResponse getAllPublished(
+    public GetAllPublishedResponse getAllPublishedByPsp(
             @PathParam(AppConstant.PSP) String idPsp,
             @QueryParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
             @QueryParam(AppConstant.PUBLISHED_GREATER_THAN) Instant publishedGt,
@@ -285,7 +299,7 @@ public class PspsResource extends BasePspResource {
         return baseGetAllPublished(idPsp, organizationId, publishedGt, pageNumber, pageSize);
     }
 
-    @Operation(operationId = "getPublished", summary = "Get fdr Published", description = "Get fdr Published")
+    @Operation(operationId = "getPublishedByPsp", summary = "Get fdr Published", description = "Get fdr Published")
     @APIResponses(
             value = {
                     @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -309,7 +323,7 @@ public class PspsResource extends BasePspResource {
                     + AppConstant.ORGANIZATION
                     + "}")
     @Re(action = FdrActionEnum.GET_FDR_PUBLISHED_BY_PSP)
-    public GetResponse getPublished(
+    public GetResponse getPublishedByPsp(
             @PathParam(AppConstant.PSP) String psp,
             @PathParam(AppConstant.FDR) String fdr,
             @PathParam(AppConstant.REVISION) Long rev,
@@ -319,7 +333,7 @@ public class PspsResource extends BasePspResource {
 
 
     @Operation(
-            operationId = "getPaymentPublished",
+            operationId = "getPaymentPublishedByPsp",
             summary = "Get payments of fdr Published",
             description = "Get payments of fdr Published")
     @APIResponses(
@@ -345,7 +359,7 @@ public class PspsResource extends BasePspResource {
                     + AppConstant.ORGANIZATION
                     + "}/payments")
     @Re(action = FdrActionEnum.GET_FDR_PAYMENT_PUBLISHED_BY_PSP)
-    public GetPaymentResponse getPaymentPublished(
+    public GetPaymentResponse getPaymentPublishedByPsp(
             @PathParam(AppConstant.PSP) String psp,
             @PathParam(AppConstant.FDR) String fdr,
             @PathParam(AppConstant.REVISION) Long rev,

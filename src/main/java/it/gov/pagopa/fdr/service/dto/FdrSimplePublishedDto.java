@@ -1,12 +1,13 @@
 package it.gov.pagopa.fdr.service.dto;
 
-import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.Instant;
+
 @Getter
 @Builder
-public class FdrSimpleCreatedDto {
+public class FdrSimplePublishedDto {
 
   private String fdr;
 
@@ -14,5 +15,5 @@ public class FdrSimpleCreatedDto {
 
   private Long revision;
 
-  private Instant created;
+  private Instant published;
 }

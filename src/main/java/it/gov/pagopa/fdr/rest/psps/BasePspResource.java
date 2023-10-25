@@ -15,6 +15,7 @@ import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.response.GetAllCreatedResponse;
+import it.gov.pagopa.fdr.rest.psps.response.GetAllPublishedResponse;
 import it.gov.pagopa.fdr.rest.psps.response.GetCreatedResponse;
 import it.gov.pagopa.fdr.rest.psps.validation.InternalPspValidationService;
 import it.gov.pagopa.fdr.rest.psps.validation.PspsValidationService;
@@ -175,30 +176,32 @@ public abstract class BasePspResource {
     return mapper.toGetAllResponse(fdrAllDto);
   }
 
-  protected GetCreatedResponse baseGetCreated(String fdr, String psp) {
+  protected GetCreatedResponse baseGetCreated(String fdr, String psp, String organizationId) {
     String action = MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
+    MDC.put(ORGANIZATION_ID, organizationId);
 
     log.infof(AppMessageUtil.logProcess("%s by fdr=[%s], psp=[%s]"), action, fdr, psp);
 
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    internalValidator.validateGetInternal(action, fdr, psp, configData);
+    internalValidator.validateGetInternal(action, fdr, psp, organizationId, configData);
 
     // get from db
-    FdrGetCreatedDto fdrGetDto = service.findByReportingFlowName(action, fdr, psp);
+    FdrGetCreatedDto fdrGetDto = service.findByReportingFlowName(action, fdr, psp, organizationId);
 
     return mapper.toGetCreatedResponse(fdrGetDto);
   }
 
   protected GetPaymentResponse baseGetCreatedFdrPayment(
-      String fdr, String psp, long pageNumber, long pageSize) {
+      String fdr, String psp, String organizationId, long pageNumber, long pageSize) {
 
     String action = MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
+    MDC.put(ORGANIZATION_ID, organizationId);
 
     log.infof(
         AppMessageUtil.logProcess("%s with id:[%s] - page:[%s], pageSize:[%s]"),
@@ -209,16 +212,16 @@ public abstract class BasePspResource {
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateGetPaymentInternal(action, fdr, psp, configData);
+    internalValidator.validateGetPaymentInternal(action, fdr, psp, organizationId, configData);
 
     // get from db
     FdrGetPaymentDto fdrGetPaymentDto =
-        service.findPaymentByReportingFlowName(action, fdr, psp, pageNumber, pageSize);
+        service.findPaymentByReportingFlowName(action, fdr, psp, organizationId, pageNumber, pageSize);
 
     return mapper.toGetPaymentResponse(fdrGetPaymentDto);
   }
 
-  protected GetAllResponse baseGetAllPublished(
+  protected GetAllPublishedResponse baseGetAllPublished(
           String idPsp,
           String organizationId,
           Instant publishedGt,
@@ -244,7 +247,7 @@ public abstract class BasePspResource {
 
 
     // get from db
-    FdrAllDto fdrAllDto =
+    FdrAllPublishedDto fdrAllDto =
             service.findAllPublished(
                     action,
                     idPsp,
@@ -253,7 +256,7 @@ public abstract class BasePspResource {
                     pageNumber,
                     pageSize);
 
-    return mapper.toGetAllResponsePublished(fdrAllDto);
+    return mapper.toGetAllPublishedResponse(fdrAllDto);
   }
 
   protected GetResponse baseGetPublished(
@@ -277,7 +280,7 @@ public abstract class BasePspResource {
     validator.validateGetPublished(action, fdr, psp, organizationId, configData);
 
     // get from db
-    FdrGetDto fdrGetDto = service.findByReportingFlowNamePublished(action, fdr, rev, psp);
+    FdrGetDto fdrGetDto = service.findByReportingFlowNamePublished(action, fdr, rev, psp, organizationId);
 
     return mapper.toGetIdResponsePublished(fdrGetDto);
   }
@@ -309,7 +312,7 @@ public abstract class BasePspResource {
 
     // get from db
     FdrGetPaymentDto fdrGetPaymentDto =
-            service.findPaymentByReportingFlowNamePublished(action, fdr, rev, psp, pageNumber, pageSize);
+            service.findPaymentByReportingFlowNamePublished(action, fdr, rev, psp, organizationId, pageNumber, pageSize);
 
     return mapper.toGetPaymentResponse(fdrGetPaymentDto);
   }

@@ -1,13 +1,14 @@
 package it.gov.pagopa.fdr.repository.fdr.projection;
 
 import io.quarkus.mongodb.panache.common.ProjectionFor;
-import it.gov.pagopa.fdr.repository.fdr.FdrInsertEntity;
-import java.time.Instant;
+import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
-@ProjectionFor(FdrInsertEntity.class)
-public class FdrInsertProjection {
+@ProjectionFor(FdrPublishEntity.class)
+public class FdrPublishByPspProjection {
 
   private String fdr;
 
@@ -15,5 +16,5 @@ public class FdrInsertProjection {
 
   private Long revision;
 
-  private Instant created;
+  private Instant published;
 }
