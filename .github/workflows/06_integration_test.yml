@@ -70,7 +70,7 @@ jobs:
             az storage blob download-batch \
             --account-name ${{ env.STORAGE_NAME }}
             --subscription ${{ secrets.SUBSCRIPTION_ID }} \
-            --auth-mode key \
+            --auth-mode login \
             --source '${{ env.STORAGE_FOLDER }}' \
             --destination ./integration-test/reports
 
@@ -101,7 +101,7 @@ jobs:
               --overwrite true \ 
               --account-name ${{ env.STORAGE_NAME }} \
               --subscription ${{ secrets.SUBSCRIPTION_ID }} \
-              --auth-mode key \
+              --auth-mode login \
               --source ./integration-test/reports \
               --destination '${{ env.STORAGE_FOLDER }}' 
 
