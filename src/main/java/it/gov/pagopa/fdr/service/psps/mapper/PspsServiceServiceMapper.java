@@ -6,6 +6,7 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.service.dto.FdrDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
 import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import java.util.List;
 import org.mapstruct.Mapper;
@@ -49,4 +50,7 @@ public interface PspsServiceServiceMapper {
   FdrGetCreatedDto toFdrGetCreatedDto(FdrInsertEntity fdrInsertEntity);
 
   List<PaymentDto> toPaymentDtoList(List<FdrPaymentInsertEntity> paymentEntities);
+
+  List<PaymentDto> toPaymentDtoListByPsp(List<FdrPaymentPublishEntity> paymentEntities);
+  FdrGetDto toFdrGetDtoByPsp(FdrPublishEntity fdrPublishEntity);
 }

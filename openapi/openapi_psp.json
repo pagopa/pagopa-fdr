@@ -32,12 +32,12 @@
     "description" : "Support operations"
   } ],
   "paths" : {
-    "/internal/psps/{pspId}/fdrs/{fdr}/payments/add" : {
+    "/psps/{pspId}/fdrs/{fdr}/payments/add" : {
       "put" : {
-        "tags" : [ "Internal PSP" ],
+        "tags" : [ "PSP" ],
         "summary" : "Add payments to fdr",
         "description" : "Add payments to fdr",
-        "operationId" : "internalAddPayment",
+        "operationId" : "addPayment",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -85,252 +85,12 @@
         }
       }
     },
-    "/internal/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}" : {
-      "get" : {
-        "tags" : [ "Internal PSP" ],
-        "summary" : "Get internal fdr Published",
-        "description" : "Get internal fdr Published",
-        "operationId" : "internalGetPublished",
-        "parameters" : [ {
-          "name" : "fdr",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "organizationId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "pspId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "revision",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "format" : "int64",
-            "type" : "integer"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GetResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/created/fdrs/{fdr}" : {
-      "get" : {
-        "tags" : [ "Internal PSP" ],
-        "summary" : "Get created fdr",
-        "description" : "Get created fdr",
-        "operationId" : "internalGetCreated",
-        "parameters" : [ {
-          "name" : "fdr",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "pspId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GetCreatedResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/published" : {
-      "get" : {
-        "tags" : [ "Internal PSP" ],
-        "summary" : "Get all internal fdr published",
-        "description" : "Get all internal fdr published",
-        "operationId" : "internalGetAllPublished",
-        "parameters" : [ {
-          "name" : "pspId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "organizationId",
-          "in" : "query",
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "page",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        }, {
-          "name" : "publishedGt",
-          "in" : "query",
-          "schema" : {
-            "$ref" : "#/components/schemas/Instant"
-          }
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1000,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GetAllResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/organizations/{organizationId}/fdrs" : {
-      "get" : {
-        "tags" : [ "Internal Organizations" ],
-        "summary" : "Get all fdr published",
-        "description" : "Get all fdr published",
-        "operationId" : "internalGetAllPublished",
-        "parameters" : [ {
-          "name" : "organizationId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "page",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        }, {
-          "name" : "pspId",
-          "in" : "query",
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "publishedGt",
-          "in" : "query",
-          "schema" : {
-            "$ref" : "#/components/schemas/Instant"
-          }
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1000,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GetAllResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/fdrs/{fdr}/publish" : {
+    "/psps/{pspId}/fdrs/{fdr}/publish" : {
       "post" : {
-        "tags" : [ "Internal PSP" ],
+        "tags" : [ "PSP" ],
         "summary" : "Publish fdr",
         "description" : "Publish fdr",
-        "operationId" : "internalPublish",
+        "operationId" : "publish",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -369,201 +129,12 @@
         }
       }
     },
-    "/internal/psps/{pspId}/iuv/{iuv}" : {
+    "/psps/{pspId}/created/fdrs/{fdr}/payments" : {
       "get" : {
-        "tags" : [ "Support" ],
-        "summary" : "Get all payments by psp id and iuv",
-        "description" : "Get all payments by psp id and iuv",
-        "operationId" : "getByIuv",
-        "parameters" : [ {
-          "name" : "iuv",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "pspId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "createdFrom",
-          "in" : "query",
-          "schema" : {
-            "$ref" : "#/components/schemas/Instant"
-          }
-        }, {
-          "name" : "createdTo",
-          "in" : "query",
-          "schema" : {
-            "$ref" : "#/components/schemas/Instant"
-          }
-        }, {
-          "name" : "page",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1000,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FdrByPspIdIuvIurResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}" : {
-      "get" : {
-        "tags" : [ "Internal Organizations" ],
-        "summary" : "Get fdr",
-        "description" : "Get fdr by id but not payments",
-        "operationId" : "internalGet",
-        "parameters" : [ {
-          "name" : "fdr",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "organizationId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "pspId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "revision",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "format" : "int64",
-            "type" : "integer"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GetResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/fdrs/{fdr}/payments/del" : {
-      "put" : {
-        "tags" : [ "Internal PSP" ],
-        "summary" : "Delete payments to fdr",
-        "description" : "Delete payments to fdr",
-        "operationId" : "internalDeletePayment",
-        "parameters" : [ {
-          "name" : "fdr",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "pspId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DeletePaymentRequest"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/created/fdrs/{fdr}/payments" : {
-      "get" : {
-        "tags" : [ "Internal PSP" ],
-        "summary" : "Get internal created payments of fdr",
-        "description" : "Get internal created payments of fdr",
-        "operationId" : "internalGetCreatedPayment",
+        "tags" : [ "PSP" ],
+        "summary" : "Get created payments of fdr",
+        "description" : "Get created payments of fdr",
+        "operationId" : "getCreatedPayment",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -620,12 +191,89 @@
         }
       }
     },
-    "/internal/psps/{pspId}/fdrs/{fdr}" : {
+    "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}/payments" : {
+      "get" : {
+        "tags" : [ "PSP" ],
+        "summary" : "Get payments of fdr Published",
+        "description" : "Get payments of fdr Published",
+        "operationId" : "getPaymentPublished",
+        "parameters" : [ {
+          "name" : "fdr",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pspId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "revision",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "format" : "int64",
+            "default" : 1,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "format" : "int64",
+            "default" : 1000,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetPaymentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psps/{pspId}/fdrs/{fdr}" : {
       "post" : {
-        "tags" : [ "Internal PSP" ],
+        "tags" : [ "PSP" ],
         "summary" : "Create fdr",
         "description" : "Create fdr",
-        "operationId" : "internalCreate",
+        "operationId" : "create",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -674,10 +322,10 @@
         }
       },
       "delete" : {
-        "tags" : [ "Internal PSP" ],
+        "tags" : [ "PSP" ],
         "summary" : "Delete fdr",
         "description" : "Delete fdr",
-        "operationId" : "internalDelete",
+        "operationId" : "delete",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -716,88 +364,12 @@
         }
       }
     },
-    "/internal/psps/{pspId}/iur/{iur}" : {
+    "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}" : {
       "get" : {
-        "tags" : [ "Support" ],
-        "summary" : "Get all payments by psp id and iur",
-        "description" : "Get all payments by psp id and iur",
-        "operationId" : "getByIur",
-        "parameters" : [ {
-          "name" : "iur",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "pspId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "createdFrom",
-          "in" : "query",
-          "schema" : {
-            "$ref" : "#/components/schemas/Instant"
-          }
-        }, {
-          "name" : "createdTo",
-          "in" : "query",
-          "schema" : {
-            "$ref" : "#/components/schemas/Instant"
-          }
-        }, {
-          "name" : "page",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1000,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        } ],
-        "responses" : {
-          "500" : {
-            "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
-          },
-          "200" : {
-            "description" : "Success",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FdrByPspIdIuvIurResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}/payments" : {
-      "get" : {
-        "tags" : [ "Internal PSP" ],
-        "summary" : "Get internal payments of fdr Published",
-        "description" : "Get internal payments of fdr Published",
-        "operationId" : "internalGetPaymentPublished",
+        "tags" : [ "PSP" ],
+        "summary" : "Get fdr Published",
+        "description" : "Get fdr Published",
+        "operationId" : "getPublished",
         "parameters" : [ {
           "name" : "fdr",
           "in" : "path",
@@ -827,24 +399,6 @@
             "format" : "int64",
             "type" : "integer"
           }
-        }, {
-          "name" : "page",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1000,
-            "minimum" : 1,
-            "type" : "integer"
-          }
         } ],
         "responses" : {
           "500" : {
@@ -861,7 +415,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/GetPaymentResponse"
+                  "$ref" : "#/components/schemas/GetResponse"
                 }
               }
             }
@@ -869,77 +423,20 @@
         }
       }
     },
-    "/internal/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}/payments" : {
+    "/info" : {
       "get" : {
-        "tags" : [ "Internal Organizations" ],
-        "summary" : "Get payments of fdr",
-        "description" : "Get payments of fdr",
-        "operationId" : "internalGetPayment",
-        "parameters" : [ {
-          "name" : "fdr",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "organizationId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "pattern" : "^(.{1,35})$",
-            "type" : "string"
-          }
-        }, {
-          "name" : "pspId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "revision",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "format" : "int64",
-            "type" : "integer"
-          }
-        }, {
-          "name" : "page",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        }, {
-          "name" : "size",
-          "in" : "query",
-          "schema" : {
-            "format" : "int64",
-            "default" : 1000,
-            "minimum" : 1,
-            "type" : "integer"
-          }
-        } ],
+        "tags" : [ "Info" ],
+        "summary" : "Get info of FDR",
         "responses" : {
           "500" : {
             "$ref" : "#/components/responses/InternalServerError"
-          },
-          "400" : {
-            "$ref" : "#/components/responses/AppException400"
-          },
-          "404" : {
-            "$ref" : "#/components/responses/AppException404"
           },
           "200" : {
             "description" : "Success",
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/GetPaymentResponse"
+                  "$ref" : "#/components/schemas/InfoResponse"
                 }
               }
             }
@@ -947,12 +444,12 @@
         }
       }
     },
-    "/internal/psps/{pspId}/created" : {
+    "/psps/{pspId}/created" : {
       "get" : {
-        "tags" : [ "Internal PSP" ],
-        "summary" : "Get all fdr inserted",
-        "description" : "Get all fdr inserted",
-        "operationId" : "internalGetAllCreated",
+        "tags" : [ "PSP" ],
+        "summary" : "Get all fdr created",
+        "description" : "Get all fdr created",
+        "operationId" : "getAllcreated",
         "parameters" : [ {
           "name" : "pspId",
           "in" : "path",
@@ -1001,6 +498,171 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/GetAllCreatedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psps/{pspId}/created/fdrs/{fdr}" : {
+      "get" : {
+        "tags" : [ "PSP" ],
+        "summary" : "Get created fdr",
+        "description" : "Get created fdr",
+        "operationId" : "getCreated",
+        "parameters" : [ {
+          "name" : "fdr",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pspId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetCreatedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psps/{pspId}/fdrs/{fdr}/payments/del" : {
+      "put" : {
+        "tags" : [ "PSP" ],
+        "summary" : "Delete payments to fdr",
+        "description" : "Delete payments to fdr",
+        "operationId" : "deletePayment",
+        "parameters" : [ {
+          "name" : "fdr",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pspId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeletePaymentRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psps/{pspId}/published" : {
+      "get" : {
+        "tags" : [ "PSP" ],
+        "summary" : "Get all fdr published",
+        "description" : "Get all fdr published",
+        "operationId" : "getAllPublished",
+        "parameters" : [ {
+          "name" : "pspId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "organizationId",
+          "in" : "query",
+          "schema" : {
+            "pattern" : "^(.{1,35})$",
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "format" : "int64",
+            "default" : 1,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        }, {
+          "name" : "publishedGt",
+          "in" : "query",
+          "schema" : {
+            "$ref" : "#/components/schemas/Instant"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "format" : "int64",
+            "default" : 1000,
+            "minimum" : 1,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "#/components/responses/InternalServerError"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/AppException400"
+          },
+          "404" : {
+            "$ref" : "#/components/responses/AppException404"
+          },
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetAllResponse"
                 }
               }
             }

@@ -17,18 +17,11 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
+import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
-import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
-import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
-import it.gov.pagopa.fdr.service.dto.FdrAllCreatedDto;
-import it.gov.pagopa.fdr.service.dto.FdrDto;
-import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
-import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
-import it.gov.pagopa.fdr.service.dto.FdrSimpleCreatedDto;
-import it.gov.pagopa.fdr.service.dto.MetadataDto;
-import it.gov.pagopa.fdr.service.dto.PaymentDto;
+import it.gov.pagopa.fdr.service.dto.*;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
@@ -540,5 +533,120 @@ public class PspsService {
         .count(countReportingFlowPayment)
         .data(mapper.toPaymentDtoList(list))
         .build();
+  }
+
+  @WithSpan(kind = SERVER)
+  public FdrAllDto findAllPublished(
+          String action,
+          String pspId,
+          String ecId,
+          Instant publishedGt,
+          long pageNumber,
+          long pageSize) {
+    log.infof(AppMessageUtil.logExecute(action));
+
+    Page page = Page.of((int) pageNumber - 1, (int) pageSize);
+    Sort sort = AppDBUtil.getSort(List.of("_id,asc"));
+
+    List<String> queryAnd = new ArrayList<>();
+    Parameters parameters = new Parameters();
+
+    queryAnd.add("sender.psp_id = :pspId");
+    parameters.and("pspId", pspId);
+
+    if (ecId != null && !ecId.isBlank()) {
+      queryAnd.add("receiver.organization_id = :organizationId");
+      parameters.and("organizationId", ecId);
+    }
+
+    if (publishedGt != null) {
+      queryAnd.add("published > :publishedGt");
+      parameters.and("publishedGt", publishedGt);
+    }
+
+
+    log.debugf("Get all FdrPublishEntity with pspId[%s] organizationId[%s]", pspId, ecId);
+    PanacheQuery<FdrPublishEntity> fdrPublishPanacheQuery =
+              FdrPublishEntity.find(String.join(" and ", queryAnd), sort, parameters);
+
+
+    log.debug("Get paging FdrPublishReportingFlowNameProjection");
+    PanacheQuery<FdrPublishProjection> fdrProjectionPanacheQuery =
+            fdrPublishPanacheQuery.page(page).project(FdrPublishProjection.class);
+
+    List<FdrPublishProjection> reportingFlowIds = fdrProjectionPanacheQuery.list();
+
+    long totPage = fdrProjectionPanacheQuery.pageCount();
+    long countReportingFlow = fdrProjectionPanacheQuery.count();
+
+    log.debug("Building ReportingFlowByIdEcDto");
+    return FdrAllDto.builder()
+            .metadata(
+                    MetadataDto.builder()
+                            .pageSize(pageSize)
+                            .pageNumber(pageNumber)
+                            .totPage(totPage)
+                            .build())
+            .count(countReportingFlow)
+            .data(
+                    reportingFlowIds.stream()
+                            .map(
+                                    rf ->
+                                            FdrSimpleDto.builder()
+                                                    .fdr(rf.getFdr())
+                                                    .published(rf.getPublished())
+                                                    .revision(rf.getRevision())
+                                                    .pspId(rf.getSender().getPspId())
+                                                    .build())
+                            .toList())
+            .build();
+  }
+
+  @WithSpan(kind = SERVER)
+  public FdrGetDto findByReportingFlowNamePublished(String action, String fdr, Long rev, String pspId) {
+    log.infof(AppMessageUtil.logExecute(action));
+
+    log.debugf("Existence check FdrPublishEntity by fdr[%s], psp[%s]", fdr, pspId);
+    FdrPublishEntity fdrPublishPanacheQuery =
+            FdrPublishEntity.findByFdrAndRevAndPspId(fdr, rev, pspId)
+                    .project(FdrPublishEntity.class)
+                    .firstResultOptional()
+                    .orElseThrow(
+                            () -> new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, fdr));
+
+    MDC.put(ORGANIZATION_ID, fdrPublishPanacheQuery.getReceiver().getOrganizationId());
+
+    log.debug("Mapping ReportingFlowGetDto from FdrPublishEntity");
+    return mapper.toFdrGetDtoByPsp(fdrPublishPanacheQuery);
+  }
+
+  @WithSpan(kind = SERVER)
+  public FdrGetPaymentDto findPaymentByReportingFlowNamePublished(
+          String action, String fdr, Long rev, String pspId, long pageNumber, long pageSize) {
+    log.infof(AppMessageUtil.logExecute(action));
+
+    Page page = Page.of((int) pageNumber - 1, (int) pageSize);
+    Sort sort = AppDBUtil.getSort(List.of("index,asc"));
+
+    log.debugf("Existence check fdr by fdr[%s], psp[%s]", fdr, pspId);
+    PanacheQuery<FdrPaymentPublishEntity> fdrPaymentPublishPanacheQuery =
+            FdrPaymentPublishEntity.findByFdrAndRevAndPspId(fdr, rev, pspId, sort).page(page);
+
+    List<FdrPaymentPublishEntity> list = fdrPaymentPublishPanacheQuery.list();
+
+    long totPage = fdrPaymentPublishPanacheQuery.pageCount();
+    long countReportingFlowPayment = fdrPaymentPublishPanacheQuery.count();
+
+    log.debug("Mapping ReportingFlowGetPaymentDto from FdrPaymentPublishEntity");
+    return FdrGetPaymentDto.builder()
+            .metadata(
+                    MetadataDto.builder()
+                            .pageSize(pageSize)
+                            .pageNumber(pageNumber)
+                            .totPage(totPage)
+                            .build())
+            .count(countReportingFlowPayment)
+            .data(mapper.toPaymentDtoListByPsp(list))
+            .build();
   }
 }

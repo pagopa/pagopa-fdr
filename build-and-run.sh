@@ -59,10 +59,14 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
     echo "###########"
     run docker
   elif [ $action = "generate_openapi" ]; then
-    build openapi
-    generate_openapi openapi
     build openapi_internal
     generate_openapi openapi_internal
+
+    build openapi_psp
+    generate_openapi openapi_psp
+
+    build openapi_organization
+    generate_openapi openapi_organization
   else
     test_curl
   fi
