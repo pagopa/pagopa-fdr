@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr.rest.psps;
 
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
@@ -17,18 +16,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import java.time.Instant;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -37,6 +26,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
+
+import java.time.Instant;
 
 @Tag(name = "PSP", description = "PSP operations")
 @Path("/psps/{" + AppConstant.PSP + "}")
@@ -328,7 +319,7 @@ public class PspsResource extends BasePspResource {
             @PathParam(AppConstant.FDR) String fdr,
             @PathParam(AppConstant.REVISION) Long rev,
             @PathParam(AppConstant.ORGANIZATION) String organizationId) {
-        return baseGetPublished(organizationId, fdr, rev, psp);
+        return baseGetPublished(psp, fdr, rev, organizationId);
     }
 
 
@@ -368,6 +359,6 @@ public class PspsResource extends BasePspResource {
             long pageNumber,
             @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
             long pageSize) {
-        return baseGetFdrPaymentPublished(organizationId, fdr, rev, psp, pageNumber, pageSize);
+        return baseGetFdrPaymentPublished(psp, fdr, rev, organizationId, pageNumber, pageSize);
     }
 }
