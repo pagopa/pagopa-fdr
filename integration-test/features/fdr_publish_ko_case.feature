@@ -1,4 +1,4 @@
-Feature: Check FdR published
+Feature: Verify ko of publish FdR
 #  Create a FdR
 #  Add 3 payments
 #  Publish FdR
@@ -9,7 +9,6 @@ Feature: Check FdR published
 
   Background:
     Given systems up
-
 
   Scenario: Create FdR
     Given an unique FdR name named flow_name

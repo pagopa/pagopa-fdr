@@ -3,10 +3,8 @@ Feature: Verify ko of payments
 #  Add 1001 payments to check 400 status code
 #  Add payments with an invalid subscription_key to check 401 status code
 
-
-Background:
-  Given systems up
-
+  Background:
+    Given systems up
 
   Scenario: Create FdR
     Given an unique FdR name named flow_name
