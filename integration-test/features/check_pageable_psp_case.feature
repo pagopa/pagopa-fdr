@@ -55,9 +55,9 @@ Feature: Check pageable PSP
     And PSP adds flow_date as createdGt in query_params
     And PSP adds 1 as page in query_params
     And PSP adds 99 as size in query_params
-    When PSP sends get_created_payments request to fdr-microservice with None
-    Then PSP receives the HTTP status code 200 to get_created_payments request
-    And PSP receives page 1 with 99 entries as response of get_created_payments request
+    When PSP sends created_payments request to fdr-microservice with None
+    Then PSP receives the HTTP status code 200 to created_payments request
+    And PSP receives page 1 with 99 entries as response of created_payments request
 
   @runnable
   Scenario: Check created payments pagination 2
@@ -65,9 +65,9 @@ Feature: Check pageable PSP
     And PSP adds flow_date as createdGt in query_params
     And PSP adds 2 as page in query_params
     And PSP adds 1 as size in query_params
-    When PSP sends get_created_payments request to fdr-microservice with None
-    Then PSP receives the HTTP status code 200 to get_created_payments request
-    And PSP receives page 2 with 1 entries as response of get_created_payments request
+    When PSP sends created_payments request to fdr-microservice with None
+    Then PSP receives the HTTP status code 200 to created_payments request
+    And PSP receives page 2 with 1 entries as response of created_payments request
 
   @runnable
   Scenario: Check created FdR pagination 1

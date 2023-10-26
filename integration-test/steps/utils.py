@@ -90,6 +90,10 @@ def get_fdr_url(request_type=""):
             "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#",
             "method": "GET"
         },
+        "get_payments": {
+            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#/payments",
+            "method": "GET"
+        },
         "get_all_published": {
             "endpoint": "/organizations/#organization#/fdrs",
             "method": "GET"
