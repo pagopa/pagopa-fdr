@@ -71,7 +71,7 @@ jobs:
             --account-name ${{ env.STORAGE_NAME }}
             --subscription ${{ secrets.SUBSCRIPTION_ID }} \
             --auth-mode login \
-            --source '${{ env.STORAGE_FOLDER }}' \
+            --source '${{ env.STORAGE_FOLDER }}/reports' \
             --destination ./integration-test/reports
 
       - name: Run Integration Tests
@@ -99,7 +99,7 @@ jobs:
               --subscription ${{ secrets.SUBSCRIPTION_ID }} \
               --auth-mode login \
               --source ./integration-test/reports \
-              --destination '${{ env.STORAGE_FOLDER }}' 
+              --destination '${{ env.STORAGE_FOLDER }}/reports' 
 
   notify:
     needs: [ integration_test ]
