@@ -5,10 +5,10 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
-import it.gov.pagopa.fdr.rest.model.GenericResponse;
-import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.rest.model.SenderTypeEnum;
+import it.gov.pagopa.fdr.rest.model.*;
+import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.rest.psps.response.GetAllCreatedResponse;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
@@ -16,7 +16,10 @@ import it.gov.pagopa.fdr.test.util.TestUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
+import static io.smallrye.common.constraint.Assert.assertTrue;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static it.gov.pagopa.fdr.test.util.TestUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,10 +31,10 @@ import static org.hamcrest.Matchers.*;
 @QuarkusTestResource(AzuriteResource.class)
 class PspResourceTest {
 
-  private static final String GET_CREATED_FDR_URL = "/psps/%s/created/fdrs/%s/organizations/%s";
+  private static final String GET_FDR_CREATED_URL = "/psps/%s/created/fdrs/%s/organizations/%s";
   private static final String GET_PAYMENTS_FDR_PUBLISHED_URL = "/psps/%s/published/fdrs/%s/revisions/%s/organizations/%s/payments";
   private static final String GET_FDR_PUBLISHED_URL = "/psps/%s/published/fdrs/%s/revisions/%s/organizations/%s";
-  private static final String GET_FDR_CREATED_URL = "/psps/%s/created";
+  private static final String GET_ALL_FDR_CREATED_URL = "/psps/%s/created";
   private static final String GET_PAYMENTS_FDR_CREATED_URL = "/psps/%s/created/fdrs/%s/organizations/%s/payments";
 
 
@@ -1413,119 +1416,150 @@ class PspResourceTest {
   }
 
   /** ################# getReportingFlow ############### */
-//  @Test
-//  @DisplayName("ORGANIZATIONS - OK - recupero di un reporting flow")
-//  void testOrganization_getReportingFlow_Ok() {
-//    String flowName = TestUtil.getDynamicFlowName();
-//    TestUtil.pspSunnyDay(flowName);
-//    String url = GET_FDR_PUBLISHED_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
-//    GetResponse res = given()
-//            .header(HEADER)
-//            .when()
-//            .get(url)
-//            .then()
-//            .statusCode(200)
-//            .extract()
-//            .as(GetResponse.class);
-//    assertThat(res.getFdr(), equalTo(flowName));
-//    assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
-//    assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
-//    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-//    assertThat(res.getComputedTotPayments(), equalTo(3L));
-//  }
-//
-//  @Test
-//  @DisplayName("ORGANIZATIONS - OK - recupero di un reporting flow pubblicato alla revision 2")
-//  void testOrganization_getReportingFlow_revision_2_OK() {
-//    String flowName = TestUtil.getDynamicFlowName();
-//    TestUtil.pspSunnyDay(flowName);
-//    TestUtil.pspSunnyDay(flowName);
-//
-//    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2L, PSP_CODE);
-//    GetResponse res = given()
-//            .header(HEADER)
-//            .when()
-//            .get(url)
-//            .then()
-//            .statusCode(200)
-//            .extract()
-//            .as(GetResponse.class);
-//    assertThat(res.getFdr(), equalTo(flowName));
-//    assertThat(res.getRevision(), equalTo(2L));
-//    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-//  }
-//
-//  @Test
-//  @DisplayName("ORGANIZATIONS - KO FDR-0701 - getReportingFlow reporting flow not found")
-//  void testOrganization_getReportingFlow_KO_FDR0701() {
-//    String flowName = TestUtil.getDynamicFlowName();
-//    TestUtil.pspSunnyDay(flowName);
-//
-//    String flowNameWrong = TestUtil.getDynamicFlowName();
-//    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, 1L, PSP_CODE);
-//
-//    ErrorResponse res = given()
-//            .header(HEADER)
-//            .when()
-//            .get(url)
-//            .then()
-//            .statusCode(404)
-//            .extract()
-//            .as(ErrorResponse.class);
-//    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-//    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found",flowNameWrong)))));
-//  }
-//
-//  /** ################# getReportingFlowPayments ############### */
-//  @Test
-//  @DisplayName("ORGANIZATIONS - OK - recupero dei payments di un flow pubblicato")
-//  void testOrganization_getReportingFlowPayments_Ok() {
-//    String flowName = TestUtil.getDynamicFlowName();
-//    TestUtil.pspSunnyDay(flowName);
-//
-//    String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
-//
-//    GetPaymentResponse res = given()
-//            .header(HEADER)
-//            .when()
-//            .get(url)
-//            .then()
-//            .statusCode(200)
-//            .extract()
-//            .as(GetPaymentResponse.class);
-//    assertThat(res.getCount(), equalTo(3L));
-//    List expectedList = List.of(PaymentStatusEnum.EXECUTED.name(), PaymentStatusEnum.REVOKED.name(), PaymentStatusEnum.NO_RPT.name());
-//    assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
-//            equalTo(expectedList));
-//    assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
-//            containsInAnyOrder(expectedList.toArray()));
-//  }
-//
-//  @Test
-//  @DisplayName("ORGANIZATIONS - OK - recupero dei payments di un flow pubblicato con paginazione custom")
-//  void testOrganization_getReportingFlowPayments_pagination_Ok() {
-//    String flowName = TestUtil.getDynamicFlowName();
-//    TestUtil.pspSunnyDay(flowName);
-//
-//    String url = (GET_REPORTING_FLOW_PAYMENTS_URL+"?page=2&size=1").formatted(EC_CODE, flowName, 1L, PSP_CODE);
-//    GetPaymentResponse res = given()
-//            .header(HEADER)
-//            .when()
-//            .get(url)
-//            .then()
-//            .statusCode(200)
-//            .extract()
-//            .as(GetPaymentResponse.class);
-//    List<Payment> data = res.getData();
-//
-//    assertThat(res.getMetadata().getPageSize(), equalTo(1));
-//    assertThat(res.getMetadata().getPageNumber(), equalTo(2));
-//    assertThat(res.getCount(), equalTo(3L));
-//    assertThat(data.stream().map(o -> o.getPayStatus().name()).toList(),
-//            equalTo(List.of(PaymentStatusEnum.REVOKED.name())));
-//    assertThat(data.stream().map(Payment::getIndex).toList(),
-//            equalTo(List.of(2L)));
-//  }
+  @Test
+  @DisplayName("PSPS - OK - recupero di un reporting flow")
+  void test_psp_getReportingFlow_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1L, EC_CODE);
+    GetResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetResponse.class);
+    assertThat(res.getFdr(), equalTo(flowName));
+    assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
+    assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
+    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
+    assertThat(res.getComputedTotPayments(), equalTo(3L));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - recupero di un reporting flow pubblicato alla revision 2")
+  void test_psp_getReportingFlow_revision_2_OK() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName);
+
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 2L, EC_CODE);
+    GetResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetResponse.class);
+    assertThat(res.getFdr(), equalTo(flowName));
+    assertThat(res.getRevision(), equalTo(2L));
+    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - nessun flusso trovato in stato CREATED per uno specifico PSP")
+  void test_psp_getAllReportingFlowCreated_OK() {
+    String url = (GET_ALL_FDR_CREATED_URL+"?page=2&size=1").formatted(PSP_CODE_3);
+
+    GetAllCreatedResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetAllCreatedResponse.class);
+    assertThat(res.getCount(), equalTo(0L));
+  }
+
+  /** ################# getReportingFlowPayments ############### */
+  @Test
+  @DisplayName("PSPS - OK - recupero dei payments di un flow pubblicato")
+  void test_psp_getReportingFlowPaymentsPublished_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+
+    String url = GET_PAYMENTS_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1L, EC_CODE);
+
+    GetPaymentResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetPaymentResponse.class);
+    assertThat(res.getCount(), equalTo(3L));
+    List expectedList = List.of(PaymentStatusEnum.EXECUTED.name(), PaymentStatusEnum.REVOKED.name(), PaymentStatusEnum.NO_RPT.name());
+    assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
+            equalTo(expectedList));
+    assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
+            containsInAnyOrder(expectedList.toArray()));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - recupero dei flow created")
+  void test_psp_getReportingFlows_created_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlPspFlow = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String bodyFmtPspFlow =
+            FLOW_TEMPLATE.formatted(
+                    flowName,
+                    SenderTypeEnumDto.LEGAL_PERSON.name(),
+                    PSP_CODE,
+                    BROKER_CODE,
+                    CHANNEL_CODE,
+                    EC_CODE);
+
+    GenericResponse resPspFlow =
+            given()
+                    .body(bodyFmtPspFlow)
+                    .header(HEADER)
+                    .when()
+                    .post(urlPspFlow)
+                    .then()
+                    .statusCode(201)
+                    .extract()
+                    .body()
+                    .as(GenericResponse.class);
+    assertThat(resPspFlow.getMessage(), equalTo(String.format("Fdr [%s] saved", flowName)));
+
+    String url = (GET_ALL_FDR_CREATED_URL).formatted(PSP_CODE);
+    GetAllCreatedResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetAllCreatedResponse.class);
+
+    assertThat(res.getCount(), greaterThan(0L));
+//    assertThat(res.getData(), contains(hasProperty("fdr", is(flowName))));
+    assertTrue(res.getData().stream().anyMatch(item -> item.getFdr().equals(flowName)));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - recupero dei payments di un flow creato")
+  void test_psp_getReportingFlowPayments_created_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+
+    String url = (GET_PAYMENTS_FDR_CREATED_URL).formatted(PSP_CODE, flowName, EC_CODE);
+    GetPaymentResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetPaymentResponse.class);
+    List<Payment> data = res.getData();
+
+    assertThat(res.getCount(), equalTo(0L));
+  }
 
 
 }

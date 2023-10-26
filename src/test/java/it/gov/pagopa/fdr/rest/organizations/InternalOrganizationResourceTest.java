@@ -1,11 +1,7 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -42,11 +38,9 @@ class InternalOrganizationResourceTest {
   private static final String GET_ALL_PUBLISHED_FLOW_URL =
       "/internal/organizations/ndp/fdrs?" + AppConstant.PSP + "=%s";
   private static final String GET_REPORTING_FLOW_URL =
-      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s";
+      "/internal/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL =
-      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/payments";
-  private static final String CHANGE_READ_FLAG_URL =
-      "/internal/organizations/ndp/fdrs/%s/revisions/%s/psps/%s/read";
+      "/internal/organizations/%s/fdrs/%s/revisions/%s/psps/%s/payments";
 
   /** ############### getAllPublishedFlow ################ */
   @Test
@@ -141,7 +135,7 @@ class InternalOrganizationResourceTest {
   void testOrganization_getReportingFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_REPORTING_FLOW_URL.formatted(flowName, 1, PSP_CODE);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1, PSP_CODE);
     GetResponse res =
         given()
             .header(HEADER)
@@ -165,7 +159,7 @@ class InternalOrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
     TestUtil.pspSunnyDay(flowName);
 
-    String url = GET_REPORTING_FLOW_URL.formatted(flowName, 2, PSP_CODE);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2, PSP_CODE);
     GetResponse res =
         given()
             .header(HEADER)
@@ -187,7 +181,7 @@ class InternalOrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String flowNameWrong = TestUtil.getDynamicFlowName();
-    String url = GET_REPORTING_FLOW_URL.formatted(flowNameWrong, 1, PSP_CODE);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE_NDP, flowNameWrong, 1, PSP_CODE);
 
     ErrorResponse res =
         given()
@@ -214,7 +208,7 @@ class InternalOrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
 
-    String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(flowName, 1, PSP_CODE);
+    String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1, PSP_CODE);
     GetPaymentResponse res =
         given()
             .header(HEADER)
