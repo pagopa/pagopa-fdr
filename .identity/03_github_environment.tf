@@ -39,6 +39,8 @@ locals {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
     "SLACK_WEBHOOK_URL": data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
+    "PSP_SUBSCRIPTION_KEY": data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value
+    "ORG_SUBSCRIPTION_KEY": data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value
   }
 }
 

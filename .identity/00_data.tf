@@ -32,6 +32,18 @@ data "azurerm_key_vault_secret" "key_vault_bot_token" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
 }
 
+data "azurerm_key_vault_secret" "integration_test_psp_subscription_key" {
+  count        = var.env_short == "p" ? 0 : 1
+  name         = "integration-test-psp-subscription-key"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "integration_test_org_subscription_key" {
+  count        = var.env_short == "p" ? 0 : 1
+  name         = "integration-test-org-subscription-key"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
 data "azurerm_key_vault_secret" "key_vault_slack_webhook_url" {
   name         = "slack-webhook-url"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id

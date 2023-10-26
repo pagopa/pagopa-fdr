@@ -81,11 +81,11 @@ jobs:
           cd ./integration-test
           docker build -t fdr3_test .
           docker run \
-            -e PSP_SUBSCRIPTION_KEY="${{ secrets.PSP_SUBSCRIPTION_KEY }}" \ 
-            -e ORG_SUBSCRIPTION_KEY="${{ secrets.ORG_SUBSCRIPTION_KEY }}" \
-            -e TAGS="${{ inputs.tags }}" \
-            -e ENV="${{( github.event.inputs == null && 'dev') || inputs.environment }}" \
-            -v ./reports:/app/reports fdr3_test
+          -e PSP_SUBSCRIPTION_KEY="${{ secrets.PSP_SUBSCRIPTION_KEY }}" \
+          -e ORG_SUBSCRIPTION_KEY="${{ secrets.ORG_SUBSCRIPTION_KEY }}" \
+          -e TAGS="${{ inputs.tags }}" \
+          -e ENV="${{( github.event.inputs == null && 'dev') || inputs.environment }}" \
+          -v  ./reports:/app/reports fdr3_test
 
       - name: Upload reports
         uses: azure/CLI@v1
