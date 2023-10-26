@@ -1,11 +1,52 @@
+if [ -z $ENV ]
+then
+  echo "DEV environment..."
+else
+  echo "Setting $ENV environment..."
+    cp config/config.json config/config.json.orig
+    dest="api.${ENV}."
+    sed "s/api.dev./$dest/g" config/config.json > config/config.json.bkp
+    sleep 1
+    mv config/config.json.bkp config/config.json
+    sleep 1
+fi
+
+if [ -z $TAGS ]
+then
+  TAGS="runnable"
+fi
+
+if [ -z $PSP_SUBSCRIPTION_KEY ]
+then
+  echo "PSP_SUBSCRIPTION_KEY not set"
+  exit 1
+fi
+
+if [ -z $ORG_SUBSCRIPTION_KEY ]
+then
+  echo "ORG_SUBSCRIPTION_KEY not set"
+  exit 1
+fi
+
+if [ -z $JUNIT ]
+then
+  junit=""
+elif
+  junit="--junit-directory=junit --junit"
+fi
+
 echo "Run test ..."
-rm -rf results
+rm -rf results junit
 
-echo "Command to execute ..."
-echo "behave --format html -o reports/index.html --junit-directory=./reports --junit --tags=$TAGS --summary --show-timings -v"
+#echo "Command to execute ..."
 
-#behave --format html -o reports/index.html --junit-directory=./results --junit --tags=$TAGS --summary --show-timings -v
-behave --format allure_behave.formatter:AllureFormatter -o results --tags=$TAGS --summary --show-timings -v
+#echo "behave --format html -o reports/index.html $junit --tags=$TAGS --summary --show-timings -v"
+behave --format allure_behave.formatter:AllureFormatter -o results $junit --tags=$TAGS --summary --show-timings -v
 
 rm -rf results/history && cp -R reports/history results/history
 allure generate results -o reports --clean
+
+if ! [ -z $ENV ]
+then
+  mv config/config.json.orig config/config.json
+fi
