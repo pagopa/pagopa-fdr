@@ -16,6 +16,7 @@ COPY --from=build ./ ./
 ENV PSP_SUBSCRIPTION_KEY "AT_RUNTIME"
 ENV ORG_SUBSCRIPTION_KEY "AT_RUNTIME"
 ENV TAGS "runnable"
+ENV ENV "dev"
 
 ENTRYPOINT ["sh", "run_test.sh"]
 

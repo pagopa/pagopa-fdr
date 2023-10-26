@@ -10,7 +10,6 @@ Feature: Check FdR published
   Background:
     Given systems up
 
-
   Scenario: Create FdR
     Given an unique FdR name named flow_name
     And an unique FdR date named flow_date
@@ -64,8 +63,8 @@ Feature: Check FdR published
     Then PSP receives the HTTP status code 200 to get_all_published request
     And PSP gets the FdR list containing flow_name as fdr in the response of get_all_published request
 
-@runnable
-Scenario: Delete FdR
-  Given the Check FdR published scenario executed successfully
-  When PSP sends del_flow request to fdr-microservice with None
-  Then PSP receives the HTTP status code 404 to del_flow request
+  @runnable
+  Scenario: Delete FdR
+    Given the Check FdR published scenario executed successfully
+    When PSP sends del_flow request to fdr-microservice with None
+    Then PSP receives the HTTP status code 404 to del_flow request

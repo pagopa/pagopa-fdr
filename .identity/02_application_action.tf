@@ -53,6 +53,12 @@ resource "azurerm_role_assignment" "environment_terraform_resource_group_dashboa
   principal_id         = module.github_runner_app.object_id
 }
 
+resource "azurerm_role_assignment" "environment_integration_test_storage_account" {
+  scope                = data.azurerm_storage_account.integration_test_storage_account.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = module.github_runner_app.object_id
+}
+
 resource "azurerm_role_assignment" "environment_key_vault" {
   scope                = data.azurerm_key_vault.key_vault.id
   role_definition_name = "Reader"
@@ -87,4 +93,10 @@ resource "azurerm_key_vault_access_policy" "ad_domain_kv_group_policy" {
   secret_permissions      = ["Get", "List"]
   storage_permissions     = []
   certificate_permissions = []
+}
+
+resource "azurerm_storage_container" "test-data-container" {
+  name                  = local.github.repository
+  storage_account_name  = data.azurerm_storage_account.integration_test_storage_account.name
+  container_access_type = "private"
 }

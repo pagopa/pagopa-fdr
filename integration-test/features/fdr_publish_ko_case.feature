@@ -1,4 +1,4 @@
-Feature: Check FdR published
+Feature: Verify ko of publish FdR
 #  Create a FdR
 #  Add 3 payments
 #  Publish FdR
