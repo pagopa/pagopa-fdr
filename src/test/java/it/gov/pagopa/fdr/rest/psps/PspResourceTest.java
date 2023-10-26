@@ -1,39 +1,14 @@
 package it.gov.pagopa.fdr.rest.psps;
 
-import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_2;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_DELETE_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
-import static it.gov.pagopa.fdr.test.util.TestUtil.FLOW_TEMPLATE;
-import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE;
-import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE_2;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
-import it.gov.pagopa.fdr.rest.model.GenericResponse;
-import it.gov.pagopa.fdr.rest.model.SenderTypeEnum;
+import it.gov.pagopa.fdr.rest.model.*;
+import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.rest.psps.response.GetAllCreatedResponse;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
@@ -41,11 +16,27 @@ import it.gov.pagopa.fdr.test.util.TestUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static io.restassured.RestAssured.given;
+import static io.smallrye.common.constraint.Assert.assertTrue;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
+import static it.gov.pagopa.fdr.test.util.TestUtil.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(MongoResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class PspResourceTest {
+
+  private static final String GET_FDR_CREATED_URL = "/psps/%s/created/fdrs/%s/organizations/%s";
+  private static final String GET_PAYMENTS_FDR_PUBLISHED_URL = "/psps/%s/published/fdrs/%s/revisions/%s/organizations/%s/payments";
+  private static final String GET_FDR_PUBLISHED_URL = "/psps/%s/published/fdrs/%s/revisions/%s/organizations/%s";
+  private static final String GET_ALL_FDR_CREATED_URL = "/psps/%s/created";
+  private static final String GET_PAYMENTS_FDR_CREATED_URL = "/psps/%s/created/fdrs/%s/organizations/%s/payments";
+
 
   protected static String PAYMENTS_SAME_INDEX_ADD_TEMPLATE =
       """
@@ -1116,7 +1107,7 @@ class PspResourceTest {
         .extract()
         .as(ErrorResponse.class);
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT.errorCode()));
-    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Fdr [2016-aa-16nodo-doc-dev-1176] has wrong date"))));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [2016-aa-16%s-1176] has wrong date", PSP_CODE)))));
   }
 
   @Test
@@ -1279,6 +1270,295 @@ class PspResourceTest {
         .as(ErrorResponse.class);
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT.errorCode()));
     assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Bad request. Json format not valid"))));
+  }
+
+
+
+
+
+  /** ############### getAllPublishedFlow ################ */
+  @Test
+  @DisplayName("PSPS - OK - getAllPublishedFlow")
+  void testOrganization_getAllPublishedFlow_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1, EC_CODE);
+    GetResponse res =
+            given()
+                    .header(HEADER)
+                    .when()
+                    .get(url)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .as(GetResponse.class);
+    assertThat(res.getTotPayments(), equalTo(3L));
+    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
+  }
+
+  @Test
+  @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow no results")
+  void test_psp_getAllPublishedFlow_OkNoResults() {
+    String flowName = TestUtil.getDynamicFlowName();
+
+    String urlPspFlow = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String bodyFmtPspFlow =
+            FLOW_TEMPLATE.formatted(
+                    flowName,
+                    SenderTypeEnumDto.LEGAL_PERSON.name(),
+                    PSP_CODE,
+                    BROKER_CODE,
+                    CHANNEL_CODE,
+                    EC_CODE);
+
+    GenericResponse resPspFlow =
+            given()
+                    .body(bodyFmtPspFlow)
+                    .header(HEADER)
+                    .when()
+                    .post(urlPspFlow)
+                    .then()
+                    .statusCode(201)
+                    .extract()
+                    .body()
+                    .as(GenericResponse.class);
+    assertThat(resPspFlow.getMessage(), equalTo(String.format("Fdr [%s] saved", flowName)));
+
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1, EC_CODE);
+    ErrorResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(404)
+            .extract()
+            .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0708 - psp unknown")
+  void test_psp_getAllPublishedFlow_KO_FDR0708() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    String pspUnknown = "PSP_UNKNOWN";
+    String url = GET_FDR_PUBLISHED_URL.formatted(pspUnknown, flowName, 1, EC_CODE);
+    ErrorResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(400)
+            .extract()
+            .as(ErrorResponse.class);
+    assertThat(res.getHttpStatusDescription(), equalTo("Bad Request"));
+    assertThat(res.getAppErrorCode(), equalTo("FDR-0708"));
+    assertThat(res.getErrors(), hasSize(1));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Psp [%s] unknown",pspUnknown)))));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0709 - psp not enabled")
+  void test_psp_getAllPublishedFlow_KO_FDR0709() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE_NOT_ENABLED, flowName, 1, EC_CODE);
+
+    ErrorResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(400)
+            .extract()
+            .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.PSP_NOT_ENABLED.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Psp [%s] not enabled".formatted(PSP_CODE_NOT_ENABLED)))));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0716 - creditor institution unknown")
+  void test_psp_getAllPublishedFlow_KO_FDR0716() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    String ecUnknown = "EC_UNKNOWN";
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1, ecUnknown);
+
+    ErrorResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(400)
+            .extract()
+            .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.EC_UNKNOWN.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Creditor institution [%s] unknown".formatted(ecUnknown)))));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0717 - creditor institution not enabled")
+  void test_psp_getAllPublishedFlow_KO_FDR0717() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1, EC_CODE_NOT_ENABLED);
+
+    ErrorResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(400)
+            .extract()
+            .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.EC_NOT_ENABLED.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("Creditor institution [%s] not enabled".formatted(EC_CODE_NOT_ENABLED)))));
+  }
+
+  /** ################# getReportingFlow ############### */
+  @Test
+  @DisplayName("PSPS - OK - recupero di un reporting flow")
+  void test_psp_getReportingFlow_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1L, EC_CODE);
+    GetResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetResponse.class);
+    assertThat(res.getFdr(), equalTo(flowName));
+    assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
+    assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
+    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
+    assertThat(res.getComputedTotPayments(), equalTo(3L));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - recupero di un reporting flow pubblicato alla revision 2")
+  void test_psp_getReportingFlow_revision_2_OK() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName);
+
+    String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 2L, EC_CODE);
+    GetResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetResponse.class);
+    assertThat(res.getFdr(), equalTo(flowName));
+    assertThat(res.getRevision(), equalTo(2L));
+    assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - nessun flusso trovato in stato CREATED per uno specifico PSP")
+  void test_psp_getAllReportingFlowCreated_OK() {
+    String url = (GET_ALL_FDR_CREATED_URL+"?page=2&size=1").formatted(PSP_CODE_3);
+
+    GetAllCreatedResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetAllCreatedResponse.class);
+    assertThat(res.getCount(), equalTo(0L));
+  }
+
+  /** ################# getReportingFlowPayments ############### */
+  @Test
+  @DisplayName("PSPS - OK - recupero dei payments di un flow pubblicato")
+  void test_psp_getReportingFlowPaymentsPublished_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+
+    String url = GET_PAYMENTS_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1L, EC_CODE);
+
+    GetPaymentResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetPaymentResponse.class);
+    assertThat(res.getCount(), equalTo(3L));
+    List expectedList = List.of(PaymentStatusEnum.EXECUTED.name(), PaymentStatusEnum.REVOKED.name(), PaymentStatusEnum.NO_RPT.name());
+    assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
+            equalTo(expectedList));
+    assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
+            containsInAnyOrder(expectedList.toArray()));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - recupero dei flow created")
+  void test_psp_getReportingFlows_created_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    String urlPspFlow = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String bodyFmtPspFlow =
+            FLOW_TEMPLATE.formatted(
+                    flowName,
+                    SenderTypeEnumDto.LEGAL_PERSON.name(),
+                    PSP_CODE,
+                    BROKER_CODE,
+                    CHANNEL_CODE,
+                    EC_CODE);
+
+    GenericResponse resPspFlow =
+            given()
+                    .body(bodyFmtPspFlow)
+                    .header(HEADER)
+                    .when()
+                    .post(urlPspFlow)
+                    .then()
+                    .statusCode(201)
+                    .extract()
+                    .body()
+                    .as(GenericResponse.class);
+    assertThat(resPspFlow.getMessage(), equalTo(String.format("Fdr [%s] saved", flowName)));
+
+    String url = (GET_ALL_FDR_CREATED_URL).formatted(PSP_CODE);
+    GetAllCreatedResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetAllCreatedResponse.class);
+
+    assertThat(res.getCount(), greaterThan(0L));
+//    assertThat(res.getData(), contains(hasProperty("fdr", is(flowName))));
+    assertTrue(res.getData().stream().anyMatch(item -> item.getFdr().equals(flowName)));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - recupero dei payments di un flow creato")
+  void test_psp_getReportingFlowPayments_created_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+
+    String url = (GET_PAYMENTS_FDR_CREATED_URL).formatted(PSP_CODE, flowName, EC_CODE);
+    GetPaymentResponse res = given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GetPaymentResponse.class);
+    List<Payment> data = res.getData();
+
+    assertThat(res.getCount(), equalTo(0L));
   }
 
 

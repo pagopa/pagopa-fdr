@@ -10,7 +10,7 @@ public class FdrSimpleCreatedDto {
 
   private String fdr;
 
-  private String pspId;
+  private String organizationId;
 
   private Long revision;
 

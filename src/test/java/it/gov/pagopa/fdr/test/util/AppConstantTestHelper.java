@@ -11,17 +11,19 @@ public class AppConstantTestHelper {
   public static final String PAYMENTS_DELETE_URL = "/psps/%s/fdrs/%s/payments/del";
 
   public static final String REPORTING_FLOW_NAME_PSP_WRONG_FORMAT = "2016-08-16-psp-1176";
-  public static final String REPORTING_FLOW_NAME_DATE_WRONG_FORMAT = "2016-aa-16nodo-doc-dev-1176";
-  public static final String PSP_CODE = "nodo-doc-dev";
-  public static final String PSP_CODE_2 = "pspTest2";
-  public static final String PSP_CODE_NOT_ENABLED = "pspNotEnabled";
-  public static final String BROKER_CODE = "nodo-doc-dev";
-  public static final String BROKER_CODE_2 = "intTest2";
-  public static final String BROKER_CODE_NOT_ENABLED = "intNotEnabled";
-  public static final String CHANNEL_CODE = "nodo-doc-dev";
-  public static final String CHANNEL_CODE_NOT_ENABLED = "canaleNotEnabled";
-  public static final String EC_CODE = "00000000099";
-  public static final String EC_CODE_NOT_ENABLED = "00987654321";
+  public static final String REPORTING_FLOW_NAME_DATE_WRONG_FORMAT = "2016-aa-1660000000001-1176";
+  public static final String PSP_CODE = "60000000001";
+  public static final String PSP_CODE_2 = "idPsp1";
+  public static final String PSP_CODE_3 = "idPsp2";
+  public static final String PSP_CODE_NOT_ENABLED = "NOT_ENABLED";
+  public static final String BROKER_CODE = "60000000001";
+  public static final String BROKER_CODE_2 = "INTPSPtest1";
+  public static final String BROKER_CODE_NOT_ENABLED = "INT_NOT_ENABLED";
+  public static final String CHANNEL_CODE = "15376371009_04";
+  public static final String CHANNEL_CODE_NOT_ENABLED = "CANALE_NOT_ENABLED";
+  public static final String EC_CODE = "15376371009";
+  public static final String EC_CODE_NOT_ENABLED = "PAtestDOFF";
+  public static final String EC_CODE_NDP = "ndp";
 
   public static final Header HEADER = new Header("Content-Type", "application/json");
 }
