@@ -68,7 +68,7 @@ jobs:
         with:
           inlineScript: |
             az storage blob download-batch \
-            --destination "./integration-test/reports"
+            --destination "./integration-test/reports" \
             --source "${{ env.STORAGE_FOLDER }}" \
             --account-name "${{ env.STORAGE_NAME }}" \
             --subscription "${{ secrets.SUBSCRIPTION_ID }}" \
