@@ -31,7 +31,7 @@ fi
 if [ -z $JUNIT ]
 then
   junit=""
-elif
+else
   junit="--junit-directory=junit --junit"
 fi
 
