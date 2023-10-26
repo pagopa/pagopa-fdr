@@ -55,7 +55,7 @@ resource "azurerm_role_assignment" "environment_terraform_resource_group_dashboa
 
 resource "azurerm_role_assignment" "environment_integration_test_storage_account" {
   scope                = data.azurerm_storage_account.integration_test_storage_account.id
-  role_definition_name = "Contributor"
+  role_definition_name = "Storage Blob Data Contributor"
   principal_id         = module.github_runner_app.object_id
 }
 
