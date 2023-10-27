@@ -55,6 +55,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p ./integration-test/reports
+          mkdir -p ./integration-test/junit
 
       - name: Login
         id: login
@@ -108,7 +109,7 @@ jobs:
               --auth-mode login
 
       - name: Upload junit
-        if: ${{ inputs.junit }}
+        if: ${{ inputs.junit == true }}
         uses: azure/CLI@v1
         env:
           STORAGE_NAME: ${{ vars.INTEGRATION_TEST_STORAGE_ACCOUNT_NAME }}
