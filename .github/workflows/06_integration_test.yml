@@ -21,7 +21,10 @@ on:
       junit:
         description: 'enable junit'
         required: false
-        type: string
+        type: choice
+        options:
+          - true
+          - false
         default: false
 #      canary:
 #        description: 'run the tests on canary version'
