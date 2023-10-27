@@ -18,6 +18,11 @@ on:
         required: false
         type: string
         default: 'runnable'
+      junit:
+        description: 'enable junit'
+        required: false
+        type: string
+        default: false
 #      canary:
 #        description: 'run the tests on canary version'
 #        required: false
@@ -95,12 +100,28 @@ jobs:
         with:
           inlineScript: |
             az storage blob upload-batch \
-              --overwrite true \ 
+              --destination '${{ env.STORAGE_FOLDER }}/reports' \
+              --source ./integration-test/reports \
               --account-name ${{ env.STORAGE_NAME }} \
               --subscription ${{ secrets.SUBSCRIPTION_ID }} \
-              --auth-mode login \
-              --source ./integration-test/reports \
-              --destination '${{ env.STORAGE_FOLDER }}/reports' 
+              --overwrite true \
+              --auth-mode login
+
+      - name: Upload junit
+        if: ${{ inputs.junit }}
+        uses: azure/CLI@v1
+        env:
+          STORAGE_NAME: ${{ vars.INTEGRATION_TEST_STORAGE_ACCOUNT_NAME }}
+          STORAGE_FOLDER: ${{ vars.INTEGRATION_TEST_REPORTS_FOLDER }}
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination '${{ env.STORAGE_FOLDER }}/junit' \
+              --source ./integration-test/junit \
+              --account-name ${{ env.STORAGE_NAME }} \
+              --subscription ${{ secrets.SUBSCRIPTION_ID }} \
+              --overwrite true \
+              --auth-mode login                      
 
   notify:
     needs: [ integration_test ]

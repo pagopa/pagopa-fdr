@@ -98,5 +98,5 @@ resource "azurerm_key_vault_access_policy" "ad_domain_kv_group_policy" {
 resource "azurerm_storage_container" "test-data-container" {
   name                  = local.github.repository
   storage_account_name  = data.azurerm_storage_account.integration_test_storage_account.name
-  container_access_type = "private"
+  container_access_type = "blob"
 }
