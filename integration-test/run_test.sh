@@ -18,18 +18,6 @@ then
   TAGS="runnable"
 fi
 
-if [ -z $PSP_SUBSCRIPTION_KEY ]
-then
-  echo "PSP_SUBSCRIPTION_KEY not set"
-  exit 1
-fi
-
-if [ -z $ORG_SUBSCRIPTION_KEY ]
-then
-  echo "ORG_SUBSCRIPTION_KEY not set"
-  exit 1
-fi
-
 if [ -z $JUNIT ]
 then
   junit=""

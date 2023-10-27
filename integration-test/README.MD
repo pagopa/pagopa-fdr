@@ -1,28 +1,37 @@
 # Integration Tests
 
-👀 Integration tests are in `integration-test/src/` folder. See there for more information.
+👀 Integration tests are configured as:
+- `config` folder contains configuration files;
+- `featurs` folder contains feature description files;
+- `stesp` folder contains code files;
 
-## How run on Docker 🐳
-
-To run the integration tests on docker, you can run from this directory the script:
-
-``` shell
-sh ./run_integration_test.sh <local|dev|uat|prod>
-```
-
-ℹ️ _Note_: for **PagoPa ACR** is **required** the login `az acr login -n <acr-name>`
-
-If you use dev, uat or prod **you test the images on Azure ACR**
+See there for more information.
 
 ---
-💻 If you want to test your local branch,
+### ☁️ Pipeline execution
+Launch the `integration-test` GitHub Action to execute remotely.
+The reports will be published here:
+
+🔗
+
+---
+### 💻 Local execution
+If you want to test your local branch, you should change configuration.
 
 ``` shell
-sh ./run_integration_test.sh local
+sh run_test.sh
 ```
 
+ℹ️ Set in your environment:
+- `PSP_SUBSCRIPTION_KEY` to set the subscription-key for `fdr-psp`;
+- `ORG_SUBSCRIPTION_KEY` to set the subscription-key for `fdr-org`;
+- `TAGS` to customize test you want execute. Default `runnable`;
+- `JUNIT=true` to execute _behave_ with the junit option;
 
 
-# is used for global variables
-$ is used for local variables
+#### Things to know
+In the feature, you can use the following keyword to annotate a specific variable in the text of a step:
+- `#` is used for global variables
+- `$` is used for local variables
+These variables will assume the related values at runtime.
 
