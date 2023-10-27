@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.0.4
+    tag: 1.0.4-1-cronjob_refresh
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -90,7 +90,6 @@ microservice-chart:
     path: /pagopa-fdr-service(/|$)(.*)
   canaryDelivery:
     create: false
-
 cj-refresh-configuration:
   namespace: "fdr"
   schedule: "28 * * * *"
@@ -100,16 +99,7 @@ cj-refresh-configuration:
     pullPolicy: "Always"
   command: ["/bin/sh", "-c"]
   args:
-    - set -e 
-      echo "Starting...";
-      export URL="http://cache-oracle.apiconfig.svc.cluster.local:8080/stakeholders/fdr/cache/schemas/v1?refresh=true&keys=creditorInstitutions,creditorInstitutionBrokers,stations,creditorInstitutionStations,psps,pspBrokers,channels,ftpServers,configurations,gdeConfigurations,paymentTypes,pspChannelPaymentTypes"; 
-      echo "Call $URL"; 
-      curl -m 300 $URL; 
-      echo "Done";"
-      export URL="http://cache-postgresql.apiconfig.svc.cluster.local:8080/stakeholders/fdr/cache/schemas/v1?refresh=true&keys=creditorInstitutions,creditorInstitutionBrokers,stations,creditorInstitutionStations,psps,pspBrokers,channels,ftpServers,configurations,gdeConfigurations,paymentTypes,pspChannelPaymentTypes";
-      echo "Call $URL";
-      curl -m 300 $URL;
-      echo "Done";"
+    - set -e echo "Starting..."; export URL="http://cache-oracle.apiconfig.svc.cluster.local:8080/stakeholders/fdr/cache/schemas/v1?refresh=true&keys=creditorInstitutions,creditorInstitutionBrokers,stations,creditorInstitutionStations,psps,pspBrokers,channels,ftpServers,configurations,gdeConfigurations,paymentTypes,pspChannelPaymentTypes"; echo "Call $URL"; curl -m 300 $URL; echo "Done";" export URL="http://cache-postgresql.apiconfig.svc.cluster.local:8080/stakeholders/fdr/cache/schemas/v1?refresh=true&keys=creditorInstitutions,creditorInstitutionBrokers,stations,creditorInstitutionStations,psps,pspBrokers,channels,ftpServers,configurations,gdeConfigurations,paymentTypes,pspChannelPaymentTypes"; echo "Call $URL"; curl -m 300 $URL; echo "Done";"
   resources:
     requests:
       memory: "256Mi"
