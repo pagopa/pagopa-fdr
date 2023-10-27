@@ -104,7 +104,7 @@ cj-refresh-configuration:
       export URL="http://cache-oracle.apiconfig.svc.cluster.local:8080/stakeholders/fdr/cache/schemas/v1?refresh=true&keys=creditorInstitutions,creditorInstitutionBrokers,stations,creditorInstitutionStations,psps,pspBrokers,channels,ftpServers,configurations,gdeConfigurations,paymentTypes,pspChannelPaymentTypes";
       echo "Call $URL";
       curl -m 300 $URL;
-      echo "Done";"
+      echo "Done";
   resources:
     requests:
       memory: "256Mi"
