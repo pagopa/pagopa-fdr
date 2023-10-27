@@ -93,7 +93,7 @@ microservice-chart:
 
 cj-refresh-configuration:
   namespace: "fdr"
-  schedule: "28 * * * *"
+  schedule: "0 0 * * *"
   image:
     repository: "curlimages/curl"
     tag: "latest"
