@@ -97,9 +97,14 @@ cj-refresh-configuration:
     repository: "curlimages/curl"
     tag: "latest"
     pullPolicy: "Always"
-  command: ["/bin/sh", "-c"]
+  command: [ "/bin/sh", "-c" ]
   args:
-    - set -e echo "Starting..."; export URL="http://cache-oracle.apiconfig.svc.cluster.local:8080/stakeholders/fdr/cache/schemas/v1?refresh=true&keys=creditorInstitutions,creditorInstitutionBrokers,stations,creditorInstitutionStations,psps,pspBrokers,channels,ftpServers,configurations,gdeConfigurations,paymentTypes,pspChannelPaymentTypes"; echo "Call $URL"; curl -m 300 $URL; echo "Done";" export URL="http://cache-postgresql.apiconfig.svc.cluster.local:8080/stakeholders/fdr/cache/schemas/v1?refresh=true&keys=creditorInstitutions,creditorInstitutionBrokers,stations,creditorInstitutionStations,psps,pspBrokers,channels,ftpServers,configurations,gdeConfigurations,paymentTypes,pspChannelPaymentTypes"; echo "Call $URL"; curl -m 300 $URL; echo "Done";"
+    - set -e
+      echo "Refreshing ORACLE cache...";
+      export URL="http://cache-oracle.apiconfig.svc.cluster.local:8080/stakeholders/fdr/cache/schemas/v1?refresh=true&keys=creditorInstitutions,creditorInstitutionBrokers,stations,creditorInstitutionStations,psps,pspBrokers,channels,ftpServers,configurations,gdeConfigurations,paymentTypes,pspChannelPaymentTypes";
+      echo "Call $URL";
+      curl -m 300 $URL;
+      echo "Done";"
   resources:
     requests:
       memory: "256Mi"
