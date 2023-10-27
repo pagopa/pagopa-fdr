@@ -32,11 +32,15 @@ locals {
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "DOMAIN" : local.domain,
     "NAMESPACE" : local.domain,
+    "INTEGRATION_TEST_STORAGE_ACCOUNT_NAME": local.integration_test.storage_account_name
+    "INTEGRATION_TEST_REPORTS_FOLDER": local.integration_test.reports_folder
   }
   repo_secrets = {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
     "SLACK_WEBHOOK_URL": data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
+    "PSP_SUBSCRIPTION_KEY": data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value
+    "ORG_SUBSCRIPTION_KEY": data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value
   }
 }
 

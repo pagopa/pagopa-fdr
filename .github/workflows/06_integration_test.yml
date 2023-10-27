@@ -18,6 +18,14 @@ on:
         required: false
         type: string
         default: 'runnable'
+      junit:
+        description: 'enable junit'
+        required: false
+        type: choice
+        options:
+          - true
+          - false
+        default: false
 #      canary:
 #        description: 'run the tests on canary version'
 #        required: false
@@ -46,6 +54,12 @@ jobs:
         id: checkout
         uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
 
+      - name: Create reports folder
+        shell: bash
+        run: |
+          mkdir -p ./integration-test/reports
+          mkdir -p ./integration-test/junit
+
       - name: Login
         id: login
         # from https://github.com/Azure/login/commits/master
@@ -58,31 +72,60 @@ jobs:
       - name: Download old reports
         uses: azure/CLI@v1
         env:
-          STORAGE_NAME: pagopadweusharedtxnmsa
-          STORAGE_FOLDER: testfrancesco
+          STORAGE_NAME: ${{ vars.INTEGRATION_TEST_STORAGE_ACCOUNT_NAME }}
+          STORAGE_FOLDER: ${{ vars.INTEGRATION_TEST_REPORTS_FOLDER }}
         with:
           inlineScript: |
-            az storage blob download-batch -d reports -s '${{ env.STORAGE_FOLDER }}' --account-name ${{ env.STORAGE_NAME }} --auth-mode key
+            az storage blob download-batch \
+            --destination "./integration-test/reports" \
+            --source "${{ env.STORAGE_FOLDER }}" \
+            --account-name "${{ env.STORAGE_NAME }}" \
+            --subscription "${{ secrets.SUBSCRIPTION_ID }}" \
+            --pattern "reports/*" \
+            --auth-mode login
 
-#      - name: Run Integration Tests
-#        shell: bash
-#        run: |
-#          export PSP_SUBSCRIPTION_KEY=${{ secrets.PSP_SUBSCRIPTION_KEY }}
-#          export ORG_SUBSCRIPTION_KEY=${{ secrets.ORG_SUBSCRIPTION_KEY }}
-#          export TAGS=${{ inputs.tags }}
-#
-#          cd ./integration-test
-#          chmod +x ./run_test.sh
-#          ./run_test.sh ${{( github.event.inputs == null && 'dev') || inputs.environment }}
+      - name: Run Integration Tests
+        shell: bash
+        run: |
+          cd ./integration-test
+          docker build -t fdr3_test .
+          docker run \
+          -e PSP_SUBSCRIPTION_KEY="${{ secrets.PSP_SUBSCRIPTION_KEY }}" \
+          -e ORG_SUBSCRIPTION_KEY="${{ secrets.ORG_SUBSCRIPTION_KEY }}" \
+          -e TAGS="${{ inputs.tags }}" \
+          -e ENV="${{( github.event.inputs == null && 'dev') || inputs.environment }}" \
+          -v  ./reports:/app/reports fdr3_test
 
       - name: Upload reports
         uses: azure/CLI@v1
         env:
-          STORAGE_NAME: pagopadweusharedtxnmsa
-          STORAGE_FOLDER: testfrancesco
+          STORAGE_NAME: ${{ vars.INTEGRATION_TEST_STORAGE_ACCOUNT_NAME }}
+          STORAGE_FOLDER: ${{ vars.INTEGRATION_TEST_REPORTS_FOLDER }}
         with:
           inlineScript: |
-            az storage blob upload-batch --overwrite true --account-name ${{ env.STORAGE_NAME }} --auth-mode key -d '${{ env.STORAGE_FOLDER }}' -s reports
+            az storage blob upload-batch \
+              --destination '${{ env.STORAGE_FOLDER }}/reports' \
+              --source ./integration-test/reports \
+              --account-name ${{ env.STORAGE_NAME }} \
+              --subscription ${{ secrets.SUBSCRIPTION_ID }} \
+              --overwrite true \
+              --auth-mode login
+
+      - name: Upload junit
+        if: ${{ inputs.junit == true }}
+        uses: azure/CLI@v1
+        env:
+          STORAGE_NAME: ${{ vars.INTEGRATION_TEST_STORAGE_ACCOUNT_NAME }}
+          STORAGE_FOLDER: ${{ vars.INTEGRATION_TEST_REPORTS_FOLDER }}
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --destination '${{ env.STORAGE_FOLDER }}/junit' \
+              --source ./integration-test/junit \
+              --account-name ${{ env.STORAGE_NAME }} \
+              --subscription ${{ secrets.SUBSCRIPTION_ID }} \
+              --overwrite true \
+              --auth-mode login                      
 
   notify:
     needs: [ integration_test ]
