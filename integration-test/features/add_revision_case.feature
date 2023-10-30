@@ -68,9 +68,9 @@ Feature: Verify revision workflow
   Scenario: Check revision after first publish
     Given the Publish FdR scenario executed successfully
     And the FdR revision is 1
-    When PSP sends get_published request to fdr-microservice with None
-    Then PSP receives the HTTP status code 200 to get_published request
-    And PSP receives revision 1 in the response of get_published request
+    When PSP sends get_published_psp request to fdr-microservice with None
+    Then PSP receives the HTTP status code 200 to get_published_psp request
+    And PSP receives revision 1 in the response of get_published_psp request
 
 
   Scenario: Create the same FdR
@@ -130,10 +130,10 @@ Feature: Verify revision workflow
   Scenario: Check revision after second publish
     Given the Publish FdR revision 2 scenario executed successfully
     And the FdR revision is 2
-    When PSP sends get_published request to fdr-microservice with None
-    Then PSP receives the HTTP status code 200 to get_published request
-    And PSP receives revision 2 in the response of get_published request
-    And PSP receives totPayments 2 in the response of get_published request
+    When PSP sends get_published_psp request to fdr-microservice with None
+    Then PSP receives the HTTP status code 200 to get_published_psp request
+    And PSP receives revision 2 in the response of get_published_psp request
+    And PSP receives totPayments 2 in the response of get_published_psp request
 
 
   Scenario: Create revision 3

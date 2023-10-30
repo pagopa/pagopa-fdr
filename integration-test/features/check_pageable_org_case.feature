@@ -62,9 +62,9 @@ Feature: Check pageable ORG
     And Organization adds yesterday as createdGt in query_params
     And Organization adds 1 as page in query_params
     And Organization adds 1 as size in query_params
-    When Organization sends get_all_published request to fdr-microservice with None
-    Then Organization receives the HTTP status code 200 to get_all_published request
-    And Organization receives page 1 with 1 entries as response of get_all_published request
+    When Organization sends get_published_org request to fdr-microservice with None
+    Then Organization receives the HTTP status code 200 to get_published_org request
+    And Organization receives page 1 with 1 entries as response of get_published_org request
 
   @runnable
   Scenario: Check published FdR pagination 2
@@ -73,9 +73,9 @@ Feature: Check pageable ORG
     And Organization adds yesterday as createdGt in query_params
     And Organization adds 2 as page in query_params
     And Organization adds 1 as size in query_params
-    When Organization sends get_all_published request to fdr-microservice with None
-    Then Organization receives the HTTP status code 200 to get_all_published request
-    And Organization receives page 2 with 1 entries as response of get_all_published request
+    When Organization sends get_published_org request to fdr-microservice with None
+    Then Organization receives the HTTP status code 200 to get_published_org request
+    And Organization receives page 2 with 1 entries as response of get_published_org request
 
   @runnable
   Scenario: Check published payments pagination 1

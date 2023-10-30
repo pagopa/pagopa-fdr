@@ -83,11 +83,15 @@ def get_fdr_url(request_type=""):
             "method": "GET"
         },
         "created_fdr": {
-            "endpoint": "/psps/#psp#/fdrs/$flow_name$",
+            "endpoint": "/psps/#psp#/created/fdrs/$flow_name$/organizations/#organization#",
             "method": "GET"
         },
-        "get_published": {
-            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#",
+        "get_published_psp": {
+            "endpoint": "/psps/#psp#/published/fdrs/$flow_name$/revisions/$revision$/organizations/#organization#",
+            "method": "GET"
+        },
+        "get_published_org": {
+            "endpoint": "/organizations/#organization#/fdrs",
             "method": "GET"
         },
         "get_payments": {
@@ -95,7 +99,7 @@ def get_fdr_url(request_type=""):
             "method": "GET"
         },
         "get_all_published": {
-            "endpoint": "/organizations/#organization#/fdrs",
+            "endpoint": "/psps/#psp#/published",
             "method": "GET"
         },
         "get_all_published_by_psp": {
@@ -103,7 +107,7 @@ def get_fdr_url(request_type=""):
             "method": "GET"
         },
         "get_all_created": {
-            "endpoint": "/psps/#psp#",
+            "endpoint": "/psps/#psp#/created",
             "method": "GET"
         }
     }

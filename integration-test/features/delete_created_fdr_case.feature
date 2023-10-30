@@ -56,7 +56,7 @@ Scenario: Delete FdR
 @runnable
 Scenario: Check FdR deletion
   Given the Delete FdR scenario executed successfully
-  And the psp configuration as pspId in query_params
+  And the organization configuration as organizationId in query_params
   And the psp configuration as flow_name in query_params
   When PSP sends get_all_published request to fdr-microservice with None
   Then PSP receives the HTTP status code 200 to get_all_published request
