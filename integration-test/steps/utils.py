@@ -79,7 +79,7 @@ def get_fdr_url(request_type=""):
             "method": "POST"
         },
         "created_payments": {
-            "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments",
+            "endpoint": "/psps/#psp#/created/fdrs/$flow_name$/organizations/#organization#/payments",
             "method": "GET"
         },
         "created_fdr": {
