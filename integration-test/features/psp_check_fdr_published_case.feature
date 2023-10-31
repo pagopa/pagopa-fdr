@@ -57,14 +57,19 @@ Feature: Check FdR published
 
   Scenario: Check FdR published
     Given the Publish FdR scenario executed successfully
-    And the organization configuration as organizationId in query_params
-    And PSP adds flow_date as publishedGt in query_params
-    When PSP sends get_all_published request to fdr-microservice with None
-    Then PSP receives the HTTP status code 200 to get_all_published request
-    And PSP gets the FdR list containing flow_name as fdr in the response of get_all_published request
+    And the FdR revision is 1
+    When PSP sends psp_get_published_fdr request to fdr-microservice with None
+    Then PSP receives the HTTP status code 200 to psp_get_published_fdr request
+
+  Scenario: Check published FdR payments
+    Given the Check FdR published scenario executed successfully
+    And the FdR revision is 1
+    When PSP sends psp_get_published_payments request to fdr-microservice with None
+    Then PSP receives the HTTP status code 200 to psp_get_published_payments request
+    And PSP gets a list containing 3 counts of payments as a response of psp_get_published_payments request
 
   @runnable
   Scenario: Delete FdR
-    Given the Check FdR published scenario executed successfully
+    Given the Check published FdR payments scenario executed successfully
     When PSP sends del_flow request to fdr-microservice with None
     Then PSP receives the HTTP status code 404 to del_flow request

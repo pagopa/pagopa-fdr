@@ -86,23 +86,31 @@ def get_fdr_url(request_type=""):
             "endpoint": "/psps/#psp#/created/fdrs/$flow_name$/organizations/#organization#",
             "method": "GET"
         },
-        "get_published_psp": {
+        "psp_get_published_payments": {
+            "endpoint": "/psps/#psp#/published/fdrs/$flow_name$/revisions/$revision$/organizations/#organization#/payments",
+            "method": "GET"
+        },
+        "psp_get_published_fdr": {
             "endpoint": "/psps/#psp#/published/fdrs/$flow_name$/revisions/$revision$/organizations/#organization#",
             "method": "GET"
         },
-        "get_published_org": {
+        "org_get_all_published_fdr": {
             "endpoint": "/organizations/#organization#/fdrs",
             "method": "GET"
         },
-        "get_payments": {
+        "org_get_published_fdr": {
+            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#",
+            "method": "GET"
+        },
+        "org_get_payments": {
             "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#/payments",
             "method": "GET"
         },
-        "get_all_published": {
+        "psp_get_all_published_fdr": {
             "endpoint": "/psps/#psp#/published",
             "method": "GET"
         },
-        "get_all_published_by_psp": {
+        "org_get_all_published_fdr_by_psp": {
             "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
             "method": "GET"
         },

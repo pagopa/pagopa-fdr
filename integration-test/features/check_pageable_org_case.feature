@@ -62,9 +62,9 @@ Feature: Check pageable ORG
     And Organization adds yesterday as createdGt in query_params
     And Organization adds 1 as page in query_params
     And Organization adds 1 as size in query_params
-    When Organization sends get_published_org request to fdr-microservice with None
-    Then Organization receives the HTTP status code 200 to get_published_org request
-    And Organization receives page 1 with 1 entries as response of get_published_org request
+    When Organization sends org_get_all_published_fdr request to fdr-microservice with None
+    Then Organization receives the HTTP status code 200 to org_get_all_published_fdr request
+    And Organization receives page 1 with 1 entries as response of org_get_all_published_fdr request
 
   @runnable
   Scenario: Check published FdR pagination 2
@@ -73,9 +73,9 @@ Feature: Check pageable ORG
     And Organization adds yesterday as createdGt in query_params
     And Organization adds 2 as page in query_params
     And Organization adds 1 as size in query_params
-    When Organization sends get_published_org request to fdr-microservice with None
-    Then Organization receives the HTTP status code 200 to get_published_org request
-    And Organization receives page 2 with 1 entries as response of get_published_org request
+    When Organization sends org_get_all_published_fdr request to fdr-microservice with None
+    Then Organization receives the HTTP status code 200 to org_get_all_published_fdr request
+    And Organization receives page 2 with 1 entries as response of org_get_all_published_fdr request
 
   @runnable
   Scenario: Check published payments pagination 1
@@ -84,9 +84,9 @@ Feature: Check pageable ORG
     And Organization adds 1 as page in query_params
     And Organization adds 99 as size in query_params
     And the FdR revision is 1
-    When Organization sends get_payments request to fdr-microservice with None
-    Then Organization receives the HTTP status code 200 to get_payments request
-    And Organization receives page 1 with 99 entries as response of get_payments request
+    When Organization sends org_get_payments request to fdr-microservice with None
+    Then Organization receives the HTTP status code 200 to org_get_payments request
+    And Organization receives page 1 with 99 entries as response of org_get_payments request
 
   @runnable
   Scenario: Check published payments pagination 2
@@ -95,6 +95,6 @@ Feature: Check pageable ORG
     And Organization adds 2 as page in query_params
     And Organization adds 1 as size in query_params
     And the FdR revision is 1
-    When Organization sends get_payments request to fdr-microservice with None
-    Then Organization receives the HTTP status code 200 to get_payments request
-    And Organization receives page 2 with 1 entries as response of get_payments request
+    When Organization sends org_get_payments request to fdr-microservice with None
+    Then Organization receives the HTTP status code 200 to org_get_payments request
+    And Organization receives page 2 with 1 entries as response of org_get_payments request
