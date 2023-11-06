@@ -114,7 +114,6 @@ Feature: Check pageable PSP
     Given the Publish FdR scenario executed successfully
     And the FdR revision is 1
     And the psp configuration as pspId in query_params
-    And the psp configuration as pspId in query_params
     And the organization configuration as organizationId in query_params
     And PSP adds yesterday as publishedGt in query_params
     And PSP adds <page_number> as page in query_params
