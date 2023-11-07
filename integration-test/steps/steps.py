@@ -215,6 +215,11 @@ def step_impl(context, field_value, field_key, request_type):
             break
     assert result
 
+@then('{partner} gets a list containing {number} counts of {element} as a response of {request_type} request')
+def step_impl(context, partner, number, element, request_type):
+    count = json.loads(getattr(context, request_type + RESPONSE).content)['count']
+    assert int(count) == int(number)
+
 
 @then('Organization receives all FdR with {field_name} {operation} {field_value} '
       'in the response of {request_type} request')

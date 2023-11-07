@@ -79,31 +79,43 @@ def get_fdr_url(request_type=""):
             "method": "POST"
         },
         "created_payments": {
-            "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments",
+            "endpoint": "/psps/#psp#/created/fdrs/$flow_name$/organizations/#organization#/payments",
             "method": "GET"
         },
         "created_fdr": {
-            "endpoint": "/psps/#psp#/fdrs/$flow_name$",
+            "endpoint": "/psps/#psp#/created/fdrs/$flow_name$/organizations/#organization#",
             "method": "GET"
         },
-        "get_published": {
-            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#",
+        "psp_get_published_payments": {
+            "endpoint": "/psps/#psp#/published/fdrs/$flow_name$/revisions/$revision$/organizations/#organization#/payments",
             "method": "GET"
         },
-        "get_payments": {
-            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#/payments",
+        "psp_get_published_fdr": {
+            "endpoint": "/psps/#psp#/published/fdrs/$flow_name$/revisions/$revision$/organizations/#organization#",
             "method": "GET"
         },
-        "get_all_published": {
+        "org_get_all_published_fdr": {
             "endpoint": "/organizations/#organization#/fdrs",
             "method": "GET"
         },
-        "get_all_published_by_psp": {
+        "org_get_published_fdr": {
+            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#",
+            "method": "GET"
+        },
+        "org_get_payments": {
+            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#/payments",
+            "method": "GET"
+        },
+        "psp_get_all_published_fdr": {
+            "endpoint": "/psps/#psp#/published",
+            "method": "GET"
+        },
+        "org_get_all_published_fdr_by_psp": {
             "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
             "method": "GET"
         },
         "get_all_created": {
-            "endpoint": "/psps/#psp#",
+            "endpoint": "/psps/#psp#/created",
             "method": "GET"
         }
     }
