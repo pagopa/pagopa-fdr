@@ -86,11 +86,11 @@ public class FdrPaymentInsertEntity extends PanacheMongoEntity {
     persist(fdrPaymentInsertEntityList);
   }
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspIdSort(
-      String fdr, String pspId, Sort sort) {
+  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspIAndOrganizationIdSort(
+      String fdr, String pspId, String organizationId, Sort sort) {
     return find(
-        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId",
+        "ref_fdr = :fdr and ref_fdr_sender_psp_id = :pspId and ref_fdr_receiver_organization_id = :organizationId",
         sort,
-        Parameters.with("fdr", fdr).and("pspId", pspId).map());
+        Parameters.with("fdr", fdr).and("pspId", pspId).and("organizationId", organizationId).map());
   }
 }

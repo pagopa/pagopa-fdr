@@ -3,33 +3,35 @@ package it.gov.pagopa.fdr.rest.psps;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
+import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.response.GetAllCreatedResponse;
+import it.gov.pagopa.fdr.rest.psps.response.GetAllPublishedResponse;
 import it.gov.pagopa.fdr.rest.psps.response.GetCreatedResponse;
 import it.gov.pagopa.fdr.rest.psps.validation.InternalPspValidationService;
 import it.gov.pagopa.fdr.rest.psps.validation.PspsValidationService;
-import it.gov.pagopa.fdr.service.dto.FdrAllCreatedDto;
-import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
-import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
+import it.gov.pagopa.fdr.service.dto.*;
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response.Status;
-import java.time.Instant;
 import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
-import org.jboss.logging.MDC;
+
+import java.time.Instant;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 public abstract class BasePspResource {
 
   public static final String S_BY_PSP_S_WITH_FDR_S = "%s by psp:[%s] with fdr:[%s]";
+
 
   @Inject Logger log;
 
@@ -178,31 +180,33 @@ public abstract class BasePspResource {
     return mapper.toGetAllResponse(fdrAllDto);
   }
 
-  protected GetCreatedResponse baseGetCreated(String fdr, String psp) {
+    protected GetCreatedResponse baseGetCreated(String fdr, String psp, String organizationId) {
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
+    MDC.put(ORGANIZATION_ID, organizationId);
 
     log.infof(AppMessageUtil.logProcess("%s by fdr=[%s], psp=[%s]"), action, fdr, psp);
 
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    internalValidator.validateGetInternal(action, fdr, psp, configData);
+    internalValidator.validateGetInternal(action, fdr, psp, organizationId, configData);
 
     // get from db
-    FdrGetCreatedDto fdrGetDto = service.findByReportingFlowName(action, fdr, psp);
+    FdrGetCreatedDto fdrGetDto = service.findByReportingFlowName(action, fdr, psp, organizationId);
 
     return mapper.toGetCreatedResponse(fdrGetDto);
   }
 
   protected GetPaymentResponse baseGetCreatedFdrPayment(
-      String fdr, String psp, long pageNumber, long pageSize) {
+      String fdr, String psp, String organizationId, long pageNumber, long pageSize) {
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
+    MDC.put(ORGANIZATION_ID, organizationId);
 
     log.infof(
         AppMessageUtil.logProcess("%s with id:[%s] - page:[%s], pageSize:[%s]"),
@@ -213,11 +217,107 @@ public abstract class BasePspResource {
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    internalValidator.validateGetPaymentInternal(action, fdr, psp, configData);
+    internalValidator.validateGetPaymentInternal(action, fdr, psp, organizationId, configData);
 
     // get from db
     FdrGetPaymentDto fdrGetPaymentDto =
-        service.findPaymentByReportingFlowName(action, fdr, psp, pageNumber, pageSize);
+        service.findPaymentByReportingFlowName(action, fdr, psp, organizationId, pageNumber, pageSize);
+
+    return mapper.toGetPaymentResponse(fdrGetPaymentDto);
+  }
+
+  protected GetAllPublishedResponse baseGetAllPublished(
+          String idPsp,
+          String organizationId,
+          Instant publishedGt,
+          long pageNumber,
+          long pageSize) {
+    String action = (String) MDC.get(ACTION);
+    MDC.put(PSP_ID, idPsp);
+    if (null != organizationId && !organizationId.isBlank()) {
+      MDC.put(ORGANIZATION_ID, organizationId);
+    }
+
+    log.infof(
+            AppMessageUtil.logProcess("%s by psp:[%s] with ec:[%s] - page:[%s], pageSize:[%s]"),
+            action,
+            idPsp,
+            organizationId,
+            pageNumber,
+            pageSize);
+
+    ConfigDataV1 configData = config.getClonedCache();
+    // validation
+    validator.validateGetAllPublished(action, idPsp, organizationId, configData);
+
+
+    // get from db
+    FdrAllPublishedDto fdrAllDto =
+            service.findAllPublished(
+                    action,
+                    idPsp,
+                    organizationId,
+                    publishedGt,
+                    pageNumber,
+                    pageSize);
+
+    return mapper.toGetAllPublishedResponse(fdrAllDto);
+  }
+
+  protected GetResponse baseGetPublished(
+          String psp, String fdr, Long rev, String organizationId) {
+    String action = (String) MDC.get(ACTION);
+    MDC.put(PSP_ID, psp);
+    MDC.put(FDR, fdr);
+    MDC.put(ORGANIZATION_ID, organizationId);
+
+    log.infof(
+            AppMessageUtil.logProcess("%s by psp:[%s] with fdr=[%s], ec=[%s]"),
+            action,
+            psp,
+            fdr,
+            organizationId
+            );
+
+    ConfigDataV1 configData = config.getClonedCache();
+
+    // validation
+    validator.validateGetPublished(action, fdr, psp, organizationId, configData);
+
+    // get from db
+    FdrGetDto fdrGetDto = service.findByReportingFlowNamePublished(action, fdr, rev, psp, organizationId);
+
+    return mapper.toGetIdResponsePublished(fdrGetDto);
+  }
+
+  protected GetPaymentResponse baseGetFdrPaymentPublished(
+          String psp,
+          String fdr,
+          Long rev,
+          String organizationId,
+          long pageNumber,
+          long pageSize) {
+
+    String action = (String) MDC.get(ACTION);
+    MDC.put(ORGANIZATION_ID, organizationId);
+    MDC.put(FDR, fdr);
+    MDC.put(PSP_ID, psp);
+
+    log.infof(
+            AppMessageUtil.logProcess("%s with id:[%s] - page:[%s], pageSize:[%s]"),
+            action,
+            fdr,
+            pageNumber,
+            pageSize);
+
+    ConfigDataV1 configData = config.getClonedCache();
+    // validation
+    validator.validateGetPaymentPublished(action, fdr, psp, organizationId, configData);
+
+
+    // get from db
+    FdrGetPaymentDto fdrGetPaymentDto =
+            service.findPaymentByReportingFlowNamePublished(action, fdr, rev, psp, organizationId, pageNumber, pageSize);
 
     return mapper.toGetPaymentResponse(fdrGetPaymentDto);
   }

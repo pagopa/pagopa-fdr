@@ -16,8 +16,8 @@ public class FdrInserted {
   private String fdr;
 
   @Schema(example = "1")
-  @JsonProperty(AppConstant.PSP)
-  private String pspId;
+  @JsonProperty(AppConstant.ORGANIZATION)
+  private String organizationId;
 
   @Schema(example = "1")
   @JsonProperty(AppConstant.REVISION)

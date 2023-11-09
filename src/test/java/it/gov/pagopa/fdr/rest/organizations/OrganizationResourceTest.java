@@ -270,45 +270,4 @@ class OrganizationResourceTest {
         equalTo(List.of(2L)));
   }
 
-  /** ################# changeReadFlag ############### */
-//  @Test
-//  @DisplayName("ORGANIZATIONS - OK - changeReadFlag")
-//  void testOrganization_changeReadFlag_Ok() {
-//    String flowName = TestUtil.getDynamicFlowName();
-//    TestUtil.pspSunnyDay(flowName);
-//
-//    String url = CHANGE_READ_FLAG_URL.formatted(EC_CODE, flowName, PSP_CODE);
-//
-//    GenericResponse res = given()
-//        .header(HEADER)
-//        .when()
-//        .put(url)
-//        .then()
-//        .statusCode(200)
-//        .extract()
-//        .as(GenericResponse.class);
-//    assertThat(res.getMessage(), equalTo(String.format("Flow [%s] read", flowName)));
-//  }
-
-//  @Test
-//  @DisplayName("ORGANIZATIONS - KO FDR-0701 - changeReadFlag reporting flow not found")
-//  void testOrganization_changeReadFlag_KO_FDR0701() {
-//    String flowName = TestUtil.getDynamicFlowName();
-//    TestUtil.pspSunnyDay(flowName);
-//    String flowNameWrong = TestUtil.getDynamicFlowName();
-//
-//    String url = CHANGE_READ_FLAG_URL.formatted(EC_CODE, flowNameWrong, PSP_CODE);
-//
-//    ErrorResponse res = given()
-//        .header(HEADER)
-//        .when()
-//        .put(url)
-//        .then()
-//        .statusCode(404)
-//        .extract()
-//        .as(ErrorResponse.class);
-//    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
-//    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found",flowNameWrong)))));
-//  }
-
 }

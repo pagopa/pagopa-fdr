@@ -100,4 +100,49 @@ public class PspsValidationService extends CommonValidationService {
     /// check fdr format
     checkReportingFlowFormat(log, fdr, psp);
   }
+
+
+  @WithSpan(kind = SERVER)
+  public void validateGetAllPublished(
+          String action, String pspId, String ecId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
+
+    // check psp
+    checkPaymentServiceProvider(log, pspId, configData);
+
+    // check ec
+    if (null != pspId && !pspId.isBlank()) {
+      checkCreditorInstitution(log, ecId, configData);
+    }
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validateGetPublished(
+          String action, String fdr, String pspId, String ecId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
+
+    // check psp
+    checkPaymentServiceProvider(log, pspId, configData);
+
+    // check ec
+    checkCreditorInstitution(log, ecId, configData);
+
+    // check fdr format
+    checkReportingFlowFormat(log, fdr, pspId);
+  }
+
+  @WithSpan(kind = SERVER)
+  public void validateGetPaymentPublished(
+          String action, String fdr, String pspId, String ecId, ConfigDataV1 configData) {
+    log.info(AppMessageUtil.logValidate(action));
+
+    // check psp
+    checkPaymentServiceProvider(log, pspId, configData);
+
+    // check ec
+    checkCreditorInstitution(log, ecId, configData);
+
+    // check fdr format
+    checkReportingFlowFormat(log, fdr, pspId);
+  }
 }

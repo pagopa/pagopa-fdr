@@ -27,8 +27,11 @@ public class InternalPspValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateGetInternal(
-      String action, String fdr, String pspId, ConfigDataV1 configData) {
+      String action, String fdr, String pspId, String ecId, ConfigDataV1 configData) {
     log.info(AppMessageUtil.logValidate(action));
+
+    // check ec
+    checkCreditorInstitution(log, ecId, configData);
 
     // check psp
     checkPaymentServiceProvider(log, pspId, configData);
@@ -39,8 +42,11 @@ public class InternalPspValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateGetPaymentInternal(
-      String action, String fdr, String pspId, ConfigDataV1 configData) {
+      String action, String fdr, String pspId, String ecId, ConfigDataV1 configData) {
     log.info(AppMessageUtil.logValidate(action));
+
+    // check ec
+    checkCreditorInstitution(log, ecId, configData);
 
     // check psp
     checkPaymentServiceProvider(log, pspId, configData);

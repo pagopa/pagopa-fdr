@@ -101,7 +101,7 @@ public abstract class BaseOrganizationsResource {
     }
 
     // get from db
-    FdrGetDto fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp);
+    FdrGetDto fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp, organizationId);
 
     return mapper.toGetIdResponse(fdrGetDto);
   }
@@ -137,7 +137,7 @@ public abstract class BaseOrganizationsResource {
 
     // get from db
     FdrGetPaymentDto fdrGetPaymentDto =
-        service.findPaymentByReportingFlowName(action, fdr, rev, psp, pageNumber, pageSize);
+        service.findPaymentByReportingFlowName(action, fdr, rev, psp, organizationId, pageNumber, pageSize);
 
     return mapper.toGetPaymentResponse(fdrGetPaymentDto);
   }

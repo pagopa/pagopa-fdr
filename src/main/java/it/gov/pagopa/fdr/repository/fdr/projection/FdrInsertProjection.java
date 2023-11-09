@@ -11,7 +11,7 @@ public class FdrInsertProjection {
 
   private String fdr;
 
-  private Sender sender;
+  private Receiver receiver;
 
   private Long revision;
 
