@@ -21,7 +21,7 @@ import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import org.jboss.logging.Logger;
-import org.slf4j.MDC;
+import org.jboss.logging.MDC;
 
 @ApplicationScoped
 public class SupportService {

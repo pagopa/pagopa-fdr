@@ -1,10 +1,5 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
-import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
-
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
@@ -16,12 +11,15 @@ import it.gov.pagopa.fdr.service.dto.FdrAllDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
+import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
-import org.slf4j.MDC;
+import org.jboss.logging.MDC;
+
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 public abstract class BaseOrganizationsResource {
 
@@ -42,7 +40,8 @@ public abstract class BaseOrganizationsResource {
       long pageNumber,
       long pageSize,
       boolean internalGetAll) {
-    String action = MDC.get(ACTION);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+    String action = (String) MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
     if (null != idPsp && !idPsp.isBlank()) {
       MDC.put(PSP_ID, idPsp);
@@ -79,7 +78,8 @@ public abstract class BaseOrganizationsResource {
 
   protected GetResponse baseGet(
       String organizationId, String fdr, Long rev, String psp, boolean internalGet) {
-    String action = MDC.get(ACTION);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+    String action = (String) MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);
@@ -114,8 +114,8 @@ public abstract class BaseOrganizationsResource {
       long pageNumber,
       long pageSize,
       boolean internalGetPayment) {
-
-    String action = MDC.get(ACTION);
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+    String action = (String) MDC.get(ACTION);
     MDC.put(ORGANIZATION_ID, organizationId);
     MDC.put(FDR, fdr);
     MDC.put(PSP_ID, psp);

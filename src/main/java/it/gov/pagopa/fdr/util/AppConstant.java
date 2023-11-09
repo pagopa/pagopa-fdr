@@ -8,6 +8,10 @@ public class AppConstant {
 
   public static final String SERVICE_CODE_APP = "FDR";
 
+  public static final String REQUEST = "REQ";
+  public static final String RESPONSE = "RES";
+  public static final String OK = "OK";
+  public static final String KO = "KO";
   public static final String PSP = "pspId";
   public static final String PUBLISHED_GREATER_THAN = "publishedGt";
   public static final String CREATED_GREATER_THAN = "createdGt";

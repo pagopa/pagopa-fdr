@@ -1,11 +1,5 @@
 package it.gov.pagopa.fdr.rest.filter;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
-import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
@@ -13,12 +7,10 @@ import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse.ErrorMessage;
 import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
-import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.service.re.model.*;
+import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
+import it.gov.pagopa.fdr.util.MDCKeys;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -26,15 +18,18 @@ import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.Provider;
+import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
+import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.jboss.logging.Logger;
-import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
-import org.slf4j.MDC;
+
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 @Provider
 public class ResponseFilter implements ContainerResponseFilter {
@@ -53,10 +48,10 @@ public class ResponseFilter implements ContainerResponseFilter {
       long requestFinishTime = System.nanoTime();
       long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
       String requestSubject = (String) requestContext.getProperty("subject");
-      String action = MDC.get(ACTION);
-      String psp = MDC.get(PSP_ID);
-      String organizationId = MDC.get(ORGANIZATION_ID);
-      String fdr = MDC.get(FDR);
+      String action = (String) MDC.get(ACTION);
+      String psp = (String) MDC.get(PSP_ID);
+      String organizationId = (String) MDC.get(ORGANIZATION_ID);
+      String fdr = (String) MDC.get(FDR);
 
       FdrActionEnum fdrActionEnum =
           AppReUtil.getFlowNamebyAnnotation(
@@ -69,11 +64,24 @@ public class ResponseFilter implements ContainerResponseFilter {
         log.warn("Attention, missing annotation Re on this action");
       }
 
-      String sessionId = MDC.get(TRX_ID);
+      String sessionId = (String) MDC.get(TRX_ID);
       String requestMethod = requestContext.getMethod();
       String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
 
-      String responsePayload = null;
+      int httpStatus = responseContext.getStatus();
+      Optional<ErrorResponse> errorResponse = Optional.empty();
+
+      if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
+              && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
+        Object body = responseContext.getEntity();
+        if (body instanceof ErrorResponse) {
+          errorResponse = Optional.of((ErrorResponse) body);
+        }
+      }
+      putMDCRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
+
+
+      String responsePayload;
       try {
         responsePayload = objectMapper.writeValueAsString(responseContext.getEntity());
       } catch (JsonProcessingException e) {
@@ -102,9 +110,7 @@ public class ResponseFilter implements ContainerResponseFilter {
               .fdrAction(fdrActionEnum)
               .build());
 
-      int httpStatus = responseContext.getStatus();
-      Optional<ErrorResponse> errorResponse = Optional.empty();
-
+      MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
       if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
           && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
         Object body = responseContext.getEntity();
@@ -127,9 +133,6 @@ public class ResponseFilter implements ContainerResponseFilter {
             "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d]",
             requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       }
-
-      logJsonReq(action, requestPath, psp, organizationId);
-      logJsonRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
 
       MDC.clear();
     }
@@ -155,73 +158,29 @@ public class ResponseFilter implements ContainerResponseFilter {
             .collect(Collectors.joining(", ")));
   }
 
-  private void logJsonReq(String action, String requestPath, String psp, String organizationId) {
-    log.infof(
-        jsonStringOperation(
-            action,
-            requestPath,
-            psp,
-            organizationId,
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty()));
-  }
-
-  private void logJsonRes(
-      String action,
-      String requestPath,
-      String psp,
-      String ec,
-      Long elapsed,
-      Integer httpStatus,
-      Optional<ErrorResponse> errorResponse) {
-    log.infof(
-        jsonStringOperation(
-            action,
-            requestPath,
-            psp,
-            ec,
-            Optional.of(elapsed),
-            Optional.of(httpStatus),
-            errorResponse));
-  }
-
-  private String jsonStringOperation(
+  private void putMDCRes(
       String action,
       String requestPath,
       String psp,
       String organizationId,
-      Optional<Long> elapsed,
-      Optional<Integer> statusCode,
+      Long elapsed,
+      Integer httpStatus,
       Optional<ErrorResponse> errorResponse) {
-    StringBuilder stringBuilder = new StringBuilder("{");
-    stringBuilder.append("\"isJsonLog\":\"%s\"".formatted(true));
-    statusCode.ifPresentOrElse(
-        sc -> {
-          stringBuilder.append(",\"httpType\":\"RES\"");
-          errorResponse.ifPresentOrElse(
-              er -> {
-                stringBuilder.append(",\"outcome\":\"KO\"");
-                stringBuilder.append(",\"code\":\"%s\"".formatted(er.getAppErrorCode()));
-                stringBuilder.append(
-                    ",\"message\":\"%s\""
-                        .formatted(
-                            er.getErrors().stream()
-                                .map(ErrorMessage::getMessage)
-                                .collect(Collectors.joining(", "))));
-              },
-              () -> stringBuilder.append(",\"outcome\":\"OK\""));
-        },
-        () -> stringBuilder.append(",\"httpType\":\"REQ\""));
-    stringBuilder.append(",\"action\":%s".formatted(action != null ? action : "NA"));
-    stringBuilder.append(",\"uri\":\"%s\"".formatted(requestPath));
-    elapsed.ifPresent(v -> stringBuilder.append(",\"elapsed\":%d".formatted(v)));
-    statusCode.ifPresent(s -> stringBuilder.append(",\"statusCode\":%d".formatted(s)));
-    stringBuilder.append(",\"psp\":\"%s\"".formatted(psp != null ? psp : "NA"));
-    stringBuilder.append(
-        ",\"ec\":\"%s\"".formatted(organizationId != null ? organizationId : "NA"));
-    stringBuilder.append("}");
-
-    return stringBuilder.toString();
+    MDC.put(HTTP_TYPE, AppConstant.RESPONSE);
+    if(errorResponse.isPresent() ) {
+      MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
+      MDC.put(MDCKeys.CODE, errorResponse.get().getAppErrorCode());
+      MDC.put(MDCKeys.MESSAGE, errorResponse.get().getErrors().stream()
+              .map(ErrorMessage::getMessage)
+              .collect(Collectors.joining(", ")));
+    } else {
+      MDC.put(MDCKeys.OUTCOME, AppConstant.OK);
+    }
+    MDC.put(ACTION, action != null ? action : "NA");
+    MDC.put(URI, requestPath);
+    MDC.put(ELAPSED, elapsed);
+    MDC.put(STATUS_CODE, httpStatus);
+    MDC.put(PSP_ID, psp != null ? psp : "NA");
+    MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
   }
 }

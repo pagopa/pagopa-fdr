@@ -1,14 +1,7 @@
 package it.gov.pagopa.fdr.rest.filter;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
-
 import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
-import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
 import jakarta.inject.Inject;
@@ -16,6 +9,10 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.Provider;
+import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
+import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,9 +21,8 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.jboss.logging.Logger;
-import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
-import org.slf4j.MDC;
+
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 @Provider
 public class RequestFilter implements ContainerRequestFilter {
@@ -41,7 +37,6 @@ public class RequestFilter implements ContainerRequestFilter {
     containerRequestContext.setProperty("requestStartTime", requestStartTime);
 
     String sessionId = UUID.randomUUID().toString();
-    MDC.put(TRX_ID, sessionId);
 
     String requestMethod = containerRequestContext.getMethod();
     String requestPath = containerRequestContext.getUriInfo().getAbsolutePath().getPath();
@@ -59,11 +54,31 @@ public class RequestFilter implements ContainerRequestFilter {
                 .getResteasyReactiveResourceInfo()
                 .getAnnotations());
 
+    String fdrAction = null;
     if (fdrActionEnum == null) {
       log.warn("Attention, missing annotation Re on this action");
     } else {
-      MDC.put(ACTION, fdrActionEnum.name());
+      fdrAction = fdrActionEnum.name();
     }
+
+    MultivaluedMap<String, String> pathparam =
+            containerRequestContext.getUriInfo().getPathParameters();
+
+    String subject = "NA";
+    String pspId = null;
+    String organizationId = null;
+    if (!pathparam.isEmpty()) {
+      if (pathparam.containsKey(AppConstant.PSP)) {
+        subject = pathparam.getFirst(AppConstant.PSP);
+        pspId = subject;
+      } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
+        subject = pathparam.getFirst(AppConstant.ORGANIZATION);
+        organizationId = subject;
+      }
+    }
+    containerRequestContext.setProperty("subject", subject);
+
+    putMDCReq(sessionId, fdrAction, requestPath, pspId, organizationId);
 
     String body =
         new BufferedReader(new InputStreamReader(containerRequestContext.getEntityStream()))
@@ -90,21 +105,22 @@ public class RequestFilter implements ContainerRequestFilter {
             .fdrAction(fdrActionEnum)
             .build());
 
-    MultivaluedMap<String, String> pathparam =
-        containerRequestContext.getUriInfo().getPathParameters();
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
+    log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
+    MDC.remove(EVENT_CATEGORY);
+  }
 
-    String subject = "NA";
-    if (!pathparam.isEmpty()) {
-      if (pathparam.containsKey(AppConstant.PSP)) {
-        subject = pathparam.getFirst(AppConstant.PSP);
-      } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
-        subject = pathparam.getFirst(AppConstant.ORGANIZATION);
-      }
-
-      log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
-    } else {
-      log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
-    }
-    containerRequestContext.setProperty("subject", subject);
+  private void putMDCReq(
+          String sessionId,
+          String action,
+          String requestPath,
+          String psp,
+          String organizationId) {
+    MDC.put(TRX_ID, sessionId);
+    MDC.put(HTTP_TYPE, AppConstant.REQUEST);
+    MDC.put(ACTION, action != null ? action : "NA");
+    MDC.put(URI, requestPath);
+    MDC.put(PSP_ID, psp != null ? psp : "NA");
+    MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
   }
 }

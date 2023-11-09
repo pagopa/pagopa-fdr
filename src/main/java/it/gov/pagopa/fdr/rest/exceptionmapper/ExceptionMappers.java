@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
-import org.slf4j.MDC;
+import org.jboss.logging.MDC;
 
 public class ExceptionMappers {
 
@@ -218,7 +218,7 @@ public class ExceptionMappers {
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapThrowable(Throwable exception) {
-    String errorId = MDC.get(TRX_ID);
+    String errorId = (String) MDC.get(TRX_ID);
     log.errorf(logErrorMessage(exception.getMessage()));
 
     AppException appEx = new AppException(exception, AppErrorCodeMessageEnum.ERROR);
