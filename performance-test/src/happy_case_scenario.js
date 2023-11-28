@@ -1,7 +1,6 @@
-import http from 'k6/http';
 import {check} from 'k6';
 import {SharedArray} from 'k6/data';
-import { generateFlowNameAndDate, createFlow, addPayments, publishFlow, test } from './helpers/fdr_helper.js';
+import { generateFlowNameAndDate, createFlow, addPayments, publishFlow } from './helpers/fdr_helper.js';
 
 const configObject = JSON.parse(open('config.json'));
 
@@ -9,15 +8,15 @@ const envConfig = new SharedArray('config', function () {
   return JSON.parse(open(`./${configObject.env}.environment.json`)).environment;
 });
 
-export const options = JSON.parse(open(`${configObject.testTypeFile}`));
+export const options = JSON.parse(open(`${__ENV.TEST_TYPE}`));
 
 const config = envConfig[0];
 const rootUrl = `${config.host}/${config.basePath}`;
 const subscriptionKey = `${__ENV.PSP_SUBSCRIPTION_KEY}`;
 const pspId = configObject.pspId;
 
-const createFlowPayload = JSON.parse(open(`/helpers/payloads.json`)).create_flow_payload;
-const addPaymentsPayload = JSON.parse(open(`/helpers/payloads.json`)).add_payments_payload;
+const createFlowPayload = JSON.parse(open(`./helpers/payloads.json`)).create_flow_payload;
+const addPaymentsPayload = JSON.parse(open(`./helpers/payloads.json`)).add_payments_payload;
 
 let params = {};
 
@@ -29,13 +28,6 @@ export function setup() {
       'Ocp-Apim-Subscription-Key': subscriptionKey
     },
   };
-}
-
-function precondition() {
-  // Preconditions
-}
-
-function postcondition() {
 }
 
 export default function () {
@@ -61,8 +53,4 @@ export default function () {
   check(publishResponse, {
     'PUBLISH flow status is 200': (_r) => publishResponse.status === 200,
   });
-}
-
-export function teardown(data) {
-  // After All
 }

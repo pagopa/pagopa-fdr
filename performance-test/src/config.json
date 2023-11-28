@@ -2,7 +2,6 @@
     "pspId": "60000000001",
     "organizationId": "15376371009",
     "env": "dev",
-    "testTypeFile": "/test-types/ramping.json",
     "pspBrokerId": "60000000001",
     "channelId": "15376371009_04"
 }

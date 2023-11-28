@@ -1,0 +1,50 @@
+name: Performance Test
+
+on:
+  schedule:
+    - cron: '30 8 * * *'
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        description: Select the Environment
+        options:
+          - dev
+          - uat
+      notify:
+        required: false
+        type: boolean
+        description: 'send the slack notification'
+        default: false
+
+jobs:
+  run_performance_test:
+    name: Test ${{(github.event.inputs == null && 'dev') || inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{(github.event.inputs == null && 'dev') || inputs.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
+
+      - name: Pulling k6 docker image
+        run: |
+          docker pull grafana/k6
+
+      - name: Run k6 script
+        # TODO dbname
+        run: |
+          cd ./performance-test
+          docker build -t fdr_k6test .
+          docker run \
+          - e
+          sh ./performance-test/run_performance_test.sh ${{ env.ENVIRONMENT }} ${{ env.TEST_TYPE }} ${{ env.SCRIPT }} ${{ secrets.API_SUBSCRIPTION_KEY }}
+        #${{ secrets.COSMOS_SUBSCRIPTION_KEY }}
+        env:
+          ENVIRONMENT: 'dev'
+          TEST_TYPE: 'ramping'
+          SCRIPT: 'happy_case_scenario'
+          API_SUBSCRIPTION_KEY: ${{ secrets.API_SUBSCRIPTION_KEY }}
+          #COSMOS_SUBSCRIPTION_KEY: ${{ secrets.COSMOS_SUBSCRIPTION_KEY }}
