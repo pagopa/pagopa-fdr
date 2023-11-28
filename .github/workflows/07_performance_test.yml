@@ -34,7 +34,6 @@ jobs:
           docker pull grafana/k6
 
       - name: Run k6 script
-        # TODO dbname
         run: |
           cd ./performance-test
           docker build -t fdr_k6test .
