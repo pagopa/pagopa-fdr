@@ -2,7 +2,7 @@ name: Performance Test
 
 on:
   schedule:
-    - cron: '32 17 * * *'
+    - cron: '35 16 * * *'
 
   workflow_dispatch:
     inputs:
