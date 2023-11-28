@@ -1,8 +1,8 @@
 name: Performance Test
 
 on:
-  schedule:
-    - cron: '35 16 * * *'
+#  schedule:
+#    - cron: '35 16 * * *'
 
   workflow_dispatch:
     inputs:
@@ -32,6 +32,11 @@ on:
         description: Select the Script Name
         options:
           - happy_case_scenario
+
+permissions:
+  id-token: write
+  contents: read
+  deployments: write
 
 jobs:
   run_performance_test:
