@@ -26,7 +26,7 @@ export function setup() {
     headers: {
       'Content-Type': 'application/json',
       'Ocp-Apim-Subscription-Key': subscriptionKey
-    },
+    }
   };
 }
 
