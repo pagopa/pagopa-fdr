@@ -110,7 +110,8 @@ public class OrganizationsService {
   }
 
   @WithSpan(kind = SERVER)
-  public FdrGetDto findByReportingFlowName(String action, String fdr, Long rev, String pspId, String organizationId) {
+  public FdrGetDto findByReportingFlowName(
+      String action, String fdr, Long rev, String pspId, String organizationId) {
     log.infof(AppMessageUtil.logExecute(action));
 
     log.debugf("Existence check FdrPublishEntity by fdr[%s], psp[%s]", fdr, pspId);
@@ -129,7 +130,13 @@ public class OrganizationsService {
 
   @WithSpan(kind = SERVER)
   public FdrGetPaymentDto findPaymentByReportingFlowName(
-      String action, String fdr, Long rev, String pspId, String organizationId, long pageNumber, long pageSize) {
+      String action,
+      String fdr,
+      Long rev,
+      String pspId,
+      String organizationId,
+      long pageNumber,
+      long pageSize) {
     log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
@@ -137,7 +144,9 @@ public class OrganizationsService {
 
     log.debugf("Existence check fdr by fdr[%s], psp[%s]", fdr, pspId);
     PanacheQuery<FdrPaymentPublishEntity> fdrPaymentPublishPanacheQuery =
-        FdrPaymentPublishEntity.findByFdrAndRevAndPspIdAndOrganizationId(fdr, rev, pspId, organizationId, sort).page(page);
+        FdrPaymentPublishEntity.findByFdrAndRevAndPspIdAndOrganizationId(
+                fdr, rev, pspId, organizationId, sort)
+            .page(page);
 
     List<FdrPaymentPublishEntity> list = fdrPaymentPublishPanacheQuery.list();
 

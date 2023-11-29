@@ -1482,7 +1482,9 @@ class InternalPspResourceTest {
     assertThat(
         res.getErrors(),
         hasItem(
-            hasProperty("message", equalTo(String.format("Fdr [2016-aa-16%s-1176] has wrong date", PSP_CODE)))));
+            hasProperty(
+                "message",
+                equalTo(String.format("Fdr [2016-aa-16%s-1176] has wrong date", PSP_CODE)))));
   }
 
   @Test

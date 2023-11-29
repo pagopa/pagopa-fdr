@@ -23,9 +23,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
-import org.jboss.logging.MDC;
 
 public class ExceptionMappers {
 

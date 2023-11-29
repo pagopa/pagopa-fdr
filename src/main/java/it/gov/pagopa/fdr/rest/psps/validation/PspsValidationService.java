@@ -101,10 +101,9 @@ public class PspsValidationService extends CommonValidationService {
     checkReportingFlowFormat(log, fdr, psp);
   }
 
-
   @WithSpan(kind = SERVER)
   public void validateGetAllPublished(
-          String action, String pspId, String ecId, ConfigDataV1 configData) {
+      String action, String pspId, String ecId, ConfigDataV1 configData) {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
@@ -118,7 +117,7 @@ public class PspsValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateGetPublished(
-          String action, String fdr, String pspId, String ecId, ConfigDataV1 configData) {
+      String action, String fdr, String pspId, String ecId, ConfigDataV1 configData) {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp
@@ -133,7 +132,7 @@ public class PspsValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateGetPaymentPublished(
-          String action, String fdr, String pspId, String ecId, ConfigDataV1 configData) {
+      String action, String fdr, String pspId, String ecId, ConfigDataV1 configData) {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp

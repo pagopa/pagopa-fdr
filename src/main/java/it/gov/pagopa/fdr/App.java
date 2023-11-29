@@ -108,7 +108,4 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
                                   }""")),
             }),
     info = @Info(title = "FDR - Flussi di Rendicontazione", version = "0.0.0-SNAPSHOT"))
-public class App extends Application {
-
-
-}
+public class App extends Application {}

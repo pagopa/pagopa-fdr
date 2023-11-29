@@ -2,11 +2,10 @@ package it.gov.pagopa.fdr.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.fdr.util.AppConstant;
+import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-
-import java.time.Instant;
 
 @Getter
 @Builder

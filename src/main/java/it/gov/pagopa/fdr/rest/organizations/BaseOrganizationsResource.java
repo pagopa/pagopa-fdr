@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
+
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
@@ -16,10 +18,8 @@ import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import org.jboss.logging.Logger;
-import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 import org.jboss.logging.MDC;
-
-import static it.gov.pagopa.fdr.util.MDCKeys.*;
+import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 public abstract class BaseOrganizationsResource {
 
@@ -137,7 +137,8 @@ public abstract class BaseOrganizationsResource {
 
     // get from db
     FdrGetPaymentDto fdrGetPaymentDto =
-        service.findPaymentByReportingFlowName(action, fdr, rev, psp, organizationId, pageNumber, pageSize);
+        service.findPaymentByReportingFlowName(
+            action, fdr, rev, psp, organizationId, pageNumber, pageSize);
 
     return mapper.toGetPaymentResponse(fdrGetPaymentDto);
   }

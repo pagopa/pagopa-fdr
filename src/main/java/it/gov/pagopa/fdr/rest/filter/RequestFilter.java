@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.rest.filter;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
+
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppConstant;
@@ -9,10 +11,6 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.Provider;
-import org.jboss.logging.Logger;
-import org.jboss.logging.MDC;
-import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,8 +19,9 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static it.gov.pagopa.fdr.util.MDCKeys.*;
+import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
+import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 
 @Provider
 public class RequestFilter implements ContainerRequestFilter {
@@ -62,7 +61,7 @@ public class RequestFilter implements ContainerRequestFilter {
     }
 
     MultivaluedMap<String, String> pathparam =
-            containerRequestContext.getUriInfo().getPathParameters();
+        containerRequestContext.getUriInfo().getPathParameters();
 
     String subject = "NA";
     String pspId = null;
@@ -111,11 +110,7 @@ public class RequestFilter implements ContainerRequestFilter {
   }
 
   private void putMDCReq(
-          String sessionId,
-          String action,
-          String requestPath,
-          String psp,
-          String organizationId) {
+      String sessionId, String action, String requestPath, String psp, String organizationId) {
     MDC.put(TRX_ID, sessionId);
     MDC.put(HTTP_TYPE, AppConstant.REQUEST);
     MDC.put(ACTION, action != null ? action : "NA");
