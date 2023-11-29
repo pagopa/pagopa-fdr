@@ -3,8 +3,16 @@
   "startVUs": 0,
   "stages": [
     {
-      "duration": "30s",
+      "duration": "2m",
       "target": 1
+    },
+    {
+      "duration": "2m",
+      "target": 3
+    },
+    {
+      "duration": "1m",
+      "target": 5
     }
   ],
   "gracefulRampDown": "0s",
