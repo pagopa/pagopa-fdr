@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.rest.filter;
 
+import static it.gov.pagopa.fdr.util.MDCKeys.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
@@ -18,18 +20,15 @@ import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.Provider;
-import org.jboss.logging.Logger;
-import org.jboss.logging.MDC;
-import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
-
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static it.gov.pagopa.fdr.util.MDCKeys.*;
+import org.jboss.logging.Logger;
+import org.jboss.logging.MDC;
+import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 
 @Provider
 public class ResponseFilter implements ContainerResponseFilter {
@@ -72,14 +71,13 @@ public class ResponseFilter implements ContainerResponseFilter {
       Optional<ErrorResponse> errorResponse = Optional.empty();
 
       if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
-              && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
+          && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
         Object body = responseContext.getEntity();
         if (body instanceof ErrorResponse) {
           errorResponse = Optional.of((ErrorResponse) body);
         }
       }
       putMDCRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
-
 
       String responsePayload;
       try {
@@ -167,10 +165,12 @@ public class ResponseFilter implements ContainerResponseFilter {
       Integer httpStatus,
       Optional<ErrorResponse> errorResponse) {
     MDC.put(HTTP_TYPE, AppConstant.RESPONSE);
-    if(errorResponse.isPresent() ) {
+    if (errorResponse.isPresent()) {
       MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
       MDC.put(MDCKeys.CODE, errorResponse.get().getAppErrorCode());
-      MDC.put(MDCKeys.MESSAGE, errorResponse.get().getErrors().stream()
+      MDC.put(
+          MDCKeys.MESSAGE,
+          errorResponse.get().getErrors().stream()
               .map(ErrorMessage::getMessage)
               .collect(Collectors.joining(", ")));
     } else {

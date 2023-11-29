@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr.rest.psps;
 
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
@@ -218,12 +217,7 @@ public class InternalPspsResource extends BasePspResource {
                     schema = @Schema(implementation = GetCreatedResponse.class)))
       })
   @GET
-  @Path(
-          "/created/fdrs/{"
-                  + AppConstant.FDR
-                  + "}/organizations/{"
-                  + AppConstant.ORGANIZATION
-                  + "}")
+  @Path("/created/fdrs/{" + AppConstant.FDR + "}/organizations/{" + AppConstant.ORGANIZATION + "}")
   @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR)
   public GetCreatedResponse internalGetCreated(
       @PathParam(AppConstant.PSP) String psp,
@@ -250,12 +244,12 @@ public class InternalPspsResource extends BasePspResource {
                     schema = @Schema(implementation = GetPaymentResponse.class)))
       })
   @GET
-
-  @Path("/created/fdrs/{"
-                  + AppConstant.FDR
-                  + "}/organizations/{"
-                  + AppConstant.ORGANIZATION
-                  + "}/payments")
+  @Path(
+      "/created/fdrs/{"
+          + AppConstant.FDR
+          + "}/organizations/{"
+          + AppConstant.ORGANIZATION
+          + "}/payments")
   @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR_PAYMENT)
   public GetPaymentResponse internalGetCreatedPayment(
       @PathParam(AppConstant.PSP) String psp,
@@ -268,107 +262,108 @@ public class InternalPspsResource extends BasePspResource {
     return baseGetCreatedFdrPayment(fdr, psp, organizationId, pageNumber, pageSize);
   }
 
+  @Operation(
+      operationId = "internalGetAllPublishedByPsp",
+      summary = "Get all internal fdr published",
+      description = "Get all internal fdr published")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = GetAllPublishedResponse.class)))
+      })
+  @GET
+  @Path("/published")
+  @Re(action = FdrActionEnum.INTERNAL_GET_ALL_FDR_PUBLISHED_BY_PSP)
+  public GetAllPublishedResponse internalGetAllPublishedByPsp(
+      @PathParam(AppConstant.PSP) String idPsp,
+      @QueryParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
+      @QueryParam(AppConstant.PUBLISHED_GREATER_THAN) Instant publishedGt,
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
+    return baseGetAllPublished(idPsp, organizationId, publishedGt, pageNumber, pageSize);
+  }
 
-    @Operation(
-            operationId = "internalGetAllPublishedByPsp",
-            summary = "Get all internal fdr published",
-            description = "Get all internal fdr published")
-    @APIResponses(
-            value = {
-                    @APIResponse(ref = "#/components/responses/InternalServerError"),
-                    @APIResponse(ref = "#/components/responses/AppException400"),
-                    @APIResponse(ref = "#/components/responses/AppException404"),
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Success",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON,
-                                    schema = @Schema(implementation = GetAllPublishedResponse.class)))
-            })
-    @GET
-    @Path("/published")
-    @Re(action = FdrActionEnum.INTERNAL_GET_ALL_FDR_PUBLISHED_BY_PSP)
-    public GetAllPublishedResponse internalGetAllPublishedByPsp(
-            @PathParam(AppConstant.PSP) String idPsp,
-            @QueryParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
-            @QueryParam(AppConstant.PUBLISHED_GREATER_THAN) Instant publishedGt,
-            @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
-            long pageNumber,
-            @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
-            long pageSize) {
-        return baseGetAllPublished(idPsp, organizationId, publishedGt, pageNumber, pageSize);
-    }
+  @Operation(
+      operationId = "internalGetPublishedByPsp",
+      summary = "Get internal fdr Published",
+      description = "Get internal fdr Published")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = GetResponse.class)))
+      })
+  @GET
+  @Path(
+      "/published/fdrs/{"
+          + AppConstant.FDR
+          + "}/revisions/{"
+          + AppConstant.REVISION
+          + "}/organizations/{"
+          + AppConstant.ORGANIZATION
+          + "}")
+  @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PUBLISHED_BY_PSP)
+  public GetResponse internalGetPublishedByPsp(
+      @PathParam(AppConstant.PSP) String psp,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.REVISION) Long rev,
+      @PathParam(AppConstant.ORGANIZATION) String organizationId) {
+    return baseGetPublished(organizationId, fdr, rev, psp);
+  }
 
-    @Operation(operationId = "internalGetPublishedByPsp", summary = "Get internal fdr Published", description = "Get internal fdr Published")
-    @APIResponses(
-            value = {
-                    @APIResponse(ref = "#/components/responses/InternalServerError"),
-                    @APIResponse(ref = "#/components/responses/AppException400"),
-                    @APIResponse(ref = "#/components/responses/AppException404"),
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Success",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON,
-                                    schema = @Schema(implementation = GetResponse.class)))
-            })
-    @GET
-    @Path(
-            "/published/fdrs/{"
-                    + AppConstant.FDR
-                    + "}/revisions/{"
-                    + AppConstant.REVISION
-                    + "}/organizations/{"
-                    + AppConstant.ORGANIZATION
-                    + "}")
-    @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PUBLISHED_BY_PSP)
-    public GetResponse internalGetPublishedByPsp(
-            @PathParam(AppConstant.PSP) String psp,
-            @PathParam(AppConstant.FDR) String fdr,
-            @PathParam(AppConstant.REVISION) Long rev,
-            @PathParam(AppConstant.ORGANIZATION) String organizationId) {
-        return baseGetPublished(organizationId, fdr, rev, psp);
-    }
-
-
-    @Operation(
-            operationId = "internalGetPaymentPublishedByPSp",
-            summary = "Get internal payments of fdr Published",
-            description = "Get internal payments of fdr Published")
-    @APIResponses(
-            value = {
-                    @APIResponse(ref = "#/components/responses/InternalServerError"),
-                    @APIResponse(ref = "#/components/responses/AppException400"),
-                    @APIResponse(ref = "#/components/responses/AppException404"),
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Success",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON,
-                                    schema = @Schema(implementation = GetPaymentResponse.class)))
-            })
-    @GET
-    @Path(
-            "/published/fdrs/{"
-                    + AppConstant.FDR
-                    + "}/revisions/{"
-                    + AppConstant.REVISION
-                    + "}/organizations/{"
-                    + AppConstant.ORGANIZATION
-                    + "}/payments")
-    @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT_PUBLISHED_BY_PSP)
-    public GetPaymentResponse internalGetPaymentPublishedByPSp(
-            @PathParam(AppConstant.PSP) String psp,
-            @PathParam(AppConstant.FDR) String fdr,
-            @PathParam(AppConstant.REVISION) Long rev,
-            @PathParam(AppConstant.ORGANIZATION) String organizationId,
-            @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
-            long pageNumber,
-            @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
-            long pageSize) {
-        return baseGetFdrPaymentPublished(organizationId, fdr, rev, psp, pageNumber, pageSize);
-    }
+  @Operation(
+      operationId = "internalGetPaymentPublishedByPSp",
+      summary = "Get internal payments of fdr Published",
+      description = "Get internal payments of fdr Published")
+  @APIResponses(
+      value = {
+        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(ref = "#/components/responses/AppException400"),
+        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = GetPaymentResponse.class)))
+      })
+  @GET
+  @Path(
+      "/published/fdrs/{"
+          + AppConstant.FDR
+          + "}/revisions/{"
+          + AppConstant.REVISION
+          + "}/organizations/{"
+          + AppConstant.ORGANIZATION
+          + "}/payments")
+  @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT_PUBLISHED_BY_PSP)
+  public GetPaymentResponse internalGetPaymentPublishedByPSp(
+      @PathParam(AppConstant.PSP) String psp,
+      @PathParam(AppConstant.FDR) String fdr,
+      @PathParam(AppConstant.REVISION) Long rev,
+      @PathParam(AppConstant.ORGANIZATION) String organizationId,
+      @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
+          long pageNumber,
+      @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
+          long pageSize) {
+    return baseGetFdrPaymentPublished(organizationId, fdr, rev, psp, pageNumber, pageSize);
+  }
 }

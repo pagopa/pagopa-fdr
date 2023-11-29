@@ -1,0 +1,57 @@
+name: Performance Test
+
+on:
+#  schedule:
+#    - cron: '35 16 * * *'
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        description: Select the Environment
+        options:
+          - dev
+          - uat
+
+      test-type:
+        required: true
+        type: choice
+        description: Select the Test Type
+        options:
+          - ramping
+          - constant
+          - load
+          - smoke
+          - soak
+          - spike
+          - stress
+      script-name:
+        required: true
+        type: choice
+        description: Select the Script Name
+        options:
+          - happy_case_scenario
+
+permissions:
+  id-token: write
+  contents: read
+  deployments: write
+
+jobs:
+  run_performance_test:
+    name: Test ${{(github.event.inputs == null && 'dev') || inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{(github.event.inputs == null && 'dev') || inputs.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
+
+      - name: Run k6 script
+        run: |
+          cd ./performance-test
+          sub_key="${{ secrets.PSP_SUBSCRIPTION_KEY }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" docker compose -f docker-compose.yaml up
+#          sh ./performance-test/run_performance_test.sh ${{ env.ENVIRONMENT }} ${{ env.TEST_TYPE }} ${{ env.SCRIPT }} ${{ secrets.API_SUBSCRIPTION_KEY }}
+        #${{ secrets.COSMOS_SUBSCRIPTION_KEY }}
+

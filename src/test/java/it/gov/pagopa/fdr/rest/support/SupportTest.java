@@ -25,10 +25,8 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(MongoResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class SupportTest {
-  private static final String GET_ALL_FDR_BY_PSP_ID_IUV =
-      "/internal/psps/" + "%s" + "/iuv/" + "%s";
-  private static final String GET_ALL_FDR_BY_PSP_ID_IUR =
-      "/internal/psps/" + "%s" + "/iur/" + "%s";
+  private static final String GET_ALL_FDR_BY_PSP_ID_IUV = "/internal/psps/" + "%s" + "/iuv/" + "%s";
+  private static final String GET_ALL_FDR_BY_PSP_ID_IUR = "/internal/psps/" + "%s" + "/iur/" + "%s";
 
   private static String flowName;
 
@@ -53,9 +51,7 @@ class SupportTest {
         res.getData(),
         hasItem(
             anyOf(
-                hasProperty("name", equalTo(flowName)),
-                hasProperty("pspId", equalTo(PSP_CODE))
-            )));
+                hasProperty("name", equalTo(flowName)), hasProperty("pspId", equalTo(PSP_CODE)))));
   }
 
   @Test
@@ -95,9 +91,7 @@ class SupportTest {
         res.getData(),
         hasItem(
             anyOf(
-                hasProperty("name", equalTo(flowName)),
-                hasProperty("pspId", equalTo(PSP_CODE))
-            )));
+                hasProperty("name", equalTo(flowName)), hasProperty("pspId", equalTo(PSP_CODE)))));
   }
 
   @Test

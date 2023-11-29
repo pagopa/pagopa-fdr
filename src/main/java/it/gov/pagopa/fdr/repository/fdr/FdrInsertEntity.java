@@ -65,6 +65,9 @@ public class FdrInsertEntity extends PanacheMongoEntity {
       String fdr, String pspId, String organizationId) {
     return find(
         "fdr = :fdr and sender.psp_id = :pspId and receiver.organization_id = :organizationId",
-        Parameters.with("fdr", fdr).and("pspId", pspId).and("organizationId", organizationId).map());
+        Parameters.with("fdr", fdr)
+            .and("pspId", pspId)
+            .and("organizationId", organizationId)
+            .map());
   }
 }

@@ -52,5 +52,6 @@ public interface PspsServiceServiceMapper {
   List<PaymentDto> toPaymentDtoList(List<FdrPaymentInsertEntity> paymentEntities);
 
   List<PaymentDto> toPaymentDtoListByPsp(List<FdrPaymentPublishEntity> paymentEntities);
+
   FdrGetDto toFdrGetDtoByPsp(FdrPublishEntity fdrPublishEntity);
 }

@@ -1,9 +1,8 @@
 package it.gov.pagopa.fdr.service.dto;
 
+import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.Instant;
 
 @Getter
 @Builder
