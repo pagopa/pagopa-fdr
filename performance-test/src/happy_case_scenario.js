@@ -12,7 +12,7 @@ export const options = JSON.parse(open(`${__ENV.TEST_TYPE}`));
 
 const config = envConfig[0];
 const rootUrl = `${config.host}/${config.basePath}`;
-const subscriptionKey = `${__ENV.PSP_SUBSCRIPTION_KEY}`;
+const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 const pspId = configObject.pspId;
 
 const createFlowPayload = JSON.parse(open(`./helpers/payloads.json`)).create_flow_payload;
