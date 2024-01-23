@@ -141,6 +141,7 @@ public class HistoryService {
         fdrPublishMap.put(HistoryConstants.FDR_PUBLISH_SUM_PAYMENTS, fdrPublishEntity.getSumPayments());
 
 
+
         logger.info("Send to "+tableNameFdrPublish+" record with "+HistoryConstants.FDR_PUBLISH_ID+"="+id);
         TableClient tableClient = this.tableServiceClient.getTableClient(tableNameFdrPublish);
         TableEntity entity = new TableEntity(partitionKey, id);
