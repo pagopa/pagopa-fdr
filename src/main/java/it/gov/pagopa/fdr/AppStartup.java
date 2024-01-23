@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr;
 
 import io.quarkus.runtime.Startup;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
+import it.gov.pagopa.fdr.service.history.HistoryService;
 import it.gov.pagopa.fdr.service.re.ReService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,6 +23,8 @@ public class AppStartup {
   @ConfigProperty(name = "eHub.re.enabled")
   boolean eHubReEnabled;
 
+  @ConfigProperty(name = "history.enabled")
+  boolean historyEnabled;
   @Inject Logger log;
 
   @Inject Config config;
@@ -29,6 +32,7 @@ public class AppStartup {
   @Inject ConversionService conversionQueue;
 
   @Inject ReService reService;
+  @Inject HistoryService historyService;
 
   @PostConstruct
   public void init() {
@@ -51,6 +55,13 @@ public class AppStartup {
       reService.init();
     } else {
       log.info("Start EventHub Re and blob DISABLED");
+    }
+
+    if (historyEnabled) {
+      log.info("History ENABLED");
+      historyService.init();
+    } else {
+      log.info("History DISABLED");
     }
   }
 }

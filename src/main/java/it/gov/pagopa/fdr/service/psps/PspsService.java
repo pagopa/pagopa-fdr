@@ -21,18 +21,16 @@ import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
+import it.gov.pagopa.fdr.service.history.HistoryService;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
-import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrStatusEnum;
-import it.gov.pagopa.fdr.service.re.model.ReInternal;
+import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
+import java.sql.Blob;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +50,8 @@ public class PspsService {
   @Inject ConversionService conversionQueue;
 
   @Inject ReService reService;
+
+  @Inject HistoryService historyService;
 
   @WithSpan(kind = SERVER)
   public void save(String action, FdrDto fdrDto) {
@@ -300,15 +300,22 @@ public class PspsService {
             .project(FdrPaymentInsertEntity.class)
             .list();
 
+
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(fdrEntity);
     Instant now = Instant.now();
     fdrPublishEntity.setUpdated(now);
     fdrPublishEntity.setPublished(now);
     fdrPublishEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
-    fdrPublishEntity.persistEntity();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
     FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
+
+    // salva su storage dello storico
+    BlobHttpBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
+    fdrPublishEntity.setRefJson(body);
+    fdrPublishEntity.persistEntity();
+
+    historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
 
     log.debug("Delete FdrInsertEntity");
     fdrEntity.delete();

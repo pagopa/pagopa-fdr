@@ -10,6 +10,8 @@ import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.SenderEntity;
 import java.time.Instant;
+
+import it.gov.pagopa.fdr.service.re.model.BlobHttpBody;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -57,6 +59,9 @@ public class FdrPublishEntity extends PanacheMongoEntity {
 
   @BsonProperty("sum_payments")
   private Double sumPayments;
+
+  @BsonProperty("ref_json")
+  private BlobHttpBody refJson;
 
   public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspIdAndOrganizationId(
       String fdr, Long rev, String pspId, String organizationId) {

@@ -28,6 +28,9 @@ microservice-chart:
     QUEUE_CONVERSION_NAME: "flowidsendqueue"
     EVENT_HUB_RE_NAME: "fdr-re"
     BLOB_RE_CONTAINER_NAME: "payload"
+    BLOB_HISTORY_CONTAINER_NAME: "fdrhistory"
+    TABLE_HISTORY_FDR_PUBLISH_TABLE: "fdrpublish"
+    TABLE_HISTORY_FDR_PAYMENT_PUBLISH_TABLE: "fdrpaymentpublish"
   envFieldRef:
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
@@ -40,6 +43,8 @@ microservice-chart:
       QUEUE_CONVERSION_CONNECTION_STRING: "fdr-sa-connection-string"
       EVENT_HUB_RE_CONNECTION_STRING: "azure-event-hub-re-connection-string"
       BLOB_RE_CONNECTION_STRING: "fdr-re-sa-connection-string"
+      BLOB_HISTORY_CONNECTION_STRING: "fdr-history-sa-connection-string"
+      TABLE_HISTORY_CONNECTION_STRING: "fdr-history-sa-connection-string"
     keyvault:
       name: "pagopa-d-fdr-kv"
       tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
