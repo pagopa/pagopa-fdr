@@ -17,7 +17,6 @@ import it.gov.pagopa.fdr.service.support.mapper.SupportServiceServiceMapper;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import org.jboss.logging.Logger;
@@ -25,11 +24,17 @@ import org.jboss.logging.MDC;
 
 @ApplicationScoped
 public class SupportService {
-  @Inject Config config;
+  private final Config config;
 
-  @Inject SupportServiceServiceMapper mapper;
+  private final SupportServiceServiceMapper mapper;
 
-  @Inject Logger log;
+  private final Logger log;
+
+  public SupportService(Config config, SupportServiceServiceMapper mapper, Logger log) {
+    this.config = config;
+    this.mapper = mapper;
+    this.log = log;
+  }
 
   @WithSpan(kind = SERVER)
   public PaymentGetByPspIdIuvIurDTO findPaymentsByPspIdAndIuvIur(

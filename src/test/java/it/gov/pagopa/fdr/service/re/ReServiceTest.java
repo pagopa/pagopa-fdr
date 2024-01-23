@@ -18,7 +18,6 @@ import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
-import jakarta.inject.Inject;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ import org.mockito.Mockito;
 @QuarkusTestResource(AzuriteResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ReServiceTest {
-  @Inject ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
   @InjectMock ReService reServiceMock;
 
   @ConfigProperty(name = "blob.re.connect-str")
@@ -51,6 +50,10 @@ class ReServiceTest {
   Field producerField;
   Field blobContainerClientField;
   Field objectMapperField;
+
+  ReServiceTest(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   @BeforeAll
   void init() throws NoSuchFieldException, IllegalAccessException {

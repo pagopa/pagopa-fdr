@@ -13,7 +13,6 @@ import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
 import it.gov.pagopa.fdr.util.MDCKeys;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
@@ -33,11 +32,17 @@ import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 @Provider
 public class ResponseFilter implements ContainerResponseFilter {
 
-  @Inject Logger log;
+  private final Logger log;
 
-  @Inject ReService reService;
+  private final ReService reService;
 
-  @Inject ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
+
+  public ResponseFilter(Logger log, ReService reService, ObjectMapper objectMapper) {
+    this.log = log;
+    this.reService = reService;
+    this.objectMapper = objectMapper;
+  }
 
   @Override
   public void filter(

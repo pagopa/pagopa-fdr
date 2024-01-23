@@ -12,7 +12,6 @@ import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageInterface;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
-import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.UnexpectedTypeException;
 import jakarta.ws.rs.WebApplicationException;
@@ -29,7 +28,11 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 public class ExceptionMappers {
 
-  @Inject Logger log;
+  private final Logger log;
+
+  public ExceptionMappers(Logger log) {
+    this.log = log;
+  }
 
   @ServerExceptionMapper
   public Response mapWebApplicationException(WebApplicationException webApplicationException) {

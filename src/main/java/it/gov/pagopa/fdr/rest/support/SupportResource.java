@@ -11,7 +11,6 @@ import it.gov.pagopa.fdr.service.support.FindPaymentsByPspIdAndIuvIurArgs;
 import it.gov.pagopa.fdr.service.support.SupportService;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.Re;
-import jakarta.inject.Inject;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
@@ -37,8 +36,13 @@ import org.jboss.logging.MDC;
 @Produces("application/json")
 public class SupportResource {
 
-  @Inject SupportResourceServiceMapper mapper;
-  @Inject SupportService service;
+  private final SupportResourceServiceMapper mapper;
+  private final SupportService service;
+
+  public SupportResource(SupportResourceServiceMapper mapper, SupportService service) {
+    this.mapper = mapper;
+    this.service = service;
+  }
 
   @Operation(
       operationId = "getByIuv",

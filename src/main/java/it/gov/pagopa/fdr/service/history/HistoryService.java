@@ -21,7 +21,6 @@ import it.gov.pagopa.fdr.service.history.model.FdrHistoryEntity;
 import it.gov.pagopa.fdr.service.history.model.FdrHistoryPaymentEntity;
 import it.gov.pagopa.fdr.service.re.model.BlobHttpBody;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,9 +30,9 @@ import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class HistoryService {
-  @Inject HistoryServiceMapper mapper;
-  @Inject Logger logger;
-  @Inject ObjectMapper objMapper;
+  private final HistoryServiceMapper mapper;
+  private final Logger logger;
+  private final ObjectMapper objMapper;
 
   @ConfigProperty(name = "blob.history.connect-str")
   String blobConnectionsStr;
@@ -52,6 +51,12 @@ public class HistoryService {
 
   private BlobContainerClient blobContainerClient;
   private TableServiceClient tableServiceClient;
+
+  public HistoryService(HistoryServiceMapper mapper, Logger logger, ObjectMapper objMapper) {
+    this.mapper = mapper;
+    this.logger = logger;
+    this.objMapper = objMapper;
+  }
 
   public void init() {
     logger.infof(
@@ -72,9 +77,6 @@ public class HistoryService {
         String partitionKey = createPartitionKey(fdrEntity.getPublished());
         saveFdrOnTableStorage(fdrEntity, partitionKey);
         saveFdrPaymentsOnTableStorage(paymentsList, partitionKey);
-      } catch (JsonProcessingException e) {
-        logger.error("Error processing fdrHistoryEntity as Bytes", e);
-        throw new AppException(AppErrorCodeMessageEnum.ERROR);
       } catch (Exception e) {
         logger.error("Exception while uploading FDR History", e);
         throw new AppException(AppErrorCodeMessageEnum.ERROR);
@@ -126,8 +128,7 @@ public class HistoryService {
     return publishTime.toString().substring(0, 10);
   }
 
-  private void saveFdrOnTableStorage(FdrPublishEntity fdrPublishEntity, String partitionKey)
-      throws JsonProcessingException {
+  private void saveFdrOnTableStorage(FdrPublishEntity fdrPublishEntity, String partitionKey) {
     Map<String, Object> fdrPublishMap = new LinkedHashMap<>();
     String id = String.valueOf(fdrPublishEntity.id);
     fdrPublishMap.put(HistoryConstants.FDR_PUBLISH_ID, id);
@@ -202,8 +203,7 @@ public class HistoryService {
   }
 
   private void saveFdrPaymentsOnTableStorage(
-      List<FdrPaymentPublishEntity> paymentsList, String partitionKey)
-      throws JsonProcessingException {
+      List<FdrPaymentPublishEntity> paymentsList, String partitionKey) {
     paymentsList.forEach(
         payment -> {
           Map<String, Object> paymentMap = new LinkedHashMap<>();
@@ -240,7 +240,7 @@ public class HistoryService {
                   + id);
           TableClient tableClient =
               this.tableServiceClient.getTableClient(tableNameFdrPaymentPublish);
-          TableEntity entity = new TableEntity(partitionKey, id + "-" + payment.getIndex());
+          TableEntity entity = new TableEntity(partitionKey, id);
           entity.setProperties(paymentMap);
           tableClient.createEntity(entity);
         });

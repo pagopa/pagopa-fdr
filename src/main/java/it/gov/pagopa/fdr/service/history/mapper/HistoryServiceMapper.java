@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.service.history.mapper;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.service.history.model.FdrHistoryEntity;
-import it.gov.pagopa.fdr.service.history.model.FdrHistoryMongoEntity;
 import it.gov.pagopa.fdr.service.history.model.FdrHistoryPaymentEntity;
 import java.util.List;
 import org.mapstruct.Mapper;
@@ -24,6 +23,4 @@ public interface HistoryServiceMapper {
 
   List<FdrHistoryPaymentEntity> toFdrHistoryPaymentEntityList(
       List<FdrPaymentPublishEntity> fdrPaymentPublishEntities);
-
-  FdrHistoryMongoEntity toFdrHistoryMongoEntity(FdrHistoryEntity fdrHistoryEntity);
 }

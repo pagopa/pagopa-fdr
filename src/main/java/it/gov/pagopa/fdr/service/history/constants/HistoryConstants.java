@@ -1,6 +1,10 @@
 package it.gov.pagopa.fdr.service.history.constants;
 
 public class HistoryConstants {
+  private HistoryConstants() {
+    throw new IllegalStateException("Utility Class");
+  }
+
   public static final String FDR_PUBLISH_ID = "id";
   public static final String FDR_PUBLISH_REVISION = "revision";
   public static final String FDR_PUBLISH_CREATED = "created";

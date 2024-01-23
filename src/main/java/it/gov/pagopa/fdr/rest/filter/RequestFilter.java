@@ -6,7 +6,6 @@ import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -26,9 +25,14 @@ import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 @Provider
 public class RequestFilter implements ContainerRequestFilter {
 
-  @Inject Logger log;
+  private final Logger log;
 
-  @Inject ReService reService;
+  private final ReService reService;
+
+  public RequestFilter(Logger log, ReService reService) {
+    this.log = log;
+    this.reService = reService;
+  }
 
   @Override
   public void filter(ContainerRequestContext containerRequestContext) throws IOException {

@@ -1,8 +1,13 @@
 package it.gov.pagopa.fdr.rest.organizations;
 
+import it.gov.pagopa.fdr.Config;
+import it.gov.pagopa.fdr.rest.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.rest.organizations.validation.InternalOrganizationsValidationService;
+import it.gov.pagopa.fdr.rest.organizations.validation.OrganizationsValidationService;
+import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.Re;
@@ -23,12 +28,23 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.jboss.logging.Logger;
 
 @Tag(name = "Organizations", description = "Organizations operations")
 @Path("/organizations/{" + AppConstant.ORGANIZATION + "}/fdrs")
 @Consumes("application/json")
 @Produces("application/json")
 public class OrganizationsResource extends BaseOrganizationsResource {
+
+  protected OrganizationsResource(
+      Config config,
+      Logger log,
+      OrganizationsValidationService validator,
+      InternalOrganizationsValidationService internalValidator,
+      OrganizationsResourceServiceMapper mapper,
+      OrganizationsService service) {
+    super(config, log, validator, internalValidator, mapper, service);
+  }
 
   @Operation(
       operationId = "getAllPublished",

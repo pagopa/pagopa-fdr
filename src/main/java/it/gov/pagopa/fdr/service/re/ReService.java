@@ -18,7 +18,6 @@ import it.gov.pagopa.fdr.service.re.model.ReAbstract;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
@@ -31,7 +30,7 @@ import org.jboss.logging.Logger;
 @ApplicationScoped
 public class ReService {
 
-  @Inject Logger log;
+  private final Logger log;
 
   @ConfigProperty(name = "ehub.re.connect-str")
   String eHubConnectStr;
@@ -49,7 +48,12 @@ public class ReService {
 
   private BlobContainerClient blobContainerClient;
 
-  @Inject ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
+
+  public ReService(Logger log, ObjectMapper objectMapper) {
+    this.log = log;
+    this.objectMapper = objectMapper;
+  }
 
   public void init() {
     log.infof(

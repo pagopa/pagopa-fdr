@@ -28,7 +28,6 @@ import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -42,15 +41,28 @@ import org.jboss.logging.MDC;
 @ApplicationScoped
 public class PspsService {
 
-  @Inject PspsServiceServiceMapper mapper;
+  private final PspsServiceServiceMapper mapper;
 
-  @Inject Logger log;
+  private final Logger log;
 
-  @Inject ConversionService conversionQueue;
+  private final ConversionService conversionQueue;
 
-  @Inject ReService reService;
+  private final ReService reService;
 
-  @Inject HistoryService historyService;
+  private final HistoryService historyService;
+
+  public PspsService(
+      PspsServiceServiceMapper mapper,
+      Logger log,
+      ConversionService conversionQueue,
+      ReService reService,
+      HistoryService historyService) {
+    this.mapper = mapper;
+    this.log = log;
+    this.conversionQueue = conversionQueue;
+    this.reService = reService;
+    this.historyService = historyService;
+  }
 
   @WithSpan(kind = SERVER)
   public void save(String action, FdrDto fdrDto) {

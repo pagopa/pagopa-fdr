@@ -15,7 +15,6 @@ import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
-import jakarta.inject.Inject;
 import java.time.Instant;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
@@ -23,15 +22,30 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 public abstract class BaseOrganizationsResource {
 
-  @Inject Config config;
-  @Inject Logger log;
+  private final Config config;
+  private final Logger log;
 
-  @Inject OrganizationsValidationService validator;
-  @Inject InternalOrganizationsValidationService internalValidator;
+  private final OrganizationsValidationService validator;
+  private final InternalOrganizationsValidationService internalValidator;
 
-  @Inject OrganizationsResourceServiceMapper mapper;
+  private final OrganizationsResourceServiceMapper mapper;
 
-  @Inject OrganizationsService service;
+  private final OrganizationsService service;
+
+  protected BaseOrganizationsResource(
+      Config config,
+      Logger log,
+      OrganizationsValidationService validator,
+      InternalOrganizationsValidationService internalValidator,
+      OrganizationsResourceServiceMapper mapper,
+      OrganizationsService service) {
+    this.config = config;
+    this.log = log;
+    this.validator = validator;
+    this.internalValidator = internalValidator;
+    this.mapper = mapper;
+    this.service = service;
+  }
 
   protected GetAllResponse baseGetAll(
       String organizationId,

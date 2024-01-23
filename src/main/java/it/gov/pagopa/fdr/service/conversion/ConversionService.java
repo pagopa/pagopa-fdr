@@ -7,7 +7,6 @@ import com.azure.storage.queue.QueueMessageEncoding;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import lombok.SneakyThrows;
@@ -23,11 +22,16 @@ public class ConversionService {
   @ConfigProperty(name = "queue.conversion.name")
   String queueName;
 
-  @Inject Logger log;
+  private final Logger log;
 
   private QueueClient queue;
 
-  @Inject ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
+
+  public ConversionService(Logger log, ObjectMapper objectMapper) {
+    this.log = log;
+    this.objectMapper = objectMapper;
+  }
 
   @SneakyThrows
   public void init() {

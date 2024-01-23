@@ -22,7 +22,6 @@ import it.gov.pagopa.fdr.service.organizations.mapper.OrganizationsServiceServic
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +31,14 @@ import org.jboss.logging.MDC;
 @ApplicationScoped
 public class OrganizationsService {
 
-  @Inject OrganizationsServiceServiceMapper mapper;
+  private final OrganizationsServiceServiceMapper mapper;
 
-  @Inject Logger log;
+  private final Logger log;
+
+  public OrganizationsService(OrganizationsServiceServiceMapper mapper, Logger log) {
+    this.mapper = mapper;
+    this.log = log;
+  }
 
   @WithSpan(kind = SERVER)
   public FdrAllDto find(

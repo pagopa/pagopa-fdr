@@ -6,7 +6,6 @@ import it.gov.pagopa.fdr.service.history.HistoryService;
 import it.gov.pagopa.fdr.service.re.ReService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -26,14 +25,27 @@ public class AppStartup {
   @ConfigProperty(name = "history.enabled")
   boolean historyEnabled;
 
-  @Inject Logger log;
+  private final Logger log;
 
-  @Inject Config config;
+  private final Config config;
 
-  @Inject ConversionService conversionQueue;
+  private final ConversionService conversionQueue;
 
-  @Inject ReService reService;
-  @Inject HistoryService historyService;
+  private final ReService reService;
+  private final HistoryService historyService;
+
+  public AppStartup(
+      Logger log,
+      Config config,
+      ConversionService conversionQueue,
+      ReService reService,
+      HistoryService historyService) {
+    this.log = log;
+    this.config = config;
+    this.conversionQueue = conversionQueue;
+    this.reService = reService;
+    this.historyService = historyService;
+  }
 
   @PostConstruct
   public void init() {
