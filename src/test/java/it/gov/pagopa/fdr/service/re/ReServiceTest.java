@@ -74,7 +74,9 @@ class ReServiceTest {
     eHubNameField.set(reServiceMock, "eventHub");
 
     Field logField = ReService.class.getDeclaredField("log");
+    logField.setAccessible(true);
     objectMapperField = ReService.class.getDeclaredField("objectMapper");
+    objectMapperField.setAccessible(true);
     logField.set(reServiceMock, Logger.getLogger(ReService.class));
   }
 
