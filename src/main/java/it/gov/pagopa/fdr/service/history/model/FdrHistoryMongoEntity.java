@@ -5,10 +5,10 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.SenderEntity;
+import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.codecs.pojo.annotations.BsonProperty;
-import java.time.Instant;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

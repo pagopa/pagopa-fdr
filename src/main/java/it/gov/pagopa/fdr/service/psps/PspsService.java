@@ -30,7 +30,6 @@ import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
-import java.sql.Blob;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -299,7 +298,6 @@ public class PspsService {
         FdrPaymentInsertEntity.findByFdrAndPspId(fdr, pspId)
             .project(FdrPaymentInsertEntity.class)
             .list();
-
 
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(fdrEntity);
     Instant now = Instant.now();

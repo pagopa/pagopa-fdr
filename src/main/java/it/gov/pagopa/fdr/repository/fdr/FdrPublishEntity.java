@@ -9,9 +9,8 @@ import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.SenderEntity;
-import java.time.Instant;
-
 import it.gov.pagopa.fdr.service.re.model.BlobHttpBody;
+import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.codecs.pojo.annotations.BsonProperty;

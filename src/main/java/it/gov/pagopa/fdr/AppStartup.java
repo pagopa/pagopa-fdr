@@ -25,6 +25,7 @@ public class AppStartup {
 
   @ConfigProperty(name = "history.enabled")
   boolean historyEnabled;
+
   @Inject Logger log;
 
   @Inject Config config;

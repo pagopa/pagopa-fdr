@@ -1,14 +1,12 @@
 package it.gov.pagopa.fdr.service.history.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.SenderEntity;
-import lombok.*;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 import java.time.Instant;
 import java.util.List;
+import lombok.*;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 @Builder
@@ -53,6 +51,5 @@ public class FdrHistoryEntity {
   @BsonProperty("sum_payments")
   private Double sumPayments;
 
-  @Setter
-  private List<FdrHistoryPaymentEntity> paymentList;
+  @Setter private List<FdrHistoryPaymentEntity> paymentList;
 }

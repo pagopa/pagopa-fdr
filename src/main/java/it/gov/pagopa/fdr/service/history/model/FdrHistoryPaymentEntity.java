@@ -1,20 +1,11 @@
 package it.gov.pagopa.fdr.service.history.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.quarkus.mongodb.panache.PanacheMongoEntity;
-import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
-import io.quarkus.mongodb.panache.PanacheQuery;
-import io.quarkus.mongodb.panache.common.MongoEntity;
-import io.quarkus.panache.common.Parameters;
-import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
+import java.time.Instant;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
-
-import java.time.Instant;
-import java.util.List;
 
 @Data
 public class FdrHistoryPaymentEntity {
@@ -27,14 +18,11 @@ public class FdrHistoryPaymentEntity {
 
   private Double pay;
 
-  @JsonIgnore
-  private Long revision;
+  @JsonIgnore private Long revision;
 
-  @JsonIgnore
-  private Instant created;
+  @JsonIgnore private Instant created;
 
-  @JsonIgnore
-  private Instant updated;
+  @JsonIgnore private Instant updated;
 
   @BsonProperty("pay_status")
   private PaymentStatusEnumEntity payStatus;
