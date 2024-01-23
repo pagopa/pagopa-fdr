@@ -79,38 +79,46 @@ public class HistoryService {
         logger.error("Exception while uploading FDR History", e);
         throw new AppException(AppErrorCodeMessageEnum.ERROR);
       }
+    } else {
+      logger.debugf("Blob container [%s] NOT INITIALIZED", blobContainerName);
     }
   }
 
   public BlobHttpBody saveJsonFile(
       FdrPublishEntity fdrEntity, List<FdrPaymentPublishEntity> paymentsList) {
-    FdrHistoryEntity fdrHistoryEntity = mapper.toFdrHistoryEntity(fdrEntity);
-    List<FdrHistoryPaymentEntity> fdrHistoryPaymentEntityList =
-        mapper.toFdrHistoryPaymentEntityList(paymentsList);
-    fdrHistoryEntity.setPaymentList(fdrHistoryPaymentEntityList);
-    String fileName =
-        String.format(
-            "%s_%s_%s.json",
-            fdrEntity.getFdr(), fdrEntity.getSender().getPspId(), fdrEntity.getRevision());
-    try {
-      byte[] jsonBytes = objMapper.writeValueAsBytes(fdrHistoryEntity);
-      BinaryData jsonFile = BinaryData.fromBytes(jsonBytes);
+    if (blobContainerClient != null) {
+      FdrHistoryEntity fdrHistoryEntity = mapper.toFdrHistoryEntity(fdrEntity);
+      List<FdrHistoryPaymentEntity> fdrHistoryPaymentEntityList =
+          mapper.toFdrHistoryPaymentEntityList(paymentsList);
+      fdrHistoryEntity.setPaymentList(fdrHistoryPaymentEntityList);
+      String fileName =
+          String.format(
+              "%s_%s_%s.json",
+              fdrEntity.getFdr(), fdrEntity.getSender().getPspId(), fdrEntity.getRevision());
 
-      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
-      blobClient.upload(jsonFile);
+      try {
+        byte[] jsonBytes = objMapper.writeValueAsBytes(fdrHistoryEntity);
+        BinaryData jsonFile = BinaryData.fromBytes(jsonBytes);
 
-      return BlobHttpBody.builder()
-          .storageAccount(blobContainerClient.getAccountName())
-          .containerName(blobContainerName)
-          .fileName(fileName)
-          .fileLength(jsonFile.getLength())
-          .build();
-    } catch (JsonProcessingException e) {
-      logger.error("Error processing fdrHistoryEntity as Bytes", e);
-      throw new AppException(AppErrorCodeMessageEnum.ERROR);
-    } catch (Exception e) {
-      logger.error("Error while uploading blob", e);
-      throw new AppException(AppErrorCodeMessageEnum.ERROR);
+        BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+        blobClient.upload(jsonFile);
+
+        return BlobHttpBody.builder()
+            .storageAccount(blobContainerClient.getAccountName())
+            .containerName(blobContainerName)
+            .fileName(fileName)
+            .fileLength(jsonFile.getLength())
+            .build();
+      } catch (JsonProcessingException e) {
+        logger.error("Error processing fdrHistoryEntity as Bytes", e);
+        throw new AppException(AppErrorCodeMessageEnum.ERROR);
+      } catch (Exception e) {
+        logger.error("Error while uploading blob", e);
+        throw new AppException(AppErrorCodeMessageEnum.ERROR);
+      }
+    } else {
+      logger.debugf("Blob container [%s] NOT INITIALIZED", blobContainerName);
+      return null;
     }
   }
 

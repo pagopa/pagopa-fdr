@@ -29,13 +29,17 @@ public class AzuriteResource implements QuarkusTestResourceLifecycleManager {
             + "/devstoreaccount1;";
     String queueName = "queueconversionTest";
     String containerName = "blobContainerReTest";
-    String historyContainerName = "blobContainerHistoryTest";
+    String historyContainerName = "fdrhistory";
+    String historyPublishTable = "fdrpublish";
+    String historyPaymentPublishTable = "fdrpaymentpublish";
 
     Map<String, String> conf = new HashMap<>();
     conf.put("mockserver.azurite.connection-string", connectStr);
     conf.put("mockserver.azurite.queue-name", queueName);
     conf.put("mockserver.azurite.container-name", containerName);
     conf.put("mockserver.azurite.history.container-name", historyContainerName);
+    conf.put("mockserver.azurite.table.fdrpublish", historyPublishTable);
+    conf.put("mockserver.azurite.table.fdrpaymentpublish", historyPaymentPublishTable);
     return conf;
   }
 
