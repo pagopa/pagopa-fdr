@@ -9,7 +9,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
-import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIuvIurDTO;
@@ -24,14 +23,11 @@ import org.jboss.logging.MDC;
 
 @ApplicationScoped
 public class SupportService {
-  private final Config config;
-
   private final SupportServiceServiceMapper mapper;
 
   private final Logger log;
 
-  public SupportService(Config config, SupportServiceServiceMapper mapper, Logger log) {
-    this.config = config;
+  public SupportService(SupportServiceServiceMapper mapper, Logger log) {
     this.mapper = mapper;
     this.log = log;
   }
