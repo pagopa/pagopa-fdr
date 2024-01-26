@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
+import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -35,7 +35,7 @@ public class FileUtil {
   public String convertToString(InputStream is) {
     try (InputStreamReader streamReader = new InputStreamReader(is, StandardCharsets.UTF_8);
         BufferedReader reader = new BufferedReader(streamReader)) {
-      return IOUtils.toString(reader);
+      return reader.lines().collect(Collectors.joining());
     } catch (IOException e) {
       log.error("Error converting InputStream to String", e);
       throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
