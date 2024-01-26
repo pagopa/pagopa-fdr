@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.util;
 
+import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.exception.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +26,7 @@ public class FileUtil {
     // the stream holding the file content
     if (inputStream == null) {
       log.errorf("Error reading file: [%s]", fileName);
-      throw new IllegalArgumentException("file not found! " + fileName);
+      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_FILE_NOT_FOUND);
     } else {
       return inputStream;
     }
@@ -36,7 +38,7 @@ public class FileUtil {
       return IOUtils.toString(reader);
     } catch (IOException e) {
       log.error("Error converting InputStream to String", e);
-      throw new RuntimeException(e);
+      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
     }
   }
 }

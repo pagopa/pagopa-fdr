@@ -58,7 +58,9 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   FDR_HISTORY_JSON_PROCESSING_ERROR(
       "0727", "fdr.fdrHistoryJsonProcessingError", Status.INTERNAL_SERVER_ERROR),
   FDR_HISTORY_SAVE_TABLE_STORAGE_ERROR(
-      "0728", "fdr.fdrHistorySaveOnTableStorageError", Status.INTERNAL_SERVER_ERROR);
+      "0728", "fdr.fdrHistorySaveOnTableStorageError", Status.INTERNAL_SERVER_ERROR),
+  FILE_UTILS_CONVERSION_ERROR("0729", "fdr.fileUtilsConversionError", Status.INTERNAL_SERVER_ERROR),
+  FILE_UTILS_FILE_NOT_FOUND("0730", "fdr.fileUtilsFileNotFound", Status.INTERNAL_SERVER_ERROR);
   private final String errorCode;
   private final String errorMessageKey;
   private final RestResponse.Status httpStatus;

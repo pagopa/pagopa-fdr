@@ -122,13 +122,7 @@ public class HistoryService {
         isJsonValid(fdrHistoryEntityJson, jsonSchema);
         BinaryData jsonFile = BinaryData.fromString(fdrHistoryEntityJson);
 
-        try {
-          BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
-          blobClient.upload(jsonFile);
-        } catch (Exception e) {
-          logger.error("Error uploading history JSON blob", e);
-          throw new AppException(AppErrorCodeMessageEnum.FDR_HISTORY_UPLOAD_JSON_BLOB_ERROR);
-        }
+        uploadBlob(fileName, jsonFile);
         return HistoryBlobBody.builder()
             .storageAccount(blobContainerClient.getAccountName())
             .containerName(blobContainerName)
@@ -146,8 +140,17 @@ public class HistoryService {
     }
   }
 
+  private void uploadBlob(String fileName, BinaryData jsonFile) {
+    try {
+      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+      blobClient.upload(jsonFile);
+    } catch (Exception e) {
+      logger.error("Error uploading history JSON blob", e);
+      throw new AppException(AppErrorCodeMessageEnum.FDR_HISTORY_UPLOAD_JSON_BLOB_ERROR);
+    }
+  }
+
   public void isJsonValid(String jsonString, String jsonSchema) throws JsonProcessingException {
-    // jsonString = jsonString.replace("\"created\":", "\"pippo\":");
     JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
     JsonSchema schema = factory.getSchema(jsonSchema);
     JsonNode jsonNode = objMapper.readTree(jsonString);
