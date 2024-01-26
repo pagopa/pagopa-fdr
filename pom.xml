@@ -165,7 +165,16 @@
       <version>2.10.1</version>
       <scope>test</scope>
     </dependency>
-
+<!--    <dependency>-->
+<!--      <groupId>io.vertx</groupId>-->
+<!--      <artifactId>vertx-json-schema</artifactId>-->
+<!--      <version>4.5.1</version>-->
+<!--    </dependency>-->
+    <dependency>
+      <groupId>com.networknt</groupId>
+      <artifactId>json-schema-validator</artifactId>
+      <version>1.0.87</version>
+    </dependency>
     <!-- solo per i mac M1 https://medium.com/@boysbee/unable-to-load-io-netty-resolver-dns-macos-macosdnsserveraddressstreamprovider-46d89bf74d42 -->
     <dependency>
       <groupId>io.netty</groupId>

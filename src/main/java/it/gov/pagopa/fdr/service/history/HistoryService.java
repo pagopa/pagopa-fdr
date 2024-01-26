@@ -10,7 +10,12 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
@@ -19,12 +24,13 @@ import it.gov.pagopa.fdr.service.history.constants.HistoryConstants;
 import it.gov.pagopa.fdr.service.history.mapper.HistoryServiceMapper;
 import it.gov.pagopa.fdr.service.history.model.FdrHistoryEntity;
 import it.gov.pagopa.fdr.service.history.model.FdrHistoryPaymentEntity;
-import it.gov.pagopa.fdr.service.re.model.BlobHttpBody;
+import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
+import it.gov.pagopa.fdr.service.history.model.JsonSchemaVersionEnum;
+import it.gov.pagopa.fdr.util.FileUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -33,6 +39,8 @@ public class HistoryService {
   private final HistoryServiceMapper mapper;
   private final Logger logger;
   private final ObjectMapper objMapper;
+
+  private final FileUtil fileUtil;
 
   @ConfigProperty(name = "blob.history.connect-str")
   String blobConnectionsStr;
@@ -49,13 +57,19 @@ public class HistoryService {
   @ConfigProperty(name = "table.history.tablename.fdrpaymentpublish")
   String tableNameFdrPaymentPublish;
 
+  @ConfigProperty(name = "json.schema.version")
+  String jsonSchemaVersion;
+
   private BlobContainerClient blobContainerClient;
   private TableServiceClient tableServiceClient;
+  private String jsonSchema;
 
-  public HistoryService(HistoryServiceMapper mapper, Logger logger, ObjectMapper objMapper) {
+  public HistoryService(
+      HistoryServiceMapper mapper, Logger logger, ObjectMapper objMapper, FileUtil fileUtil) {
     this.mapper = mapper;
     this.logger = logger;
     this.objMapper = objMapper;
+    this.fileUtil = fileUtil;
   }
 
   public void init() {
@@ -68,6 +82,10 @@ public class HistoryService {
         new TableServiceClientBuilder().connectionString(tableStorageConnString).buildClient();
     this.tableServiceClient.createTableIfNotExists(tableNameFdrPublish);
     this.tableServiceClient.createTableIfNotExists(tableNameFdrPaymentPublish);
+    this.jsonSchema =
+        fileUtil.convertToString(
+            fileUtil.getFileFromResourceAsStream(
+                "/schema-json/fdr_history_schema_" + jsonSchemaVersion.toLowerCase() + ".json"));
   }
 
   public void saveOnStorage(
@@ -78,15 +96,15 @@ public class HistoryService {
         saveFdrOnTableStorage(fdrEntity, partitionKey);
         saveFdrPaymentsOnTableStorage(paymentsList, partitionKey);
       } catch (Exception e) {
-        logger.error("Exception while uploading FDR History", e);
-        throw new AppException(AppErrorCodeMessageEnum.ERROR);
+        logger.error("Error while uploading FDR History on Table Storage", e);
+        throw new AppException(AppErrorCodeMessageEnum.FDR_HISTORY_SAVE_TABLE_STORAGE_ERROR);
       }
     } else {
       logger.debugf("Blob container [%s] NOT INITIALIZED", blobContainerName);
     }
   }
 
-  public BlobHttpBody saveJsonFile(
+  public HistoryBlobBody saveJsonFile(
       FdrPublishEntity fdrEntity, List<FdrPaymentPublishEntity> paymentsList) {
     if (blobContainerClient != null) {
       FdrHistoryEntity fdrHistoryEntity = mapper.toFdrHistoryEntity(fdrEntity);
@@ -99,28 +117,46 @@ public class HistoryService {
               fdrEntity.getFdr(), fdrEntity.getSender().getPspId(), fdrEntity.getRevision());
 
       try {
-        byte[] jsonBytes = objMapper.writeValueAsBytes(fdrHistoryEntity);
-        BinaryData jsonFile = BinaryData.fromBytes(jsonBytes);
+        String fdrHistoryEntityJson = objMapper.writeValueAsString(fdrHistoryEntity);
 
-        BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
-        blobClient.upload(jsonFile);
+        isJsonValid(fdrHistoryEntityJson, jsonSchema);
+        BinaryData jsonFile = BinaryData.fromString(fdrHistoryEntityJson);
 
-        return BlobHttpBody.builder()
+        try {
+          BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+          blobClient.upload(jsonFile);
+        } catch (Exception e) {
+          logger.error("Error uploading history JSON blob", e);
+          throw new AppException(AppErrorCodeMessageEnum.FDR_HISTORY_UPLOAD_JSON_BLOB_ERROR);
+        }
+        return HistoryBlobBody.builder()
             .storageAccount(blobContainerClient.getAccountName())
             .containerName(blobContainerName)
             .fileName(fileName)
             .fileLength(jsonFile.getLength())
+            .jsonSchemaVersion(JsonSchemaVersionEnum.valueOf(jsonSchemaVersion))
             .build();
       } catch (JsonProcessingException e) {
-        logger.error("Error processing fdrHistoryEntity as Bytes", e);
-        throw new AppException(AppErrorCodeMessageEnum.ERROR);
-      } catch (Exception e) {
-        logger.error("Error while uploading blob", e);
-        throw new AppException(AppErrorCodeMessageEnum.ERROR);
+        logger.error("Error processing fdrHistoryEntity", e);
+        throw new AppException(AppErrorCodeMessageEnum.FDR_HISTORY_JSON_PROCESSING_ERROR);
       }
     } else {
       logger.debugf("Blob container [%s] NOT INITIALIZED", blobContainerName);
       return null;
+    }
+  }
+
+  public void isJsonValid(String jsonString, String jsonSchema) throws JsonProcessingException {
+    // jsonString = jsonString.replace("\"created\":", "\"pippo\":");
+    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+    JsonSchema schema = factory.getSchema(jsonSchema);
+    JsonNode jsonNode = objMapper.readTree(jsonString);
+    Set<ValidationMessage> errors = schema.validate(jsonNode);
+    if (!errors.isEmpty()) {
+      logger.errorf(
+          "History JSON validation failed. [%s]",
+          errors.stream().map(e -> e.getMessage()).collect(Collectors.joining(", ")));
+      throw new AppException(AppErrorCodeMessageEnum.FDR_HISTORY_VALID_JSON_ERROR);
     }
   }
 
@@ -150,6 +186,9 @@ public class HistoryService {
     fdrPublishMap.put(
         HistoryConstants.FDR_PUBLISH_FDR_REF_JSON_STORAGE_ACCOUNT,
         fdrPublishEntity.getRefJson().getStorageAccount());
+    fdrPublishMap.put(
+        HistoryConstants.FDR_PUBLISH_FDR_REF_JSON_JSON_SCHEMA_VERSION,
+        fdrPublishEntity.getRefJson().getJsonSchemaVersion());
     fdrPublishMap.put(
         HistoryConstants.FDR_PUBLISH_SENDER_TYPE, fdrPublishEntity.getSender().getType());
     fdrPublishMap.put(HistoryConstants.FDR_PUBLISH_SENDER_ID, fdrPublishEntity.getSender().getId());

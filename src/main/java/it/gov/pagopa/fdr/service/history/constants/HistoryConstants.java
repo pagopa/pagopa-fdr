@@ -16,6 +16,8 @@ public class HistoryConstants {
   public static final String FDR_PUBLISH_FDR_REF_JSON_FILE_LENGTH = "ref_json.file_length";
   public static final String FDR_PUBLISH_FDR_REF_JSON_FILE_NAME = "ref_json.file_name";
   public static final String FDR_PUBLISH_FDR_REF_JSON_STORAGE_ACCOUNT = "ref_json.storage_account";
+  public static final String FDR_PUBLISH_FDR_REF_JSON_JSON_SCHEMA_VERSION =
+      "ref_json.json_schema_version";
   public static final String FDR_PUBLISH_SENDER_TYPE = "sender.type";
   public static final String FDR_PUBLISH_SENDER_ID = "sender.id";
   public static final String FDR_PUBLISH_SENDER_PSP_ID = "sender.psp_id";
@@ -34,7 +36,6 @@ public class HistoryConstants {
   public static final String FDR_PUBLISH_COMPUTED_SUM_PAYMENTS = "computed_sum_payments";
   public static final String FDR_PUBLISH_TOT_PAYMENTS = "tot_payments";
   public static final String FDR_PUBLISH_SUM_PAYMENTS = "sum_payments";
-
   public static final String FDR_PAYMENT_PUBLISH_ID = "id";
   public static final String FDR_PAYMENT_PUBLISH_REVISION = "revision";
   public static final String FDR_PAYMENT_PUBLISH_CREATED = "created";

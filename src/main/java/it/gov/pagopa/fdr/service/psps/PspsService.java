@@ -22,6 +22,7 @@ import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
 import it.gov.pagopa.fdr.service.history.HistoryService;
+import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.*;
@@ -321,7 +322,7 @@ public class PspsService {
     FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
 
     // salva su storage dello storico
-    BlobHttpBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
+    HistoryBlobBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
     fdrPublishEntity.setRefJson(body);
     fdrPublishEntity.persistEntity();
 
