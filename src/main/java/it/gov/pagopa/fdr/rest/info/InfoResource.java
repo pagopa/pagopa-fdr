@@ -5,7 +5,6 @@ import it.gov.pagopa.fdr.rest.info.response.InfoResponse;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import it.gov.pagopa.fdr.util.Re;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -24,7 +23,7 @@ import org.jboss.logging.Logger;
 @Tag(name = "Info", description = "Info operations")
 public class InfoResource {
 
-  @Inject Logger log;
+  private final Logger log;
 
   @ConfigProperty(name = "app.name", defaultValue = "app")
   String name;
@@ -34,6 +33,10 @@ public class InfoResource {
 
   @ConfigProperty(name = "app.environment", defaultValue = "local")
   String environment;
+
+  public InfoResource(Logger log) {
+    this.log = log;
+  }
 
   @Operation(summary = "Get info of FDR")
   @APIResponses(

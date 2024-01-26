@@ -7,7 +7,6 @@ import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.BrokerPsp;
 import org.openapi.quarkus.api_config_cache_json.model.Channel;
@@ -17,7 +16,11 @@ import org.openapi.quarkus.api_config_cache_json.model.PaymentServiceProvider;
 @ApplicationScoped
 public class PspsValidationService extends CommonValidationService {
 
-  @Inject Logger log;
+  private final Logger log;
+
+  public PspsValidationService(Logger log) {
+    this.log = log;
+  }
 
   @WithSpan(kind = SERVER)
   public void validateCreateFlow(

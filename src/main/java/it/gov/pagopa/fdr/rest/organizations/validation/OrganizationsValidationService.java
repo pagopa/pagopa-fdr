@@ -6,14 +6,17 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
 @ApplicationScoped
 public class OrganizationsValidationService extends CommonValidationService {
 
-  @Inject Logger log;
+  private final Logger log;
+
+  public OrganizationsValidationService(Logger log) {
+    this.log = log;
+  }
 
   @WithSpan(kind = SERVER)
   public void validateGetAllByEc(

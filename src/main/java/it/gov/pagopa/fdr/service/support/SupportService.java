@@ -9,7 +9,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
-import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.service.dto.MetadataDto;
 import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIuvIurDTO;
@@ -17,7 +16,6 @@ import it.gov.pagopa.fdr.service.support.mapper.SupportServiceServiceMapper;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import org.jboss.logging.Logger;
@@ -25,11 +23,14 @@ import org.jboss.logging.MDC;
 
 @ApplicationScoped
 public class SupportService {
-  @Inject Config config;
+  private final SupportServiceServiceMapper mapper;
 
-  @Inject SupportServiceServiceMapper mapper;
+  private final Logger log;
 
-  @Inject Logger log;
+  public SupportService(SupportServiceServiceMapper mapper, Logger log) {
+    this.mapper = mapper;
+    this.log = log;
+  }
 
   @WithSpan(kind = SERVER)
   public PaymentGetByPspIdIuvIurDTO findPaymentsByPspIdAndIuvIur(

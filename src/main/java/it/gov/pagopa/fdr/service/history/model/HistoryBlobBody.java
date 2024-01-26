@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.re.model;
+package it.gov.pagopa.fdr.service.history.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BlobHttpBody {
+public class HistoryBlobBody {
 
   @BsonProperty("storage_account")
   private String storageAccount;
@@ -23,4 +23,7 @@ public class BlobHttpBody {
 
   @BsonProperty("file_length")
   private long fileLength;
+
+  @BsonProperty("json_schema_version")
+  private JsonSchemaVersionEnum jsonSchemaVersion;
 }

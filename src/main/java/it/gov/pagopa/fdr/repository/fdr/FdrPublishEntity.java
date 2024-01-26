@@ -9,6 +9,7 @@ import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.SenderEntity;
+import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -57,6 +58,9 @@ public class FdrPublishEntity extends PanacheMongoEntity {
 
   @BsonProperty("sum_payments")
   private Double sumPayments;
+
+  @BsonProperty("ref_json")
+  private HistoryBlobBody refJson;
 
   public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspIdAndOrganizationId(
       String fdr, Long rev, String pspId, String organizationId) {

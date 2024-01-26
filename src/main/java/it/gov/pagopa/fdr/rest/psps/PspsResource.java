@@ -1,14 +1,19 @@
 package it.gov.pagopa.fdr.rest.psps;
 
+import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.rest.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.rest.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.rest.psps.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.rest.psps.response.GetAllCreatedResponse;
 import it.gov.pagopa.fdr.rest.psps.response.GetAllPublishedResponse;
 import it.gov.pagopa.fdr.rest.psps.response.GetCreatedResponse;
+import it.gov.pagopa.fdr.rest.psps.validation.InternalPspValidationService;
+import it.gov.pagopa.fdr.rest.psps.validation.PspsValidationService;
+import it.gov.pagopa.fdr.service.psps.PspsService;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.Re;
@@ -26,6 +31,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @Tag(name = "PSP", description = "PSP operations")
@@ -33,6 +39,16 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Consumes("application/json")
 @Produces("application/json")
 public class PspsResource extends BasePspResource {
+
+  protected PspsResource(
+      Logger log,
+      Config config,
+      PspsValidationService validator,
+      InternalPspValidationService internalValidator,
+      PspsResourceServiceMapper mapper,
+      PspsService service) {
+    super(log, config, validator, internalValidator, mapper, service);
+  }
 
   @Operation(operationId = "create", summary = "Create fdr", description = "Create fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateRequest.class)))

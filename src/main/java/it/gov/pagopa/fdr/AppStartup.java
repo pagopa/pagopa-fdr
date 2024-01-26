@@ -2,10 +2,10 @@ package it.gov.pagopa.fdr;
 
 import io.quarkus.runtime.Startup;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
+import it.gov.pagopa.fdr.service.history.HistoryService;
 import it.gov.pagopa.fdr.service.re.ReService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -22,13 +22,30 @@ public class AppStartup {
   @ConfigProperty(name = "eHub.re.enabled")
   boolean eHubReEnabled;
 
-  @Inject Logger log;
+  @ConfigProperty(name = "history.enabled")
+  boolean historyEnabled;
 
-  @Inject Config config;
+  private final Logger log;
 
-  @Inject ConversionService conversionQueue;
+  private final Config config;
 
-  @Inject ReService reService;
+  private final ConversionService conversionQueue;
+
+  private final ReService reService;
+  private final HistoryService historyService;
+
+  public AppStartup(
+      Logger log,
+      Config config,
+      ConversionService conversionQueue,
+      ReService reService,
+      HistoryService historyService) {
+    this.log = log;
+    this.config = config;
+    this.conversionQueue = conversionQueue;
+    this.reService = reService;
+    this.historyService = historyService;
+  }
 
   @PostConstruct
   public void init() {
@@ -51,6 +68,13 @@ public class AppStartup {
       reService.init();
     } else {
       log.info("Start EventHub Re and blob DISABLED");
+    }
+
+    if (historyEnabled) {
+      log.info("History ENABLED");
+      historyService.init();
+    } else {
+      log.info("History DISABLED");
     }
   }
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.scheduler.ScheduledExecution;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import java.net.URI;
 import java.util.Collections;
@@ -29,6 +28,11 @@ public class Config {
 
   private FdrCacheApi nodeCacheApi;
 
+  public Config(ObjectMapper objectMapper, Logger log) {
+    this.objectMapper = objectMapper;
+    this.log = log;
+  }
+
   //  @PostConstruct
   @SneakyThrows
   public void init() {
@@ -48,7 +52,7 @@ public class Config {
     this.cache = newCache;
   }
 
-  @Inject ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
   ConfigDataV1 cache;
 
@@ -63,7 +67,7 @@ public class Config {
     }
   }
 
-  @Inject Logger log;
+  private final Logger log;
 
   @Scheduled(cron = "{api_config_cache.cron.expr}")
   void cronJobApiconfigCache(ScheduledExecution execution) {

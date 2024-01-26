@@ -1,0 +1,187 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://localhost/v1/fdr_history_schema.json",
+    "title": "FDR",
+    "description": "Flusso di rendicontazione",
+    "type": "object",
+    "required": ["fdr", "fdrDate", "sender", "receiver", "regulation", "regulationDate", "totPayments", "sumPayments"],
+    "properties": {
+        "revision": {
+            "description": "Revisione FDR",
+            "type": "integer"
+        },
+        "created": {
+            "description": "Data creazione FDR",
+            "type": "string"
+        },
+        "updated": {
+            "description": "Data aggiornamento FDR",
+            "type": "string"
+        },
+        "fdr": {
+            "description": "Identificativo flusso",
+            "type": "string",
+            "pattern": "[a-zA-Z0-9\\-_]{1,35}",
+            "example": "2016-08-16pspTest-1178"
+        },
+        "fdrDate": {
+            "description": "Data flusso",
+            "type": "string",
+            "example": "2023-04-05T09:21:37.810000Z"
+        },
+        "sender": {
+            "description": "Mittente",
+            "type": "object",
+            "required": ["type", "id", "pspId", "pspName", "pspBrokerId", "channelId"],
+            "properties": {
+                "type": {
+                    "description": "Tipo mittente",
+                    "type": "string",
+                    "example": "LEGAL_PERSON",
+                    "enum": ["LEGAL_PERSON", "ABI_CODE", "BIC_CODE"]
+                },
+                "id": {
+                    "description": "ID Mittente",
+                    "type": "string",
+                    "pattern": "^(.{1,35})$",
+                    "example": "SELBIT2B"
+                },
+                "pspId": {
+                    "description": "ID Psp",
+                    "type": "string",
+                    "pattern": "^(.{1,35})$",
+                    "example": "60000000001"
+                },
+                "pspName": {
+                    "description": "Nome Psp",
+                    "type": "string",
+                    "pattern": "^(.{3,70})$",
+                    "example": "Bank"
+                },
+                "pspBrokerId": {
+                    "description": "ID broker Psp",
+                    "type": "string",
+                    "pattern": "^(.{1,35})$",
+                    "example": "70000000001"
+                },
+                "channelId": {
+                    "description": "ID canale",
+                    "type": "string",
+                    "pattern": "^(.{1,35})$",
+                    "example": "80000000001"
+                },
+                "password": {
+                    "description": "Password",
+                    "type": "string"
+                }
+            }
+        },
+        "receiver": {
+            "description": "Destinatario",
+            "type": "object",
+            "required": ["id", "organizationId", "organizationName"],
+            "properties": {
+                "id": {
+                    "description": "ID Destinatario",
+                    "type": "string",
+                    "pattern": "^(.{1,35})$",
+                    "example": "APPBIT2B"
+                },
+                "organizationId": {
+                    "description": "ID Organizzazione",
+                    "type": "string",
+                    "pattern": "^(.{1,35})$",
+                    "example": "20000000001"
+                },
+                "organizationName": {
+                    "description": "Nome Organizzazione",
+                    "type": "string",
+                    "pattern": "^(.{1,140})$",
+                    "example": "Comune di xyz"
+                } 
+            }
+        },
+        "regulation": {
+            "description": "Regolamento",
+            "type": "string",
+            "pattern": "^(.{1,35})$",
+            "example": "SEPA - Bonifico xzy"
+        },
+        "regulationDate": {
+            "description": "Data regolamento",
+            "type": "string",
+            "example": "2023-04-03T12:00:30.900000Z"
+        },
+        "bicCodePouringBank": {
+            "description": "Bic",
+            "type": "string",
+            "pattern": "^(.{1,35})$",
+            "example": "UNCRITMMXXX"
+        },
+        "status": {
+            "description": "Stato FDR",
+            "type": "string",
+            "example": "CREATED",
+            "enum": ["CREATED", "INSERTED", "PUBLISHED"]
+        },
+        "totPayments": {
+            "description": "Numero pagamenti del flusso",
+            "type": "integer",
+            "example": 100
+        },
+        "sumPayments": {
+            "description": "Importo totale dei pagamenti",
+            "type": "number",
+            "pattern": "^\\d{1,2147483647}([.]\\d{1,2})?$",
+            "example": 0.01,
+            "exclusiveMinimum": 0
+        },
+        "paymentList": {
+            "description": "Lista dei pagamenti",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "iuv": {
+                        "description": "IUV",
+                        "type": "string",
+                        "pattern": "^(.{1,35})$",
+                        "example": "abcdefg"
+                    },
+                    "iur": {
+                        "description": "IUR",
+                        "type": "string",
+                        "pattern": "^(.{1,35})$",
+                        "example": "abcdefg"
+                    },
+                    "index": {
+                        "description": "Indice del pagamento",
+                        "type": "integer",
+                        "minimum": 1,
+                        "example": 1
+                    },
+                    "pay": {
+                        "description": "Importo pagamento",
+                        "type": "number",
+                        "pattern": "^\\d{1,2147483647}([.]\\d{1,2})?$",
+                        "example": 0.01,
+                        "exclusiveMinimum": 0
+                    },
+                    "payStatus": {
+                        "description": "Stato del pagamento",
+                        "type": "string",
+                        "example": "EXECUTED",
+                        "enum": ["EXECUTED", "REVOKED", "NO_RPT"]
+                    },
+                    "payDate": {
+                        "description": "Data pagamento",
+                        "type": "string",
+                        "example": "2023-02-03T12:00:30.900000Z"
+                    } 
+                }
+            },
+            "minItems": 1,
+            "maxItems": 1000
+        }
+    }
+}

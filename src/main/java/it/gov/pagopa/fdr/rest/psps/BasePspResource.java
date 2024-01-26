@@ -19,7 +19,6 @@ import it.gov.pagopa.fdr.service.dto.*;
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response.Status;
 import java.time.Instant;
 import org.jboss.logging.Logger;
@@ -31,17 +30,32 @@ public abstract class BasePspResource {
 
   public static final String S_BY_PSP_S_WITH_FDR_S = "%s by psp:[%s] with fdr:[%s]";
 
-  @Inject Logger log;
+  private final Logger log;
 
-  @Inject Config config;
+  private final Config config;
 
-  @Inject PspsValidationService validator;
+  private final PspsValidationService validator;
 
-  @Inject InternalPspValidationService internalValidator;
+  private final InternalPspValidationService internalValidator;
 
-  @Inject PspsResourceServiceMapper mapper;
+  private final PspsResourceServiceMapper mapper;
 
-  @Inject PspsService service;
+  private final PspsService service;
+
+  protected BasePspResource(
+      Logger log,
+      Config config,
+      PspsValidationService validator,
+      InternalPspValidationService internalValidator,
+      PspsResourceServiceMapper mapper,
+      PspsService service) {
+    this.log = log;
+    this.config = config;
+    this.validator = validator;
+    this.internalValidator = internalValidator;
+    this.mapper = mapper;
+    this.service = service;
+  }
 
   protected RestResponse<GenericResponse> baseCreate(
       String pspId, String fdr, CreateRequest createRequest) {

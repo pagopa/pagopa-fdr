@@ -50,7 +50,17 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR),
 
   REPORTING_FLOW_WRONG_TOT_PAYMENT("0723", "fdr.wrongTotPayment", RestResponse.Status.BAD_REQUEST),
-  REPORTING_FLOW_WRONG_SUM_PAYMENT("0724", "fdr.wrongSumPayment", RestResponse.Status.BAD_REQUEST);
+  REPORTING_FLOW_WRONG_SUM_PAYMENT("0724", "fdr.wrongSumPayment", RestResponse.Status.BAD_REQUEST),
+  FDR_HISTORY_VALID_JSON_ERROR(
+      "0725", "fdr.fdrHistoryJsonValidationError", Status.INTERNAL_SERVER_ERROR),
+  FDR_HISTORY_UPLOAD_JSON_BLOB_ERROR(
+      "0726", "fdr.fdrHistoryUploadJsonError", Status.INTERNAL_SERVER_ERROR),
+  FDR_HISTORY_JSON_PROCESSING_ERROR(
+      "0727", "fdr.fdrHistoryJsonProcessingError", Status.INTERNAL_SERVER_ERROR),
+  FDR_HISTORY_SAVE_TABLE_STORAGE_ERROR(
+      "0728", "fdr.fdrHistorySaveOnTableStorageError", Status.INTERNAL_SERVER_ERROR),
+  FILE_UTILS_CONVERSION_ERROR("0729", "fdr.fileUtilsConversionError", Status.INTERNAL_SERVER_ERROR),
+  FILE_UTILS_FILE_NOT_FOUND("0730", "fdr.fileUtilsFileNotFound", Status.INTERNAL_SERVER_ERROR);
   private final String errorCode;
   private final String errorMessageKey;
   private final RestResponse.Status httpStatus;

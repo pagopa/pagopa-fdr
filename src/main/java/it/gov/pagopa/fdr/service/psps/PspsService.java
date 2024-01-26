@@ -21,17 +21,14 @@ import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
+import it.gov.pagopa.fdr.service.history.HistoryService;
+import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
-import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrStatusEnum;
-import it.gov.pagopa.fdr.service.re.model.ReInternal;
+import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -45,13 +42,28 @@ import org.jboss.logging.MDC;
 @ApplicationScoped
 public class PspsService {
 
-  @Inject PspsServiceServiceMapper mapper;
+  private final PspsServiceServiceMapper mapper;
 
-  @Inject Logger log;
+  private final Logger log;
 
-  @Inject ConversionService conversionQueue;
+  private final ConversionService conversionQueue;
 
-  @Inject ReService reService;
+  private final ReService reService;
+
+  private final HistoryService historyService;
+
+  public PspsService(
+      PspsServiceServiceMapper mapper,
+      Logger log,
+      ConversionService conversionQueue,
+      ReService reService,
+      HistoryService historyService) {
+    this.mapper = mapper;
+    this.log = log;
+    this.conversionQueue = conversionQueue;
+    this.reService = reService;
+    this.historyService = historyService;
+  }
 
   @WithSpan(kind = SERVER)
   public void save(String action, FdrDto fdrDto) {
@@ -305,10 +317,16 @@ public class PspsService {
     fdrPublishEntity.setUpdated(now);
     fdrPublishEntity.setPublished(now);
     fdrPublishEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
-    fdrPublishEntity.persistEntity();
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
     FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
+
+    // salva su storage dello storico
+    HistoryBlobBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
+    fdrPublishEntity.setRefJson(body);
+    fdrPublishEntity.persistEntity();
+
+    historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
 
     log.debug("Delete FdrInsertEntity");
     fdrEntity.delete();
