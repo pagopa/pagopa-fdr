@@ -9,6 +9,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -117,8 +118,8 @@ public class HistoryService {
               fdrEntity.getFdr(), fdrEntity.getSender().getPspId(), fdrEntity.getRevision());
 
       try {
+        objMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String fdrHistoryEntityJson = objMapper.writeValueAsString(fdrHistoryEntity);
-
         isJsonValid(fdrHistoryEntityJson, jsonSchema);
         BinaryData jsonFile = BinaryData.fromString(fdrHistoryEntityJson);
 
