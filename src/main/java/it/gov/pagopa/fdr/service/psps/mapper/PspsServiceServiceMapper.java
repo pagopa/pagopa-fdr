@@ -42,6 +42,7 @@ public interface PspsServiceServiceMapper {
   List<FdrPaymentInsertEntity> toFdrPaymentInsertEntityList(List<PaymentDto> paymentDto);
 
   @Mapping(target = "published", ignore = true)
+  @Mapping(target = "refJson", ignore = true)
   FdrPublishEntity toFdrPublishEntity(FdrInsertEntity fdrInsertEntity);
 
   List<FdrPaymentPublishEntity> toFdrPaymentPublishEntityList(

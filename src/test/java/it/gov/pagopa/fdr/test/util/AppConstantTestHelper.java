@@ -23,7 +23,6 @@ public class AppConstantTestHelper {
   public static final String CHANNEL_CODE_NOT_ENABLED = "CANALE_NOT_ENABLED";
   public static final String EC_CODE = "15376371009";
   public static final String EC_CODE_NOT_ENABLED = "PAtestDOFF";
-  public static final String EC_CODE_NDP = "ndp";
 
   public static final Header HEADER = new Header("Content-Type", "application/json");
 }
