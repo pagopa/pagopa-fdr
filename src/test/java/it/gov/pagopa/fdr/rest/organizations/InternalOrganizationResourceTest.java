@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 class InternalOrganizationResourceTest {
 
   private static final String GET_ALL_PUBLISHED_FLOW_URL =
-      "/internal/organizations/ndp/fdrs?" + AppConstant.PSP + "=%s";
+      "/internal/organizations/%s/fdrs?" + AppConstant.PSP + "=%s";
   private static final String GET_REPORTING_FLOW_URL =
       "/internal/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL =
@@ -48,7 +48,7 @@ class InternalOrganizationResourceTest {
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
     GetAllResponse res =
         given()
             .header(HEADER)
@@ -71,7 +71,7 @@ class InternalOrganizationResourceTest {
   void testOrganization_getAllPublishedFlow_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_2);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
     GetAllResponse res =
         given()
             .header(HEADER)
@@ -88,7 +88,7 @@ class InternalOrganizationResourceTest {
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(pspUnknown);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, pspUnknown);
     ErrorResponse res =
         given()
             .header(HEADER)
@@ -110,7 +110,7 @@ class InternalOrganizationResourceTest {
   @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(PSP_CODE_NOT_ENABLED);
+    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_NOT_ENABLED);
 
     ErrorResponse res =
         given()
@@ -181,7 +181,7 @@ class InternalOrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String flowNameWrong = TestUtil.getDynamicFlowName();
-    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE_NDP, flowNameWrong, 1, PSP_CODE);
+    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, 1, PSP_CODE);
 
     ErrorResponse res =
         given()

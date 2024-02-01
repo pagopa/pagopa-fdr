@@ -28,7 +28,9 @@ import it.gov.pagopa.fdr.service.history.model.FdrHistoryPaymentEntity;
 import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import it.gov.pagopa.fdr.service.history.model.JsonSchemaVersionEnum;
 import it.gov.pagopa.fdr.util.FileUtil;
+import it.gov.pagopa.fdr.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -114,14 +116,15 @@ public class HistoryService {
       fdrHistoryEntity.setPaymentList(fdrHistoryPaymentEntityList);
       String fileName =
           String.format(
-              "%s_%s_%s.json",
+              "%s_%s_%s.json.zip",
               fdrEntity.getFdr(), fdrEntity.getSender().getPspId(), fdrEntity.getRevision());
 
       try {
         objMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String fdrHistoryEntityJson = objMapper.writeValueAsString(fdrHistoryEntity);
         isJsonValid(fdrHistoryEntityJson, jsonSchema);
-        BinaryData jsonFile = BinaryData.fromString(fdrHistoryEntityJson);
+        String compressedFdrHistoryEntityJson = StringUtil.zip(fdrHistoryEntityJson);
+        BinaryData jsonFile = BinaryData.fromString(compressedFdrHistoryEntityJson);
 
         uploadBlob(fileName, jsonFile);
         return HistoryBlobBody.builder()
@@ -131,7 +134,7 @@ public class HistoryService {
             .fileLength(jsonFile.getLength())
             .jsonSchemaVersion(JsonSchemaVersionEnum.valueOf(jsonSchemaVersion))
             .build();
-      } catch (JsonProcessingException e) {
+      } catch (IOException e) {
         logger.error("Error processing fdrHistoryEntity", e);
         throw new AppException(AppErrorCodeMessageEnum.FDR_HISTORY_JSON_PROCESSING_ERROR);
       }
