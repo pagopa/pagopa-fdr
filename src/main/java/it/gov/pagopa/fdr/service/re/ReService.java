@@ -17,8 +17,10 @@ import it.gov.pagopa.fdr.service.re.model.BlobHttpBody;
 import it.gov.pagopa.fdr.service.re.model.ReAbstract;
 import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -104,17 +106,19 @@ public class ReService {
   private static final DateTimeFormatter dateFormatter =
       DateTimeFormatter.ofPattern(PATTERN_DATE_FORMAT).withZone(ZoneId.systemDefault());
 
-  public <T extends ReAbstract> void writeBlobIfExist(T re) {
+  public <T extends ReAbstract> void writeBlobIfExist(T re) throws IOException {
     if (re instanceof ReInterface reInterface) {
       String bodyStr = reInterface.getPayload();
       if (bodyStr != null && !bodyStr.isBlank()) {
         String fileName =
             String.format(
-                "%s_%s_%s", re.getSessionId(), re.getFdrAction(), reInterface.getHttpType().name());
+                "%s_%s_%s.json.zip",
+                re.getSessionId(), re.getFdrAction(), reInterface.getHttpType().name());
 
+        String compressedBody = StringUtil.zip(bodyStr);
         BinaryData body =
             BinaryData.fromStream(
-                new ByteArrayInputStream(bodyStr.getBytes(StandardCharsets.UTF_8)));
+                new ByteArrayInputStream(compressedBody.getBytes(StandardCharsets.UTF_8)));
         BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
         blobClient.upload(body);
 
