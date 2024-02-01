@@ -71,11 +71,11 @@ public abstract class BaseOrganizationsResource {
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    if (internalGetAll) {
-      internalValidator.validateGetAllInternal(action, idPsp, configData);
-    } else {
-      validator.validateGetAllByEc(action, organizationId, idPsp, configData);
-    }
+    //    if (internalGetAll) {
+    //      internalValidator.validateGetAllInternal(action, idPsp, configData);
+    //    } else {
+    validator.validateGetAllByEc(action, organizationId, idPsp, configData);
+    //    }
 
     // get from db
     FdrAllDto fdrAllDto =
@@ -108,11 +108,11 @@ public abstract class BaseOrganizationsResource {
     ConfigDataV1 configData = config.getClonedCache();
 
     // validation
-    if (internalGet) {
-      internalValidator.validateGetInternal(action, fdr, psp, configData);
-    } else {
-      validator.validateGet(action, fdr, organizationId, psp, configData);
-    }
+    //    if (internalGet) {
+    //      internalValidator.validateGetInternal(action, fdr, psp, configData);
+    //    } else {
+    validator.validateGet(action, fdr, organizationId, psp, configData);
+    //    }
 
     // get from db
     FdrGetDto fdrGetDto = service.findByReportingFlowName(action, fdr, rev, psp, organizationId);
@@ -143,11 +143,11 @@ public abstract class BaseOrganizationsResource {
 
     ConfigDataV1 configData = config.getClonedCache();
     // validation
-    if (internalGetPayment) {
-      internalValidator.validateGetPaymentInternal(action, fdr, psp, configData);
-    } else {
-      validator.validateGetPayment(action, fdr, organizationId, psp, configData);
-    }
+    //    if (internalGetPayment) {
+    //      internalValidator.validateGetPaymentInternal(action, fdr, psp, configData);
+    //    } else {
+    validator.validateGetPayment(action, fdr, organizationId, psp, configData);
+    //    }
 
     // get from db
     FdrGetPaymentDto fdrGetPaymentDto =

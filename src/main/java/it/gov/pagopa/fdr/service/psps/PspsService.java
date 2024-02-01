@@ -343,6 +343,7 @@ public class PspsService {
           FdrMessage.builder()
               .fdr(fdrEntity.getFdr())
               .pspId(fdrEntity.getSender().getPspId())
+              .organizationId(fdrEntity.getReceiver().getOrganizationId())
               .retry(0L)
               .revision(fdrEntity.getRevision())
               .build());
