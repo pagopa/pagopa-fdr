@@ -106,7 +106,7 @@ public class ReService {
   private static final DateTimeFormatter dateFormatter =
       DateTimeFormatter.ofPattern(PATTERN_DATE_FORMAT).withZone(ZoneId.systemDefault());
 
-  public <T extends ReAbstract> void writeBlobIfExist(T re) throws IOException {
+  public <T extends ReAbstract> void writeBlobIfExist(T re) {
     if (re instanceof ReInterface reInterface) {
       String bodyStr = reInterface.getPayload();
       if (bodyStr != null && !bodyStr.isBlank()) {
@@ -115,7 +115,13 @@ public class ReService {
                 "%s_%s_%s.json.zip",
                 re.getSessionId(), re.getFdrAction(), reInterface.getHttpType().name());
 
-        String compressedBody = StringUtil.zip(bodyStr);
+        String compressedBody = null;
+        try {
+          compressedBody = StringUtil.zip(bodyStr);
+        } catch (IOException e) {
+          log.errorf("Compress json error", e);
+          throw new AppException(AppErrorCodeMessageEnum.COMPRESS_JSON);
+        }
         BinaryData body =
             BinaryData.fromStream(
                 new ByteArrayInputStream(compressedBody.getBytes(StandardCharsets.UTF_8)));
