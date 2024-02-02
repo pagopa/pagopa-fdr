@@ -123,8 +123,8 @@ public class HistoryService {
         objMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String fdrHistoryEntityJson = objMapper.writeValueAsString(fdrHistoryEntity);
         isJsonValid(fdrHistoryEntityJson, jsonSchema);
-        String compressedFdrHistoryEntityJson = StringUtil.zip(fdrHistoryEntityJson);
-        BinaryData jsonFile = BinaryData.fromString(compressedFdrHistoryEntityJson);
+        byte[] compressedFdrHistoryEntityJson = StringUtil.zip(fdrHistoryEntityJson);
+        BinaryData jsonFile = BinaryData.fromBytes(compressedFdrHistoryEntityJson);
 
         uploadBlob(fileName, jsonFile);
         return HistoryBlobBody.builder()
