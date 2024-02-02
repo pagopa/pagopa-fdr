@@ -21,7 +21,6 @@ import it.gov.pagopa.fdr.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -115,16 +114,14 @@ public class ReService {
                 "%s_%s_%s.json.zip",
                 re.getSessionId(), re.getFdrAction(), reInterface.getHttpType().name());
 
-        String compressedBody = null;
+        byte[] compressedBody = null;
         try {
           compressedBody = StringUtil.zip(bodyStr);
         } catch (IOException e) {
           log.errorf("Compress json error", e);
           throw new AppException(AppErrorCodeMessageEnum.COMPRESS_JSON);
         }
-        BinaryData body =
-            BinaryData.fromStream(
-                new ByteArrayInputStream(compressedBody.getBytes(StandardCharsets.UTF_8)));
+        BinaryData body = BinaryData.fromStream(new ByteArrayInputStream(compressedBody));
         BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
         blobClient.upload(body);
 
