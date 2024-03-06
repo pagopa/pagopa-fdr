@@ -171,7 +171,7 @@
                         "description": "Stato del pagamento",
                         "type": "string",
                         "example": "EXECUTED",
-                        "enum": ["EXECUTED", "REVOKED", "NO_RPT"]
+                        "enum": ["EXECUTED", "REVOKED", "NO_RPT", "STAND_IN"]
                     },
                     "payDate": {
                         "description": "Data pagamento",

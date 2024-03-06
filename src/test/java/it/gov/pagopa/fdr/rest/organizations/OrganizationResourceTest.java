@@ -174,7 +174,7 @@ class OrganizationResourceTest {
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-    assertThat(res.getComputedTotPayments(), equalTo(3L));
+    assertThat(res.getComputedTotPayments(), equalTo(4L));
   }
 
   @Test
@@ -236,7 +236,7 @@ class OrganizationResourceTest {
         .statusCode(200)
         .extract()
         .as(GetPaymentResponse.class);
-    assertThat(res.getCount(), equalTo(3L));
+    assertThat(res.getCount(), equalTo(4L));
     List expectedList = List.of(PaymentStatusEnum.EXECUTED.name(), PaymentStatusEnum.REVOKED.name(), PaymentStatusEnum.NO_RPT.name(), PaymentStatusEnum.STAND_IN.name());
     assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
         equalTo(expectedList));
@@ -263,7 +263,7 @@ class OrganizationResourceTest {
 
     assertThat(res.getMetadata().getPageSize(), equalTo(1));
     assertThat(res.getMetadata().getPageNumber(), equalTo(2));
-    assertThat(res.getCount(), equalTo(3L));
+    assertThat(res.getCount(), equalTo(4L));
     assertThat(data.stream().map(o -> o.getPayStatus().name()).toList(),
         equalTo(List.of(PaymentStatusEnum.REVOKED.name())));
     assertThat(data.stream().map(Payment::getIndex).toList(),
