@@ -223,7 +223,8 @@ class InternalOrganizationResourceTest {
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.REVOKED.name(),
-            PaymentStatusEnum.NO_RPT.name());
+            PaymentStatusEnum.NO_RPT.name(),
+            PaymentStatusEnum.STAND_IN.name());
     assertThat(
         res.getData().stream().map(o -> o.getPayStatus().name()).toList(), equalTo(expectedList));
     assertThat(

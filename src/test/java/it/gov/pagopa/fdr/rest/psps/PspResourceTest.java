@@ -1492,7 +1492,7 @@ class PspResourceTest {
             .extract()
             .as(GetPaymentResponse.class);
     assertThat(res.getCount(), equalTo(3L));
-    List expectedList = List.of(PaymentStatusEnum.EXECUTED.name(), PaymentStatusEnum.REVOKED.name(), PaymentStatusEnum.NO_RPT.name());
+    List expectedList = List.of(PaymentStatusEnum.EXECUTED.name(), PaymentStatusEnum.REVOKED.name(), PaymentStatusEnum.NO_RPT.name(), PaymentStatusEnum.STAND_IN.name());
     assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
             equalTo(expectedList));
     assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
