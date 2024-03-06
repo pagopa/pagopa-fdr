@@ -12,6 +12,5 @@ import lombok.experimental.SuperBuilder;
 public class ReInternal extends ReAbstract {
   private boolean fdrPhysicalDelete;
   private FdrStatusEnum fdrStatus;
-
   private Long revision;
 }
