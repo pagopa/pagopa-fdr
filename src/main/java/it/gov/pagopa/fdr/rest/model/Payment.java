@@ -54,7 +54,8 @@ public class Payment {
           "[XML FlussoRiversamento]=[datiSingoliPagamenti.codiceEsitoSingoloPagamento] \n"
               + "0 -> EXECUTED\n"
               + "3 -> REVOKED\n"
-              + "9 -> NO_RPT")
+              + "9 -> NO_RPT\n"
+              + "4 -> STAND_IN")
   private PaymentStatusEnum payStatus;
 
   @NotNull

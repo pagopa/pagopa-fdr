@@ -49,8 +49,8 @@ public class TestUtil {
             "regulation": "SEPA - Bonifico xzy",
             "regulationDate": "2023-04-03T12:00:30.900000Z",
             "bicCodePouringBank": "UNCRITMMXXX",
-            "totPayments": 3,
-            "sumPayments": 0.03
+            "totPayments": 4,
+            "sumPayments": 0.04
           }
           """;
 
@@ -78,6 +78,13 @@ public class TestUtil {
             "pay": 0.01,
             "payStatus": "NO_RPT",
             "payDate": "2023-02-03T12:00:30.900000Z"
+          },{
+            "iuv": "d",
+            "iur": "abcdefg",
+            "index": 4,
+            "pay": 0.01,
+            "payStatus": "STAND_IN",
+            "payDate": "2023-02-03T12:00:30.900000Z"
           }
         ]
       }
@@ -85,32 +92,39 @@ public class TestUtil {
 
   public static String PAYMENTS_ADD_TEMPLATE_2 =
       """
-      {
-        "payments": [{
-            "iuv": "d",
-            "iur": "abcdefg",
-            "index": 4,
-            "pay": 0.01,
-            "payStatus": "EXECUTED",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          },{
-            "iuv": "e",
-            "iur": "abcdefg",
-            "index": 5,
-            "pay": 0.01,
-            "payStatus": "REVOKED",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          },{
-            "iuv": "f",
-            "iur": "abcdefg",
-            "index": 6,
-            "pay": 0.01,
-            "payStatus": "NO_RPT",
-            "payDate": "2023-02-03T12:00:30.900000Z"
+          {
+            "payments": [{
+                "iuv": "e",
+                "iur": "abcdefg",
+                "index": 5,
+                "pay": 0.01,
+                "payStatus": "EXECUTED",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "iuv": "f",
+                "iur": "abcdefg",
+                "index": 6,
+                "pay": 0.01,
+                "payStatus": "REVOKED",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "iuv": "g",
+                "iur": "abcdefg",
+                "index": 7,
+                "pay": 0.01,
+                "payStatus": "NO_RPT",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "iuv": "h",
+                "iur": "abcdefg",
+                "index": 8,
+                "pay": 0.01,
+                "payStatus": "STAND_IN",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              }
+            ]
           }
-        ]
-      }
-      """;
+          """;
 
   public static void pspSunnyDay(String flowName) {
     String urlPspFlow = FLOWS_URL.formatted(PSP_CODE, flowName);
