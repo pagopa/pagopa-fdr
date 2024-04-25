@@ -58,30 +58,34 @@ public class TestUtil {
       """
       {
         "payments": [{
+            "index": 100,
             "iuv": "a",
             "iur": "abcdefg",
-            "index": 1,
+            "idTransfer": 1,
             "pay": 0.01,
             "payStatus": "EXECUTED",
             "payDate": "2023-02-03T12:00:30.900000Z"
           },{
+            "index": 101,
             "iuv": "b",
             "iur": "abcdefg",
-            "index": 2,
+            "idTransfer": 2,
             "pay": 0.01,
             "payStatus": "REVOKED",
             "payDate": "2023-02-03T12:00:30.900000Z"
           },{
+            "index": 102,
             "iuv": "c",
             "iur": "abcdefg",
-            "index": 3,
+            "idTransfer": 3,
             "pay": 0.01,
             "payStatus": "NO_RPT",
             "payDate": "2023-02-03T12:00:30.900000Z"
           },{
+            "index": 103,
             "iuv": "d",
             "iur": "abcdefg",
-            "index": 4,
+            "idTransfer": 4,
             "pay": 0.01,
             "payStatus": "STAND_IN",
             "payDate": "2023-02-03T12:00:30.900000Z"
@@ -94,30 +98,34 @@ public class TestUtil {
       """
           {
             "payments": [{
+                "index": 104,
                 "iuv": "e",
                 "iur": "abcdefg",
-                "index": 5,
+                "idTransfer": 5,
                 "pay": 0.01,
                 "payStatus": "EXECUTED",
                 "payDate": "2023-02-03T12:00:30.900000Z"
               },{
+                "index": 105,
                 "iuv": "f",
                 "iur": "abcdefg",
-                "index": 6,
+                "idTransfer": 5,
                 "pay": 0.01,
                 "payStatus": "REVOKED",
                 "payDate": "2023-02-03T12:00:30.900000Z"
               },{
+                "index": 106,
                 "iuv": "g",
                 "iur": "abcdefg",
-                "index": 7,
+                "idTransfer": 5,
                 "pay": 0.01,
                 "payStatus": "NO_RPT",
                 "payDate": "2023-02-03T12:00:30.900000Z"
               },{
+                "index": 107,
                 "iuv": "h",
                 "iur": "abcdefg",
-                "index": 8,
+                "idTransfer": 5,
                 "pay": 0.01,
                 "payStatus": "STAND_IN",
                 "payDate": "2023-02-03T12:00:30.900000Z"

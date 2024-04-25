@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "f617e267-84d3-4c17-a33b-10867e86271f",
-		"name": "FDR",
+		"_postman_id": "8f74906a-116a-4358-ac75-ad4e769d7ac9",
+		"name": "fdr",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26451960"
+		"_exporter_id": "2040508",
+		"_collection_link": "https://speeding-station-482612.postman.co/workspace/Nodo-doc~ec880f84-0a42-4ca9-bbd1-454d00bbe20c/collection/2040508-8f74906a-116a-4358-ac75-ad4e769d7ac9?action=share&source=collection_link&creator=2040508"
 	},
 	"item": [
 		{
@@ -33,7 +34,7 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
@@ -47,9 +48,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -79,7 +80,7 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
@@ -93,9 +94,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -119,7 +120,8 @@
 									"",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -128,13 +130,13 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"payments\": [{\n      \"iuv\": \"{{iuv}}a\",\n      \"iur\": \"{{iur}}a\",\n      \"index\": 1,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    },{\n      \"iuv\": \"{{iuv}}b\",\n      \"iur\": \"{{iur}}b\",\n      \"index\": 2,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    },{\n      \"iuv\": \"{{iuv}}c\",\n      \"iur\": \"{{iur}}c\",\n      \"index\": 3,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    }\n  ]\n}",
+							"raw": "{\n  \"payments\": [{\n      \"index\": 100,\n      \"iuv\": \"{{iuv}}a\",\n      \"iur\": \"{{iur}}a\",\n      \"idTransfer\": 1,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    },{\n      \"index\": 101,\n      \"iuv\": \"{{iuv}}b\",\n      \"iur\": \"{{iur}}b\",\n      \"idTransfer\": 2,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    },{\n      \"index\": 102,  \n      \"iuv\": \"{{iuv}}c\",\n      \"iur\": \"{{iur}}c\",\n      \"idTransfer\": 3,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -142,9 +144,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/payments/add",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/payments/add",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -170,7 +172,8 @@
 									"",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -179,13 +182,13 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"payments\": [{\n      \"iuv\": \"{{iuv}}d\",\n      \"iur\": \"{{iur}}d\",\n      \"index\": 4,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    },{\n      \"iuv\": \"{{iuv}}e\",\n      \"iur\": \"{{iur}}e\",\n      \"index\": 5,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    },{\n      \"iuv\": \"{{iuv}}f\",\n      \"iur\": \"{{iur}}f\",\n      \"index\": 6,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    }\n  ]\n}",
+							"raw": "{\n  \"payments\": [{\n      \"index\": 103,  \n      \"iuv\": \"{{iuv}}d\",\n      \"iur\": \"{{iur}}d\",\n      \"idTransfer\": 4,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    },{\n      \"index\": 104,  \n      \"iuv\": \"{{iuv}}e\",\n      \"iur\": \"{{iur}}e\",\n      \"idTransfer\": 5,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    },{\n      \"index\": 105,  \n      \"iuv\": \"{{iuv}}f\",\n      \"iur\": \"{{iur}}f\",\n      \"idTransfer\": 5,\n      \"pay\": 0.01,\n      \"payStatus\": \"EXECUTED\",\n      \"payDate\": \"2023-02-03T12:00:30.900000Z\"\n    }\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -193,9 +196,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/payments/add",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/payments/add",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -216,13 +219,13 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"indexList\": [\n      1,\n      2,\n      3\n  ]\n}",
+							"raw": "{\n  \"indexList\": [\n      100,\n      101,\n      102\n  ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -230,9 +233,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/payments/del",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/payments/del",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -253,14 +256,14 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/publish",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/publish",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -280,14 +283,14 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -306,7 +309,7 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							},
 							{
@@ -317,9 +320,9 @@
 							}
 						],
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}?createdGt=2023-08-10T10:27:21.746Z",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}?createdGt=2023-08-10T10:27:21.746Z",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -347,14 +350,14 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -373,14 +376,14 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_PSP_KEY}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{FDR_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/payments?page=1&size=1000",
+							"raw": "{{FDR_PSP_URL}}/psps/{{psp}}/fdrs/{{reportingFlowName}}/payments?page=1&size=1000",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_PSP_URL}}"
 							],
 							"path": [
 								"psps",
@@ -415,14 +418,14 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_ORG_KEY}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{FDR_URL}}/organizations/{{pa}}/fdrs?pspId={{psp}}&page=1&size=1000&publishedGt=2023-08-10T09:53:19.781Z",
+							"raw": "{{FDR_ORG_URL}}/organizations/{{pa}}/fdrs?page=1&size=1000&publishedGt=2023-08-10T09:53:19.780Z",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_ORG_URL}}"
 							],
 							"path": [
 								"organizations",
@@ -432,7 +435,8 @@
 							"query": [
 								{
 									"key": "pspId",
-									"value": "{{psp}}"
+									"value": "{{psp}}",
+									"disabled": true
 								},
 								{
 									"key": "page",
@@ -444,7 +448,7 @@
 								},
 								{
 									"key": "publishedGt",
-									"value": "2023-08-10T09:53:19.781Z"
+									"value": "2023-08-10T09:53:19.780Z"
 								}
 							]
 						}
@@ -458,14 +462,14 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_ORG_KEY}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{FDR_URL}}/organizations/{{pa}}/fdrs/{{reportingFlowName}}/revisions/1/psps/{{psp}}",
+							"raw": "{{FDR_ORG_URL}}/organizations/{{pa}}/fdrs/{{reportingFlowName}}/revisions/1/psps/{{psp}}",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_ORG_URL}}"
 							],
 							"path": [
 								"organizations",
@@ -488,14 +492,14 @@
 						"header": [
 							{
 								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_KEY}}",
+								"value": "{{FDR_ORG_KEY}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{FDR_URL}}/organizations/{{pa}}/fdrs/{{reportingFlowName}}/revisions/1/psps/{{psp}}/payments?page=1&size=1000",
+							"raw": "{{FDR_ORG_URL}}/organizations/{{pa}}/fdrs/{{reportingFlowName}}/revisions/1/psps/{{psp}}/payments?page=1&size=1000",
 							"host": [
-								"{{FDR_URL}}"
+								"{{FDR_ORG_URL}}"
 							],
 							"path": [
 								"organizations",
@@ -570,108 +574,6 @@
 								{
 									"key": "idPsp",
 									"value": "{{psp}}",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},{
-			"name": "support",
-			"item": [
-				{
-					"name": "getPaymentsByPspId&Iuv",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_INTERNAL_KEY}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{FDR_INTERNAL_URL}}/internal/psps/nodo-doc-dev/iuv/30041018977658a",
-							"host": [
-								"{{FDR_INTERNAL_URL}}"
-							],
-							"path": [
-								"internal",
-								"psps",
-								"nodo-doc-dev",
-								"iuv",
-								"30041018977658a"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"disabled": true
-								},
-								{
-									"key": "size",
-									"value": "1000",
-									"disabled": true
-								},
-								{
-									"key": "createdFrom",
-									"value": "2023-08-30T08:17:30.820Z",
-									"disabled": true
-								},
-								{
-									"key": "createdTo",
-									"value": "2023-08-31T08:17:30.821Z",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "getPaymentsByPspId&Iur",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Ocp-Apim-Subscription-Key",
-								"value": "{{FDR_INTERNAL_KEY}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{FDR_INTERNAL_URL}}/internal/psps/nodo-doc-dev/iur/0778600118a",
-							"host": [
-								"{{FDR_INTERNAL_URL}}"
-							],
-							"path": [
-								"internal",
-								"psps",
-								"nodo-doc-dev",
-								"iur",
-								"0778600118a"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"disabled": true
-								},
-								{
-									"key": "size",
-									"value": "1000",
-									"disabled": true
-								},
-								{
-									"key": "createdFrom",
-									"value": "2023-08-30T08:17:30.820Z",
-									"disabled": true
-								},
-								{
-									"key": "createdTo",
-									"value": "2023-08-31T08:17:30.821Z",
 									"disabled": true
 								}
 							]

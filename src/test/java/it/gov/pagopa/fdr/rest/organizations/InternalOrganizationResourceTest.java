@@ -219,7 +219,7 @@ class InternalOrganizationResourceTest {
             .extract()
             .as(GetPaymentResponse.class);
     assertThat(res.getCount(), equalTo(4L));
-    List expectedList =
+    List<String> expectedList =
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.REVOKED.name(),
