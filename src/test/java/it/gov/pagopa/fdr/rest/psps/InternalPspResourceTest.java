@@ -52,16 +52,18 @@ class InternalPspResourceTest {
       """
       {
         "payments": [{
+            "index": 100,
             "iuv": "a",
             "iur": "abcdefg",
-            "index": 1,
+            "idTransfer": 1,
             "pay": 0.01,
             "payStatus": "EXECUTED",
             "payDate": "2023-02-03T12:00:30.900000Z"
           },{
+            "index": 100,
             "iuv": "b",
             "iur": "abcdefg",
-            "index": 1,
+            "idTransfer": 2,
             "pay": 0.01,
             "payStatus": "REVOKED",
             "payDate": "2023-02-03T12:00:30.900000Z"
@@ -74,9 +76,10 @@ class InternalPspResourceTest {
       """
       {
         "payments": [{
+          "index": 100,
           "iuv": "a",
           "iur": "abcdefg",
-          "index": 1,
+          "idTransfer": 1,
           "pay": 0.01,
           "payStatus": "EXECUTED",
           "payDate": "2023-02-03T12:00:30.900000Z"
@@ -103,9 +106,10 @@ class InternalPspResourceTest {
       """
     {
       "payments": {
+          "index": 100,
           "iuv": "a",
           "iur": "abcdefg",
-          "index": 1,
+          "idTransfer": 1,
           "pay": "%s",
           "payStatus": "EXECUTED",
           "payDate": "2023-02-03T12:00:30.900000Z"
@@ -144,9 +148,10 @@ class InternalPspResourceTest {
       """
       {
         "payments": [{
+            "index": 100,
             "iuv": "a",
             "iur": "abcdefg",
-            "index": 1,
+            "idTransfer": 1,
             "pay": "%s",
             "payStatus": "EXECUTED",
             "payDate": "2023-02-03T12:00:30.900000Z"
@@ -186,10 +191,10 @@ class InternalPspResourceTest {
       """
       {
         "indexList": [
-            1,
-            2,
-            3,
-            4
+            100,
+            101,
+            102,
+            103
         ]
       }
       """;

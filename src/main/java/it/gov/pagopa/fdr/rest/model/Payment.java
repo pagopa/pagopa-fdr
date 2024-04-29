@@ -1,10 +1,6 @@
 package it.gov.pagopa.fdr.rest.model;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +11,11 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Builder
 @Jacksonized
 public class Payment {
+
+  @NotNull
+  @Min(value = 1)
+  @Schema(example = "1", description = "Identificativo del pagamento univoco nel flusso")
+  private Long index;
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
@@ -34,10 +35,11 @@ public class Payment {
 
   @NotNull
   @Min(value = 1)
+  @Max(value = 5)
   @Schema(
       example = "1",
       description = "[XML FlussoRiversamento]=[datiSingoliPagamenti.indiceDatiSingoloPagamento]")
-  private Long index;
+  private Long idTransfer;
 
   @NotNull
   @DecimalMin(value = "0.0", inclusive = false)

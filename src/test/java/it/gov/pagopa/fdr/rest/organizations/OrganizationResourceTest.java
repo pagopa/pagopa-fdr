@@ -267,7 +267,7 @@ class OrganizationResourceTest {
     assertThat(data.stream().map(o -> o.getPayStatus().name()).toList(),
         equalTo(List.of(PaymentStatusEnum.REVOKED.name())));
     assertThat(data.stream().map(Payment::getIndex).toList(),
-        equalTo(List.of(2L)));
+        equalTo(List.of(101L)));
   }
 
 }

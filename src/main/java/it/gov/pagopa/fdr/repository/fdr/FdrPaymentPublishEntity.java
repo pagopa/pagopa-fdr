@@ -19,6 +19,8 @@ import org.bson.types.ObjectId;
 @MongoEntity(collection = "fdr_payment_publish")
 public class FdrPaymentPublishEntity extends PanacheMongoEntity {
 
+  private Long index;
+
   private Long revision;
 
   private Instant created;
@@ -28,7 +30,7 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
   private String iuv;
   private String iur;
 
-  private Long index;
+  private Long idTransfer;
   private Double pay;
 
   @BsonProperty("pay_status")

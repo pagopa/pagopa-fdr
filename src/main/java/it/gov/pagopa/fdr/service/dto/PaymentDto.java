@@ -8,11 +8,13 @@ import lombok.Getter;
 @Builder
 public class PaymentDto {
 
+  private Long index;
+
   private String iuv;
 
   private String iur;
 
-  private Long index;
+  private Long idTransfer;
 
   private Double pay;
 
