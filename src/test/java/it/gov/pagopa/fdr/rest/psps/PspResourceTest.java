@@ -183,7 +183,8 @@ class PspResourceTest {
         "indexList": [
             100,
             101,
-            102
+            102,
+            103
         ]
       }
       """;
@@ -1297,7 +1298,7 @@ class PspResourceTest {
                     .statusCode(200)
                     .extract()
                     .as(GetResponse.class);
-    assertThat(res.getTotPayments(), equalTo(4L));
+    assertThat(res.getTotPayments(), equalTo(5L));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
   }
 
@@ -1439,7 +1440,7 @@ class PspResourceTest {
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-    assertThat(res.getComputedTotPayments(), equalTo(4L));
+    assertThat(res.getComputedTotPayments(), equalTo(5L));
   }
 
   @Test
@@ -1496,8 +1497,8 @@ class PspResourceTest {
             .statusCode(200)
             .extract()
             .as(GetPaymentResponse.class);
-    assertThat(res.getCount(), equalTo(4L));
-    List expectedList = List.of(PaymentStatusEnum.EXECUTED.name(), PaymentStatusEnum.REVOKED.name(), PaymentStatusEnum.NO_RPT.name(), PaymentStatusEnum.STAND_IN.name());
+    assertThat(res.getCount(), equalTo(5L));
+    List expectedList = List.of(PaymentStatusEnum.EXECUTED.name(), PaymentStatusEnum.REVOKED.name(), PaymentStatusEnum.NO_RPT.name(), PaymentStatusEnum.STAND_IN.name(), PaymentStatusEnum.STAND_IN_NO_RPT.name());
     assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
             equalTo(expectedList));
     assertThat(res.getData().stream().map(o -> o.getPayStatus().name()).toList(),
