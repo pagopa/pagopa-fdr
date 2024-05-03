@@ -14,8 +14,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 import it.gov.pagopa.fdr.rest.model.GenericResponse;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
-import java.util.Random;
-import java.util.random.RandomGenerator;
+import java.time.Instant;
 
 public class TestUtil {
   public static String getDynamicFlowName() {
@@ -23,8 +22,7 @@ public class TestUtil {
   }
 
   public static String getDynamicFlowName(String psp) {
-    RandomGenerator randomGenerator = new Random();
-    return String.format("2016-08-16%s-%s", psp, randomGenerator.nextInt(1111, 9999));
+    return String.format("2016-08-16%s-%s", psp, Instant.now().toEpochMilli());
   }
 
   public static String FLOW_TEMPLATE =
@@ -49,8 +47,8 @@ public class TestUtil {
             "regulation": "SEPA - Bonifico xzy",
             "regulationDate": "2023-04-03T12:00:30.900000Z",
             "bicCodePouringBank": "UNCRITMMXXX",
-            "totPayments": 4,
-            "sumPayments": 0.04
+            "totPayments": 5,
+            "sumPayments": 0.05
           }
           """;
 
@@ -89,6 +87,14 @@ public class TestUtil {
             "pay": 0.01,
             "payStatus": "STAND_IN",
             "payDate": "2023-02-03T12:00:30.900000Z"
+          },{
+            "index": 104,
+            "iuv": "e",
+            "iur": "abcdefg",
+            "idTransfer": 5,
+            "pay": 0.01,
+            "payStatus": "STAND_IN_NO_RPT",
+            "payDate": "2023-02-03T12:00:30.900000Z"
           }
         ]
       }
@@ -98,20 +104,12 @@ public class TestUtil {
       """
           {
             "payments": [{
-                "index": 104,
-                "iuv": "e",
-                "iur": "abcdefg",
-                "idTransfer": 5,
-                "pay": 0.01,
-                "payStatus": "EXECUTED",
-                "payDate": "2023-02-03T12:00:30.900000Z"
-              },{
                 "index": 105,
                 "iuv": "f",
                 "iur": "abcdefg",
                 "idTransfer": 5,
                 "pay": 0.01,
-                "payStatus": "REVOKED",
+                "payStatus": "EXECUTED",
                 "payDate": "2023-02-03T12:00:30.900000Z"
               },{
                 "index": 106,
@@ -119,7 +117,7 @@ public class TestUtil {
                 "iur": "abcdefg",
                 "idTransfer": 5,
                 "pay": 0.01,
-                "payStatus": "NO_RPT",
+                "payStatus": "REVOKED",
                 "payDate": "2023-02-03T12:00:30.900000Z"
               },{
                 "index": 107,
@@ -127,7 +125,23 @@ public class TestUtil {
                 "iur": "abcdefg",
                 "idTransfer": 5,
                 "pay": 0.01,
+                "payStatus": "NO_RPT",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "index": 108,
+                "iuv": "i",
+                "iur": "abcdefg",
+                "idTransfer": 5,
+                "pay": 0.01,
                 "payStatus": "STAND_IN",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "index": 109,
+                "iuv": "l",
+                "iur": "abcdefg",
+                "idTransfer": 5,
+                "pay": 0.01,
+                "payStatus": "STAND_IN_NO_RPT",
                 "payDate": "2023-02-03T12:00:30.900000Z"
               }
             ]
