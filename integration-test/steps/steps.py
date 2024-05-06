@@ -9,6 +9,7 @@ import utils as utils
 # Constants
 RESPONSE = "RES"
 REQUEST = "REQ"
+OCP_APIM_SUBSCRIPTION_KEY = "Ocp-Apim-Subscription-Key"
 
 
 @given('systems up')
@@ -28,7 +29,7 @@ def step_impl(context):
             subscription_key = row.get("subscription_key")
             headers = {'Content-Type': 'application/json'}
             if subscription_key is not None:
-                headers['Ocp-Apim-Subscription-Key'] = subscription_key
+                headers[OCP_APIM_SUBSCRIPTION_KEY] = subscription_key
             resp = requests.get(url, headers=headers, verify=False)
             logging.debug(f"response: {resp.status_code}")
             responses &= (resp.status_code == 200)
@@ -73,30 +74,17 @@ def step_impl(context, partner, request_type, payload):
     subscription_key = utils.get_subscription_key(context, partner)
     headers = {'Content-Type': 'application/json'}
     if subscription_key is not None:
-        headers['Ocp-Apim-Subscription-Key'] = subscription_key
+        headers[OCP_APIM_SUBSCRIPTION_KEY] = subscription_key
+    execute_request(context, partner, request_type, headers, payload)
 
-    endpoint_info = utils.get_fdr_url(request_type)
-    endpoint = utils.replace_local_variables(endpoint_info.get("endpoint"), context)
-    endpoint = utils.replace_global_variables(endpoint, context)
-    endpoint_info["endpoint"] = endpoint
-    url = utils.get_url(context, partner) + endpoint
-
-    if hasattr(context, "query_params"):
-        query_params = getattr(context, "query_params")
-        delattr(context, "query_params")
-        url += "?" + query_params
-
-    data = None
-    if payload != 'None':
-        data = getattr(context, payload)
-    response = utils.execute_request(url=url, method=endpoint_info.get("method"), headers=headers, payload=data)
-    setattr(context, request_type + RESPONSE, response)
 
 @when('{partner} with invalid subscription_key request {request_type} to fdr-microservice with {payload}')
 def step_impl(context, partner, request_type, payload):
-    headers = {'Content-Type': 'application/json'}
-    headers['Ocp-Apim-Subscription-Key'] = "00000000000000"
+    headers = {'Content-Type': 'application/json', OCP_APIM_SUBSCRIPTION_KEY: "00000000000000"}
+    execute_request(context, partner, request_type, headers, payload)
 
+
+def execute_request(context, partner, request_type, headers, payload):
     endpoint_info = utils.get_fdr_url(request_type)
     endpoint = utils.replace_local_variables(endpoint_info.get("endpoint"), context)
     endpoint = utils.replace_global_variables(endpoint, context)
@@ -141,6 +129,7 @@ def step_impl(context, number, amount, flow_name, payload):
     for i in range(0, int(number)):
         pay_date = today - datetime.timedelta(days=i)
         single_payment = {
+            "idTransfer": 1,
             "iuv": utils.generate_iuv(),
             "iur": utils.generate_iur(),
             "index": i+1,
