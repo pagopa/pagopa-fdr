@@ -76,8 +76,3 @@ data "azurerm_key_vault_secret" "key_vault_slack_webhook_url" {
 data "azurerm_resource_group" "app_rg" {
   name  = "${local.prefix}-${var.env_short}-${local.location_short}-${local.domain}-rg"
 }
-
-data "azurerm_storage_account" "integration_test_storage_account" {
-  name                = local.integration_test.storage_account_name
-  resource_group_name = local.integration_test.storage_account_rg
-}
