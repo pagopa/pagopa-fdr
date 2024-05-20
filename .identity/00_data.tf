@@ -32,6 +32,11 @@ data "azurerm_key_vault_secret" "key_vault_bot_token" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
 }
 
+data "azurerm_key_vault_secret" "internal_subscription_key" {
+  name         = "integration-test-internal-subscription-key"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
 data "azurerm_key_vault_secret" "integration_test_psp_subscription_key" {
   count        = var.env_short == "p" ? 0 : 1
   name         = "integration-test-psp-subscription-key"
@@ -41,6 +46,24 @@ data "azurerm_key_vault_secret" "integration_test_psp_subscription_key" {
 data "azurerm_key_vault_secret" "integration_test_org_subscription_key" {
   count        = var.env_short == "p" ? 0 : 1
   name         = "integration-test-org-subscription-key"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "opex_internal_subscription_key" {
+  count        = var.env_short == "p" ? 1 : 0
+  name         = "opex-internal-subscription-key"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "opex_psp_subscription_key" {
+  count        = var.env_short == "p" ? 1 : 0
+  name         = "opex-psp-subscription-key"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "opex_org_subscription_key" {
+  count        = var.env_short == "p" ? 1 : 0
+  name         = "opex-org-subscription-key"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 

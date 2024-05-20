@@ -24,6 +24,9 @@ locals {
     "CLIENT_ID" : module.github_runner_app.application_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
+    "INTERNAL_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.internal_subscription_key[0].value : data.azurerm_key_vault_secret.opex_internal_subscription_key[0].value,
+    "PSP_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value : data.azurerm_key_vault_secret.opex_psp_subscription_key[0].value,
+    "ORG_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value : data.azurerm_key_vault_secret.opex_org_subscription_key[0].value,
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -39,8 +42,6 @@ locals {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
     "SLACK_WEBHOOK_URL": data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
-    "PSP_SUBSCRIPTION_KEY": data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value
-    "ORG_SUBSCRIPTION_KEY": data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value
   }
 }
 
