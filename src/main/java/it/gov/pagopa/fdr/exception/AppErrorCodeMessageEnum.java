@@ -48,7 +48,6 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   REPORTING_FLOW_NAME_NOT_MATCH("0720", "fdr.name.notMatch", RestResponse.Status.BAD_REQUEST),
   EVENT_HUB_RE_PARSE_JSON("0721", "eHub.re.parse", Status.INTERNAL_SERVER_ERROR),
   EVENT_HUB_RE_TOO_LARGE("0722", "eHub.re.tooLarge", Status.INTERNAL_SERVER_ERROR),
-
   REPORTING_FLOW_WRONG_TOT_PAYMENT("0723", "fdr.wrongTotPayment", RestResponse.Status.BAD_REQUEST),
   REPORTING_FLOW_WRONG_SUM_PAYMENT("0724", "fdr.wrongSumPayment", RestResponse.Status.BAD_REQUEST),
   FDR_HISTORY_VALID_JSON_ERROR(
@@ -61,7 +60,17 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
       "0728", "fdr.fdrHistorySaveOnTableStorageError", Status.INTERNAL_SERVER_ERROR),
   FILE_UTILS_CONVERSION_ERROR("0729", "fdr.fileUtilsConversionError", Status.INTERNAL_SERVER_ERROR),
   FILE_UTILS_FILE_NOT_FOUND("0730", "fdr.fileUtilsFileNotFound", Status.INTERNAL_SERVER_ERROR),
-  COMPRESS_JSON("0731", "compress.json.error", Status.INTERNAL_SERVER_ERROR);
+  COMPRESS_JSON("0731", "compress.json.error", Status.INTERNAL_SERVER_ERROR),
+
+  EVENT_HUB_IUVRENDICONTATI_PARSE_JSON(
+      "0732", "eHub.iuvrendicontati.parse", Status.INTERNAL_SERVER_ERROR),
+  EVENT_HUB_IUVRENDICONTATI_TOO_LARGE(
+      "0733", "eHub.iuvrendicontati.tooLarge", Status.INTERNAL_SERVER_ERROR),
+  EVENT_HUB_FLUSSIRENDICONTAZIONE_PARSE_JSON(
+      "0734", "eHub.flussirendicontazione.parse", Status.INTERNAL_SERVER_ERROR),
+  EVENT_HUB_FLUSSIRENDICONTAZIONE_TOO_LARGE(
+      "0735", "eHub.flussirendicontazione.tooLarge", Status.INTERNAL_SERVER_ERROR);
+
   private final String errorCode;
   private final String errorMessageKey;
   private final RestResponse.Status httpStatus;
