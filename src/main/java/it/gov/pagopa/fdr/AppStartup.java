@@ -2,8 +2,10 @@ package it.gov.pagopa.fdr;
 
 import io.quarkus.runtime.Startup;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
+import it.gov.pagopa.fdr.service.flowTx.FlowTxService;
 import it.gov.pagopa.fdr.service.history.HistoryService;
 import it.gov.pagopa.fdr.service.re.ReService;
+import it.gov.pagopa.fdr.service.reportedIuv.ReportedIuvService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -25,6 +27,12 @@ public class AppStartup {
   @ConfigProperty(name = "history.enabled")
   boolean historyEnabled;
 
+  @ConfigProperty(name = "eHub.reportediuv.enabled")
+  boolean eHubReportedIuvEnabled;
+
+  @ConfigProperty(name = "eHub.flowtx.enabled")
+  boolean eHubFlowTxEnabled;
+
   private final Logger log;
 
   private final Config config;
@@ -34,17 +42,24 @@ public class AppStartup {
   private final ReService reService;
   private final HistoryService historyService;
 
+  private final ReportedIuvService reportedIuvService;
+  private final FlowTxService flowTxService;
+
   public AppStartup(
       Logger log,
       Config config,
       ConversionService conversionQueue,
       ReService reService,
-      HistoryService historyService) {
+      HistoryService historyService,
+      ReportedIuvService reportedIuvService,
+      FlowTxService flowTxService) {
     this.log = log;
     this.config = config;
     this.conversionQueue = conversionQueue;
     this.reService = reService;
     this.historyService = historyService;
+    this.reportedIuvService = reportedIuvService;
+    this.flowTxService = flowTxService;
   }
 
   @PostConstruct
@@ -75,6 +90,20 @@ public class AppStartup {
       historyService.init();
     } else {
       log.info("History DISABLED");
+    }
+
+    if (eHubReportedIuvEnabled) {
+      log.info("Start EventHub ReportedIUV");
+      reportedIuvService.init();
+    } else {
+      log.info("Start EventHub ReportedIUV");
+    }
+
+    if (eHubFlowTxEnabled) {
+      log.info("Start EventHub FlowTx");
+      flowTxService.init();
+    } else {
+      log.info("Start EventHub FlowTx");
     }
   }
 }

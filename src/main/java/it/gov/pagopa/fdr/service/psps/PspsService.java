@@ -21,15 +21,15 @@ import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
-import it.gov.pagopa.fdr.service.flussiRendicontazione.FlussiRendicontazioneService;
-import it.gov.pagopa.fdr.service.flussiRendicontazione.model.FlussiRendicontazione;
+import it.gov.pagopa.fdr.service.flowTx.FlowTxService;
+import it.gov.pagopa.fdr.service.flowTx.model.FlowTx;
 import it.gov.pagopa.fdr.service.history.HistoryService;
 import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
-import it.gov.pagopa.fdr.service.iuvRendicontati.IUVRendicontatiService;
-import it.gov.pagopa.fdr.service.iuvRendicontati.model.IUVRendicontati;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.*;
+import it.gov.pagopa.fdr.service.reportedIuv.ReportedIuvService;
+import it.gov.pagopa.fdr.service.reportedIuv.model.ReportedIuv;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -54,9 +54,9 @@ public class PspsService {
 
   private final ReService reService;
 
-  private final FlussiRendicontazioneService flussiRendicontazioneService;
+  private final FlowTxService flowTxService;
 
-  private final IUVRendicontatiService iuvRendicontatiService;
+  private final ReportedIuvService reportedIuvService;
 
   private final HistoryService historyService;
 
@@ -66,15 +66,15 @@ public class PspsService {
       ConversionService conversionQueue,
       ReService reService,
       HistoryService historyService,
-      FlussiRendicontazioneService flussiRendicontazioneService,
-      IUVRendicontatiService iuvRendicontatiService) {
+      FlowTxService flowTxService,
+      ReportedIuvService reportedIuvService) {
     this.mapper = mapper;
     this.log = log;
     this.conversionQueue = conversionQueue;
     this.reService = reService;
     this.historyService = historyService;
-    this.flussiRendicontazioneService = flussiRendicontazioneService;
-    this.iuvRendicontatiService = iuvRendicontatiService;
+    this.flowTxService = flowTxService;
+    this.reportedIuvService = reportedIuvService;
   }
 
   @WithSpan(kind = SERVER)
@@ -378,10 +378,9 @@ public class PspsService {
             .fdrAction(FdrActionEnum.PUBLISH)
             .build());
 
-    flussiRendicontazioneService.sendEvent(
-        FlussiRendicontazione.builder().build()); // FIXME popolare campi
+    flowTxService.sendEvent(FlowTx.builder().build()); // FIXME popolare campi
 
-    iuvRendicontatiService.sendEvent(IUVRendicontati.builder().build()); // FIXME popolare campi
+    reportedIuvService.sendEvent(ReportedIuv.builder().build()); // FIXME popolare campi
   }
 
   @WithSpan(kind = SERVER)

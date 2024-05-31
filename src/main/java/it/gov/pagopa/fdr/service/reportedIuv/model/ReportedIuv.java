@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.iuvRendicontati.model;
+package it.gov.pagopa.fdr.service.reportedIuv.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class IUVRendicontati {
+public class ReportedIuv {
 
   @JsonProperty("IUV")
   private String identificativoUnivocoVersamento;

@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.flussiRendicontazione.model;
+package it.gov.pagopa.fdr.service.flowTx.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class FlussiRendicontazione {
+public class FlowTx {
 
   @JsonProperty("ID_FLUSSO")
   private String idFlusso;
