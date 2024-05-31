@@ -62,14 +62,11 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   FILE_UTILS_FILE_NOT_FOUND("0730", "fdr.fileUtilsFileNotFound", Status.INTERNAL_SERVER_ERROR),
   COMPRESS_JSON("0731", "compress.json.error", Status.INTERNAL_SERVER_ERROR),
 
-  EVENT_HUB_IUVRENDICONTATI_PARSE_JSON(
-      "0732", "eHub.iuvrendicontati.parse", Status.INTERNAL_SERVER_ERROR),
-  EVENT_HUB_IUVRENDICONTATI_TOO_LARGE(
-      "0733", "eHub.iuvrendicontati.tooLarge", Status.INTERNAL_SERVER_ERROR),
-  EVENT_HUB_FLUSSIRENDICONTAZIONE_PARSE_JSON(
-      "0734", "eHub.flussirendicontazione.parse", Status.INTERNAL_SERVER_ERROR),
-  EVENT_HUB_FLUSSIRENDICONTAZIONE_TOO_LARGE(
-      "0735", "eHub.flussirendicontazione.tooLarge", Status.INTERNAL_SERVER_ERROR);
+  EVENT_HUB_REPORTEDIUV_PARSE_JSON("0732", "eHub.reportediuv.parse", Status.INTERNAL_SERVER_ERROR),
+  EVENT_HUB_REPORTEDIUV_TOO_LARGE(
+      "0733", "eHub.reportediuv.tooLarge", Status.INTERNAL_SERVER_ERROR),
+  EVENT_HUB_FLOWTX_PARSE_JSON("0734", "eHub.flowtx.parse", Status.INTERNAL_SERVER_ERROR),
+  EVENT_HUB_FLOWTX_TOO_LARGE("0735", "eHub.flowtx.tooLarge", Status.INTERNAL_SERVER_ERROR);
 
   private final String errorCode;
   private final String errorMessageKey;
