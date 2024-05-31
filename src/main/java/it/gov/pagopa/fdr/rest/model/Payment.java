@@ -57,7 +57,8 @@ public class Payment {
               + "0 -> EXECUTED\n"
               + "3 -> REVOKED\n"
               + "9 -> NO_RPT\n"
-              + "4 -> STAND_IN")
+              + "4 -> STAND_IN\n"
+              + "8 -> STAND_IN_NO_RPT")
   private PaymentStatusEnum payStatus;
 
   @NotNull

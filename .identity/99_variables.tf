@@ -60,3 +60,7 @@ variable "github_repository_environment" {
     reviewers_teams        = ["pagopa-team-core"]
   }
 }
+
+variable "tags" {
+  type = map(any)
+}

@@ -194,7 +194,8 @@ class InternalPspResourceTest {
             100,
             101,
             102,
-            103
+            103,
+            104
         ]
       }
       """;
