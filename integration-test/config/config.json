@@ -13,12 +13,12 @@
     }
   },
   "global_configuration": {
-    "psp": "60000000001",
-    "channel": "15376371009_04",
+    "psp": "88888888888",
+    "channel": "88888888888_01",
     "channel_password": "PLACEHOLDER",
     "organization": "15376371009",
     "broker_org": "15376371009",
-    "broker_psp": "60000000001",
+    "broker_psp": "88888888888",
     "station": "15376371009_03",
     "station_password": "PLACEHOLDER"
   }
