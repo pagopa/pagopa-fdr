@@ -15,6 +15,7 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishByPspProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
@@ -35,10 +36,7 @@ import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
@@ -366,7 +364,7 @@ public class PspsService {
     reService.sendEvent(
         ReInternal.builder()
             .serviceIdentifier(AppVersionEnum.FDR003)
-            .created(Instant.now())
+            .created(now)
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(false)
@@ -378,9 +376,74 @@ public class PspsService {
             .fdrAction(FdrActionEnum.PUBLISH)
             .build());
 
-    flowTxService.sendEvent(FlowTx.builder().build()); // FIXME popolare campi
+    flowTxService.sendEvent(
+        FlowTx.builder()
+            // .idFlusso() //FIXME ID_FLUSSO della tabella NODO_OFFLINE.RENDICONTAZIONE
+            // .dataOraFlusso() //FIXME DATA_ORA_FLUSSO della tabella NODO_OFFLINE.RENDICONTAZIONE
+            // .insertedTimestamp() //FIXME INSERTED_TIMESTAMP della tabella
+            // NODO_OFFLINE.RENDICONTAZIONE
+            .dataRegolamento(fdrEntity.getRegulationDate())
+            .identificativoUnivocoRegolamento(fdrEntity.getRegulation())
+            // .numeroTotalePagamenti() //FIXME i computed o quelli ricevuti da PSP?
+            // .importoTotalePagamenti() //FIXME i computed o quelli ricevuti da PSP?
+            // .idDominio() //FIXME ID_DOMINIO della tabella NODO_OFFLINE.RENDICONTAZIONE
+            // .psp() //FIXME PSP della tabella NODO_OFFLINE.RENDICONTAZIONE
+            // .intPsp() //FIXME INT_PSP della tabella NODO_OFFLINE.RENDICONTAZIONE
+            .uniqueId(String.format("%s%s%s", fdrEntity.getFdr(), fdrEntity.getFdrDate(), now))
+            .dataEsitoSingoloPagamentoList(
+                fdrPaymentPublishEntities.stream()
+                    .map(FdrPaymentPublishEntity::getPayDate)
+                    .toList())
+            .build());
 
-    reportedIuvService.sendEvent(ReportedIuv.builder().build()); // FIXME popolare campi
+    reportedIuvService.sendEvent(
+        fdrPaymentPublishEntities.stream()
+            .map(
+                a ->
+                    ReportedIuv.builder()
+                        .identificativoUnivocoVersamento(a.getIuv())
+                        .identificativoUnivocoRiscossione(a.getIur())
+                        .singoloImportoPagato(BigDecimal.valueOf(a.getPay()))
+                        .codiceEsitoSingoloPagamento(getValue(a.getPayStatus()))
+                        .dataEsitoSingoloPagamento(a.getPayDate())
+                        .indiceDatiSingoloPagamento(
+                            a.getIndex().toString()) // FIXME index o idtransfer
+                        .identificativoFlusso(fdrEntity.getFdr())
+                        .dataOraFlusso(fdrEntity.getFdrDate())
+                        .identificativoDominio(fdrEntity.getReceiver().getOrganizationId())
+                        .identificativoPSP(fdrEntity.getSender().getPspId())
+                        .identificativoIntermediarioPSP(fdrEntity.getSender().getPspBrokerId())
+                        .uniqueId(UUID.randomUUID().toString())
+                        .insertedTimestamp(now)
+                        .build())
+            .toList());
+  }
+
+  protected Integer getValue(PaymentStatusEnumEntity paymentStatusEnumEntity) {
+    if (paymentStatusEnumEntity == null) {
+      return null;
+    }
+
+    int result = 0;
+    switch (paymentStatusEnumEntity) {
+      case EXECUTED:
+        result = 0;
+        break;
+      case REVOKED:
+        result = 3;
+        break;
+      case NO_RPT:
+        result = 9;
+        break;
+      case STAND_IN:
+        result = 4;
+        break;
+      case STAND_IN_NO_RPT:
+        result = 8;
+        break;
+    }
+
+    return result;
   }
 
   @WithSpan(kind = SERVER)

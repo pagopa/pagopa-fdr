@@ -15,7 +15,7 @@ public class FlowTx {
   private String idFlusso;
 
   @JsonProperty("DATA_ORA_FLUSSO")
-  private Instant dataOraFlusoo;
+  private Instant dataOraFlusso;
 
   @JsonProperty("INSERTED_TIMESTAMP")
   private Instant insertedTimestamp;
