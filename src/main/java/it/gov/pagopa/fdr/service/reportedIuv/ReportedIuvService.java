@@ -10,9 +10,7 @@ import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.service.reportedIuv.model.ReportedIuv;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -45,15 +43,14 @@ public class ReportedIuvService {
             .buildProducerClient();
   }
 
-  public final void sendEvent(ReportedIuv... list) {
+  public final void sendEvent(List<ReportedIuv> list) {
     if (this.producer == null) {
       log.debugf("EventHub re [%s] NOT INITIALIZED", eHubName);
     } else {
       List<EventData> allEvents =
-          Arrays.stream(list)
+          list.stream()
               .map(
                   l -> {
-                    l.setUniqueId(UUID.randomUUID().toString());
                     try {
                       log.debugf("EventHub name [%s] send message: %s", eHubName, l.toString());
                       return new EventData(objectMapper.writeValueAsString(l));
