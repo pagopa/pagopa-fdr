@@ -13,8 +13,8 @@ locals {
 
   integration_test = {
     storage_account_name = "${local.prefix}${var.env_short}${local.location_short}sharedtstdtsa"
-    storage_account_rg = "${local.prefix}-${var.env_short}-${local.location_short}-shared-tst-dt-rg"
-    reports_folder = local.github.repository
+    storage_account_rg   = "${local.prefix}-${var.env_short}-${local.location_short}-shared-tst-dt-rg"
+    reports_folder       = local.github.repository
   }
 
   aks_cluster = {

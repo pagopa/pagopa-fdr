@@ -24,6 +24,7 @@ locals {
     "CD_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd.client_id,
     "CI_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_ci.client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
+    "INTERNAL_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_internal_subscription_key[0].value : data.azurerm_key_vault_secret.opex_internal_subscription_key[0].value,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
     "PSP_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value : ""
     "ORG_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value : ""
