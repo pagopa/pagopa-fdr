@@ -406,8 +406,7 @@ public class PspsService {
                         .singoloImportoPagato(BigDecimal.valueOf(a.getPay()))
                         .codiceEsitoSingoloPagamento(getValue(a.getPayStatus()))
                         .dataEsitoSingoloPagamento(a.getPayDate())
-                        .indiceDatiSingoloPagamento(
-                            a.getIndex().toString()) // FIXME index o idtransfer
+                        .indiceDatiSingoloPagamento(a.getIdTransfer().toString())
                         .identificativoFlusso(fdrEntity.getFdr())
                         .dataOraFlusso(fdrEntity.getFdrDate())
                         .identificativoDominio(fdrEntity.getReceiver().getOrganizationId())
