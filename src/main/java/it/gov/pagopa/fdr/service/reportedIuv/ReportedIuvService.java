@@ -37,7 +37,11 @@ public class ReportedIuvService {
     if (this.eventHub == null) {
       log.debugf("EventHub [%s] NOT INITIALIZED", eHubName);
     } else {
-      eventHub.sendEvent(list);
+      if (list != null) {
+        eventHub.sendEvent(list);
+      } else {
+        log.debug("list is null");
+      }
     }
   }
 }

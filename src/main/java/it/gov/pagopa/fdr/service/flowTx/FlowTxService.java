@@ -37,7 +37,11 @@ public class FlowTxService {
     if (this.eventHub == null) {
       log.debugf("EventHub [%s] NOT INITIALIZED", eHubName);
     } else {
-      eventHub.sendEvent(Arrays.stream(list).toList());
+      if (list != null) {
+        eventHub.sendEvent(Arrays.stream(list).toList());
+      } else {
+        log.debug("list is null");
+      }
     }
   }
 }
