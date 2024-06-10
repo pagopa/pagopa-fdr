@@ -1,13 +1,17 @@
 package it.gov.pagopa.fdr.service.reportedIuv;
 
+import com.azure.messaging.eventhubs.EventDataBatch;
+import com.azure.messaging.eventhubs.EventHubProducerClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import it.gov.pagopa.fdr.service.flowTx.FlowTxService;
 import it.gov.pagopa.fdr.service.reportedIuv.model.ReportedIuv;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
+import it.gov.pagopa.fdr.util.EventHub;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -25,6 +29,13 @@ import org.mockito.Mockito;
 @QuarkusTestResource(AzuriteResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ReportedIuvServiceTest {
+
+  EventHub eventHubMock;
+
+  EventHubProducerClient producerMock;
+
+  EventDataBatch eventDataBatchMock;
+
   private final ObjectMapper objectMapper;
   @InjectMock ReportedIuvService reportedIuvServiceMock;
   //  static EventHub eventHubMock;
@@ -38,23 +49,47 @@ class ReportedIuvServiceTest {
 
   @BeforeAll
   void init() throws NoSuchFieldException, IllegalAccessException {
-    Field eventHubField = ReportedIuvService.class.getDeclaredField("eventHub");
-    eventHubField.setAccessible(true);
+    Field logField = ReportedIuvService.class.getDeclaredField("log");
+    logField.setAccessible(true);
+    logField.set(reportedIuvServiceMock, Logger.getLogger(ReportedIuvService.class));
+
+    Field eHubConnectStrField = ReportedIuvService.class.getDeclaredField("eHubConnectStr");
+    eHubConnectStrField.setAccessible(true);
+    eHubConnectStrField.set(reportedIuvServiceMock, "eHubConnectStr");
 
     Field eHubNameField = ReportedIuvService.class.getDeclaredField("eHubName");
     eHubNameField.setAccessible(true);
-
-    eHubNameField.set(reportedIuvServiceMock, "eventHub");
-
-    //    eventHubMock = Mockito.mock(EventHub.class);
-
-    Field logField = ReportedIuvService.class.getDeclaredField("log");
-    logField.setAccessible(true);
+    eHubNameField.set(reportedIuvServiceMock, "eHubName");
 
     objectMapperField = ReportedIuvService.class.getDeclaredField("objectMapper");
     objectMapperField.setAccessible(true);
 
-    logField.set(reportedIuvServiceMock, Logger.getLogger(ReportedIuvService.class));
+    eventHubMock = Mockito.mock(EventHub.class);
+    producerMock = Mockito.mock(EventHubProducerClient.class);
+    eventDataBatchMock = Mockito.mock(EventDataBatch.class);
+
+    Field logEventHubField = EventHub.class.getDeclaredField("log");
+    logEventHubField.setAccessible(true);
+    logEventHubField.set(eventHubMock, Logger.getLogger(ReportedIuvService.class));
+
+    Field objectMapperEventHubField = EventHub.class.getDeclaredField("objectMapper");
+    objectMapperEventHubField.setAccessible(true);
+    objectMapperEventHubField.set(eventHubMock, objectMapper);
+
+    Field eHubNameEventHubField = EventHub.class.getDeclaredField("eHubName");
+    eHubNameEventHubField.setAccessible(true);
+    eHubNameEventHubField.set(eventHubMock, "fakeName");
+
+    Field producerEventHubField = EventHub.class.getDeclaredField("producer");
+    producerEventHubField.setAccessible(true);
+    producerEventHubField.set(eventHubMock, null);
+
+    Mockito.when(producerMock.createBatch()).thenReturn(eventDataBatchMock);
+    Mockito.doNothing().when(producerMock).send(Mockito.any(EventDataBatch.class));
+
+    Field eventHubField = FlowTxService.class.getDeclaredField("eventHub");
+    eventHubField.setAccessible(true);
+    eventHubField.set(reportedIuvServiceMock, eventHubMock);
   }
 
   @BeforeEach
@@ -97,7 +132,12 @@ class ReportedIuvServiceTest {
   }
 
   @Test
-  void testSendAllEventLT0() {
+  void testSendEventNull() {
     reportedIuvServiceMock.sendEvent(null);
+  }
+
+  @Test
+  void testSendEvent() {
+    reportedIuvServiceMock.sendEvent(reportedIuv);
   }
 }

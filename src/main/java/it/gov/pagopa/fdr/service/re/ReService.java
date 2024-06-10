@@ -65,24 +65,28 @@ public class ReService {
   }
 
   @SafeVarargs
-  public final <T extends ReAbstract> void sendEvent(T... reList) {
+  public final <T extends ReAbstract> void sendEvent(T... list) {
     if (this.eventHub == null || this.blobContainerClient == null) {
       log.debugf(
           "EventHub [%s] or Blob container [%s] NOT INITIALIZED", eHubName, blobContainerName);
     } else {
-      List<T> list =
-          Arrays.stream(reList)
-              .filter(a -> AppConstant.sendReEvent(a.getFdrAction()))
-              .peek(
-                  re -> {
-                    re.setUniqueId(
-                        String.format(
-                            "%s_%s", dateFormatter.format(re.getCreated()), re.hashCode()));
-                    writeBlobIfExist(re);
-                  })
-              .toList();
+      if (list != null) {
+        List<T> reList =
+            Arrays.stream(list)
+                .filter(a -> AppConstant.sendReEvent(a.getFdrAction()))
+                .peek(
+                    re -> {
+                      re.setUniqueId(
+                          String.format(
+                              "%s_%s", dateFormatter.format(re.getCreated()), re.hashCode()));
+                      writeBlobIfExist(re);
+                    })
+                .toList();
 
-      this.eventHub.sendEvent(list);
+        this.eventHub.sendEvent(reList);
+      } else {
+        log.debug("list is null");
+      }
     }
   }
 
