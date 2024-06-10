@@ -31,9 +31,7 @@ class FlowTxServiceTest {
 
   private final ObjectMapper objectMapper;
   @InjectMock FlowTxService flowTxServiceMock;
-  //  static EventHub eventHubMock;
   static FlowTx flowTx;
-  Field eventHubField;
   Field objectMapperField;
 
   FlowTxServiceTest(ObjectMapper objectMapper) {
@@ -123,7 +121,7 @@ class FlowTxServiceTest {
 
   @Test
   void testSendEventNull() {
-    flowTxServiceMock.sendEvent(null);
+    flowTxServiceMock.sendEvent((FlowTx[]) null);
   }
 
   @Test

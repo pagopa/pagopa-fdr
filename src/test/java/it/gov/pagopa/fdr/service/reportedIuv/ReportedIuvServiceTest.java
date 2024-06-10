@@ -8,7 +8,6 @@ import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
-import it.gov.pagopa.fdr.service.flowTx.FlowTxService;
 import it.gov.pagopa.fdr.service.reportedIuv.model.ReportedIuv;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.util.EventHub;
@@ -38,9 +37,7 @@ class ReportedIuvServiceTest {
 
   private final ObjectMapper objectMapper;
   @InjectMock ReportedIuvService reportedIuvServiceMock;
-  //  static EventHub eventHubMock;
   static List<ReportedIuv> reportedIuv;
-  Field eventHubField;
   Field objectMapperField;
 
   ReportedIuvServiceTest(ObjectMapper objectMapper) {
@@ -87,7 +84,7 @@ class ReportedIuvServiceTest {
     Mockito.when(producerMock.createBatch()).thenReturn(eventDataBatchMock);
     Mockito.doNothing().when(producerMock).send(Mockito.any(EventDataBatch.class));
 
-    Field eventHubField = FlowTxService.class.getDeclaredField("eventHub");
+    Field eventHubField = ReportedIuvService.class.getDeclaredField("eventHub");
     eventHubField.setAccessible(true);
     eventHubField.set(reportedIuvServiceMock, eventHubMock);
   }
