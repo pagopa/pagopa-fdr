@@ -15,26 +15,28 @@ import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishByPspProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
+import it.gov.pagopa.fdr.service.flowTx.FlowTxService;
+import it.gov.pagopa.fdr.service.flowTx.model.FlowTx;
 import it.gov.pagopa.fdr.service.history.HistoryService;
 import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.*;
+import it.gov.pagopa.fdr.service.reportedIuv.ReportedIuvService;
+import it.gov.pagopa.fdr.service.reportedIuv.model.ReportedIuv;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
@@ -50,6 +52,10 @@ public class PspsService {
 
   private final ReService reService;
 
+  private final FlowTxService flowTxService;
+
+  private final ReportedIuvService reportedIuvService;
+
   private final HistoryService historyService;
 
   public PspsService(
@@ -57,12 +63,16 @@ public class PspsService {
       Logger log,
       ConversionService conversionQueue,
       ReService reService,
-      HistoryService historyService) {
+      HistoryService historyService,
+      FlowTxService flowTxService,
+      ReportedIuvService reportedIuvService) {
     this.mapper = mapper;
     this.log = log;
     this.conversionQueue = conversionQueue;
     this.reService = reService;
     this.historyService = historyService;
+    this.flowTxService = flowTxService;
+    this.reportedIuvService = reportedIuvService;
   }
 
   @WithSpan(kind = SERVER)
@@ -354,7 +364,7 @@ public class PspsService {
     reService.sendEvent(
         ReInternal.builder()
             .serviceIdentifier(AppVersionEnum.FDR003)
-            .created(Instant.now())
+            .created(now)
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(false)
@@ -365,6 +375,74 @@ public class PspsService {
             .revision(fdrPublishEntity.getRevision())
             .fdrAction(FdrActionEnum.PUBLISH)
             .build());
+
+    flowTxService.sendEvent(
+        FlowTx.builder()
+            // .idFlusso() //FIXME ID_FLUSSO della tabella NODO_OFFLINE.RENDICONTAZIONE
+            // .dataOraFlusso() //FIXME DATA_ORA_FLUSSO della tabella NODO_OFFLINE.RENDICONTAZIONE
+            // .insertedTimestamp() //FIXME INSERTED_TIMESTAMP della tabella
+            // NODO_OFFLINE.RENDICONTAZIONE
+            .dataRegolamento(fdrEntity.getRegulationDate())
+            .identificativoUnivocoRegolamento(fdrEntity.getRegulation())
+            // .numeroTotalePagamenti() //FIXME i computed o quelli ricevuti da PSP?
+            // .importoTotalePagamenti() //FIXME i computed o quelli ricevuti da PSP?
+            // .idDominio() //FIXME ID_DOMINIO della tabella NODO_OFFLINE.RENDICONTAZIONE
+            // .psp() //FIXME PSP della tabella NODO_OFFLINE.RENDICONTAZIONE
+            // .intPsp() //FIXME INT_PSP della tabella NODO_OFFLINE.RENDICONTAZIONE
+            .uniqueId(String.format("%s%s%s", fdrEntity.getFdr(), fdrEntity.getFdrDate(), now))
+            .dataEsitoSingoloPagamentoList(
+                fdrPaymentPublishEntities.stream()
+                    .map(FdrPaymentPublishEntity::getPayDate)
+                    .toList())
+            .build());
+
+    reportedIuvService.sendEvent(
+        fdrPaymentPublishEntities.stream()
+            .map(
+                a ->
+                    ReportedIuv.builder()
+                        .identificativoUnivocoVersamento(a.getIuv())
+                        .identificativoUnivocoRiscossione(a.getIur())
+                        .singoloImportoPagato(BigDecimal.valueOf(a.getPay()))
+                        .codiceEsitoSingoloPagamento(getValue(a.getPayStatus()))
+                        .dataEsitoSingoloPagamento(a.getPayDate())
+                        .indiceDatiSingoloPagamento(a.getIdTransfer().toString())
+                        .identificativoFlusso(fdrEntity.getFdr())
+                        .dataOraFlusso(fdrEntity.getFdrDate())
+                        .identificativoDominio(fdrEntity.getReceiver().getOrganizationId())
+                        .identificativoPSP(fdrEntity.getSender().getPspId())
+                        .identificativoIntermediarioPSP(fdrEntity.getSender().getPspBrokerId())
+                        .uniqueId(UUID.randomUUID().toString())
+                        .insertedTimestamp(now)
+                        .build())
+            .toList());
+  }
+
+  protected Integer getValue(PaymentStatusEnumEntity paymentStatusEnumEntity) {
+    if (paymentStatusEnumEntity == null) {
+      return null;
+    }
+
+    int result = 0;
+    switch (paymentStatusEnumEntity) {
+      case EXECUTED:
+        result = 0;
+        break;
+      case REVOKED:
+        result = 3;
+        break;
+      case NO_RPT:
+        result = 9;
+        break;
+      case STAND_IN:
+        result = 4;
+        break;
+      case STAND_IN_NO_RPT:
+        result = 8;
+        break;
+    }
+
+    return result;
   }
 
   @WithSpan(kind = SERVER)
