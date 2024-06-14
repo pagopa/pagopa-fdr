@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-fdr-chart
 description: Flussi di rendicontazioni
 type: application
-version: "1.19.0"
-appVersion: "1.0.16"
+version: "1.20.0"
+appVersion: "1.0.16-1-NOD-841-fdr-sviluppo-fase-3-riversamento-su-event-hub-per-qi"
 dependencies:
   - name: microservice-chart
     version: 3.0.0
