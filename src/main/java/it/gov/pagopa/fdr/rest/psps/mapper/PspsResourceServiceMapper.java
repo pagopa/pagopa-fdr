@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.rest.psps.mapper;
 
 import it.gov.pagopa.fdr.rest.model.Metadata;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
+import it.gov.pagopa.fdr.rest.model.SenderResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
@@ -42,4 +43,6 @@ public interface PspsResourceServiceMapper {
   GetResponse toGetIdResponsePublished(FdrGetDto fdrGetDto);
 
   GetAllPublishedResponse toGetAllPublishedResponse(FdrAllPublishedDto fdrAllDto);
+
+  SenderResponse toSenderResponse(SenderDto senderDto);
 }

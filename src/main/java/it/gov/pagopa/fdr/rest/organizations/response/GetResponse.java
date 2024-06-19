@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import it.gov.pagopa.fdr.rest.model.Receiver;
 import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.rest.model.Sender;
+import it.gov.pagopa.fdr.rest.model.SenderResponse;
 import it.gov.pagopa.fdr.util.AppConstant;
-import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import java.time.Instant;
 
 @Getter
 @Builder
@@ -53,7 +54,7 @@ public class GetResponse {
   @Schema(example = "2023-04-05T09:21:37.810000Z")
   private Instant fdrDate;
 
-  private Sender sender;
+  private SenderResponse sender;
 
   private Receiver receiver;
 
