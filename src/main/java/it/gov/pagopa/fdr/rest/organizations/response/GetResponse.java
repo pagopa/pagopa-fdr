@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.rest.organizations.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import it.gov.pagopa.fdr.rest.model.Receiver;
@@ -65,9 +66,11 @@ public class GetResponse {
   @Schema(example = "UNCRITMMXXX")
   private String bicCodePouringBank;
 
+  @JsonIgnore
   @Schema(example = "100")
   public Long computedTotPayments;
 
+  @JsonIgnore
   @Schema(example = "100.90")
   public Double computedSumPayments;
 

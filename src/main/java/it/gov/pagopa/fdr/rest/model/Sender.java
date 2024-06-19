@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.validation.constraints.NotNull;
@@ -63,7 +63,7 @@ public class Sender {
       description = "[XML NodoInviaFlussoRendicontazione]=[identificativoCanale]")
   private String channelId;
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonIgnore
   @Pattern(regexp = "^(\\w{8,15})$")
   @Schema(
       example = "1234567890",
