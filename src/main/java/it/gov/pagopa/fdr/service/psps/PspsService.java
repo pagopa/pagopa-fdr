@@ -326,7 +326,7 @@ public class PspsService {
     fdrPublishEntity.setRefJson(body);
     fdrPublishEntity.persistEntity();
 
-    historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
+    // historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
 
     log.debug("Delete FdrInsertEntity");
     fdrEntity.delete();
