@@ -329,7 +329,7 @@ public class PspsService {
     fdrPublishEntity.persistEntity();
 
     log.debugf("Save historical data on storage");
-    // historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
+    historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
 
     log.debug("Delete FdrInsertEntity");
     fdrEntity.delete();
