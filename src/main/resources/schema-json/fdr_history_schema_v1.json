@@ -180,8 +180,7 @@
                     } 
                 }
             },
-            "minItems": 1,
-            "maxItems": 1000
+            "minItems": 1
         }
     }
 }
