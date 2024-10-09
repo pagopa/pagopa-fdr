@@ -312,7 +312,6 @@ public class PspsService {
             .project(FdrPaymentInsertEntity.class)
             .list();
 
-    log.debugf("Persisting FdrPaymentPublishEntity");
     FdrPublishEntity fdrPublishEntity = mapper.toFdrPublishEntity(fdrEntity);
     Instant now = Instant.now();
     fdrPublishEntity.setUpdated(now);
@@ -323,12 +322,10 @@ public class PspsService {
     FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
 
     // salva su storage dello storico
-    log.debugf("Persisting json file for history revision");
     HistoryBlobBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
     fdrPublishEntity.setRefJson(body);
     fdrPublishEntity.persistEntity();
 
-    log.debugf("Save historical data on storage");
     historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
 
     log.debug("Delete FdrInsertEntity");
