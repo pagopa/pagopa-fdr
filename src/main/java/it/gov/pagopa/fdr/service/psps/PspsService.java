@@ -325,11 +325,16 @@ public class PspsService {
     log.info("End of persistent storage on Mongo of FDR payment entities");
 
     // salva su storage dello storico
+    log.info("Starting saveJsonFile storage on BlobStorage of FDR payment entities");
     HistoryBlobBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
+    log.info("End of saveJsonFile storage on BlobStorage of FDR payment entities");
+
     fdrPublishEntity.setRefJson(body);
     fdrPublishEntity.persistEntity();
 
+    log.info("Starting saveOnStorage storage on BlobStorage of FDR payment entities");
     historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
+    log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
 
     log.debug("Delete FdrInsertEntity");
     fdrEntity.delete();
