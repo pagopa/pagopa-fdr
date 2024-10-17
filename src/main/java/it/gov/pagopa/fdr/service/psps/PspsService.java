@@ -319,7 +319,10 @@ public class PspsService {
     fdrPublishEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
+
+    log.info("Starting persistent storage on Mongo of FDR payment entities");
     FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
+    log.info("End of persistent storage on Mongo of FDR payment entities");
 
     // salva su storage dello storico
     HistoryBlobBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
