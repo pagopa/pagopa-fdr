@@ -1,4 +1,4 @@
-FROM python:3.11 as build
+FROM python:3.11@sha256:2c51f53055010df23427c2284d415ce6de5250b6d1753484ccef73d98225e28f as build
 #-slim as build
 
 ARG SHELL="/bin/sh"
