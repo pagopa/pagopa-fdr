@@ -39,7 +39,7 @@ jobs:
 
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # Internal APIs
-      - uses: pagopa/opex-dashboard-azure-action@v1.1.2
+      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
@@ -52,7 +52,7 @@ jobs:
 
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # Organizations APIs
-      - uses: pagopa/opex-dashboard-azure-action@v1.1.2
+      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
@@ -65,7 +65,7 @@ jobs:
 
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # PSPs APIs
-      - uses: pagopa/opex-dashboard-azure-action@v1.1.2
+      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
