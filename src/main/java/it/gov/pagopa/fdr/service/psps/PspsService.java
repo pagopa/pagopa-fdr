@@ -323,9 +323,7 @@ public class PspsService {
     log.info("End of persistent storage on Mongo of FDR payment entities");
 
     // salva su storage dello storico
-    log.info("Starting saveJsonFile storage on BlobStorage of FDR payment entities");
     HistoryBlobBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
-    log.info("End of saveJsonFile storage on BlobStorage of FDR payment entities");
 
     fdrPublishEntity.setRefJson(body);
     fdrPublishEntity.persistEntity();
@@ -339,19 +337,13 @@ public class PspsService {
     executeSaveOnStorage
       .thenAccept(value -> {
           log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
-
-          log.info("Starting delete FdrInsertEntity");
           fdrEntity.delete();
           log.infof(
                   "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
           FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
           log.info("End delete deleteByFdrAndPspId");
-          log.info("Starting conversion to queue");
           this.addToConversionQueue(internalPublish, fdrEntity);
-          log.info("End of conversion to queue");
-          log.info("Starting write to re");
           this.rePublish(fdr, pspId, fdrPublishEntity);
-          log.info("End of write to re");
       })
       .exceptionally(e -> {
         log.error("Exception during async saveOnStorage: ", e);
@@ -378,6 +370,7 @@ public class PspsService {
   }
 
   private void rePublish(String fdr, String pspId, FdrPublishEntity fdrPublishEntity) {
+    log.info("Starting write to re");
     String sessionId = (String) MDC.get(TRX_ID);
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
@@ -394,6 +387,7 @@ public class PspsService {
                     .revision(fdrPublishEntity.getRevision())
                     .fdrAction(FdrActionEnum.PUBLISH)
                     .build());
+    log.info("End write to re");
   }
 
 
