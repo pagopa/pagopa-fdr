@@ -108,19 +108,6 @@ public class HistoryService {
     }
   }
 
-  public void asyncSaveOnStorage(FdrPublishEntity fdrEntity, List<FdrPaymentPublishEntity> paymentsList) {
-    CompletableFuture<Boolean> executeSaveOnStorage = CompletableFuture.supplyAsync(() -> {
-      this.saveOnStorage(fdrEntity, paymentsList);
-      return true;
-    });
-    executeSaveOnStorage
-          .thenAccept(value -> logger.debugf("Async saveOnStorage successful executed"))
-          .exceptionally(e -> {
-            logger.error("Exception during async saveOnStorage: ", e);
-            return null;
-          });
-  }
-
   public HistoryBlobBody saveJsonFile(
       FdrPublishEntity fdrEntity, List<FdrPaymentPublishEntity> paymentsList) {
     if (blobContainerClient != null) {

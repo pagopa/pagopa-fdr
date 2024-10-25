@@ -337,13 +337,16 @@ public class PspsService {
     executeSaveOnStorage
       .thenAccept(value -> {
           log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
-          fdrEntity.delete();
-          String sanitizedFdr = fdr.replace("\n", "").replace("\r", "");
-          log.infof(
-                  "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), sanitizedFdr, pspId);
-          FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
-          log.info("End delete deleteByFdrAndPspId");
+
           this.addToConversionQueue(internalPublish, fdrEntity);
+
+          // todo: handles deletes, check insert overwrites
+          // fdrEntity.delete();
+//          log.infof(
+//                  "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
+          // FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
+//          log.info("End delete deleteByFdrAndPspId");
+
           this.rePublish(fdr, pspId, fdrPublishEntity);
       })
       .exceptionally(e -> {
