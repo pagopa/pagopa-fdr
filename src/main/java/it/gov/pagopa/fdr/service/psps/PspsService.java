@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
@@ -330,49 +331,71 @@ public class PspsService {
     fdrPublishEntity.persistEntity();
 
     log.info("Starting saveOnStorage storage on BlobStorage of FDR payment entities");
-    historyService.asyncSaveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
-    log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
+    CompletableFuture<Boolean> executeSaveOnStorage = CompletableFuture.supplyAsync(() -> {
+      historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
+      log.info("Async saveOnStorage successful executed");
+      return true;
+    });
+    executeSaveOnStorage
+      .thenAccept(value -> {
+          log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
 
-    log.info("Starting delete FdrInsertEntity");
-    fdrEntity.delete();
-    log.infof(
-        "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
-    FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
-    log.info("End delete deleteByFdrAndPspId");
+          log.info("Starting delete FdrInsertEntity");
+          fdrEntity.delete();
+          log.infof(
+                  "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
+          FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
+          log.info("End delete deleteByFdrAndPspId");
+          log.info("Starting conversion to queue");
+          this.addToConversionQueue(internalPublish, fdrEntity);
+          log.info("End of conversion to queue");
+          log.info("Starting write to re");
+          this.rePublish(fdr, pspId, fdrPublishEntity);
+          log.info("End of write to re");
+      })
+      .exceptionally(e -> {
+        log.error("Exception during async saveOnStorage: ", e);
+        return null;
+      });
+  }
 
+  private void addToConversionQueue(boolean internalPublish, FdrInsertEntity fdrEntity) {
     // add to conversion queue
     if (internalPublish) {
       log.info("NOT Add FdrInsertEntity in queue fdr message");
     } else {
       log.info("Starting add FdrInsertEntity in queue fdr message");
       conversionQueue.addQueueFlowMessage(
-          FdrMessage.builder()
-              .fdr(fdrEntity.getFdr())
-              .pspId(fdrEntity.getSender().getPspId())
-              .organizationId(fdrEntity.getReceiver().getOrganizationId())
-              .retry(0L)
-              .revision(fdrEntity.getRevision())
-              .build());
+              FdrMessage.builder()
+                      .fdr(fdrEntity.getFdr())
+                      .pspId(fdrEntity.getSender().getPspId())
+                      .organizationId(fdrEntity.getReceiver().getOrganizationId())
+                      .retry(0L)
+                      .revision(fdrEntity.getRevision())
+                      .build());
       log.info("End add FdrInsertEntity in queue fdr message");
     }
+  }
 
+  private void rePublish(String fdr, String pspId, FdrPublishEntity fdrPublishEntity) {
     String sessionId = (String) MDC.get(TRX_ID);
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
-        ReInternal.builder()
-            .serviceIdentifier(AppVersionEnum.FDR003)
-            .created(Instant.now())
-            .sessionId(sessionId)
-            .eventType(EventTypeEnum.INTERNAL)
-            .fdrPhysicalDelete(false)
-            .fdrStatus(FdrStatusEnum.PUBLISHED)
-            .fdr(fdr)
-            .pspId(pspId)
-            .organizationId(fdrPublishEntity.getReceiver().getOrganizationId())
-            .revision(fdrPublishEntity.getRevision())
-            .fdrAction(FdrActionEnum.PUBLISH)
-            .build());
+            ReInternal.builder()
+                    .serviceIdentifier(AppVersionEnum.FDR003)
+                    .created(Instant.now())
+                    .sessionId(sessionId)
+                    .eventType(EventTypeEnum.INTERNAL)
+                    .fdrPhysicalDelete(false)
+                    .fdrStatus(FdrStatusEnum.PUBLISHED)
+                    .fdr(fdr)
+                    .pspId(pspId)
+                    .organizationId(fdrPublishEntity.getReceiver().getOrganizationId())
+                    .revision(fdrPublishEntity.getRevision())
+                    .fdrAction(FdrActionEnum.PUBLISH)
+                    .build());
   }
+
 
   @WithSpan(kind = SERVER)
   public void deleteByFdr(String action, String pspId, String fdr) {
