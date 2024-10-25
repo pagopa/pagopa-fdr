@@ -338,8 +338,9 @@ public class PspsService {
       .thenAccept(value -> {
           log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
           fdrEntity.delete();
+          String sanitizedFdr = fdr.replace("\n", "").replace("\r", "");
           log.infof(
-                  "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
+                  "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), sanitizedFdr, pspId);
           FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
           log.info("End delete deleteByFdrAndPspId");
           this.addToConversionQueue(internalPublish, fdrEntity);
