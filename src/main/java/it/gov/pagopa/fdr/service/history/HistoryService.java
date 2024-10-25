@@ -33,7 +33,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;

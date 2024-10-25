@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
 
@@ -329,30 +330,51 @@ public class PspsService {
     fdrPublishEntity.persistEntity();
 
     log.info("Starting saveOnStorage storage on BlobStorage of FDR payment entities");
-    CompletableFuture<Boolean> executeSaveOnStorage = CompletableFuture.supplyAsync(() -> {
-      historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
-      log.info("Async saveOnStorage successful executed");
-      return true;
-    });
+    CompletableFuture<Boolean> executeSaveOnStorage =
+        CompletableFuture.supplyAsync(
+            () -> {
+              historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
+              log.info("Async saveOnStorage successful executed");
+              return true;
+            });
     executeSaveOnStorage
-      .thenAccept(value -> {
-          log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
+        .thenAccept(
+            value -> {
+              log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
 
-          this.addToConversionQueue(internalPublish, fdrEntity);
+              this.addToConversionQueue(internalPublish, fdrEntity);
 
-          // todo: handles deletes, check insert overwrites
-          // fdrEntity.delete();
-//          log.infof(
-//                  "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
-          // FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
-//          log.info("End delete deleteByFdrAndPspId");
+              // todo: handles deletes, check insert overwrites
+              fdrEntity.delete();
+              log.infof(
+                  "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]",
+                  fdrEntity.getRevision(), fdr, pspId);
+              int batchSize = 1000;
+              List<List<FdrPaymentInsertEntity>> batches =
+                  IntStream.range(0, (paymentInsertEntities.size() + batchSize - 1) / batchSize)
+                      .mapToObj(
+                          i ->
+                              paymentInsertEntities.subList(
+                                  i * batchSize,
+                                  Math.min((i + 1) * batchSize, paymentInsertEntities.size())))
+                      .toList();
+              batches.parallelStream().forEach(batch -> deleteAllInBatch(fdr, batch));
 
-          this.rePublish(fdr, pspId, fdrPublishEntity);
-      })
-      .exceptionally(e -> {
-        log.error("Exception during async saveOnStorage: ", e);
-        return null;
-      });
+              // FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
+              log.info("End delete deleteByFdrAndPspId");
+
+              this.rePublish(fdr, pspId, fdrPublishEntity);
+            })
+        .exceptionally(
+            e -> {
+              log.error("Exception during async saveOnStorage: ", e);
+              return null;
+            });
+  }
+
+  private void deleteAllInBatch(String fdr, List<FdrPaymentInsertEntity> items) {
+    List<Long> indexes = items.stream().map(FdrPaymentInsertEntity::getIndex).toList();
+    FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
   }
 
   private void addToConversionQueue(boolean internalPublish, FdrInsertEntity fdrEntity) {
@@ -362,13 +384,13 @@ public class PspsService {
     } else {
       log.info("Starting add FdrInsertEntity in queue fdr message");
       conversionQueue.addQueueFlowMessage(
-              FdrMessage.builder()
-                      .fdr(fdrEntity.getFdr())
-                      .pspId(fdrEntity.getSender().getPspId())
-                      .organizationId(fdrEntity.getReceiver().getOrganizationId())
-                      .retry(0L)
-                      .revision(fdrEntity.getRevision())
-                      .build());
+          FdrMessage.builder()
+              .fdr(fdrEntity.getFdr())
+              .pspId(fdrEntity.getSender().getPspId())
+              .organizationId(fdrEntity.getReceiver().getOrganizationId())
+              .retry(0L)
+              .revision(fdrEntity.getRevision())
+              .build());
       log.info("End add FdrInsertEntity in queue fdr message");
     }
   }
@@ -378,22 +400,21 @@ public class PspsService {
     String sessionId = (String) MDC.get(TRX_ID);
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
-            ReInternal.builder()
-                    .serviceIdentifier(AppVersionEnum.FDR003)
-                    .created(Instant.now())
-                    .sessionId(sessionId)
-                    .eventType(EventTypeEnum.INTERNAL)
-                    .fdrPhysicalDelete(false)
-                    .fdrStatus(FdrStatusEnum.PUBLISHED)
-                    .fdr(fdr)
-                    .pspId(pspId)
-                    .organizationId(fdrPublishEntity.getReceiver().getOrganizationId())
-                    .revision(fdrPublishEntity.getRevision())
-                    .fdrAction(FdrActionEnum.PUBLISH)
-                    .build());
+        ReInternal.builder()
+            .serviceIdentifier(AppVersionEnum.FDR003)
+            .created(Instant.now())
+            .sessionId(sessionId)
+            .eventType(EventTypeEnum.INTERNAL)
+            .fdrPhysicalDelete(false)
+            .fdrStatus(FdrStatusEnum.PUBLISHED)
+            .fdr(fdr)
+            .pspId(pspId)
+            .organizationId(fdrPublishEntity.getReceiver().getOrganizationId())
+            .revision(fdrPublishEntity.getRevision())
+            .fdrAction(FdrActionEnum.PUBLISH)
+            .build());
     log.info("End write to re");
   }
-
 
   @WithSpan(kind = SERVER)
   public void deleteByFdr(String action, String pspId, String fdr) {
