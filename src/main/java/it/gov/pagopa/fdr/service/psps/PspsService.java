@@ -330,7 +330,7 @@ public class PspsService {
     fdrPublishEntity.persistEntity();
 
     log.info("Starting saveOnStorage storage on BlobStorage of FDR payment entities");
-    historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
+    historyService.asyncSaveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
     log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
 
     log.debug("Delete FdrInsertEntity");

@@ -33,6 +33,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -105,6 +106,19 @@ public class HistoryService {
     } else {
       logger.debugf("Blob container [%s] NOT INITIALIZED", blobContainerName);
     }
+  }
+
+  public void asyncSaveOnStorage(FdrPublishEntity fdrEntity, List<FdrPaymentPublishEntity> paymentsList) {
+    CompletableFuture<Boolean> executeSaveOnStorage = CompletableFuture.supplyAsync(() -> {
+      this.saveOnStorage(fdrEntity, paymentsList);
+      return true;
+    });
+    executeSaveOnStorage
+          .thenAccept(value -> logger.debugf("Async saveOnStorage successful executed"))
+          .exceptionally(e -> {
+            logger.error("Exception during async saveOnStorage: ", e);
+            return null;
+          });
   }
 
   public HistoryBlobBody saveJsonFile(
