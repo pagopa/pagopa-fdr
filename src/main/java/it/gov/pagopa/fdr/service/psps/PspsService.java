@@ -333,17 +333,18 @@ public class PspsService {
     historyService.asyncSaveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
     log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
 
-    log.debug("Delete FdrInsertEntity");
+    log.info("Starting delete FdrInsertEntity");
     fdrEntity.delete();
-    log.debugf(
+    log.infof(
         "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
     FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
+    log.info("End delete deleteByFdrAndPspId");
 
     // add to conversion queue
     if (internalPublish) {
-      log.debug("NOT Add FdrInsertEntity in queue fdr message");
+      log.info("NOT Add FdrInsertEntity in queue fdr message");
     } else {
-      log.debug("Add FdrInsertEntity in queue fdr message");
+      log.info("Starting add FdrInsertEntity in queue fdr message");
       conversionQueue.addQueueFlowMessage(
           FdrMessage.builder()
               .fdr(fdrEntity.getFdr())
@@ -352,6 +353,7 @@ public class PspsService {
               .retry(0L)
               .revision(fdrEntity.getRevision())
               .build());
+      log.info("End add FdrInsertEntity in queue fdr message");
     }
 
     String sessionId = (String) MDC.get(TRX_ID);
