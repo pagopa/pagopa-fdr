@@ -10,10 +10,7 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.fdr.FdrInsertEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.*;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishByPspProjection;
@@ -321,7 +318,7 @@ public class PspsService {
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
 
     log.info("Starting persistent storage on Mongo of FDR payment entities");
-    FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
+    FdrPaymentPublishEntityReactive.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
     log.info("End of persistent storage on Mongo of FDR payment entities");
 
     // salva su storage dello storico

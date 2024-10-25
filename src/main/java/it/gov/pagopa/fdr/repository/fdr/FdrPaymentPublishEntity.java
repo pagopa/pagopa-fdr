@@ -6,7 +6,6 @@ import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
-import io.vertx.core.Vertx;
 import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
 import java.time.Instant;
 import java.util.List;
@@ -98,26 +97,5 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
       params.and("createdTo", createdTo);
     }
     return find(query, sort, params);
-  }
-
-  // persists a list of FdrPaymentPublishEntity to mongo using non-blocking vert.x
-  public static void persistFdrPaymentPublishEntities(List<FdrPaymentPublishEntity> entities) {
-    Vertx vertx = Vertx.vertx();
-    vertx.executeBlocking(
-        promise -> {
-          try {
-            persist(entities);
-            promise.complete();
-          } catch (Exception e) {
-            promise.fail(e);
-          }
-        },
-        res -> {
-          if (res.succeeded()) {
-            // Handle success if needed
-          } else {
-            // Handle failure if needed
-          }
-        });
   }
 }
