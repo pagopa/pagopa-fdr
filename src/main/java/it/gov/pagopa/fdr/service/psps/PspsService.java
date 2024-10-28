@@ -307,7 +307,7 @@ public class PspsService {
           fdrEntity.getComputedSumPayments());
     }
 
-    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, sanitize(pspId));
+    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", sanitize(fdr), sanitize(pspId));
     List<FdrPaymentInsertEntity> paymentInsertEntities =
         FdrPaymentInsertEntity.findByFdrAndPspId(fdr, pspId)
             .project(FdrPaymentInsertEntity.class)
