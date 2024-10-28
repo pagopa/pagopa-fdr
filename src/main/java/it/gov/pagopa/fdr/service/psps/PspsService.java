@@ -375,7 +375,8 @@ public class PspsService {
             .mapToObj(i -> paymentInsertEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, paymentInsertEntities.size())))
             .toList();
 
-    batches.parallelStream().forEach(batch -> {
+    // sequential stream
+    batches.forEach(batch -> {
       List<Long> indexes = paymentInsertEntities.stream().map(FdrPaymentInsertEntity::getIndex).toList();
       FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
     });
