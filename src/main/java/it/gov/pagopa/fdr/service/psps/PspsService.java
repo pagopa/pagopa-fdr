@@ -273,6 +273,10 @@ public class PspsService {
   }
 
   @WithSpan(kind = SERVER)
+  private String sanitize(String input) {
+    return input.replaceAll("[\\n\\r\\t]", "_");
+  }
+
   public void publishByFdr(String action, String pspId, String fdr, boolean internalPublish) {
     log.infof(AppMessageUtil.logExecute(action));
 
@@ -303,7 +307,7 @@ public class PspsService {
           fdrEntity.getComputedSumPayments());
     }
 
-    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, pspId);
+    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, sanitize(pspId));
     List<FdrPaymentInsertEntity> paymentInsertEntities =
         FdrPaymentInsertEntity.findByFdrAndPspId(fdr, pspId)
             .project(FdrPaymentInsertEntity.class)
@@ -339,7 +343,7 @@ public class PspsService {
               // delete
               fdrEntity.delete();
               this.batchDelete(fdr, paymentInsertEntities);
-              log.infof("Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, pspId);
+              log.infof("Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, sanitize(pspId));
               // re
               this.rePublish(fdr, pspId, fdrPublishEntity);
             })
