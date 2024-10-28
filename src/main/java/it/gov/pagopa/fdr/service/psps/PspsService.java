@@ -320,7 +320,13 @@ public class PspsService {
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
 
     log.info("Starting persistent storage on Mongo of FDR payment entities");
-    FdrPaymentPublishEntityReactive.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
+    // FdrPaymentPublishEntityReactive.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
+    int batchSizePub = 1000;
+    List<List<FdrPaymentPublishEntity>> batchesPublish = IntStream
+            .range(0, (fdrPaymentPublishEntities.size() + batchSizePub - 1) / batchSizePub)
+            .mapToObj(i -> fdrPaymentPublishEntities.subList(i * batchSizePub, Math.min((i + 1) * batchSizePub, fdrPaymentPublishEntities.size())))
+            .toList();
+    batchesPublish.parallelStream().forEach(FdrPaymentPublishEntity::persistFdrPaymentPublishEntities);
     log.info("End of persistent storage on Mongo of FDR payment entities");
 
     // salva su storage dello storico
@@ -349,17 +355,7 @@ public class PspsService {
               log.infof(
                   "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]",
                   fdrEntity.getRevision(), fdr, pspId);
-              int batchSize = 1000;
-              List<List<FdrPaymentInsertEntity>> batches =
-                  IntStream.range(0, (paymentInsertEntities.size() + batchSize - 1) / batchSize)
-                      .mapToObj(
-                          i ->
-                              paymentInsertEntities.subList(
-                                  i * batchSize,
-                                  Math.min((i + 1) * batchSize, paymentInsertEntities.size())))
-                      .toList();
-              batches.parallelStream().forEach(batch -> deleteAllInBatch(fdr, batch));
-
+              deleteAllInBatch(fdr, paymentInsertEntities);
               // FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
               log.info("End delete deleteByFdrAndPspId");
 
@@ -372,9 +368,17 @@ public class PspsService {
             });
   }
 
-  private void deleteAllInBatch(String fdr, List<FdrPaymentInsertEntity> items) {
-    List<Long> indexes = items.stream().map(FdrPaymentInsertEntity::getIndex).toList();
-    FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
+  private void deleteAllInBatch(String fdr, List<FdrPaymentInsertEntity> paymentInsertEntities) {
+    int batchSize = 1000;
+    List<List<FdrPaymentInsertEntity>> batches = IntStream
+            .range(0, (paymentInsertEntities.size() + batchSize - 1) / batchSize)
+            .mapToObj(i -> paymentInsertEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, paymentInsertEntities.size())))
+            .toList();
+
+    batches.parallelStream().forEach(batch -> {
+      List<Long> indexes = paymentInsertEntities.stream().map(FdrPaymentInsertEntity::getIndex).toList();
+      FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
+    });
   }
 
   private void addToConversionQueue(boolean internalPublish, FdrInsertEntity fdrEntity) {

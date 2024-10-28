@@ -6,6 +6,7 @@ import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
+import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
 import java.time.Instant;
 import java.util.List;
@@ -97,5 +98,9 @@ public class FdrPaymentPublishEntity extends PanacheMongoEntity {
       params.and("createdTo", createdTo);
     }
     return find(query, sort, params);
+  }
+
+  public static void persistFdrPaymentPublishEntities(List<FdrPaymentPublishEntity> fdrPaymentPublishEntities) {
+    persist(fdrPaymentPublishEntities);
   }
 }
