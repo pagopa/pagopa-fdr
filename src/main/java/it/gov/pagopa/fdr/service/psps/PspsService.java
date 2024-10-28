@@ -303,8 +303,6 @@ public class PspsService {
           fdrEntity.getComputedSumPayments());
     }
 
-    log.debug("FdrInsertEntity PUBLISHED");
-
     log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, pspId);
     List<FdrPaymentInsertEntity> paymentInsertEntities =
         FdrPaymentInsertEntity.findByFdrAndPspId(fdr, pspId)
@@ -316,49 +314,33 @@ public class PspsService {
     fdrPublishEntity.setUpdated(now);
     fdrPublishEntity.setPublished(now);
     fdrPublishEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
-    List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
-        mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
+    List<FdrPaymentPublishEntity> fdrPaymentPublishEntities = mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
 
-    log.info("Starting persistent storage on Mongo of FDR payment entities");
-    // FdrPaymentPublishEntityReactive.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
-    int batchSizePub = 1000;
-    List<List<FdrPaymentPublishEntity>> batchesPublish = IntStream
-            .range(0, (fdrPaymentPublishEntities.size() + batchSizePub - 1) / batchSizePub)
-            .mapToObj(i -> fdrPaymentPublishEntities.subList(i * batchSizePub, Math.min((i + 1) * batchSizePub, fdrPaymentPublishEntities.size())))
-            .toList();
-    batchesPublish.parallelStream().forEach(FdrPaymentPublishEntity::persistFdrPaymentPublishEntities);
-    log.info("End of persistent storage on Mongo of FDR payment entities");
+    // writes in fdr_payment_publish collection
+    this.parallelPersist(fdr, fdrPaymentPublishEntities);
 
-    // salva su storage dello storico
+    // save as JSON file in history storage
     HistoryBlobBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
 
     fdrPublishEntity.setRefJson(body);
     fdrPublishEntity.persistEntity();
 
-    log.info("Starting saveOnStorage storage on BlobStorage of FDR payment entities");
     CompletableFuture<Boolean> executeSaveOnStorage =
         CompletableFuture.supplyAsync(
             () -> {
               historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
-              log.info("Async saveOnStorage successful executed");
               return true;
             });
     executeSaveOnStorage
         .thenAccept(
             value -> {
-              log.info("End of saveOnStorage storage on BlobStorage of FDR payment entities");
-
+              // queue
               this.addToConversionQueue(internalPublish, fdrEntity);
-
-              // todo: handles deletes, check insert overwrites
+              // delete
               fdrEntity.delete();
-              log.infof(
-                  "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]",
-                  fdrEntity.getRevision(), fdr, pspId);
-              deleteAllInBatch(fdr, paymentInsertEntities);
-              // FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
-              log.info("End delete deleteByFdrAndPspId");
-
+              this.batchDelete(fdr, paymentInsertEntities);
+              log.infof("Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, pspId);
+              // re
               this.rePublish(fdr, pspId, fdrPublishEntity);
             })
         .exceptionally(
@@ -368,18 +350,27 @@ public class PspsService {
             });
   }
 
-  private void deleteAllInBatch(String fdr, List<FdrPaymentInsertEntity> paymentInsertEntities) {
+  private void batchDelete(String fdr, List<FdrPaymentInsertEntity> paymentInsertEntities) {
     int batchSize = 1000;
     List<List<FdrPaymentInsertEntity>> batches = IntStream
             .range(0, (paymentInsertEntities.size() + batchSize - 1) / batchSize)
             .mapToObj(i -> paymentInsertEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, paymentInsertEntities.size())))
             .toList();
-
     // sequential stream
     batches.forEach(batch -> {
       List<Long> indexes = paymentInsertEntities.stream().map(FdrPaymentInsertEntity::getIndex).toList();
       FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
     });
+  }
+
+  private void parallelPersist(String fdr, List<FdrPaymentPublishEntity> fdrPaymentPublishEntities) {
+    int batchSize = 1000;
+    List<List<FdrPaymentPublishEntity>> batchesPublish = IntStream
+            .range(0, (fdrPaymentPublishEntities.size() + batchSize - 1) / batchSize)
+            .mapToObj(i -> fdrPaymentPublishEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, fdrPaymentPublishEntities.size())))
+            .toList();
+    batchesPublish.parallelStream().forEach(FdrPaymentPublishEntity::persistFdrPaymentPublishEntities);
+    log.infof("Published fdrPaymentPublishEntities of fdr[%s]", fdr);
   }
 
   private void addToConversionQueue(boolean internalPublish, FdrInsertEntity fdrEntity) {
