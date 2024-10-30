@@ -8,11 +8,13 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
+import org.eclipse.microprofile.faulttolerance.Retry;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -67,12 +69,8 @@ public class FdrPaymentInsertEntity extends PanacheMongoEntity {
         Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
-  public static void deleteByFdrAndIds(String fdr, List<ObjectId> objectIds) {
-    delete(
-            "ref_fdr = :fdr and _id in :objectIds",
-            Parameters.with("fdr", fdr).and("ids", objectIds).map());
-  }
-
+  // https://quarkus.io/guides/smallrye-fault-tolerance
+  @Retry(delay = 500, delayUnit = ChronoUnit.MILLIS)
   public static long deleteByFdrAndIndexes(String fdr, List<Long> indexList) {
     return delete(
         "ref_fdr = :fdr and index in :indexes",

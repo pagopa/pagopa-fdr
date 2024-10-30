@@ -341,8 +341,8 @@ public class PspsService {
               // queue
               this.addToConversionQueue(internalPublish, fdrEntity);
               // delete
-              fdrEntity.delete();
               this.batchDelete(fdr, paymentInsertEntities);
+              fdrEntity.delete();
               log.infof("Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, sanitize(pspId));
               // re
               this.rePublish(fdr, pspId, fdrPublishEntity);
@@ -362,8 +362,8 @@ public class PspsService {
             .toList();
     // sequential stream
     batches.forEach(batch -> {
-      List<ObjectId> objectIds = paymentInsertEntities.stream().map(entity -> entity.id).toList();
-      FdrPaymentInsertEntity.deleteByFdrAndIds(fdr, objectIds);
+      List<Long> indexes = paymentInsertEntities.stream().map(FdrPaymentInsertEntity::getIndex).toList();
+      FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
     });
   }
 

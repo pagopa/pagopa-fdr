@@ -3,8 +3,8 @@ import logging, time
 import methods
 
 
-NUMBER_OF_PAYMENTS = 30000
-MAX_PAYMENTS_PER_ADD_OPERATION = 1000
+NUMBER_OF_PAYMENTS = 300
+MAX_PAYMENTS_PER_ADD_OPERATION = 100
 
 def main(URL, subkey):
     logging.basicConfig(level=logging.INFO)
