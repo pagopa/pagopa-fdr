@@ -1,5 +1,5 @@
+import random
 import json, logging, requests, time
-import utility
 
 
 def create_empty_flow(url, flow_name, flow_date, total_payments, key):
@@ -85,13 +85,13 @@ def generate_payments(number_of_payments, total_amount, date):
     payments = []
     iuvs = set()
     for idx in range(number_of_payments):
-        iuv = utility.get_random_numeric_string(15)
+        iuv = get_random_numeric_string(15)
         if iuv not in iuvs:
             iuvs.add(iuv)
             payments.append({
                 "index": idx + 1,
                 "iuv": iuv,
-                "iur": utility.get_random_numeric_string(11),
+                "iur": get_random_numeric_string(11),
                 "pay": total_amount / number_of_payments,
                 "idTransfer": 1,
                 "payStatus": "EXECUTED",

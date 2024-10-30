@@ -67,6 +67,12 @@ public class FdrPaymentInsertEntity extends PanacheMongoEntity {
         Parameters.with("fdr", fdr).and("pspId", pspId).map());
   }
 
+  public static void deleteByFdrAndIds(String fdr, List<ObjectId> objectIds) {
+    delete(
+            "ref_fdr = :fdr and _id in :objectIds",
+            Parameters.with("fdr", fdr).and("ids", objectIds).map());
+  }
+
   public static long deleteByFdrAndIndexes(String fdr, List<Long> indexList) {
     return delete(
         "ref_fdr = :fdr and index in :indexes",

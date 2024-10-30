@@ -3,13 +3,13 @@ import logging, time
 import methods
 
 
-NUMBER_OF_PAYMENTS = 5000
+NUMBER_OF_PAYMENTS = 30000
 MAX_PAYMENTS_PER_ADD_OPERATION = 1000
 
 def main(URL, subkey):
     logging.basicConfig(level=logging.INFO)
 
-    flow_date = "2024-10-15"
+    flow_date = "2024-10-30"
     tmstmp = timestamp = int(time.time())
     flow_name = f"{flow_date}88888888888-{tmstmp}"
 

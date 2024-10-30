@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.bson.types.ObjectId;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
 
@@ -362,8 +363,8 @@ public class PspsService {
             .toList();
     // sequential stream
     batches.forEach(batch -> {
-      List<Long> indexes = paymentInsertEntities.stream().map(FdrPaymentInsertEntity::getIndex).toList();
-      FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
+      List<ObjectId> objectIds = paymentInsertEntities.stream().map(entity -> entity.id).toList();
+      FdrPaymentInsertEntity.deleteByFdrAndIds(fdr, objectIds);
     });
   }
 
@@ -374,15 +375,15 @@ public class PspsService {
             .mapToObj(i -> fdrPaymentPublishEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, fdrPaymentPublishEntities.size())))
             .toList();
     batchesPublish.parallelStream().forEach(FdrPaymentPublishEntity::persistFdrPaymentPublishEntities);
-    log.infof("Published fdrPaymentPublishEntities of fdr[%s]", fdr);
+    log.debugf("Published fdrPaymentPublishEntities of fdr[%s]", fdr);
   }
 
   private void addToConversionQueue(boolean internalPublish, FdrInsertEntity fdrEntity) {
     // add to conversion queue
     if (internalPublish) {
-      log.info("NOT Add FdrInsertEntity in queue fdr message");
+      log.debugf("NOT Add FdrInsertEntity in queue fdr message");
     } else {
-      log.info("Starting add FdrInsertEntity in queue fdr message");
+      log.debugf("Starting add FdrInsertEntity in queue fdr message");
       conversionQueue.addQueueFlowMessage(
           FdrMessage.builder()
               .fdr(fdrEntity.getFdr())
@@ -391,12 +392,11 @@ public class PspsService {
               .retry(0L)
               .revision(fdrEntity.getRevision())
               .build());
-      log.info("End add FdrInsertEntity in queue fdr message");
+      log.debugf("End add FdrInsertEntity in queue fdr message");
     }
   }
 
   private void rePublish(String fdr, String pspId, FdrPublishEntity fdrPublishEntity) {
-    log.info("Starting write to re");
     String sessionId = (String) MDC.get(TRX_ID);
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
@@ -413,7 +413,6 @@ public class PspsService {
             .revision(fdrPublishEntity.getRevision())
             .fdrAction(FdrActionEnum.PUBLISH)
             .build());
-    log.info("End write to re");
   }
 
   @WithSpan(kind = SERVER)
