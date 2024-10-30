@@ -273,7 +273,6 @@ public class PspsService {
             .build());
   }
 
-  @WithSpan(kind = SERVER)
   private String sanitize(String input) {
     return input.replaceAll("[\\n\\r\\t]", "_");
   }
