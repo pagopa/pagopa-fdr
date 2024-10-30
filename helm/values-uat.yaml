@@ -97,9 +97,9 @@ microservice-chart:
     path: /pagopa-fdr-service(/|$)(.*)
     # currently set ingress timeout to 50m, until async handling will be introduced
     annotations:
-      nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-      nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-      nginx.ingress.kubernetes.io/send_timeout: "300"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "3000"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3000"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3000"
+      nginx.ingress.kubernetes.io/send_timeout: "3000"
   canaryDelivery:
     create: false
