@@ -17,4 +17,11 @@ public class StringUtil {
     bais.close();
     return compressed;
   }
+
+  // Replace newline, carriage return, tab, single quote, double quote, and backslash characters
+  public static String sanitize(String input) {
+    if (input == null)
+      return null;
+    return input.replaceAll("[\\n\\r\\t'\"\\\\]", "_");
+  }
 }

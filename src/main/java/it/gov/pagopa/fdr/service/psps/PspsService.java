@@ -10,14 +10,12 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.fdr.FdrInsertEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentInsertEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.fdr.*;
 import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishByPspProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
+import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
@@ -28,6 +26,7 @@ import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
+import it.gov.pagopa.fdr.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -35,7 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.bson.types.ObjectId;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
 
@@ -273,7 +275,6 @@ public class PspsService {
             .build());
   }
 
-  @WithSpan(kind = SERVER)
   public void publishByFdr(String action, String pspId, String fdr, boolean internalPublish) {
     log.infof(AppMessageUtil.logExecute(action));
 
@@ -304,9 +305,7 @@ public class PspsService {
           fdrEntity.getComputedSumPayments());
     }
 
-    log.debug("FdrInsertEntity PUBLISHED");
-
-    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, pspId);
+    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", StringUtil.sanitize(fdr), StringUtil.sanitize(pspId));
     List<FdrPaymentInsertEntity> paymentInsertEntities =
         FdrPaymentInsertEntity.findByFdrAndPspId(fdr, pspId)
             .project(FdrPaymentInsertEntity.class)
@@ -317,31 +316,71 @@ public class PspsService {
     fdrPublishEntity.setUpdated(now);
     fdrPublishEntity.setPublished(now);
     fdrPublishEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
-    List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
-        mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
+    List<FdrPaymentPublishEntity> fdrPaymentPublishEntities = mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
 
-    log.info("Starting persistent storage on Mongo of FDR payment entities");
-    FdrPaymentPublishEntity.persistFdrPaymentPublishEntities(fdrPaymentPublishEntities);
-    log.info("End of persistent storage on Mongo of FDR payment entities");
+    // writes in fdr_payment_publish collection
+    this.parallelPersist(fdr, fdrPaymentPublishEntities);
 
-    // salva su storage dello storico
+    // save as JSON file in history storage
     HistoryBlobBody body = historyService.saveJsonFile(fdrPublishEntity, fdrPaymentPublishEntities);
+
     fdrPublishEntity.setRefJson(body);
     fdrPublishEntity.persistEntity();
 
-    historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
+    CompletableFuture<Boolean> executeSaveOnStorage =
+        CompletableFuture.supplyAsync(
+            () -> {
+              historyService.saveOnStorage(fdrPublishEntity, fdrPaymentPublishEntities);
+              return true;
+            });
+    executeSaveOnStorage
+        .thenAccept(
+            value -> {
+              // queue
+              this.addToConversionQueue(internalPublish, fdrEntity);
+              // delete
+              this.batchDelete(fdr, paymentInsertEntities);
+              fdrEntity.delete();
+              log.infof("Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]", StringUtil.sanitize(fdr), StringUtil.sanitize(pspId));
+              // re
+              this.rePublish(fdr, pspId, fdrPublishEntity);
+            })
+        .exceptionally(
+            e -> {
+              log.error("Exception during async saveOnStorage: ", e);
+              return null;
+            });
+  }
 
-    log.debug("Delete FdrInsertEntity");
-    fdrEntity.delete();
-    log.debugf(
-        "Delete FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdrEntity.getRevision(), fdr, pspId);
-    FdrPaymentInsertEntity.deleteByFdrAndPspId(fdr, pspId);
+  private void batchDelete(String fdr, List<FdrPaymentInsertEntity> paymentInsertEntities) {
+    int batchSize = 1000;
+    List<List<FdrPaymentInsertEntity>> batches = IntStream
+            .range(0, (paymentInsertEntities.size() + batchSize - 1) / batchSize)
+            .mapToObj(i -> paymentInsertEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, paymentInsertEntities.size())))
+            .toList();
+    // sequential stream
+    batches.forEach(batch -> {
+      List<Long> indexes = paymentInsertEntities.stream().map(FdrPaymentInsertEntity::getIndex).toList();
+      FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
+    });
+  }
 
+  private void parallelPersist(String fdr, List<FdrPaymentPublishEntity> fdrPaymentPublishEntities) {
+    int batchSize = 1000;
+    List<List<FdrPaymentPublishEntity>> batchesPublish = IntStream
+            .range(0, (fdrPaymentPublishEntities.size() + batchSize - 1) / batchSize)
+            .mapToObj(i -> fdrPaymentPublishEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, fdrPaymentPublishEntities.size())))
+            .toList();
+    batchesPublish.parallelStream().forEach(FdrPaymentPublishEntity::persistFdrPaymentPublishEntities);
+    log.debugf("Published fdrPaymentPublishEntities of fdr[%s]", StringUtil.sanitize(fdr));
+  }
+
+  private void addToConversionQueue(boolean internalPublish, FdrInsertEntity fdrEntity) {
     // add to conversion queue
     if (internalPublish) {
-      log.debug("NOT Add FdrInsertEntity in queue fdr message");
+      log.debugf("NOT Add FdrInsertEntity in queue fdr message");
     } else {
-      log.debug("Add FdrInsertEntity in queue fdr message");
+      log.debugf("Starting add FdrInsertEntity in queue fdr message");
       conversionQueue.addQueueFlowMessage(
           FdrMessage.builder()
               .fdr(fdrEntity.getFdr())
@@ -350,8 +389,11 @@ public class PspsService {
               .retry(0L)
               .revision(fdrEntity.getRevision())
               .build());
+      log.debugf("End add FdrInsertEntity in queue fdr message");
     }
+  }
 
+  private void rePublish(String fdr, String pspId, FdrPublishEntity fdrPublishEntity) {
     String sessionId = (String) MDC.get(TRX_ID);
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     reService.sendEvent(
