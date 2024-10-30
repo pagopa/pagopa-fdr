@@ -15,6 +15,7 @@ import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishByPspProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
+import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
@@ -25,6 +26,7 @@ import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
+import it.gov.pagopa.fdr.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -273,10 +275,6 @@ public class PspsService {
             .build());
   }
 
-  private String sanitize(String input) {
-    return input.replaceAll("[\\n\\r\\t]", "_");
-  }
-
   public void publishByFdr(String action, String pspId, String fdr, boolean internalPublish) {
     log.infof(AppMessageUtil.logExecute(action));
 
@@ -307,7 +305,7 @@ public class PspsService {
           fdrEntity.getComputedSumPayments());
     }
 
-    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", sanitize(fdr), sanitize(pspId));
+    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", StringUtil.sanitize(fdr), StringUtil.sanitize(pspId));
     List<FdrPaymentInsertEntity> paymentInsertEntities =
         FdrPaymentInsertEntity.findByFdrAndPspId(fdr, pspId)
             .project(FdrPaymentInsertEntity.class)
@@ -343,7 +341,7 @@ public class PspsService {
               // delete
               this.batchDelete(fdr, paymentInsertEntities);
               fdrEntity.delete();
-              log.infof("Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]", fdr, sanitize(pspId));
+              log.infof("Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]", StringUtil.sanitize(fdr), StringUtil.sanitize(pspId));
               // re
               this.rePublish(fdr, pspId, fdrPublishEntity);
             })
@@ -374,7 +372,7 @@ public class PspsService {
             .mapToObj(i -> fdrPaymentPublishEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, fdrPaymentPublishEntities.size())))
             .toList();
     batchesPublish.parallelStream().forEach(FdrPaymentPublishEntity::persistFdrPaymentPublishEntities);
-    log.debugf("Published fdrPaymentPublishEntities of fdr[%s]", fdr);
+    log.debugf("Published fdrPaymentPublishEntities of fdr[%s]", StringUtil.sanitize(fdr));
   }
 
   private void addToConversionQueue(boolean internalPublish, FdrInsertEntity fdrEntity) {
