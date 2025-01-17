@@ -10,9 +10,9 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishProjection;
+import it.gov.pagopa.fdr.repository.entity.flow.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrPublishProjection;
+import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.service.dto.FdrAllDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
@@ -107,7 +107,7 @@ public class OrganizationsService {
                             .fdr(rf.getFdr())
                             .published(rf.getPublished())
                             .revision(rf.getRevision())
-                            .pspId(rf.getSender().getPspId())
+                            .pspId(rf.getSenderProjection().getPspId())
                             .build())
                 .toList())
         .build();

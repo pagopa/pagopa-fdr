@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.fdr;
+package it.gov.pagopa.fdr.repository.entity.payment;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
@@ -6,7 +6,7 @@ import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
-import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.enums.PaymentStatusEnum;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -36,7 +36,7 @@ public class FdrPaymentInsertEntity extends PanacheMongoEntity {
   private Double pay;
 
   @BsonProperty("pay_status")
-  private PaymentStatusEnumEntity payStatus;
+  private PaymentStatusEnum payStatus;
 
   @BsonProperty("pay_date")
   private Instant payDate;

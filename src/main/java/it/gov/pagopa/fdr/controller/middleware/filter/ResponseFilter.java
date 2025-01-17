@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.filter;
+package it.gov.pagopa.fdr.controller.middleware.filter;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.*;
 

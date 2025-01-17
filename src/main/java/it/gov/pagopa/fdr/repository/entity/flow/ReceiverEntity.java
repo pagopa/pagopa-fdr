@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.fdr.model;
+package it.gov.pagopa.fdr.repository.entity.flow;
 
 import lombok.Data;
 import org.bson.codecs.pojo.annotations.BsonProperty;

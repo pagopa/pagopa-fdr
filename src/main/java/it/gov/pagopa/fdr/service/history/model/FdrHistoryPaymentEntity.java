@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.service.history.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import it.gov.pagopa.fdr.repository.fdr.model.PaymentStatusEnumEntity;
+import it.gov.pagopa.fdr.repository.enums.PaymentStatusEnum;
 import java.time.Instant;
 import lombok.Data;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -25,7 +25,7 @@ public class FdrHistoryPaymentEntity {
   @JsonIgnore private Instant updated;
 
   @BsonProperty("pay_status")
-  private PaymentStatusEnumEntity payStatus;
+  private PaymentStatusEnum payStatus;
 
   @BsonProperty("pay_date")
   private Instant payDate;

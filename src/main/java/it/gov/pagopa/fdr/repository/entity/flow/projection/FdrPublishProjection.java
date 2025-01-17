@@ -1,17 +1,17 @@
-package it.gov.pagopa.fdr.repository.fdr.projection;
+package it.gov.pagopa.fdr.repository.entity.flow.projection;
 
 import io.quarkus.mongodb.panache.common.ProjectionFor;
-import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.entity.flow.FdrPublishEntity;
 import java.time.Instant;
 import lombok.Data;
 
 @Data
 @ProjectionFor(FdrPublishEntity.class)
-public class FdrPublishByPspProjection {
+public class FdrPublishProjection {
 
   private String fdr;
 
-  private Receiver receiver;
+  private SenderProjection senderProjection;
 
   private Long revision;
 

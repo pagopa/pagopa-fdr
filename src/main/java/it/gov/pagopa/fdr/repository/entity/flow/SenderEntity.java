@@ -1,12 +1,13 @@
-package it.gov.pagopa.fdr.repository.fdr.model;
+package it.gov.pagopa.fdr.repository.entity.flow;
 
+import it.gov.pagopa.fdr.repository.enums.SenderTypeEnum;
 import lombok.Data;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 public class SenderEntity {
 
-  private SenderTypeEnumEntity type;
+  private SenderTypeEnum type;
 
   @BsonProperty("id")
   private String id;

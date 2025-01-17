@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.exceptionmapper;
+package it.gov.pagopa.fdr.controller.middleware.exceptionhandler;
 
 import static it.gov.pagopa.fdr.util.AppMessageUtil.logErrorMessage;
 import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;

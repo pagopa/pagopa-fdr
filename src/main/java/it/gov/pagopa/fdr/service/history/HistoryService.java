@@ -19,8 +19,8 @@ import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.entity.flow.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.service.history.constants.HistoryConstants;
 import it.gov.pagopa.fdr.service.history.mapper.HistoryServiceMapper;
 import it.gov.pagopa.fdr.service.history.model.FdrHistoryEntity;
@@ -39,6 +39,7 @@ import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class HistoryService {
+
   private final HistoryServiceMapper mapper;
   private final Logger logger;
   private final ObjectMapper objMapper;

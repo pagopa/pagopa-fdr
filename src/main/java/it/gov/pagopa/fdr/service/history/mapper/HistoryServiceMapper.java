@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.service.history.mapper;
 
-import it.gov.pagopa.fdr.repository.fdr.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.fdr.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.entity.flow.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentPublishEntity;
 import it.gov.pagopa.fdr.service.history.model.FdrHistoryEntity;
 import it.gov.pagopa.fdr.service.history.model.FdrHistoryPaymentEntity;
 import java.util.List;

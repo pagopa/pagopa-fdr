@@ -10,11 +10,14 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.fdr.*;
-import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
-import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
-import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishByPspProjection;
-import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
+import it.gov.pagopa.fdr.repository.entity.flow.FdrInsertEntity;
+import it.gov.pagopa.fdr.repository.entity.flow.FdrPublishEntity;
+import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrInsertProjection;
+import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrPublishByPspProjection;
+import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrPublishRevisionProjection;
+import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentInsertEntity;
+import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentPublishEntity;
+import it.gov.pagopa.fdr.repository.enums.FdrStatusEnum;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
@@ -99,7 +102,7 @@ public class PspsService {
 
     fdrEntity.setCreated(now);
     fdrEntity.setUpdated(now);
-    fdrEntity.setStatus(FdrStatusEnumEntity.CREATED);
+    fdrEntity.setStatus(FdrStatusEnum.CREATED);
     fdrEntity.setComputedTotPayments(0L);
     fdrEntity.setComputedSumPayments(0.0);
     fdrEntity.setTotPayments(fdrDto.getTotPayments());
@@ -116,7 +119,7 @@ public class PspsService {
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(false)
-            .fdrStatus(FdrStatusEnum.CREATED)
+            .fdrStatus(it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.CREATED)
             //            .flowRead(false)
             .fdr(fdr)
             .pspId(pspId)
@@ -163,7 +166,7 @@ public class PspsService {
     fdrEntity.setComputedSumPayments(addAndSum(fdrEntity, reportingFlowPaymentEntities));
 
     fdrEntity.setUpdated(now);
-    fdrEntity.setStatus(FdrStatusEnumEntity.INSERTED);
+    fdrEntity.setStatus(it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED);
     fdrEntity.update();
     log.debug("FdrInsertEntity INSERTED");
 
@@ -192,7 +195,7 @@ public class PspsService {
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(false)
-            .fdrStatus(FdrStatusEnum.INSERTED)
+            .fdrStatus(it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.INSERTED)
             //            .flowRead(false)
             .fdr(fdr)
             .pspId(pspId)
@@ -214,7 +217,7 @@ public class PspsService {
 
     MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    if (FdrStatusEnumEntity.INSERTED != fdrEntity.getStatus()) {
+    if (it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED != fdrEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION, fdr, fdrEntity.getStatus());
     }
@@ -242,8 +245,10 @@ public class PspsService {
 
     long tot = deleteAndSumCount(fdrEntity, paymentToDelete);
     double sum = deleteAndSubtract(fdrEntity, paymentToDelete);
-    FdrStatusEnumEntity status =
-        sum > 0 ? FdrStatusEnumEntity.INSERTED : FdrStatusEnumEntity.CREATED;
+    it.gov.pagopa.fdr.repository.enums.FdrStatusEnum status =
+        sum > 0
+            ? it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED
+            : it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.CREATED;
     fdrEntity.setComputedTotPayments(tot);
     fdrEntity.setComputedSumPayments(sum);
     fdrEntity.setUpdated(now);
@@ -261,9 +266,9 @@ public class PspsService {
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(false)
             .fdrStatus(
-                FdrStatusEnumEntity.INSERTED == status
-                    ? FdrStatusEnum.INSERTED
-                    : FdrStatusEnum.CREATED)
+                it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED == status
+                    ? it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.INSERTED
+                    : it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.CREATED)
             //            .flowRead(false)
             .fdr(fdr)
             .pspId(pspId)
@@ -282,7 +287,7 @@ public class PspsService {
 
     MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    if (FdrStatusEnumEntity.INSERTED != fdrEntity.getStatus()) {
+    if (it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED != fdrEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION, fdr, fdrEntity.getStatus());
     }
@@ -315,7 +320,7 @@ public class PspsService {
     Instant now = Instant.now();
     fdrPublishEntity.setUpdated(now);
     fdrPublishEntity.setPublished(now);
-    fdrPublishEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
+    fdrPublishEntity.setStatus(it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.PUBLISHED);
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
 
@@ -417,7 +422,7 @@ public class PspsService {
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(false)
-            .fdrStatus(FdrStatusEnum.PUBLISHED)
+            .fdrStatus(it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.PUBLISHED)
             .fdr(fdr)
             .pspId(pspId)
             .organizationId(fdrPublishEntity.getReceiver().getOrganizationId())
@@ -452,7 +457,7 @@ public class PspsService {
             .sessionId(sessionId)
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(true)
-            .fdrStatus(FdrStatusEnum.DELETED)
+            .fdrStatus(it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.DELETED)
             .fdr(fdr)
             .pspId(pspId)
             .organizationId(fdrEntity.getReceiver().getOrganizationId())
@@ -563,7 +568,7 @@ public class PspsService {
                             .fdr(rf.getFdr())
                             .created(rf.getCreated())
                             .revision(rf.getRevision())
-                            .organizationId(rf.getReceiver().getOrganizationId())
+                            .organizationId(rf.getReceiverProjection().getOrganizationId())
                             .build())
                 .toList())
         .build();
@@ -684,7 +689,7 @@ public class PspsService {
                             .fdr(rf.getFdr())
                             .published(rf.getPublished())
                             .revision(rf.getRevision())
-                            .organizationId(rf.getReceiver().getOrganizationId())
+                            .organizationId(rf.getReceiverProjection().getOrganizationId())
                             .build())
                 .toList())
         .build();
