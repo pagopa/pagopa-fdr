@@ -1,45 +1,31 @@
 package it.gov.pagopa.fdr.controller;
 
-import it.gov.pagopa.fdr.controller.model.common.ErrorCode;
 import it.gov.pagopa.fdr.controller.model.common.response.InfoResponse;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.util.AppMessageUtil;
-import it.gov.pagopa.fdr.util.Re;
+import it.gov.pagopa.fdr.service.HealthCheckService;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import java.util.Arrays;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.jboss.logging.Logger;
 
 @Path("/info")
 @Tag(name = "Info", description = "Info operations")
 public class InfoController {
 
-  private final Logger log;
+  private final HealthCheckService healthCheckService;
 
-  @ConfigProperty(name = "app.name", defaultValue = "app")
-  String name;
-
-  @ConfigProperty(name = "app.version", defaultValue = "0.0.0")
-  String version;
-
-  @ConfigProperty(name = "app.environment", defaultValue = "local")
-  String environment;
-
-  public InfoController(Logger log) {
-    this.log = log;
+  public InfoController(HealthCheckService healthCheckService) {
+    this.healthCheckService = healthCheckService;
   }
 
-  @Operation(summary = "Get info of FDR")
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Get health check and deployment-related information")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -51,27 +37,7 @@ public class InfoController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = InfoResponse.class)))
       })
-  @Produces(MediaType.APPLICATION_JSON)
-  @GET
-  @Re(action = FdrActionEnum.INFO)
-  public InfoResponse hello() {
-    log.infof("Info environment: [%s] - name: [%s] - version: [%s]", environment, name, version);
-
-    return InfoResponse.builder()
-        .name(name)
-        .version(version)
-        .environment(environment)
-        .description(AppMessageUtil.getMessage("app.description"))
-        .errorCodes(
-            Arrays.stream(AppErrorCodeMessageEnum.values())
-                .map(
-                    errorCode ->
-                        ErrorCode.builder()
-                            .code(errorCode.errorCode())
-                            .description(errorCode.message())
-                            .statusCode(errorCode.httpStatus().getStatusCode())
-                            .build())
-                .toList())
-        .build();
+  public InfoResponse healthCheck() {
+    return healthCheckService.getHealthInfo();
   }
 }

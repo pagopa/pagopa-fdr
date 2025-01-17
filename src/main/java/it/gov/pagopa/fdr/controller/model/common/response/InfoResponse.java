@@ -1,8 +1,6 @@
 package it.gov.pagopa.fdr.controller.model.common.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import it.gov.pagopa.fdr.controller.model.common.ErrorCode;
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
@@ -25,6 +23,4 @@ public class InfoResponse {
 
   @Schema(example = "FDR - Flussi di rendicontazione")
   private String description;
-
-  private List<ErrorCode> errorCodes;
 }
