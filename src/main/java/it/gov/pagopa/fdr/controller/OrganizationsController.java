@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.organizations;
+package it.gov.pagopa.fdr.controller;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
@@ -34,9 +34,9 @@ import org.jboss.logging.Logger;
 @Path("/organizations/{" + AppConstant.ORGANIZATION + "}/fdrs")
 @Consumes("application/json")
 @Produces("application/json")
-public class OrganizationsResource extends BaseOrganizationsResource {
+public class OrganizationsController extends BaseOrganizationsController {
 
-  protected OrganizationsResource(
+  protected OrganizationsController(
       Config config,
       Logger log,
       OrganizationsValidationService validator,

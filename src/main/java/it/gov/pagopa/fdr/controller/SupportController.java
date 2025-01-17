@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.support;
+package it.gov.pagopa.fdr.controller;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
@@ -34,12 +34,12 @@ import org.jboss.logging.MDC;
 @Path("/internal/psps/{" + AppConstant.PSP + "}/")
 @Consumes("application/json")
 @Produces("application/json")
-public class SupportResource {
+public class SupportController {
 
   private final SupportResourceServiceMapper mapper;
   private final SupportService service;
 
-  public SupportResource(SupportResourceServiceMapper mapper, SupportService service) {
+  public SupportController(SupportResourceServiceMapper mapper, SupportService service) {
     this.mapper = mapper;
     this.service = service;
   }

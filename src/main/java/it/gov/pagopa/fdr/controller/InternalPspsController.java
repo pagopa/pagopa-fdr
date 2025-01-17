@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.psps;
+package it.gov.pagopa.fdr.controller;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
@@ -21,7 +21,16 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.time.Instant;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -34,13 +43,13 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 
-@Tag(name = "PSP", description = "PSP operations")
-@Path("/psps/{" + AppConstant.PSP + "}")
+@Tag(name = "Internal PSP", description = "PSP operations")
+@Path("/internal/psps/{" + AppConstant.PSP + "}")
 @Consumes("application/json")
 @Produces("application/json")
-public class PspsResource extends BasePspResource {
+public class InternalPspsController extends BasePspController {
 
-  protected PspsResource(
+  protected InternalPspsController(
       Logger log,
       Config config,
       PspsValidationService validator,
@@ -50,7 +59,7 @@ public class PspsResource extends BasePspResource {
     super(log, config, validator, internalValidator, mapper, service);
   }
 
-  @Operation(operationId = "create", summary = "Create fdr", description = "Create fdr")
+  @Operation(operationId = "internalCreate", summary = "Create fdr", description = "Create fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
       value = {
@@ -67,8 +76,8 @@ public class PspsResource extends BasePspResource {
       })
   @POST
   @Path("/fdrs/{" + AppConstant.FDR + "}")
-  @Re(action = FdrActionEnum.CREATE_FLOW)
-  public RestResponse<GenericResponse> create(
+  @Re(action = FdrActionEnum.INTERNAL_CREATE_FLOW)
+  public RestResponse<GenericResponse> internalCreate(
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
       @NotNull @Valid CreateFlowRequest createRequest) {
@@ -77,7 +86,7 @@ public class PspsResource extends BasePspResource {
   }
 
   @Operation(
-      operationId = "addPayment",
+      operationId = "internalAddPayment",
       summary = "Add payments to fdr",
       description = "Add payments to fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
@@ -96,8 +105,8 @@ public class PspsResource extends BasePspResource {
       })
   @PUT
   @Path("/fdrs/{" + AppConstant.FDR + "}/payments/add")
-  @Re(action = FdrActionEnum.ADD_PAYMENT)
-  public GenericResponse addPayment(
+  @Re(action = FdrActionEnum.INTERNAL_ADD_PAYMENT)
+  public GenericResponse internalAddPayment(
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid AddPaymentRequest addPaymentRequest) {
@@ -105,7 +114,7 @@ public class PspsResource extends BasePspResource {
   }
 
   @Operation(
-      operationId = "deletePayment",
+      operationId = "internalDeletePayment",
       summary = "Delete payments to fdr",
       description = "Delete payments to fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
@@ -124,15 +133,15 @@ public class PspsResource extends BasePspResource {
       })
   @PUT
   @Path("/fdrs/{" + AppConstant.FDR + "}/payments/del")
-  @Re(action = FdrActionEnum.DELETE_PAYMENT)
-  public GenericResponse deletePayment(
+  @Re(action = FdrActionEnum.INTERNAL_DELETE_PAYMENT)
+  public GenericResponse internalDeletePayment(
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) String fdr,
       @NotNull @Valid DeletePaymentRequest deletePaymentRequest) {
     return baseDeletePayment(pspId, fdr, deletePaymentRequest);
   }
 
-  @Operation(operationId = "publish", summary = "Publish fdr", description = "Publish fdr")
+  @Operation(operationId = "internalPublish", summary = "Publish fdr", description = "Publish fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -148,13 +157,13 @@ public class PspsResource extends BasePspResource {
       })
   @POST
   @Path("/fdrs/{" + AppConstant.FDR + "}/publish")
-  @Re(action = FdrActionEnum.PUBLISH)
-  public GenericResponse publish(
+  @Re(action = FdrActionEnum.INTERNAL_PUBLISH)
+  public GenericResponse internalPublish(
       @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdr) {
-    return basePublish(pspId, fdr, false);
+    return basePublish(pspId, fdr, true);
   }
 
-  @Operation(operationId = "delete", summary = "Delete fdr", description = "Delete fdr")
+  @Operation(operationId = "internalDelete", summary = "Delete fdr", description = "Delete fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -170,16 +179,16 @@ public class PspsResource extends BasePspResource {
       })
   @DELETE
   @Path("/fdrs/{" + AppConstant.FDR + "}")
-  @Re(action = FdrActionEnum.DELETE_FLOW)
-  public GenericResponse delete(
+  @Re(action = FdrActionEnum.INTERNAL_DELETE_FLOW)
+  public GenericResponse internalDelete(
       @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdr) {
     return baseDelete(pspId, fdr);
   }
 
   @Operation(
-      operationId = "getAllcreated",
-      summary = "Get all fdr created",
-      description = "Get all fdr created")
+      operationId = "internalGetAllCreated",
+      summary = "Get all fdr inserted",
+      description = "Get all fdr inserted")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -195,8 +204,8 @@ public class PspsResource extends BasePspResource {
       })
   @GET
   @Path("/created")
-  @Re(action = FdrActionEnum.GET_ALL_CREATED_FDR)
-  public PaginatedFlowsCreatedResponse getAllCreated(
+  @Re(action = FdrActionEnum.INTERNAL_GET_ALL_CREATED_FDR)
+  public PaginatedFlowsCreatedResponse internalGetAllCreated(
       @PathParam(AppConstant.PSP) String pspId,
       @QueryParam(AppConstant.CREATED_GREATER_THAN) Instant createdGt,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
@@ -207,7 +216,7 @@ public class PspsResource extends BasePspResource {
   }
 
   @Operation(
-      operationId = "getCreated",
+      operationId = "internalGetCreated",
       summary = "Get created fdr",
       description = "Get created fdr")
   @APIResponses(
@@ -225,8 +234,8 @@ public class PspsResource extends BasePspResource {
       })
   @GET
   @Path("/created/fdrs/{" + AppConstant.FDR + "}/organizations/{" + AppConstant.ORGANIZATION + "}")
-  @Re(action = FdrActionEnum.GET_CREATED_FDR)
-  public SingleFlowCreatedResponse getCreated(
+  @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR)
+  public SingleFlowCreatedResponse internalGetCreated(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.ORGANIZATION) String organizationId) {
@@ -234,9 +243,9 @@ public class PspsResource extends BasePspResource {
   }
 
   @Operation(
-      operationId = "getCreatedPayment",
-      summary = "Get created payments of fdr",
-      description = "Get created payments of fdr")
+      operationId = "internalGetCreatedPayment",
+      summary = "Get internal created payments of fdr",
+      description = "Get internal created payments of fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -257,8 +266,8 @@ public class PspsResource extends BasePspResource {
           + "}/organizations/{"
           + AppConstant.ORGANIZATION
           + "}/payments")
-  @Re(action = FdrActionEnum.GET_CREATED_FDR_PAYMENT)
-  public PaginatedPaymentsResponse getCreatedPayment(
+  @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR_PAYMENT)
+  public PaginatedPaymentsResponse internalGetCreatedPayment(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.ORGANIZATION) String organizationId,
@@ -270,9 +279,9 @@ public class PspsResource extends BasePspResource {
   }
 
   @Operation(
-      operationId = "getAllPublishedByPsp",
-      summary = "Get all fdr published",
-      description = "Get all fdr published")
+      operationId = "internalGetAllPublishedByPsp",
+      summary = "Get all internal fdr published",
+      description = "Get all internal fdr published")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -288,8 +297,8 @@ public class PspsResource extends BasePspResource {
       })
   @GET
   @Path("/published")
-  @Re(action = FdrActionEnum.GET_ALL_FDR_PUBLISHED_BY_PSP)
-  public PaginatedFlowsPublishedResponse getAllPublishedByPsp(
+  @Re(action = FdrActionEnum.INTERNAL_GET_ALL_FDR_PUBLISHED_BY_PSP)
+  public PaginatedFlowsPublishedResponse internalGetAllPublishedByPsp(
       @PathParam(AppConstant.PSP) String idPsp,
       @QueryParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @QueryParam(AppConstant.PUBLISHED_GREATER_THAN) Instant publishedGt,
@@ -301,9 +310,9 @@ public class PspsResource extends BasePspResource {
   }
 
   @Operation(
-      operationId = "getPublishedByPsp",
-      summary = "Get fdr Published",
-      description = "Get fdr Published")
+      operationId = "internalGetPublishedByPsp",
+      summary = "Get internal fdr Published",
+      description = "Get internal fdr Published")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -326,19 +335,19 @@ public class PspsResource extends BasePspResource {
           + "}/organizations/{"
           + AppConstant.ORGANIZATION
           + "}")
-  @Re(action = FdrActionEnum.GET_FDR_PUBLISHED_BY_PSP)
-  public SingleFlowResponse getPublishedByPsp(
+  @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PUBLISHED_BY_PSP)
+  public SingleFlowResponse internalGetPublishedByPsp(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,
       @PathParam(AppConstant.ORGANIZATION) String organizationId) {
-    return baseGetPublished(psp, fdr, rev, organizationId);
+    return baseGetPublished(organizationId, fdr, rev, psp);
   }
 
   @Operation(
-      operationId = "getPaymentPublishedByPsp",
-      summary = "Get payments of fdr Published",
-      description = "Get payments of fdr Published")
+      operationId = "internalGetPaymentPublishedByPSp",
+      summary = "Get internal payments of fdr Published",
+      description = "Get internal payments of fdr Published")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -361,8 +370,8 @@ public class PspsResource extends BasePspResource {
           + "}/organizations/{"
           + AppConstant.ORGANIZATION
           + "}/payments")
-  @Re(action = FdrActionEnum.GET_FDR_PAYMENT_PUBLISHED_BY_PSP)
-  public PaginatedPaymentsResponse getPaymentPublishedByPsp(
+  @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT_PUBLISHED_BY_PSP)
+  public PaginatedPaymentsResponse internalGetPaymentPublishedByPSp(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,
@@ -371,6 +380,6 @@ public class PspsResource extends BasePspResource {
           long pageNumber,
       @QueryParam(AppConstant.SIZE) @DefaultValue(AppConstant.SIZE_DEFAULT) @Min(value = 1)
           long pageSize) {
-    return baseGetFdrPaymentPublished(psp, fdr, rev, organizationId, pageNumber, pageSize);
+    return baseGetFdrPaymentPublished(organizationId, fdr, rev, psp, pageNumber, pageSize);
   }
 }

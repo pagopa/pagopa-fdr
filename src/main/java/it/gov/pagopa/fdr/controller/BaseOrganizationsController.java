@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.organizations;
+package it.gov.pagopa.fdr.controller;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
@@ -20,7 +20,7 @@ import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
-public abstract class BaseOrganizationsResource {
+public abstract class BaseOrganizationsController {
 
   private final Config config;
   private final Logger log;
@@ -32,7 +32,7 @@ public abstract class BaseOrganizationsResource {
 
   private final OrganizationsService service;
 
-  protected BaseOrganizationsResource(
+  protected BaseOrganizationsController(
       Config config,
       Logger log,
       OrganizationsValidationService validator,

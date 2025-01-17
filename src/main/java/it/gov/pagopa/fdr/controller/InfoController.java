@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.info;
+package it.gov.pagopa.fdr.controller;
 
 import it.gov.pagopa.fdr.controller.model.common.ErrorCode;
 import it.gov.pagopa.fdr.controller.model.common.response.InfoResponse;
@@ -22,7 +22,7 @@ import org.jboss.logging.Logger;
 
 @Path("/info")
 @Tag(name = "Info", description = "Info operations")
-public class InfoResource {
+public class InfoController {
 
   private final Logger log;
 
@@ -35,7 +35,7 @@ public class InfoResource {
   @ConfigProperty(name = "app.environment", defaultValue = "local")
   String environment;
 
-  public InfoResource(Logger log) {
+  public InfoController(Logger log) {
     this.log = log;
   }
 

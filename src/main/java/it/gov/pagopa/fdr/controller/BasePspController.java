@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.psps;
+package it.gov.pagopa.fdr.controller;
 
 import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
@@ -26,7 +26,7 @@ import org.jboss.logging.MDC;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
-public abstract class BasePspResource {
+public abstract class BasePspController {
 
   public static final String S_BY_PSP_S_WITH_FDR_S = "%s by psp:[%s] with fdr:[%s]";
 
@@ -42,7 +42,7 @@ public abstract class BasePspResource {
 
   private final PspsService service;
 
-  protected BasePspResource(
+  protected BasePspController(
       Logger log,
       Config config,
       PspsValidationService validator,
