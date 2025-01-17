@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.organizations.response;
+package it.gov.pagopa.fdr.controller.model.flow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -28,7 +28,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
   "sender",
   "receiver"
 })
-public class GetResponse {
+public class FlowResponse {
+
   @Schema(example = "4")
   @JsonProperty(AppConstant.REVISION)
   private Long revision;

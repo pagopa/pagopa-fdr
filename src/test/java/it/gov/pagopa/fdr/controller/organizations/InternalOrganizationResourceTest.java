@@ -17,9 +17,9 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.controller.model.PaymentStatusEnum;
 import it.gov.pagopa.fdr.controller.model.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
+import it.gov.pagopa.fdr.controller.model.flow.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
@@ -49,7 +49,7 @@ class InternalOrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
-    GetAllResponse res =
+    PaginatedFlowsResponse res =
         given()
             .header(HEADER)
             .when()
@@ -57,7 +57,7 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetAllResponse.class);
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(
         res.getData(),
@@ -72,7 +72,7 @@ class InternalOrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
-    GetAllResponse res =
+    PaginatedFlowsResponse res =
         given()
             .header(HEADER)
             .when()
@@ -80,7 +80,7 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetAllResponse.class);
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 
@@ -136,7 +136,7 @@ class InternalOrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1, PSP_CODE);
-    GetResponse res =
+    FlowResponse res =
         given()
             .header(HEADER)
             .when()
@@ -144,7 +144,7 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetResponse.class);
+            .as(FlowResponse.class);
     assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
@@ -160,7 +160,7 @@ class InternalOrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2, PSP_CODE);
-    GetResponse res =
+    FlowResponse res =
         given()
             .header(HEADER)
             .when()
@@ -168,7 +168,7 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetResponse.class);
+            .as(FlowResponse.class);
     assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getRevision(), equalTo(2L));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
@@ -209,7 +209,7 @@ class InternalOrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1, PSP_CODE);
-    GetPaymentResponse res =
+    PaginatedPaymentsResponse res =
         given()
             .header(HEADER)
             .when()
@@ -217,7 +217,7 @@ class InternalOrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetPaymentResponse.class);
+            .as(PaginatedPaymentsResponse.class);
     assertThat(res.getCount(), equalTo(5L));
     List<String> expectedList =
         List.of(

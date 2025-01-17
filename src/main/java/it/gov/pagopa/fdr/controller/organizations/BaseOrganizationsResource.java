@@ -3,10 +3,10 @@ package it.gov.pagopa.fdr.controller.organizations;
 import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 import it.gov.pagopa.fdr.Config;
+import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
+import it.gov.pagopa.fdr.controller.model.flow.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.controller.organizations.mapper.OrganizationsResourceServiceMapper;
-import it.gov.pagopa.fdr.controller.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.controller.organizations.validation.InternalOrganizationsValidationService;
 import it.gov.pagopa.fdr.controller.organizations.validation.OrganizationsValidationService;
 import it.gov.pagopa.fdr.service.dto.FdrAllDto;
@@ -47,7 +47,7 @@ public abstract class BaseOrganizationsResource {
     this.service = service;
   }
 
-  protected GetAllResponse baseGetAll(
+  protected PaginatedFlowsResponse baseGetAll(
       String organizationId,
       String idPsp,
       Instant publishedGt,
@@ -90,7 +90,7 @@ public abstract class BaseOrganizationsResource {
     return mapper.toGetAllResponse(fdrAllDto);
   }
 
-  protected GetResponse baseGet(
+  protected FlowResponse baseGet(
       String organizationId, String fdr, Long rev, String psp, boolean internalGet) {
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
@@ -120,7 +120,7 @@ public abstract class BaseOrganizationsResource {
     return mapper.toGetIdResponse(fdrGetDto);
   }
 
-  protected GetPaymentResponse baseGetFdrPayment(
+  protected PaginatedPaymentsResponse baseGetFdrPayment(
       String organizationId,
       String fdr,
       Long rev,

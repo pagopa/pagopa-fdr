@@ -1,10 +1,10 @@
 package it.gov.pagopa.fdr.controller.organizations;
 
 import it.gov.pagopa.fdr.Config;
+import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
+import it.gov.pagopa.fdr.controller.model.flow.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.controller.organizations.mapper.OrganizationsResourceServiceMapper;
-import it.gov.pagopa.fdr.controller.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetResponse;
 import it.gov.pagopa.fdr.controller.organizations.validation.InternalOrganizationsValidationService;
 import it.gov.pagopa.fdr.controller.organizations.validation.OrganizationsValidationService;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
@@ -61,11 +61,11 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetAllResponse.class)))
+                    schema = @Schema(implementation = PaginatedFlowsResponse.class)))
       })
   @GET
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_FDR)
-  public GetAllResponse internalGetAllPublished(
+  public PaginatedFlowsResponse internalGetAllPublished(
       @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @QueryParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String idPsp,
       @QueryParam(AppConstant.PUBLISHED_GREATER_THAN) Instant publishedGt,
@@ -91,7 +91,7 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetResponse.class)))
+                    schema = @Schema(implementation = FlowResponse.class)))
       })
   @GET
   @Path(
@@ -103,7 +103,7 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
           + AppConstant.PSP
           + "}")
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR)
-  public GetResponse internalGet(
+  public FlowResponse internalGet(
       @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,
@@ -126,7 +126,7 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetPaymentResponse.class)))
+                    schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
       })
   @GET
   @Path(
@@ -138,7 +138,7 @@ public class InternalOrganizationsResource extends BaseOrganizationsResource {
           + AppConstant.PSP
           + "}/payments")
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT)
-  public GetPaymentResponse internalGetFdrPayment(
+  public PaginatedPaymentsResponse internalGetFdrPayment(
       @PathParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,

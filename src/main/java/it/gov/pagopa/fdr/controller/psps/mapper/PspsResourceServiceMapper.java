@@ -2,9 +2,9 @@ package it.gov.pagopa.fdr.controller.psps.mapper;
 
 import it.gov.pagopa.fdr.controller.model.Metadata;
 import it.gov.pagopa.fdr.controller.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.controller.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
+import it.gov.pagopa.fdr.controller.model.flow.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.controller.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.psps.request.CreateRequest;
 import it.gov.pagopa.fdr.controller.psps.request.DeletePaymentRequest;
@@ -35,11 +35,11 @@ public interface PspsResourceServiceMapper {
 
   GetCreatedResponse toGetCreatedResponse(FdrGetCreatedDto fdrAllDto);
 
-  GetPaymentResponse toGetPaymentResponse(FdrGetPaymentDto fdrGetPaymentDto);
+  PaginatedPaymentsResponse toGetPaymentResponse(FdrGetPaymentDto fdrGetPaymentDto);
 
-  GetAllResponse toGetAllResponsePublished(FdrAllDto fdrAllDto);
+  PaginatedFlowsResponse toGetAllResponsePublished(FdrAllDto fdrAllDto);
 
-  GetResponse toGetIdResponsePublished(FdrGetDto fdrGetDto);
+  FlowResponse toGetIdResponsePublished(FdrGetDto fdrGetDto);
 
   GetAllPublishedResponse toGetAllPublishedResponse(FdrAllPublishedDto fdrAllDto);
 }

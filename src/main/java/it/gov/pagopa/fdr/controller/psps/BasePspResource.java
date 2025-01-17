@@ -4,8 +4,8 @@ import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.GenericResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.controller.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.controller.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.psps.request.CreateRequest;
@@ -212,7 +212,7 @@ public abstract class BasePspResource {
     return mapper.toGetCreatedResponse(fdrGetDto);
   }
 
-  protected GetPaymentResponse baseGetCreatedFdrPayment(
+  protected PaginatedPaymentsResponse baseGetCreatedFdrPayment(
       String fdr, String psp, String organizationId, long pageNumber, long pageSize) {
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
@@ -266,7 +266,7 @@ public abstract class BasePspResource {
     return mapper.toGetAllPublishedResponse(fdrAllDto);
   }
 
-  protected GetResponse baseGetPublished(String psp, String fdr, Long rev, String organizationId) {
+  protected FlowResponse baseGetPublished(String psp, String fdr, Long rev, String organizationId) {
     String action = (String) MDC.get(ACTION);
     MDC.put(PSP_ID, psp);
     MDC.put(FDR, fdr);
@@ -291,7 +291,7 @@ public abstract class BasePspResource {
     return mapper.toGetIdResponsePublished(fdrGetDto);
   }
 
-  protected GetPaymentResponse baseGetFdrPaymentPublished(
+  protected PaginatedPaymentsResponse baseGetFdrPaymentPublished(
       String psp, String fdr, Long rev, String organizationId, long pageNumber, long pageSize) {
 
     String action = (String) MDC.get(ACTION);

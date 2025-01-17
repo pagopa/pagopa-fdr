@@ -2,8 +2,8 @@ package it.gov.pagopa.fdr.controller.psps;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.GenericResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.controller.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.controller.psps.mapper.PspsResourceServiceMapper;
 import it.gov.pagopa.fdr.controller.psps.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.psps.request.CreateRequest;
@@ -257,7 +257,7 @@ public class InternalPspsResource extends BasePspResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetPaymentResponse.class)))
+                    schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
       })
   @GET
   @Path(
@@ -267,7 +267,7 @@ public class InternalPspsResource extends BasePspResource {
           + AppConstant.ORGANIZATION
           + "}/payments")
   @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR_PAYMENT)
-  public GetPaymentResponse internalGetCreatedPayment(
+  public PaginatedPaymentsResponse internalGetCreatedPayment(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.ORGANIZATION) String organizationId,
@@ -324,7 +324,7 @@ public class InternalPspsResource extends BasePspResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetResponse.class)))
+                    schema = @Schema(implementation = FlowResponse.class)))
       })
   @GET
   @Path(
@@ -336,7 +336,7 @@ public class InternalPspsResource extends BasePspResource {
           + AppConstant.ORGANIZATION
           + "}")
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PUBLISHED_BY_PSP)
-  public GetResponse internalGetPublishedByPsp(
+  public FlowResponse internalGetPublishedByPsp(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,
@@ -359,7 +359,7 @@ public class InternalPspsResource extends BasePspResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetPaymentResponse.class)))
+                    schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
       })
   @GET
   @Path(
@@ -371,7 +371,7 @@ public class InternalPspsResource extends BasePspResource {
           + AppConstant.ORGANIZATION
           + "}/payments")
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT_PUBLISHED_BY_PSP)
-  public GetPaymentResponse internalGetPaymentPublishedByPSp(
+  public PaginatedPaymentsResponse internalGetPaymentPublishedByPSp(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,

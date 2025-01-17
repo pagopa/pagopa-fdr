@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.organizations.response;
+package it.gov.pagopa.fdr.controller.model.flow;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import it.gov.pagopa.fdr.controller.model.Fdr;
@@ -13,7 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"metadata", "count", "data"})
-public class GetAllResponse {
+public class PaginatedFlowsResponse {
 
   private Metadata metadata;
 
