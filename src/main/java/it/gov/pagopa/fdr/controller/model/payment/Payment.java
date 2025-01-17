@@ -1,5 +1,6 @@
-package it.gov.pagopa.fdr.controller.model;
+package it.gov.pagopa.fdr.controller.model.payment;
 
+import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
 import jakarta.validation.constraints.*;
 import java.time.Instant;
 import lombok.Builder;

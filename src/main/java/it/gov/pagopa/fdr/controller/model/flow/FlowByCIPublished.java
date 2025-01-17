@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.model;
+package it.gov.pagopa.fdr.controller.model.flow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.fdr.util.AppConstant;
@@ -9,7 +9,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Getter
 @Builder
-public class FdrPublished {
+public class FlowByCIPublished {
 
   @Schema(example = "AAABBB")
   @JsonProperty(AppConstant.FDR)

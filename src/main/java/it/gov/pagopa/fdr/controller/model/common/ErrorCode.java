@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.model.info;
+package it.gov.pagopa.fdr.controller.model.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

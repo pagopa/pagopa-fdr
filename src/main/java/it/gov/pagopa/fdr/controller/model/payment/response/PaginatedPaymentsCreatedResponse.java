@@ -1,8 +1,8 @@
-package it.gov.pagopa.fdr.controller.model.payment;
+package it.gov.pagopa.fdr.controller.model.payment.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import it.gov.pagopa.fdr.controller.model.Metadata;
-import it.gov.pagopa.fdr.controller.model.Payment;
+import it.gov.pagopa.fdr.controller.model.common.Metadata;
+import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Builder
 @Jacksonized
 @JsonPropertyOrder({"metadata", "count", "sum", "data"})
-public class PaginatedPaymentsResponse {
+public class PaginatedPaymentsCreatedResponse {
 
   private Metadata metadata;
 

@@ -3,12 +3,16 @@ package it.gov.pagopa.fdr.controller.psps;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
+import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
+import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
+import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.Payment;
+import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
-import it.gov.pagopa.fdr.controller.model.*;
-import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
-import it.gov.pagopa.fdr.controller.psps.response.GetAllCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
@@ -1353,7 +1357,7 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1, EC_CODE);
-    FlowResponse res =
+    SingleFlowResponse res =
         given()
             .header(HEADER)
             .when()
@@ -1361,7 +1365,7 @@ class PspResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(FlowResponse.class);
+            .as(SingleFlowResponse.class);
     assertThat(res.getTotPayments(), equalTo(5L));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
   }
@@ -1499,14 +1503,14 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1L, EC_CODE);
-    FlowResponse res = given()
+    SingleFlowResponse res = given()
         .header(HEADER)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(FlowResponse.class);
+        .as(SingleFlowResponse.class);
     assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
@@ -1522,14 +1526,14 @@ class PspResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String url = GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 2L, EC_CODE);
-    FlowResponse res = given()
+    SingleFlowResponse res = given()
         .header(HEADER)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(FlowResponse.class);
+        .as(SingleFlowResponse.class);
     assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getRevision(), equalTo(2L));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
@@ -1540,14 +1544,14 @@ class PspResourceTest {
   void test_psp_getAllReportingFlowCreated_OK() {
     String url = (GET_ALL_FDR_CREATED_URL + "?page=2&size=1").formatted(PSP_CODE_3);
 
-    GetAllCreatedResponse res = given()
+    PaginatedFlowsCreatedResponse res = given()
         .header(HEADER)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(GetAllCreatedResponse.class);
+        .as(PaginatedFlowsCreatedResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 
@@ -1608,14 +1612,14 @@ class PspResourceTest {
     assertThat(resPspFlow.getMessage(), equalTo(String.format("Fdr [%s] saved", flowName)));
 
     String url = (GET_ALL_FDR_CREATED_URL).formatted(PSP_CODE);
-    GetAllCreatedResponse res = given()
+    PaginatedFlowsCreatedResponse res = given()
         .header(HEADER)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(GetAllCreatedResponse.class);
+        .as(PaginatedFlowsCreatedResponse.class);
 
     assertThat(res.getCount(), greaterThan(0L));
 //    assertThat(res.getData(), contains(hasProperty("fdr", is(flowName))));

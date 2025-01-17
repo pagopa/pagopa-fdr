@@ -1,16 +1,16 @@
 package it.gov.pagopa.fdr.controller.psps;
 
 import it.gov.pagopa.fdr.Config;
-import it.gov.pagopa.fdr.controller.model.GenericResponse;
-import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
-import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
+import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
+import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsPublishedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.controller.psps.mapper.PspsResourceServiceMapper;
-import it.gov.pagopa.fdr.controller.psps.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.controller.psps.request.CreateRequest;
-import it.gov.pagopa.fdr.controller.psps.request.DeletePaymentRequest;
-import it.gov.pagopa.fdr.controller.psps.response.GetAllCreatedResponse;
-import it.gov.pagopa.fdr.controller.psps.response.GetAllPublishedResponse;
-import it.gov.pagopa.fdr.controller.psps.response.GetCreatedResponse;
 import it.gov.pagopa.fdr.controller.psps.validation.InternalPspValidationService;
 import it.gov.pagopa.fdr.controller.psps.validation.PspsValidationService;
 import it.gov.pagopa.fdr.service.psps.PspsService;
@@ -60,7 +60,7 @@ public class InternalPspsResource extends BasePspResource {
   }
 
   @Operation(operationId = "internalCreate", summary = "Create fdr", description = "Create fdr")
-  @RequestBody(content = @Content(schema = @Schema(implementation = CreateRequest.class)))
+  @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -80,7 +80,7 @@ public class InternalPspsResource extends BasePspResource {
   public RestResponse<GenericResponse> internalCreate(
       @PathParam(AppConstant.PSP) String pspId,
       @PathParam(AppConstant.FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}") String fdr,
-      @NotNull @Valid CreateRequest createRequest) {
+      @NotNull @Valid CreateFlowRequest createRequest) {
 
     return baseCreate(pspId, fdr, createRequest);
   }
@@ -200,12 +200,12 @@ public class InternalPspsResource extends BasePspResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetAllCreatedResponse.class)))
+                    schema = @Schema(implementation = PaginatedFlowsCreatedResponse.class)))
       })
   @GET
   @Path("/created")
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_CREATED_FDR)
-  public GetAllCreatedResponse internalGetAllCreated(
+  public PaginatedFlowsCreatedResponse internalGetAllCreated(
       @PathParam(AppConstant.PSP) String pspId,
       @QueryParam(AppConstant.CREATED_GREATER_THAN) Instant createdGt,
       @QueryParam(AppConstant.PAGE) @DefaultValue(AppConstant.PAGE_DEAFULT) @Min(value = 1)
@@ -230,12 +230,12 @@ public class InternalPspsResource extends BasePspResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetCreatedResponse.class)))
+                    schema = @Schema(implementation = SingleFlowCreatedResponse.class)))
       })
   @GET
   @Path("/created/fdrs/{" + AppConstant.FDR + "}/organizations/{" + AppConstant.ORGANIZATION + "}")
   @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR)
-  public GetCreatedResponse internalGetCreated(
+  public SingleFlowCreatedResponse internalGetCreated(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.ORGANIZATION) String organizationId) {
@@ -293,12 +293,12 @@ public class InternalPspsResource extends BasePspResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GetAllPublishedResponse.class)))
+                    schema = @Schema(implementation = PaginatedFlowsPublishedResponse.class)))
       })
   @GET
   @Path("/published")
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_FDR_PUBLISHED_BY_PSP)
-  public GetAllPublishedResponse internalGetAllPublishedByPsp(
+  public PaginatedFlowsPublishedResponse internalGetAllPublishedByPsp(
       @PathParam(AppConstant.PSP) String idPsp,
       @QueryParam(AppConstant.ORGANIZATION) @Pattern(regexp = "^(.{1,35})$") String organizationId,
       @QueryParam(AppConstant.PUBLISHED_GREATER_THAN) Instant publishedGt,
@@ -324,7 +324,7 @@ public class InternalPspsResource extends BasePspResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FlowResponse.class)))
+                    schema = @Schema(implementation = SingleFlowResponse.class)))
       })
   @GET
   @Path(
@@ -336,7 +336,7 @@ public class InternalPspsResource extends BasePspResource {
           + AppConstant.ORGANIZATION
           + "}")
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PUBLISHED_BY_PSP)
-  public FlowResponse internalGetPublishedByPsp(
+  public SingleFlowResponse internalGetPublishedByPsp(
       @PathParam(AppConstant.PSP) String psp,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,

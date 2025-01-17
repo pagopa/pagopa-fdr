@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.model;
+package it.gov.pagopa.fdr.controller.model.flow;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.time.Instant;
@@ -10,10 +10,15 @@ import lombok.extern.jackson.Jacksonized;
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"pspId", "organizationId", "fdr", "revision", "created"})
-public class FdrByPspIdIuvIurBase {
+public class FlowBySenderAndReceiver {
+
   private String pspId;
+
   private String organizationId;
+
   private String fdr;
+
   private Long revision;
+
   private Instant created;
 }

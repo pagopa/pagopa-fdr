@@ -3,16 +3,16 @@ package it.gov.pagopa.fdr.controller.psps;
 import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 import it.gov.pagopa.fdr.Config;
-import it.gov.pagopa.fdr.controller.model.GenericResponse;
-import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
-import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
+import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
+import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsPublishedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.controller.psps.mapper.PspsResourceServiceMapper;
-import it.gov.pagopa.fdr.controller.psps.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.controller.psps.request.CreateRequest;
-import it.gov.pagopa.fdr.controller.psps.request.DeletePaymentRequest;
-import it.gov.pagopa.fdr.controller.psps.response.GetAllCreatedResponse;
-import it.gov.pagopa.fdr.controller.psps.response.GetAllPublishedResponse;
-import it.gov.pagopa.fdr.controller.psps.response.GetCreatedResponse;
 import it.gov.pagopa.fdr.controller.psps.validation.InternalPspValidationService;
 import it.gov.pagopa.fdr.controller.psps.validation.PspsValidationService;
 import it.gov.pagopa.fdr.service.dto.*;
@@ -58,7 +58,7 @@ public abstract class BasePspResource {
   }
 
   protected RestResponse<GenericResponse> baseCreate(
-      String pspId, String fdr, CreateRequest createRequest) {
+      String pspId, String fdr, CreateFlowRequest createRequest) {
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(PSP_ID, pspId);
@@ -166,7 +166,7 @@ public abstract class BasePspResource {
     return GenericResponse.builder().message(String.format("Fdr [%s] deleted", fdr)).build();
   }
 
-  protected GetAllCreatedResponse baseGetAllCreated(
+  protected PaginatedFlowsCreatedResponse baseGetAllCreated(
       String idPsp, Instant createdGt, long pageNumber, long pageSize) {
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
@@ -192,7 +192,8 @@ public abstract class BasePspResource {
     return mapper.toGetAllResponse(fdrAllDto);
   }
 
-  protected GetCreatedResponse baseGetCreated(String fdr, String psp, String organizationId) {
+  protected SingleFlowCreatedResponse baseGetCreated(
+      String fdr, String psp, String organizationId) {
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
     String action = (String) MDC.get(ACTION);
     MDC.put(FDR, fdr);
@@ -239,7 +240,7 @@ public abstract class BasePspResource {
     return mapper.toGetPaymentResponse(fdrGetPaymentDto);
   }
 
-  protected GetAllPublishedResponse baseGetAllPublished(
+  protected PaginatedFlowsPublishedResponse baseGetAllPublished(
       String idPsp, String organizationId, Instant publishedGt, long pageNumber, long pageSize) {
     String action = (String) MDC.get(ACTION);
     MDC.put(PSP_ID, idPsp);
@@ -266,7 +267,8 @@ public abstract class BasePspResource {
     return mapper.toGetAllPublishedResponse(fdrAllDto);
   }
 
-  protected FlowResponse baseGetPublished(String psp, String fdr, Long rev, String organizationId) {
+  protected SingleFlowResponse baseGetPublished(
+      String psp, String fdr, Long rev, String organizationId) {
     String action = (String) MDC.get(ACTION);
     MDC.put(PSP_ID, psp);
     MDC.put(FDR, fdr);

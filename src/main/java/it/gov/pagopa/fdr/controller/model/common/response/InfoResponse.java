@@ -1,6 +1,7 @@
-package it.gov.pagopa.fdr.controller.model.info;
+package it.gov.pagopa.fdr.controller.model.common.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import it.gov.pagopa.fdr.controller.model.common.ErrorCode;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;

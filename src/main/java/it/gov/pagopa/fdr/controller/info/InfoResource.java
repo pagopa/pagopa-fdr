@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.controller.info;
 
-import it.gov.pagopa.fdr.controller.model.info.ErrorCode;
-import it.gov.pagopa.fdr.controller.model.info.InfoResponse;
+import it.gov.pagopa.fdr.controller.model.common.ErrorCode;
+import it.gov.pagopa.fdr.controller.model.common.response.InfoResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;

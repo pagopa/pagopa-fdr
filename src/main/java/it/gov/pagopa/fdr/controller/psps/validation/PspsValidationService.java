@@ -3,7 +3,7 @@ package it.gov.pagopa.fdr.controller.psps.validation;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
-import it.gov.pagopa.fdr.controller.psps.request.CreateRequest;
+import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.validation.CommonValidationService;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,7 +24,11 @@ public class PspsValidationService extends CommonValidationService {
 
   @WithSpan(kind = SERVER)
   public void validateCreateFlow(
-      String action, String psp, String fdr, CreateRequest createRequest, ConfigDataV1 configData) {
+      String action,
+      String psp,
+      String fdr,
+      CreateFlowRequest createRequest,
+      ConfigDataV1 configData) {
     log.info(AppMessageUtil.logValidate(action));
 
     // check psp sender

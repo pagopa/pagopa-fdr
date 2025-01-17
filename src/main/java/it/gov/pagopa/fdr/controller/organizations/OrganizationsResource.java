@@ -1,9 +1,9 @@
 package it.gov.pagopa.fdr.controller.organizations;
 
 import it.gov.pagopa.fdr.Config;
-import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
-import it.gov.pagopa.fdr.controller.model.flow.PaginatedFlowsResponse;
-import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.controller.organizations.mapper.OrganizationsResourceServiceMapper;
 import it.gov.pagopa.fdr.controller.organizations.validation.InternalOrganizationsValidationService;
 import it.gov.pagopa.fdr.controller.organizations.validation.OrganizationsValidationService;
@@ -88,7 +88,7 @@ public class OrganizationsResource extends BaseOrganizationsResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FlowResponse.class)))
+                    schema = @Schema(implementation = SingleFlowResponse.class)))
       })
   @GET
   @Path(
@@ -100,7 +100,7 @@ public class OrganizationsResource extends BaseOrganizationsResource {
           + AppConstant.PSP
           + "}")
   @Re(action = FdrActionEnum.GET_FDR)
-  public FlowResponse get(
+  public SingleFlowResponse get(
       @PathParam(AppConstant.ORGANIZATION) String organizationId,
       @PathParam(AppConstant.FDR) String fdr,
       @PathParam(AppConstant.REVISION) Long rev,

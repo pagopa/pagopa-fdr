@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.model;
+package it.gov.pagopa.fdr.controller.model.payment.enums;
 
 public enum PaymentStatusEnum {
   EXECUTED,

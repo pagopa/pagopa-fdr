@@ -25,9 +25,9 @@ import static org.hamcrest.Matchers.hasProperty;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.controller.model.GenericResponse;
-import it.gov.pagopa.fdr.controller.model.SenderTypeEnum;
+import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
+import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
@@ -50,156 +50,156 @@ class InternalPspResourceTest {
 
   protected static String PAYMENTS_SAME_INDEX_ADD_TEMPLATE =
       """
-                    {
-                      "payments": [{
-                          "index": 100,
-                          "iuv": "a",
-                          "iur": "abcdefg",
-                          "idTransfer": 1,
-                          "pay": 0.01,
-                          "payStatus": "EXECUTED",
-                          "payDate": "2023-02-03T12:00:30.900000Z"
-                        },{
-                          "index": 100,
-                          "iuv": "b",
-                          "iur": "abcdefg",
-                          "idTransfer": 2,
-                          "pay": 0.01,
-                          "payStatus": "REVOKED",
-                          "payDate": "2023-02-03T12:00:30.900000Z"
-                        }
-                      ]
-                    }
-                    """;
+          {
+            "payments": [{
+                "index": 100,
+                "iuv": "a",
+                "iur": "abcdefg",
+                "idTransfer": 1,
+                "pay": 0.01,
+                "payStatus": "EXECUTED",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "index": 100,
+                "iuv": "b",
+                "iur": "abcdefg",
+                "idTransfer": 2,
+                "pay": 0.01,
+                "payStatus": "REVOKED",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              }
+            ]
+          }
+          """;
 
   protected static String PAYMENTS_2_ADD_TEMPLATE =
       """
-                    {
-                      "payments": [{
-                        "index": 100,
-                        "iuv": "a",
-                        "iur": "abcdefg",
-                        "idTransfer": 1,
-                        "pay": 0.01,
-                        "payStatus": "EXECUTED",
-                        "payDate": "2023-02-03T12:00:30.900000Z"
-                      }]
-                    }
-                    """;
+          {
+            "payments": [{
+              "index": 100,
+              "iuv": "a",
+              "iur": "abcdefg",
+              "idTransfer": 1,
+              "pay": 0.01,
+              "payStatus": "EXECUTED",
+              "payDate": "2023-02-03T12:00:30.900000Z"
+            }]
+          }
+          """;
 
   protected static String PAYMENTS_DELETE_WRONG_TEMPLATE =
       """
-                    {
-                      "indexList": [
-                          5
-                      ]
-                    }
-                    """;
+          {
+            "indexList": [
+                5
+            ]
+          }
+          """;
 
   protected static String MALFORMED_JSON =
       """
-                    {
-                      12345
-                    }
-                    """;
+          {
+            12345
+          }
+          """;
 
   protected static String PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE =
       """
-                    {
-                      "payments": {
-                          "index": 100,
-                          "iuv": "a",
-                          "iur": "abcdefg",
-                          "idTransfer": 1,
-                          "pay": "%s",
-                          "payStatus": "EXECUTED",
-                          "payDate": "2023-02-03T12:00:30.900000Z"
-                        }
-                    }
-                    """;
+          {
+            "payments": {
+                "index": 100,
+                "iuv": "a",
+                "iur": "abcdefg",
+                "idTransfer": 1,
+                "pay": "%s",
+                "payStatus": "EXECUTED",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              }
+          }
+          """;
 
   protected static String FLOW_TEMPLATE_WRONG_INSTANT =
       """
-                    {
-                      "fdr": "%s",
-                      "fdrDate": "%s",
-                      "sender": {
-                        "type": "%s",
-                        "id": "SELBIT2B",
-                        "pspId": "%s",
-                        "pspName": "Bank",
-                        "pspBrokerId": "%s",
-                        "channelId": "%s",
-                        "password": "1234567890"
-                      },
-                      "receiver": {
-                        "id": "APPBIT2B",
-                        "organizationId": "%s",
-                        "organizationName": "Comune di xyz"
-                      },
-                      "regulation": "SEPA - Bonifico xzy",
-                      "regulationDate": "2023-04-03T12:00:30.900000Z",
-                      "bicCodePouringBank": "UNCRITMMXXX",
-                      "totPayments": 3,
-                      "sumPayments": 0.03
-                    }
-                    """;
+          {
+            "fdr": "%s",
+            "fdrDate": "%s",
+            "sender": {
+              "type": "%s",
+              "id": "SELBIT2B",
+              "pspId": "%s",
+              "pspName": "Bank",
+              "pspBrokerId": "%s",
+              "channelId": "%s",
+              "password": "1234567890"
+            },
+            "receiver": {
+              "id": "APPBIT2B",
+              "organizationId": "%s",
+              "organizationName": "Comune di xyz"
+            },
+            "regulation": "SEPA - Bonifico xzy",
+            "regulationDate": "2023-04-03T12:00:30.900000Z",
+            "bicCodePouringBank": "UNCRITMMXXX",
+            "totPayments": 3,
+            "sumPayments": 0.03
+          }
+          """;
 
   protected static String PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE =
       """
-                    {
-                      "payments": [{
-                          "index": 100,
-                          "iuv": "a",
-                          "iur": "abcdefg",
-                          "idTransfer": 1,
-                          "pay": "%s",
-                          "payStatus": "EXECUTED",
-                          "payDate": "2023-02-03T12:00:30.900000Z"
-                        }
-                      ]
-                    }
-                    """;
+          {
+            "payments": [{
+                "index": 100,
+                "iuv": "a",
+                "iur": "abcdefg",
+                "idTransfer": 1,
+                "pay": "%s",
+                "payStatus": "EXECUTED",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              }
+            ]
+          }
+          """;
 
   protected static String FLOW_TEMPLATE_WRONG_FIELDS =
       """
-                    {
-                      "fdrFake": "%s",
-                      "fdrDate": "2023-04-05T09:21:37.810000Z",
-                      "sender": {
-                        "type": "%s",
-                        "id": "SELBIT2B",
-                        "pspId": "%s",
-                        "pspName": "Bank",
-                        "pspBrokerId": "%s",
-                        "channelId": "%s",
-                        "password": "1234567890"
-                      },
-                      "receiver": {
-                        "id": "APPBIT2B",
-                        "organizationId": "%s",
-                        "organizationName": "Comune di xyz"
-                      },
-                      "regulation": "SEPA - Bonifico xzy",
-                      "regulationDate": "2023-04-03T12:00:30.900000Z",
-                      "bicCodePouringBank": "UNCRITMMXXX",
-                      "totPayments": 3,
-                      "sumPayments": 0.03
-                    }
-                    """;
+          {
+            "fdrFake": "%s",
+            "fdrDate": "2023-04-05T09:21:37.810000Z",
+            "sender": {
+              "type": "%s",
+              "id": "SELBIT2B",
+              "pspId": "%s",
+              "pspName": "Bank",
+              "pspBrokerId": "%s",
+              "channelId": "%s",
+              "password": "1234567890"
+            },
+            "receiver": {
+              "id": "APPBIT2B",
+              "organizationId": "%s",
+              "organizationName": "Comune di xyz"
+            },
+            "regulation": "SEPA - Bonifico xzy",
+            "regulationDate": "2023-04-03T12:00:30.900000Z",
+            "bicCodePouringBank": "UNCRITMMXXX",
+            "totPayments": 3,
+            "sumPayments": 0.03
+          }
+          """;
 
   protected static String PAYMENTS_DELETE_TEMPLATE =
       """
-                    {
-                      "indexList": [
-                          100,
-                          101,
-                          102,
-                          103,
-                          104
-                      ]
-                    }
-                    """;
+          {
+            "indexList": [
+                100,
+                101,
+                102,
+                103,
+                104
+            ]
+          }
+          """;
 
   @Test
   @DisplayName("PSPS - OK - inserimento completo e pubblicazione di un flusso")
@@ -965,13 +965,13 @@ class InternalPspResourceTest {
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
     bodyFmt =
         """
-                        {
-                          "indexList": [
-                              1,
-                              1
-                          ]
-                        }
-                        """;
+            {
+              "indexList": [
+                  1,
+                  1
+              ]
+            }
+            """;
     ErrorResponse resDelError =
         given()
             .body(bodyFmt)

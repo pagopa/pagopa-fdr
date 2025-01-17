@@ -1,8 +1,8 @@
-package it.gov.pagopa.fdr.controller.support.response;
+package it.gov.pagopa.fdr.controller.model.flow.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import it.gov.pagopa.fdr.controller.model.FdrByPspIdIuvIurBase;
-import it.gov.pagopa.fdr.controller.model.Metadata;
+import it.gov.pagopa.fdr.controller.model.common.Metadata;
+import it.gov.pagopa.fdr.controller.model.flow.FlowByPSP;
 import java.util.List;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -13,12 +13,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @SuperBuilder
 @Jacksonized
 @JsonPropertyOrder({"metadata", "count", "data"})
-public class FdrByPspIdIuvIurResponse {
+public class PaginatedFlowsResponse {
 
   private Metadata metadata;
 
   @Schema(example = "100")
   private long count;
 
-  private List<FdrByPspIdIuvIurBase> data;
+  private List<FlowByPSP> data;
 }

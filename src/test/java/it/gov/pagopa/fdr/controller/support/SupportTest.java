@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.controller.support.response.FdrByPspIdIuvIurResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsBySenderAndReceiverResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(MongoResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class SupportTest {
+
   private static final String GET_ALL_FDR_BY_PSP_ID_IUV = "/internal/psps/" + "%s" + "/iuv/" + "%s";
   private static final String GET_ALL_FDR_BY_PSP_ID_IUR = "/internal/psps/" + "%s" + "/iur/" + "%s";
 
@@ -37,7 +38,7 @@ class SupportTest {
     flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_FDR_BY_PSP_ID_IUV.formatted(PSP_CODE, "a");
-    FdrByPspIdIuvIurResponse res =
+    PaginatedFlowsBySenderAndReceiverResponse res =
         given()
             .header(HEADER)
             .when()
@@ -45,7 +46,7 @@ class SupportTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(FdrByPspIdIuvIurResponse.class);
+            .as(PaginatedFlowsBySenderAndReceiverResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(
         res.getData(),
@@ -58,7 +59,7 @@ class SupportTest {
   @DisplayName("SUPPORT - OK - getFdrByPspIdIuv - NO RESULTS")
   void testSupport_getFdrByPspIdIuv_Ok_No_Results() {
     String url = GET_ALL_FDR_BY_PSP_ID_IUV.formatted(PSP_CODE, "NO_RESULTS_IUV");
-    FdrByPspIdIuvIurResponse res =
+    PaginatedFlowsBySenderAndReceiverResponse res =
         given()
             .header(HEADER)
             .when()
@@ -66,7 +67,7 @@ class SupportTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(FdrByPspIdIuvIurResponse.class);
+            .as(PaginatedFlowsBySenderAndReceiverResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 
@@ -77,7 +78,7 @@ class SupportTest {
     flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_FDR_BY_PSP_ID_IUR.formatted(PSP_CODE, "abcdefg");
-    FdrByPspIdIuvIurResponse res =
+    PaginatedFlowsBySenderAndReceiverResponse res =
         given()
             .header(HEADER)
             .when()
@@ -85,7 +86,7 @@ class SupportTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(FdrByPspIdIuvIurResponse.class);
+            .as(PaginatedFlowsBySenderAndReceiverResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(
         res.getData(),
@@ -98,7 +99,7 @@ class SupportTest {
   @DisplayName("SUPPORT - OK - getFdrByPspIdIur - NO RESULTS")
   void testSupport_getFdrByPspIdIur_Ok_No_Results() {
     String url = GET_ALL_FDR_BY_PSP_ID_IUR.formatted(PSP_CODE, "NO_RESULTS_IUR");
-    FdrByPspIdIuvIurResponse res =
+    PaginatedFlowsBySenderAndReceiverResponse res =
         given()
             .header(HEADER)
             .when()
@@ -106,7 +107,7 @@ class SupportTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(FdrByPspIdIuvIurResponse.class);
+            .as(PaginatedFlowsBySenderAndReceiverResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 }

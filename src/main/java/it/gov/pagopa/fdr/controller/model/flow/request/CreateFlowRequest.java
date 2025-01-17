@@ -1,8 +1,8 @@
-package it.gov.pagopa.fdr.controller.psps.request;
+package it.gov.pagopa.fdr.controller.model.flow.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.gov.pagopa.fdr.controller.model.Receiver;
-import it.gov.pagopa.fdr.controller.model.Sender;
+import it.gov.pagopa.fdr.controller.model.flow.Receiver;
+import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.util.AppConstant;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -19,7 +19,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
-public class CreateRequest {
+public class CreateFlowRequest {
+
   @NotNull
   @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
   @Schema(

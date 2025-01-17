@@ -1,6 +1,8 @@
-package it.gov.pagopa.fdr.controller.psps.request;
+package it.gov.pagopa.fdr.controller.model.payment.request;
 
+import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import it.gov.pagopa.fdr.util.AppConstant;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
@@ -11,9 +13,10 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 @Builder
 @Jacksonized
-public class DeletePaymentRequest {
+public class AddPaymentRequest {
 
   @NotNull
   @Size(min = 1, max = AppConstant.MAX_PAYMENT)
-  private List<Long> indexList;
+  @Valid
+  private List<Payment> payments;
 }

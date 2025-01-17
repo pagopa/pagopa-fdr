@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.controller.validation;
 
-import it.gov.pagopa.fdr.controller.model.Payment;
+import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

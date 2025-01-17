@@ -3,8 +3,8 @@ package it.gov.pagopa.fdr.controller.support;
 import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
 import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsBySenderAndReceiverResponse;
 import it.gov.pagopa.fdr.controller.support.mapper.SupportResourceServiceMapper;
-import it.gov.pagopa.fdr.controller.support.response.FdrByPspIdIuvIurResponse;
 import it.gov.pagopa.fdr.service.dto.PaymentGetByPspIdIuvIurDTO;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.service.support.FindPaymentsByPspIdAndIuvIurArgs;
@@ -59,12 +59,13 @@ public class SupportResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FdrByPspIdIuvIurResponse.class)))
+                    schema =
+                        @Schema(implementation = PaginatedFlowsBySenderAndReceiverResponse.class)))
       })
   @GET
   @Path("iuv/{" + AppConstant.IUV + "}/")
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_PSP_IUV_FDR)
-  public FdrByPspIdIuvIurResponse getByIuv(
+  public PaginatedFlowsBySenderAndReceiverResponse getByIuv(
       @PathParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
       @PathParam(AppConstant.IUV) @Pattern(regexp = "^(.{1,35})$") String iuv,
       @QueryParam(AppConstant.CREATED_FROM) Instant createdFrom,
@@ -87,7 +88,7 @@ public class SupportResource {
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
                 .build());
-    return FdrByPspIdIuvIurResponse.builder()
+    return PaginatedFlowsBySenderAndReceiverResponse.builder()
         .metadata(mapper.toMetadata(paymentDtoList.getMetadata()))
         .count(paymentDtoList.getCount())
         .data(mapper.toFdrByIuvIurList(paymentDtoList.getData()))
@@ -109,12 +110,13 @@ public class SupportResource {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FdrByPspIdIuvIurResponse.class)))
+                    schema =
+                        @Schema(implementation = PaginatedFlowsBySenderAndReceiverResponse.class)))
       })
   @GET
   @Path("iur/{" + AppConstant.IUR + "}/")
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_BY_PSP_IUR_FDR)
-  public FdrByPspIdIuvIurResponse getByIur(
+  public PaginatedFlowsBySenderAndReceiverResponse getByIur(
       @PathParam(AppConstant.PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
       @PathParam(AppConstant.IUR) @Pattern(regexp = "^(.{1,35})$") String iur,
       @QueryParam(AppConstant.CREATED_FROM) Instant createdFrom,
@@ -137,7 +139,7 @@ public class SupportResource {
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
                 .build());
-    return FdrByPspIdIuvIurResponse.builder()
+    return PaginatedFlowsBySenderAndReceiverResponse.builder()
         .metadata(mapper.toMetadata(paymentDtoList.getMetadata()))
         .count(paymentDtoList.getCount())
         .data(mapper.toFdrByIuvIurList(paymentDtoList.getData()))

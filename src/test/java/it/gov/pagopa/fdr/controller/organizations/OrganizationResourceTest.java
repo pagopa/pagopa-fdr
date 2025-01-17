@@ -19,14 +19,14 @@ import static org.hamcrest.Matchers.hasSize;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
-import it.gov.pagopa.fdr.controller.model.flow.PaginatedFlowsResponse;
-import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
-import it.gov.pagopa.fdr.controller.model.Payment;
-import it.gov.pagopa.fdr.controller.model.PaymentStatusEnum;
-import it.gov.pagopa.fdr.controller.model.ReportingFlowStatusEnum;
+import it.gov.pagopa.fdr.controller.model.payment.Payment;
+import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
+import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
@@ -174,14 +174,14 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
-    FlowResponse res = given()
+    SingleFlowResponse res = given()
         .header(HEADER)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(FlowResponse.class);
+        .as(SingleFlowResponse.class);
     assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
@@ -197,14 +197,14 @@ class OrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2L, PSP_CODE);
-    FlowResponse res = given()
+    SingleFlowResponse res = given()
         .header(HEADER)
         .when()
         .get(url)
         .then()
         .statusCode(200)
         .extract()
-        .as(FlowResponse.class);
+        .as(SingleFlowResponse.class);
     assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getRevision(), equalTo(2L));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));

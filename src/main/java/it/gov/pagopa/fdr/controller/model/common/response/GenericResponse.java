@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.model;
+package it.gov.pagopa.fdr.controller.model.common.response;
 
 import lombok.Builder;
 import lombok.Getter;

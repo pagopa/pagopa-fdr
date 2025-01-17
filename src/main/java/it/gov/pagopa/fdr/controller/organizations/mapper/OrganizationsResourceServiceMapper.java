@@ -1,9 +1,9 @@
 package it.gov.pagopa.fdr.controller.organizations.mapper;
 
-import it.gov.pagopa.fdr.controller.model.Metadata;
-import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
-import it.gov.pagopa.fdr.controller.model.flow.PaginatedFlowsResponse;
-import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
+import it.gov.pagopa.fdr.controller.model.common.Metadata;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.service.dto.FdrAllDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetDto;
 import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
@@ -18,7 +18,7 @@ public interface OrganizationsResourceServiceMapper {
   OrganizationsResourceServiceMapper INSTANCE =
       Mappers.getMapper(OrganizationsResourceServiceMapper.class);
 
-  FlowResponse toGetIdResponse(FdrGetDto fdrGetDto);
+  SingleFlowResponse toGetIdResponse(FdrGetDto fdrGetDto);
 
   PaginatedPaymentsResponse toGetPaymentResponse(FdrGetPaymentDto fdrGetPaymentDto);
 

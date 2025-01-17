@@ -1,10 +1,10 @@
-package it.gov.pagopa.fdr.controller.model.flow;
+package it.gov.pagopa.fdr.controller.model.flow.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import it.gov.pagopa.fdr.controller.model.Receiver;
-import it.gov.pagopa.fdr.controller.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.controller.model.Sender;
+import it.gov.pagopa.fdr.controller.model.flow.Receiver;
+import it.gov.pagopa.fdr.controller.model.flow.Sender;
+import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.util.AppConstant;
 import java.time.Instant;
 import lombok.Builder;
@@ -28,7 +28,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
   "sender",
   "receiver"
 })
-public class FlowResponse {
+public class SingleFlowCreatedResponse {
 
   @Schema(example = "4")
   @JsonProperty(AppConstant.REVISION)
@@ -39,9 +39,6 @@ public class FlowResponse {
 
   @Schema(example = "2023-04-03T12:00:30.900000Z")
   private Instant updated;
-
-  @Schema(example = "2023-04-03T12:00:30.900000Z")
-  private Instant published;
 
   @Schema(example = "CREATED")
   private ReportingFlowStatusEnum status;

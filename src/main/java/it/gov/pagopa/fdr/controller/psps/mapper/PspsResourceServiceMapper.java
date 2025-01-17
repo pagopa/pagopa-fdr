@@ -1,16 +1,16 @@
 package it.gov.pagopa.fdr.controller.psps.mapper;
 
-import it.gov.pagopa.fdr.controller.model.Metadata;
-import it.gov.pagopa.fdr.controller.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.controller.model.flow.FlowResponse;
-import it.gov.pagopa.fdr.controller.model.flow.PaginatedFlowsResponse;
-import it.gov.pagopa.fdr.controller.model.payment.PaginatedPaymentsResponse;
-import it.gov.pagopa.fdr.controller.psps.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.controller.psps.request.CreateRequest;
-import it.gov.pagopa.fdr.controller.psps.request.DeletePaymentRequest;
-import it.gov.pagopa.fdr.controller.psps.response.GetAllCreatedResponse;
-import it.gov.pagopa.fdr.controller.psps.response.GetAllPublishedResponse;
-import it.gov.pagopa.fdr.controller.psps.response.GetCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.common.Metadata;
+import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
+import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsPublishedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.service.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
@@ -21,25 +21,25 @@ public interface PspsResourceServiceMapper {
 
   PspsResourceServiceMapper INSTANCE = Mappers.getMapper(PspsResourceServiceMapper.class);
 
-  FdrDto toReportingFlowDto(CreateRequest createRequest);
+  FdrDto toReportingFlowDto(CreateFlowRequest createRequest);
 
   AddPaymentDto toAddPaymentDto(AddPaymentRequest addPaymentRequest);
 
   DeletePaymentDto toDeletePaymentDto(DeletePaymentRequest deletePaymentRequest);
 
-  GetAllCreatedResponse toGetAllResponse(FdrAllCreatedDto fdrAllDto);
+  PaginatedFlowsCreatedResponse toGetAllResponse(FdrAllCreatedDto fdrAllDto);
 
   ReportingFlowStatusEnum toReportingFlowStatusEnum(FdrStatusEnumDto fdrStatusEnumDto);
 
   Metadata toMetadata(MetadataDto metadataDto);
 
-  GetCreatedResponse toGetCreatedResponse(FdrGetCreatedDto fdrAllDto);
+  SingleFlowCreatedResponse toGetCreatedResponse(FdrGetCreatedDto fdrAllDto);
 
   PaginatedPaymentsResponse toGetPaymentResponse(FdrGetPaymentDto fdrGetPaymentDto);
 
   PaginatedFlowsResponse toGetAllResponsePublished(FdrAllDto fdrAllDto);
 
-  FlowResponse toGetIdResponsePublished(FdrGetDto fdrGetDto);
+  SingleFlowResponse toGetIdResponsePublished(FdrGetDto fdrGetDto);
 
-  GetAllPublishedResponse toGetAllPublishedResponse(FdrAllPublishedDto fdrAllDto);
+  PaginatedFlowsPublishedResponse toGetAllPublishedResponse(FdrAllPublishedDto fdrAllDto);
 }
