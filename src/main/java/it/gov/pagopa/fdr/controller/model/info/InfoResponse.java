@@ -1,12 +1,9 @@
-package it.gov.pagopa.fdr.controller.info.response;
+package it.gov.pagopa.fdr.controller.model.info;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -15,6 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Jacksonized
 @JsonPropertyOrder({"name", "version", "environment", "description", "errorCodes"})
 public class InfoResponse {
+
   @Schema(example = "pagopa-fdr")
   private String name;
 
@@ -28,19 +26,4 @@ public class InfoResponse {
   private String description;
 
   private List<ErrorCode> errorCodes;
-
-  @Builder
-  @Data
-  @AllArgsConstructor
-  @NoArgsConstructor
-  public static class ErrorCode {
-    @Schema(example = "FDR-0500")
-    private String code;
-
-    @Schema(example = "An unexpected error has occurred. Please contact support.")
-    private String description;
-
-    @Schema(example = "500")
-    private int statusCode;
-  }
 }

@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.controller.info;
 
-import it.gov.pagopa.fdr.controller.info.response.InfoResponse;
+import it.gov.pagopa.fdr.controller.model.info.ErrorCode;
+import it.gov.pagopa.fdr.controller.model.info.InfoResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
@@ -65,7 +66,7 @@ public class InfoResource {
             Arrays.stream(AppErrorCodeMessageEnum.values())
                 .map(
                     errorCode ->
-                        InfoResponse.ErrorCode.builder()
+                        ErrorCode.builder()
                             .code(errorCode.errorCode())
                             .description(errorCode.message())
                             .statusCode(errorCode.httpStatus().getStatusCode())
