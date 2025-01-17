@@ -25,9 +25,9 @@ import static org.hamcrest.Matchers.hasProperty;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.controller.exceptionmapper.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.SenderTypeEnum;
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
@@ -98,10 +98,10 @@ class InternalPspResourceTest {
 
   protected static String MALFORMED_JSON =
       """
-            {
-              12345
-            }
-            """;
+                    {
+                      12345
+                    }
+                    """;
 
   protected static String PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE =
       """

@@ -4,7 +4,7 @@ import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.controller.exceptionmapper.ErrorResponse;
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.*;
 import it.gov.pagopa.fdr.controller.organizations.response.GetPaymentResponse;
 import it.gov.pagopa.fdr.controller.organizations.response.GetResponse;

@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import it.gov.pagopa.fdr.controller.model.error.ErrorMessage;
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageInterface;
 import it.gov.pagopa.fdr.exception.AppException;
@@ -57,7 +59,7 @@ public class ExceptionMappers {
             .httpStatusCode(status.getStatusCode())
             .httpStatusDescription(status.getReasonPhrase())
             .appErrorCode(codeMessage.errorCode())
-            .errors(List.of(ErrorResponse.ErrorMessage.builder().message(message).build()))
+            .errors(List.of(ErrorMessage.builder().message(message).build()))
             .build();
 
     return RestResponse.status(codeMessage.httpStatus(), errorResponse);
@@ -80,9 +82,7 @@ public class ExceptionMappers {
             .appErrorCode(codeMessage.errorCode())
             .errors(
                 List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
+                    ErrorMessage.builder().message(codeMessage.message(appEx.getArgs())).build()))
             .build();
 
     return RestResponse.status(codeMessage.httpStatus(), errorResponse);
@@ -105,9 +105,7 @@ public class ExceptionMappers {
             .appErrorCode(codeMessage.errorCode())
             .errors(
                 List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
+                    ErrorMessage.builder().message(codeMessage.message(appEx.getArgs())).build()))
             .build();
 
     return RestResponse.status(codeMessage.httpStatus(), errorResponse);
@@ -173,9 +171,7 @@ public class ExceptionMappers {
             .appErrorCode(codeMessage.errorCode())
             .errors(
                 List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
+                    ErrorMessage.builder().message(codeMessage.message(appEx.getArgs())).build()))
             .build();
 
     return RestResponse.status(codeMessage.httpStatus(), errorResponse);
@@ -206,9 +202,7 @@ public class ExceptionMappers {
             .appErrorCode(codeMessage.errorCode())
             .errors(
                 List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
+                    ErrorMessage.builder().message(codeMessage.message(appEx.getArgs())).build()))
             .build();
 
     return RestResponse.status(codeMessage.httpStatus(), errorResponse);
@@ -236,9 +230,7 @@ public class ExceptionMappers {
             .appErrorCode(codeMessage.errorCode())
             .errors(
                 List.of(
-                    ErrorResponse.ErrorMessage.builder()
-                        .message(codeMessage.message(appEx.getArgs()))
-                        .build()))
+                    ErrorMessage.builder().message(codeMessage.message(appEx.getArgs())).build()))
             .build();
 
     return RestResponse.status(codeMessage.httpStatus(), errorResponse);
@@ -267,7 +259,7 @@ public class ExceptionMappers {
                                 .compareTo(a.getPropertyPath().toString()))
                     .map(
                         constraintViolation ->
-                            ErrorResponse.ErrorMessage.builder()
+                            ErrorMessage.builder()
                                 .path(constraintViolation.getPropertyPath().toString())
                                 .message(
                                     AppMessageUtil.getMessage(constraintViolation.getMessage()))

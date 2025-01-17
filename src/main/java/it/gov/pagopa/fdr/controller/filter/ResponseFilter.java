@@ -4,8 +4,8 @@ import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.fdr.controller.exceptionmapper.ErrorResponse;
-import it.gov.pagopa.fdr.controller.exceptionmapper.ErrorResponse.ErrorMessage;
+import it.gov.pagopa.fdr.controller.model.error.ErrorMessage;
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.service.re.ReService;

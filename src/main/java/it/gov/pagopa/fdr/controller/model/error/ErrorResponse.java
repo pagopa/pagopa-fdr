@@ -1,14 +1,11 @@
-package it.gov.pagopa.fdr.controller.exceptionmapper;
+package it.gov.pagopa.fdr.controller.model.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
@@ -33,20 +30,4 @@ public class ErrorResponse {
   private String appErrorCode;
 
   private List<ErrorMessage> errors;
-
-  @Builder
-  @Data
-  @AllArgsConstructor
-  @NoArgsConstructor
-  @JsonPropertyOrder({"path", "message"})
-  @RegisterForReflection
-  public static class ErrorMessage {
-
-    @Schema(example = "demo.test")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String path;
-
-    @Schema(example = "An unexpected error has occurred. Please contact support.")
-    private String message;
-  }
 }
