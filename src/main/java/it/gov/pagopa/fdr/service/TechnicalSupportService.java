@@ -1,9 +1,6 @@
 package it.gov.pagopa.fdr.service;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
-import static it.gov.pagopa.fdr.util.MDCKeys.IUR;
-import static it.gov.pagopa.fdr.util.MDCKeys.IUV;
-import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.controller.model.common.Metadata;
@@ -15,9 +12,7 @@ import it.gov.pagopa.fdr.service.middleware.mapper.TechnicalSupportMapper;
 import it.gov.pagopa.fdr.service.model.FindPaymentsByFiltersArgs;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
-import java.util.Optional;
 import org.jboss.logging.Logger;
-import org.jboss.logging.MDC;
 
 @ApplicationScoped
 public class TechnicalSupportService {
@@ -30,6 +25,7 @@ public class TechnicalSupportService {
 
   public TechnicalSupportService(
       TechnicalSupportMapper mapper, FdrPaymentRepository paymentRepository, Logger log) {
+
     this.mapper = mapper;
     this.paymentRepository = paymentRepository;
     this.log = log;
@@ -47,18 +43,18 @@ public class TechnicalSupportService {
     Instant createdFrom = args.getCreatedFrom();
     Instant createdTo = args.getCreatedTo();
 
-    MDC.put(PSP_ID, pspId);
-    Optional.ofNullable(iuv).ifPresent(value -> MDC.put(IUV, value));
-    Optional.ofNullable(iur).ifPresent(value -> MDC.put(IUR, value));
-
+    // Executing query with passed fields as filters
     log.debugf(
-        "Existence check fdr by pspId[%s], iuv[%s], iur[%s], createdFrom: [%s], createdTo: [%s]",
+        "Executing query by: pspId [%s], iuv [%s], iur [%s], createdFrom: [%s], createdTo: [%s]",
         pspId, iuv, iur, createdFrom, createdTo);
     RepositoryPagedResult<FdrPaymentEntity> result =
         paymentRepository.executeQueryByPspAndIuvAndIur(
             pspId, iuv, iur, createdFrom, createdTo, pageNumber, pageSize);
+    log.debugf(
+        "Found [%s] entities in [%s] pages. Mapping data to final response.",
+        result.getTotalElements(), result.getTotalPages());
 
-    log.debug("Mapping PaymentGetByPspIdIuvIurDTO from FdrPaymentPublishEntity");
+    // Finally, map found element in the final response
     return PaginatedFlowsBySenderAndReceiverResponse.builder()
         .metadata(
             Metadata.builder()

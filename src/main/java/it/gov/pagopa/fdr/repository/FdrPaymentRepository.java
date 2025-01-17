@@ -30,6 +30,6 @@ public class FdrPaymentRepository extends Repository {
         FdrPaymentEntity.executeQueryByPspAndIuvAndIur(
                 pspId, iuv, iur, createdFrom, createdTo, sort)
             .page(page);
-    return getPagedResult(query, FdrPaymentEntity.class);
+    return getPagedResult(query);
   }
 }
