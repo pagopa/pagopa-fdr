@@ -33,7 +33,11 @@ public abstract class Repository {
         String column = sortColumn.getLeft();
         Direction direction = sortColumn.getRight();
         if (!column.isBlank()) {
-          sort.and(column, direction);
+          if (direction != null) {
+            sort.and(column, direction);
+          } else {
+            sort.and(column);
+          }
         }
       }
     }

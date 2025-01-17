@@ -27,8 +27,7 @@ public class FdrPaymentRepository extends Repository {
     Sort sort = getSort(Pair.of("index", Direction.Ascending));
 
     PanacheQuery<FdrPaymentEntity> query =
-        FdrPaymentEntity.executeQueryByPspAndIuvAndIur(
-                pspId, iuv, iur, createdFrom, createdTo, sort)
+        FdrPaymentEntity.executeQueryByPspIuvAndIur(pspId, iuv, iur, createdFrom, createdTo, sort)
             .page(page);
     return getPagedResult(query);
   }
