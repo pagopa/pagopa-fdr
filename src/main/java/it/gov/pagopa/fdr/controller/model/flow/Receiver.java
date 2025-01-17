@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.controller.model.flow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;

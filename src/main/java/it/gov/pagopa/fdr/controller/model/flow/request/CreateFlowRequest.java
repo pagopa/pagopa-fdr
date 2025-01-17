@@ -3,7 +3,7 @@ package it.gov.pagopa.fdr.controller.model.flow.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
-import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;

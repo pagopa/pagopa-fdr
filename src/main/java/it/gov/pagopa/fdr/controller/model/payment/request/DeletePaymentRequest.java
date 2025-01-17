@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.controller.model.payment.request;
 
-import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;

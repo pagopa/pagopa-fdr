@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;

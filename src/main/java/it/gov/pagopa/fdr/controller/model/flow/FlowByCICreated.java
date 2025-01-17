@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.controller.model.flow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;

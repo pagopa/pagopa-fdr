@@ -4,8 +4,8 @@ import static it.gov.pagopa.fdr.util.MDCKeys.*;
 
 import it.gov.pagopa.fdr.service.re.ReService;
 import it.gov.pagopa.fdr.service.re.model.*;
-import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.AppReUtil;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MultivaluedMap;

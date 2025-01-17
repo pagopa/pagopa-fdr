@@ -30,7 +30,7 @@ import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
-import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 
 import java.util.List;
 

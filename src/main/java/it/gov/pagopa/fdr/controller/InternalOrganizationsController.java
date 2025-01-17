@@ -9,8 +9,8 @@ import it.gov.pagopa.fdr.controller.organizations.validation.InternalOrganizatio
 import it.gov.pagopa.fdr.controller.organizations.validation.OrganizationsValidationService;
 import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.util.AppConstant;
 import it.gov.pagopa.fdr.util.Re;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;

@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.support;
+package it.gov.pagopa.fdr.service.model;
 
 import java.time.Instant;
 import lombok.Builder;
@@ -6,8 +6,8 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class FindPaymentsByPspIdAndIuvIurArgs {
-  private String action;
+public class FindPaymentsByFiltersArgs {
+
   private String pspId;
   private String iuv;
   private String iur;
