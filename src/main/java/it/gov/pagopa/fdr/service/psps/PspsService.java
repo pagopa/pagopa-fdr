@@ -15,7 +15,6 @@ import it.gov.pagopa.fdr.repository.fdr.model.FdrStatusEnumEntity;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrInsertProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishByPspProjection;
 import it.gov.pagopa.fdr.repository.fdr.projection.FdrPublishRevisionProjection;
-import it.gov.pagopa.fdr.rest.validation.CommonValidationService;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
 import it.gov.pagopa.fdr.service.dto.*;
@@ -37,7 +36,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.bson.types.ObjectId;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
 
@@ -305,7 +303,9 @@ public class PspsService {
           fdrEntity.getComputedSumPayments());
     }
 
-    log.debugf("Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]", StringUtil.sanitize(fdr), StringUtil.sanitize(pspId));
+    log.debugf(
+        "Existence check FdrPaymentInsertEntity by fdr[%s], pspId[%s]",
+        StringUtil.sanitize(fdr), StringUtil.sanitize(pspId));
     List<FdrPaymentInsertEntity> paymentInsertEntities =
         FdrPaymentInsertEntity.findByFdrAndPspId(fdr, pspId)
             .project(FdrPaymentInsertEntity.class)
@@ -316,7 +316,8 @@ public class PspsService {
     fdrPublishEntity.setUpdated(now);
     fdrPublishEntity.setPublished(now);
     fdrPublishEntity.setStatus(FdrStatusEnumEntity.PUBLISHED);
-    List<FdrPaymentPublishEntity> fdrPaymentPublishEntities = mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
+    List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
+        mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
 
     // writes in fdr_payment_publish collection
     this.parallelPersist(fdr, fdrPaymentPublishEntities);
@@ -341,7 +342,9 @@ public class PspsService {
               // delete
               this.batchDelete(fdr, paymentInsertEntities);
               fdrEntity.delete();
-              log.infof("Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]", StringUtil.sanitize(fdr), StringUtil.sanitize(pspId));
+              log.infof(
+                  "Deleted FdrPaymentInsertEntity by fdr[%s], pspId[%s]",
+                  StringUtil.sanitize(fdr), StringUtil.sanitize(pspId));
               // re
               this.rePublish(fdr, pspId, fdrPublishEntity);
             })
@@ -354,24 +357,35 @@ public class PspsService {
 
   private void batchDelete(String fdr, List<FdrPaymentInsertEntity> paymentInsertEntities) {
     int batchSize = 1000;
-    List<List<FdrPaymentInsertEntity>> batches = IntStream
-            .range(0, (paymentInsertEntities.size() + batchSize - 1) / batchSize)
-            .mapToObj(i -> paymentInsertEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, paymentInsertEntities.size())))
+    List<List<FdrPaymentInsertEntity>> batches =
+        IntStream.range(0, (paymentInsertEntities.size() + batchSize - 1) / batchSize)
+            .mapToObj(
+                i ->
+                    paymentInsertEntities.subList(
+                        i * batchSize, Math.min((i + 1) * batchSize, paymentInsertEntities.size())))
             .toList();
     // sequential stream
-    batches.forEach(batch -> {
-      List<Long> indexes = paymentInsertEntities.stream().map(FdrPaymentInsertEntity::getIndex).toList();
-      FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
-    });
+    batches.forEach(
+        batch -> {
+          List<Long> indexes =
+              paymentInsertEntities.stream().map(FdrPaymentInsertEntity::getIndex).toList();
+          FdrPaymentInsertEntity.deleteByFdrAndIndexes(fdr, indexes);
+        });
   }
 
-  private void parallelPersist(String fdr, List<FdrPaymentPublishEntity> fdrPaymentPublishEntities) {
+  private void parallelPersist(
+      String fdr, List<FdrPaymentPublishEntity> fdrPaymentPublishEntities) {
     int batchSize = 1000;
-    List<List<FdrPaymentPublishEntity>> batchesPublish = IntStream
-            .range(0, (fdrPaymentPublishEntities.size() + batchSize - 1) / batchSize)
-            .mapToObj(i -> fdrPaymentPublishEntities.subList(i * batchSize, Math.min((i + 1) * batchSize, fdrPaymentPublishEntities.size())))
+    List<List<FdrPaymentPublishEntity>> batchesPublish =
+        IntStream.range(0, (fdrPaymentPublishEntities.size() + batchSize - 1) / batchSize)
+            .mapToObj(
+                i ->
+                    fdrPaymentPublishEntities.subList(
+                        i * batchSize,
+                        Math.min((i + 1) * batchSize, fdrPaymentPublishEntities.size())))
             .toList();
-    batchesPublish.parallelStream().forEach(FdrPaymentPublishEntity::persistFdrPaymentPublishEntities);
+    batchesPublish.parallelStream()
+        .forEach(FdrPaymentPublishEntity::persistFdrPaymentPublishEntities);
     log.debugf("Published fdrPaymentPublishEntities of fdr[%s]", StringUtil.sanitize(fdr));
   }
 
