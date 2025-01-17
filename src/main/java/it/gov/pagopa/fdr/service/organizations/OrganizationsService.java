@@ -51,7 +51,7 @@ public class OrganizationsService {
     log.infof(AppMessageUtil.logExecute(action));
 
     Page page = Page.of((int) pageNumber - 1, (int) pageSize);
-    Sort sort = AppDBUtil.getSort(List.of("_id,asc"));
+    Sort sort = getSort(List.of("_id,asc"));
 
     List<String> queryAnd = new ArrayList<>();
     Parameters parameters = new Parameters();

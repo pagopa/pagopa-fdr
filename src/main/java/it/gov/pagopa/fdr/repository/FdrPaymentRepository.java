@@ -3,13 +3,13 @@ package it.gov.pagopa.fdr.repository;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.repository.entity.common.Repository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
-import it.gov.pagopa.fdr.util.AppDBUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
-import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
 public class FdrPaymentRepository extends Repository {
@@ -24,7 +24,7 @@ public class FdrPaymentRepository extends Repository {
       int pageSize) {
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = AppDBUtil.getSort(List.of("index,asc"));
+    Sort sort = getSort(Pair.of("index", Direction.Ascending));
 
     PanacheQuery<FdrPaymentEntity> query =
         FdrPaymentEntity.executeQueryByPspAndIuvAndIur(

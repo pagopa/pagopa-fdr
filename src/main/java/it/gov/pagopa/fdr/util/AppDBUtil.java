@@ -10,6 +10,7 @@ public class AppDBUtil {
     throw new IllegalStateException("Utility class");
   }
 
+  // TODO to be removed
   public static Sort getSort(List<String> sortColumn) {
     Sort sort = Sort.empty();
     if (sortColumn != null && !sortColumn.isEmpty()) {
