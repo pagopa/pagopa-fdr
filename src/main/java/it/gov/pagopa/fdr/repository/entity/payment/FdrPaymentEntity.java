@@ -111,7 +111,7 @@ public class FdrPaymentEntity extends PanacheMongoEntity {
             .map());
   }
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByPspAndIuvIur(
+  public static PanacheQuery<PanacheMongoEntityBase> executeQueryByPspAndIuvAndIur(
       String psp, String iuv, String iur, Instant createdFrom, Instant createdTo, Sort sort) {
     String query = "ref_fdr_sender_psp_id = :psp";
     Parameters params = new Parameters().and("psp", psp);
