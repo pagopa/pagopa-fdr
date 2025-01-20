@@ -80,14 +80,14 @@ public class ControllerConstants {
       "/" + ControllerConstants.URL_PARAMETER_FDR + "/publish";
 
   public static final String URL_CONTROLLER_ORGANIZATIONS =
-      ControllerConstants.URL_PARAMETER_ORGANIZATION + "/fdrs";
+      "/" + ControllerConstants.URL_PARAMETER_ORGANIZATION + "/fdrs";
 
   public static final String URL_CONTROLLER_INTERNAL_ORGANIZATIONS =
-      "/internal/" + ControllerConstants.URL_CONTROLLER_ORGANIZATIONS;
+      "/internal" + ControllerConstants.URL_CONTROLLER_ORGANIZATIONS;
 
   public static final String URL_CONTROLLER_PSPS = "/" + ControllerConstants.URL_PARAMETER_PSP;
 
-  public static final String URL_CONTROLLER_INTERNAL_PSPS = "/internal/" + URL_CONTROLLER_PSPS;
+  public static final String URL_CONTROLLER_INTERNAL_PSPS = "/internal" + URL_CONTROLLER_PSPS;
 
   private ControllerConstants() {}
 }
