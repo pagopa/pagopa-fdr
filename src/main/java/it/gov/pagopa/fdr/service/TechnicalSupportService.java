@@ -35,6 +35,7 @@ public class TechnicalSupportService {
   public PaginatedFlowsBySenderAndReceiverResponse findPaymentsByFilters(
       FindPaymentsByFiltersArgs args) {
 
+    // Extracting field data from argument object
     String pspId = args.getPspId();
     String iuv = args.getIuv();
     String iur = args.getIur();

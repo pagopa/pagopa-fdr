@@ -6,11 +6,11 @@ import it.gov.pagopa.fdr.service.TechnicalSupportService;
 import it.gov.pagopa.fdr.service.model.FindPaymentsByFiltersArgs;
 import java.time.Instant;
 
-public class SupportController implements ISupportController {
+public class TechnicalSupportController implements ISupportController {
 
   private final TechnicalSupportService service;
 
-  public SupportController(TechnicalSupportService service) {
+  public TechnicalSupportController(TechnicalSupportService service) {
     this.service = service;
   }
 
