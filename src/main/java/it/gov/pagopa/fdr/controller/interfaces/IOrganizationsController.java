@@ -62,7 +62,7 @@ public interface IOrganizationsController {
 
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_FLOW)
-  @Operation(operationId = "getSingleFlow", summary = "Get fdr", description = "Get fdr")
+  @Operation(operationId = "getSinglePublishedFlow", summary = "Get fdr", description = "Get fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -76,16 +76,16 @@ public interface IOrganizationsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SingleFlowResponse.class)))
       })
-  SingleFlowResponse getSingleFlow(
+  SingleFlowResponse getSinglePublishedFlow(
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
       @PathParam(ControllerConstants.PARAMETER_PSP) String psp);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_FLOW_PAYMENTS)
   @Operation(
-      operationId = "getFlowPayments",
+      operationId = "getPaymentsFromPublishedFlow",
       summary = "Get payments of fdr",
       description = "Get payments of fdr")
   @APIResponses(
@@ -101,9 +101,9 @@ public interface IOrganizationsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
       })
-  PaginatedPaymentsResponse getFlowPayments(
+  PaginatedPaymentsResponse getPaymentsFromPublishedFlow(
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)

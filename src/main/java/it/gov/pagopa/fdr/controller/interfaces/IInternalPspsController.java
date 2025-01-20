@@ -65,7 +65,7 @@ public interface IInternalPspsController {
   RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
-          String fdrName,
+          String flowName,
       @NotNull @Valid CreateFlowRequest request);
 
   @PUT
@@ -90,7 +90,7 @@ public interface IInternalPspsController {
       })
   GenericResponse addPaymentToExistingFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @NotNull @Valid AddPaymentRequest request);
 
   @PUT
@@ -115,7 +115,7 @@ public interface IInternalPspsController {
       })
   GenericResponse deletePaymentFromExistingFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @NotNull @Valid DeletePaymentRequest request);
 
   @POST
@@ -139,7 +139,7 @@ public interface IInternalPspsController {
       })
   GenericResponse publishFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName);
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
 
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
@@ -161,7 +161,7 @@ public interface IInternalPspsController {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   GenericResponse deleteExistingFlowForInternalUse(
-      @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdrName);
+      @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String flowName);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_NOT_PUBLISHED_FLOWS)
@@ -215,7 +215,7 @@ public interface IInternalPspsController {
       })
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId);
 
   @GET
@@ -239,7 +239,7 @@ public interface IInternalPspsController {
       })
   PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatusForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
@@ -304,7 +304,7 @@ public interface IInternalPspsController {
       })
   SingleFlowResponse getSingleFlowInPublishedStatusForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId);
 
@@ -329,7 +329,7 @@ public interface IInternalPspsController {
       })
   PaginatedPaymentsResponse getPaymentsForFlowInPublishedStatusForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)

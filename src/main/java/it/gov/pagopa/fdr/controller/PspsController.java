@@ -31,7 +31,7 @@ public class PspsController implements IPspsController {
   @Override
   @Re(action = FdrActionEnum.CREATE_FLOW)
   public RestResponse<GenericResponse> createEmptyFlow(
-      String pspId, String fdrName, CreateFlowRequest request) {
+      String pspId, String flowName, CreateFlowRequest request) {
 
     return null;
     // return baseCreate(pspId, fdr, createRequest);
@@ -40,7 +40,7 @@ public class PspsController implements IPspsController {
   @Override
   @Re(action = FdrActionEnum.ADD_PAYMENT)
   public GenericResponse addPaymentToExistingFlow(
-      String pspId, String fdrName, AddPaymentRequest request) {
+      String pspId, String flowName, AddPaymentRequest request) {
 
     return null;
     // return baseAddPayment(pspId, fdr, addPaymentRequest);
@@ -49,7 +49,7 @@ public class PspsController implements IPspsController {
   @Override
   @Re(action = FdrActionEnum.DELETE_PAYMENT)
   public GenericResponse deletePaymentFromExistingFlow(
-      String pspId, String fdrName, DeletePaymentRequest request) {
+      String pspId, String flowName, DeletePaymentRequest request) {
 
     return null;
     // return baseDeletePayment(pspId, fdr, deletePaymentRequest);
@@ -57,7 +57,7 @@ public class PspsController implements IPspsController {
 
   @Override
   @Re(action = FdrActionEnum.PUBLISH)
-  public GenericResponse publishFlow(String pspId, String fdrName) {
+  public GenericResponse publishFlow(String pspId, String flowName) {
 
     return null;
     // return basePublish(pspId, fdr, false);
@@ -65,7 +65,7 @@ public class PspsController implements IPspsController {
 
   @Override
   @Re(action = FdrActionEnum.DELETE_FLOW)
-  public GenericResponse deleteExistingFlow(String pspId, String fdrName) {
+  public GenericResponse deleteExistingFlow(String pspId, String flowName) {
 
     return null;
     // return baseDelete(pspId, fdr);
@@ -83,7 +83,7 @@ public class PspsController implements IPspsController {
   @Override
   @Re(action = FdrActionEnum.GET_CREATED_FDR)
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(
-      String pspId, String fdrName, String organizationId) {
+      String pspId, String flowName, String organizationId) {
 
     return null;
     // return baseGetCreated(fdr, psp, organizationId);
@@ -92,7 +92,7 @@ public class PspsController implements IPspsController {
   @Override
   @Re(action = FdrActionEnum.GET_CREATED_FDR_PAYMENT)
   public PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatus(
-      String pspId, String fdrName, String organizationId, long pageNumber, long pageSize) {
+      String pspId, String flowName, String organizationId, long pageNumber, long pageSize) {
 
     return null;
     // return baseGetCreatedFdrPayment(fdr, psp, organizationId, pageNumber, pageSize);
@@ -110,7 +110,7 @@ public class PspsController implements IPspsController {
   @Override
   @Re(action = FdrActionEnum.GET_FDR_PUBLISHED_BY_PSP)
   public SingleFlowResponse getSingleFlowInPublishedStatus(
-      String pspId, String fdrName, Long revision, String organizationId) {
+      String pspId, String flowName, Long revision, String organizationId) {
 
     return null;
     // return baseGetPublished(psp, fdr, rev, organizationId);
@@ -120,7 +120,7 @@ public class PspsController implements IPspsController {
   @Re(action = FdrActionEnum.GET_FDR_PAYMENT_PUBLISHED_BY_PSP)
   public PaginatedPaymentsResponse getPaymentsForFlowInPublishedStatus(
       String pspId,
-      String fdrName,
+      String flowName,
       Long revision,
       String organizationId,
       long pageNumber,

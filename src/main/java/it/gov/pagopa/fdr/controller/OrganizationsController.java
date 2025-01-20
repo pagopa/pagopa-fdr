@@ -39,18 +39,23 @@ public class OrganizationsController implements IOrganizationsController {
 
   @Override
   @Re(action = FdrActionEnum.GET_FDR)
-  public SingleFlowResponse getSingleFlow(
-      String organizationId, String fdrName, Long revision, String pspId) {
+  public SingleFlowResponse getSinglePublishedFlow(
+      String organizationId, String flowName, Long revision, String pspId) {
 
-    return null;
-    // return baseGet(organizationId, fdr, rev, psp, true);
+    return this.flowService.getSinglePublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .revision(revision)
+            .build());
   }
 
   @Override
   @Re(action = FdrActionEnum.GET_FDR_PAYMENT)
-  public PaginatedPaymentsResponse getFlowPayments(
+  public PaginatedPaymentsResponse getPaymentsFromPublishedFlow(
       String organizationId,
-      String fdrName,
+      String flowName,
       Long revision,
       String pspId,
       long pageNumber,

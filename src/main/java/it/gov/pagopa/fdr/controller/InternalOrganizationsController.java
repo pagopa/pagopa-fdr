@@ -31,7 +31,7 @@ public class InternalOrganizationsController implements IInternalOrganizationsCo
 
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR)
   public SingleFlowResponse getSingleFlowForInternalUse(
-      String organizationId, String fdrName, Long revision, String pspId) {
+      String organizationId, String flowName, Long revision, String pspId) {
 
     return null;
     // return baseGet(organizationId, fdr, rev, psp, true);
@@ -40,7 +40,7 @@ public class InternalOrganizationsController implements IInternalOrganizationsCo
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT)
   public PaginatedPaymentsResponse getFlowPaymentsForInternalUse(
       String organizationId,
-      String fdrName,
+      String flowName,
       Long revision,
       String pspId,
       long pageNumber,

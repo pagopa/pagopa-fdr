@@ -82,7 +82,7 @@ public interface IInternalOrganizationsController {
   SingleFlowResponse getSingleFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) @Pattern(regexp = "^(.{1,35})$")
           String organizationId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId);
 
@@ -108,7 +108,7 @@ public interface IInternalOrganizationsController {
   PaginatedPaymentsResponse getFlowPaymentsForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) @Pattern(regexp = "^(.{1,35})$")
           String organizationId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)

@@ -62,7 +62,7 @@ public interface IPspsController {
   RestResponse<GenericResponse> createEmptyFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
-          String fdrName,
+          String flowName,
       @NotNull @Valid CreateFlowRequest request);
 
   @PUT
@@ -87,7 +87,7 @@ public interface IPspsController {
       })
   GenericResponse addPaymentToExistingFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @NotNull @Valid AddPaymentRequest request);
 
   @PUT
@@ -112,7 +112,7 @@ public interface IPspsController {
       })
   GenericResponse deletePaymentFromExistingFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @NotNull @Valid DeletePaymentRequest request);
 
   @POST
@@ -133,7 +133,7 @@ public interface IPspsController {
       })
   GenericResponse publishFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName);
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
 
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
@@ -152,7 +152,7 @@ public interface IPspsController {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   GenericResponse deleteExistingFlow(
-      @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String fdrName);
+      @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String flowName);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_NOT_PUBLISHED_FLOWS)
@@ -206,7 +206,7 @@ public interface IPspsController {
       })
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId);
 
   @GET
@@ -230,7 +230,7 @@ public interface IPspsController {
       })
   PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
@@ -295,7 +295,7 @@ public interface IPspsController {
       })
   SingleFlowResponse getSingleFlowInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId);
 
@@ -320,7 +320,7 @@ public interface IPspsController {
       })
   PaginatedPaymentsResponse getPaymentsForFlowInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String fdrName,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
       @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)

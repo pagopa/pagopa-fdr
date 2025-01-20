@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.service;
 
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.FdrFlowRepository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
@@ -72,4 +73,6 @@ public class FlowService {
 
     return flowMapper.toPaginatedFlowResponse(paginatedResult, pageSize, pageNumber);
   }
+
+  public SingleFlowResponse getSinglePublishedFlow(FindFlowsByFiltersArgs build) {}
 }

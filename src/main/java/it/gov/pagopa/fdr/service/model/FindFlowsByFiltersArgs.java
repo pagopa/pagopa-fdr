@@ -10,6 +10,8 @@ public class FindFlowsByFiltersArgs {
 
   private String pspId;
   private String organizationId;
+  private String flowName;
+  private Long revision;
   private Instant publishedGt;
   private long pageNumber;
   private long pageSize;

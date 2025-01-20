@@ -40,7 +40,7 @@ public class InternalPspsController implements IInternalPspsController {
   @Override
   @Re(action = FdrActionEnum.INTERNAL_CREATE_FLOW)
   public RestResponse<GenericResponse> createEmptyFlowForInternalUse(
-      String pspId, String fdrName, CreateFlowRequest request) {
+      String pspId, String flowName, CreateFlowRequest request) {
 
     return null;
     // return baseCreate(pspId, fdr, createRequest);
@@ -49,7 +49,7 @@ public class InternalPspsController implements IInternalPspsController {
   @Override
   @Re(action = FdrActionEnum.INTERNAL_ADD_PAYMENT)
   public GenericResponse addPaymentToExistingFlowForInternalUse(
-      String pspId, String fdrName, AddPaymentRequest request) {
+      String pspId, String flowName, AddPaymentRequest request) {
 
     return null;
     // return baseAddPayment(pspId, fdr, addPaymentRequest);
@@ -58,7 +58,7 @@ public class InternalPspsController implements IInternalPspsController {
   @Override
   @Re(action = FdrActionEnum.INTERNAL_DELETE_PAYMENT)
   public GenericResponse deletePaymentFromExistingFlowForInternalUse(
-      String pspId, String fdrName, DeletePaymentRequest request) {
+      String pspId, String flowName, DeletePaymentRequest request) {
 
     return null;
     // return baseDeletePayment(pspId, fdr, deletePaymentRequest);
@@ -66,7 +66,7 @@ public class InternalPspsController implements IInternalPspsController {
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_PUBLISH)
-  public GenericResponse publishFlowForInternalUse(String pspId, String fdrName) {
+  public GenericResponse publishFlowForInternalUse(String pspId, String flowName) {
 
     return null;
     // return basePublish(pspId, fdr, true);
@@ -74,7 +74,7 @@ public class InternalPspsController implements IInternalPspsController {
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_DELETE_FLOW)
-  public GenericResponse deleteExistingFlowForInternalUse(String pspId, String fdrName) {
+  public GenericResponse deleteExistingFlowForInternalUse(String pspId, String flowName) {
 
     return null;
     // return baseDelete(pspId, fdr);
@@ -92,7 +92,7 @@ public class InternalPspsController implements IInternalPspsController {
   @Override
   @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR)
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
-      String pspId, String fdrName, String organizationId) {
+      String pspId, String flowName, String organizationId) {
 
     return null;
     // return baseGetCreated(fdr, psp, organizationId);
@@ -101,7 +101,7 @@ public class InternalPspsController implements IInternalPspsController {
   @Override
   @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR_PAYMENT)
   public PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatusForInternalUse(
-      String pspId, String fdrName, String organizationId, long pageNumber, long pageSize) {
+      String pspId, String flowName, String organizationId, long pageNumber, long pageSize) {
 
     return null;
     // return baseGetCreatedFdrPayment(fdr, psp, organizationId, pageNumber, pageSize);
@@ -119,7 +119,7 @@ public class InternalPspsController implements IInternalPspsController {
   @Override
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PUBLISHED_BY_PSP)
   public SingleFlowResponse getSingleFlowInPublishedStatusForInternalUse(
-      String pspId, String fdrName, Long revision, String organizationId) {
+      String pspId, String flowName, Long revision, String organizationId) {
 
     return null;
     // return baseGetPublished(organizationId, fdr, rev, psp);
@@ -129,7 +129,7 @@ public class InternalPspsController implements IInternalPspsController {
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT_PUBLISHED_BY_PSP)
   public PaginatedPaymentsResponse getPaymentsForFlowInPublishedStatusForInternalUse(
       String pspId,
-      String fdrName,
+      String flowName,
       Long revision,
       String organizationId,
       long pageNumber,
