@@ -8,7 +8,7 @@ import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.repository.entity.common.Repository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
-import it.gov.pagopa.fdr.repository.enums.FdrStatusEnum;
+import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
@@ -51,15 +51,38 @@ public class FdrFlowRepository extends Repository {
 
     // setting mandatory field: flow status
     queryBuilder.add("status = :status");
-    parameters.and("status", FdrStatusEnum.PUBLISHED);
+    parameters.and("status", FlowStatusEnum.PUBLISHED);
+    String queryString = String.join(" and ", queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
     Sort sort = getSort(Pair.of("_id", Direction.Ascending));
 
-    String queryString = String.join(" and ", queryBuilder);
+    PanacheQuery<FdrFlowEntity> resultPage =
+        FdrFlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
+    return getPagedResult(resultPage);
+  }
 
-    PanacheQuery<FdrFlowEntity> query =
-        FdrFlowEntity.findByQuery(queryString, sort, parameters).page(page);
-    return getPagedResult(query);
+  public FdrFlowEntity findPublishedByOrganizationIdAndPspIdAndName(
+      String organizationId, String pspId, String flowName, long revision) {
+
+    Parameters parameters = new Parameters();
+
+    // defining query with mandatory fields
+    String queryString =
+        "sender.psp_id = :pspId"
+            + " and name = :flowName"
+            + " and revision = :revision"
+            + " and receiver.organization_id = :organizationId"
+            + " and status = :status";
+    parameters.and("pspId", pspId);
+    parameters.and("flowName", flowName);
+    parameters.and("revision", revision);
+    parameters.and("organizationId", organizationId);
+    parameters.and("status", FlowStatusEnum.PUBLISHED);
+
+    return FdrFlowEntity.findByQuery(queryString, parameters)
+        .project(FdrFlowEntity.class)
+        .firstResultOptional()
+        .orElse(null);
   }
 }

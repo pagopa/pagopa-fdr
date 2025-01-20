@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.repository.enums;
 
-public enum FdrStatusEnum {
+public enum FlowStatusEnum {
   CREATED,
   INSERTED,
   PUBLISHED

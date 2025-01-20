@@ -6,7 +6,8 @@ import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
-import it.gov.pagopa.fdr.repository.enums.FdrStatusEnum;
+import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
+import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,7 +26,7 @@ public class FdrFlowEntity extends PanacheMongoEntity {
   @BsonProperty("fdr_date")
   private Instant fdrDate;
 
-  private FdrStatusEnum status;
+  private FlowStatusEnum status;
 
   private Instant created;
 
@@ -57,13 +58,21 @@ public class FdrFlowEntity extends PanacheMongoEntity {
 
   private ReceiverEntity receiver;
 
+  @BsonProperty("ref_json")
+  private HistoryBlobBody refJson;
+
   public ObjectId getObjectId() {
     return this.id;
   }
 
-  public static PanacheQuery<PanacheMongoEntityBase> findByQuery(
+  public static PanacheQuery<PanacheMongoEntityBase> findPageByQuery(
       String query, Sort sort, Parameters parameters) {
     return find(query, sort, parameters.map());
+  }
+
+  public static PanacheQuery<PanacheMongoEntityBase> findByQuery(
+      String query, Parameters parameters) {
+    return find(query, parameters.map());
   }
 
   public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String name, String pspId) {

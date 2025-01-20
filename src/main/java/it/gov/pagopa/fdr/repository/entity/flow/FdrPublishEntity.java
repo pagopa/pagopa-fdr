@@ -6,7 +6,7 @@ import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
-import it.gov.pagopa.fdr.repository.enums.FdrStatusEnum;
+import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import java.time.Instant;
 import lombok.Data;
@@ -43,7 +43,7 @@ public class FdrPublishEntity extends PanacheMongoEntity {
   @BsonProperty("bic_code_pouring_bank")
   private String bicCodePouringBank;
 
-  private FdrStatusEnum status;
+  private FlowStatusEnum status;
 
   @BsonProperty("computed_tot_payments")
   private Long computedTotPayments;

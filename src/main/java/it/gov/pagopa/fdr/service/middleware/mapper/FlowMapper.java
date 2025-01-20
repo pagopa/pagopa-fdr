@@ -3,11 +3,13 @@ package it.gov.pagopa.fdr.service.middleware.mapper;
 import it.gov.pagopa.fdr.controller.model.common.Metadata;
 import it.gov.pagopa.fdr.controller.model.flow.FlowByPSP;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import java.util.ArrayList;
 import java.util.List;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
 
@@ -45,4 +47,9 @@ public interface FlowMapper {
         .data(toFlowByPSP(paginatedResult.getData()))
         .build();
   }
+
+  @Mapping(source = "name", target = "fdr")
+  @Mapping(source = "totAmount", target = "sumPayments")
+  @Mapping(source = "computedTotAmount", target = "computedSumPayments")
+  SingleFlowResponse toSingleFlowResponse(FdrFlowEntity result);
 }

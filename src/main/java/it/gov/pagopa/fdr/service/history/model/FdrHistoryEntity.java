@@ -2,17 +2,19 @@ package it.gov.pagopa.fdr.service.history.model;
 
 import it.gov.pagopa.fdr.repository.entity.flow.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.entity.flow.SenderEntity;
-import it.gov.pagopa.fdr.repository.enums.FdrStatusEnum;
+import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import java.time.Instant;
 import java.util.List;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Setter;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 @Builder
 public class FdrHistoryEntity {
 
-  private FdrStatusEnum status;
+  private FlowStatusEnum status;
 
   private Long revision;
 

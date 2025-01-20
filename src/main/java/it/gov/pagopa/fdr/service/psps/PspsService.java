@@ -1,7 +1,9 @@
 package it.gov.pagopa.fdr.service.psps;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
-import static it.gov.pagopa.fdr.util.MDCKeys.*;
+import static it.gov.pagopa.fdr.util.MDCKeys.EVENT_CATEGORY;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -17,15 +19,29 @@ import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrPublishByPspProjec
 import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrPublishRevisionProjection;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentInsertEntity;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.repository.enums.FdrStatusEnum;
+import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.service.conversion.ConversionService;
 import it.gov.pagopa.fdr.service.conversion.message.FdrMessage;
-import it.gov.pagopa.fdr.service.dto.*;
+import it.gov.pagopa.fdr.service.dto.AddPaymentDto;
+import it.gov.pagopa.fdr.service.dto.DeletePaymentDto;
+import it.gov.pagopa.fdr.service.dto.FdrAllCreatedDto;
+import it.gov.pagopa.fdr.service.dto.FdrAllPublishedDto;
+import it.gov.pagopa.fdr.service.dto.FdrDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetCreatedDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetDto;
+import it.gov.pagopa.fdr.service.dto.FdrGetPaymentDto;
+import it.gov.pagopa.fdr.service.dto.FdrSimpleCreatedDto;
+import it.gov.pagopa.fdr.service.dto.FdrSimplePublishedDto;
+import it.gov.pagopa.fdr.service.dto.MetadataDto;
+import it.gov.pagopa.fdr.service.dto.PaymentDto;
 import it.gov.pagopa.fdr.service.history.HistoryService;
 import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import it.gov.pagopa.fdr.service.psps.mapper.PspsServiceServiceMapper;
 import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.*;
+import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
+import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.service.re.model.ReInternal;
 import it.gov.pagopa.fdr.util.AppDBUtil;
 import it.gov.pagopa.fdr.util.AppMessageUtil;
 import it.gov.pagopa.fdr.util.StringUtil;
@@ -102,7 +118,7 @@ public class PspsService {
 
     fdrEntity.setCreated(now);
     fdrEntity.setUpdated(now);
-    fdrEntity.setStatus(FdrStatusEnum.CREATED);
+    fdrEntity.setStatus(FlowStatusEnum.CREATED);
     fdrEntity.setComputedTotPayments(0L);
     fdrEntity.setComputedSumPayments(0.0);
     fdrEntity.setTotPayments(fdrDto.getTotPayments());
@@ -166,7 +182,7 @@ public class PspsService {
     fdrEntity.setComputedSumPayments(addAndSum(fdrEntity, reportingFlowPaymentEntities));
 
     fdrEntity.setUpdated(now);
-    fdrEntity.setStatus(it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED);
+    fdrEntity.setStatus(FlowStatusEnum.INSERTED);
     fdrEntity.update();
     log.debug("FdrInsertEntity INSERTED");
 
@@ -217,7 +233,7 @@ public class PspsService {
 
     MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    if (it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED != fdrEntity.getStatus()) {
+    if (FlowStatusEnum.INSERTED != fdrEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION, fdr, fdrEntity.getStatus());
     }
@@ -245,10 +261,7 @@ public class PspsService {
 
     long tot = deleteAndSumCount(fdrEntity, paymentToDelete);
     double sum = deleteAndSubtract(fdrEntity, paymentToDelete);
-    it.gov.pagopa.fdr.repository.enums.FdrStatusEnum status =
-        sum > 0
-            ? it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED
-            : it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.CREATED;
+    FlowStatusEnum status = sum > 0 ? FlowStatusEnum.INSERTED : FlowStatusEnum.CREATED;
     fdrEntity.setComputedTotPayments(tot);
     fdrEntity.setComputedSumPayments(sum);
     fdrEntity.setUpdated(now);
@@ -266,7 +279,7 @@ public class PspsService {
             .eventType(EventTypeEnum.INTERNAL)
             .fdrPhysicalDelete(false)
             .fdrStatus(
-                it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED == status
+                FlowStatusEnum.INSERTED == status
                     ? it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.INSERTED
                     : it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.CREATED)
             //            .flowRead(false)
@@ -287,7 +300,7 @@ public class PspsService {
 
     MDC.put(ORGANIZATION_ID, fdrEntity.getReceiver().getOrganizationId());
 
-    if (it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.INSERTED != fdrEntity.getStatus()) {
+    if (FlowStatusEnum.INSERTED != fdrEntity.getStatus()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION, fdr, fdrEntity.getStatus());
     }
@@ -320,7 +333,7 @@ public class PspsService {
     Instant now = Instant.now();
     fdrPublishEntity.setUpdated(now);
     fdrPublishEntity.setPublished(now);
-    fdrPublishEntity.setStatus(it.gov.pagopa.fdr.repository.enums.FdrStatusEnum.PUBLISHED);
+    fdrPublishEntity.setStatus(FlowStatusEnum.PUBLISHED);
     List<FdrPaymentPublishEntity> fdrPaymentPublishEntities =
         mapper.toFdrPaymentPublishEntityList(paymentInsertEntities);
 
