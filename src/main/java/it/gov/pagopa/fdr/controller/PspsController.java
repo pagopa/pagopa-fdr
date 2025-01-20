@@ -13,19 +13,10 @@ import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResp
 import it.gov.pagopa.fdr.service.psps.PspsService;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
-import it.gov.pagopa.fdr.util.constant.AppConstant;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
 import java.time.Instant;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 
-@Tag(name = "PSP", description = "PSP operations")
-@Path("/psps/{" + AppConstant.PSP + "}")
-@Consumes("application/json")
-@Produces("application/json")
 public class PspsController implements IPspsController {
 
   private Logger log;
