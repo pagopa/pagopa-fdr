@@ -13,6 +13,7 @@ import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class FileUtil {
+
   private final Logger log;
 
   public FileUtil(Logger log) {

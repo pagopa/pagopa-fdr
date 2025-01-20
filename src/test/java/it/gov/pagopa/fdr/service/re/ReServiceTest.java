@@ -16,7 +16,13 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.service.re.model.*;
+import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
+import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.ReAbstract;
+import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.service.re.model.ReInternal;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import java.lang.reflect.Field;
 import java.time.Instant;
@@ -26,7 +32,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 
 @QuarkusTest
@@ -34,6 +44,7 @@ import org.mockito.Mockito;
 @QuarkusTestResource(AzuriteResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ReServiceTest {
+
   private final ObjectMapper objectMapper;
   @InjectMock ReService reServiceMock;
 
@@ -195,7 +206,9 @@ class ReServiceTest {
     Mockito.when(eventDataBatch.tryAdd(Mockito.any()))
         .thenAnswer(
             invocation -> {
-              if (counter.get() == 1) return true;
+              if (counter.get() == 1) {
+                return true;
+              }
               counter.set(1);
               return false;
             });

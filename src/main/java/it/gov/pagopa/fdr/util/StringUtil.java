@@ -7,6 +7,8 @@ import java.util.zip.GZIPOutputStream;
 
 public class StringUtil {
 
+  private StringUtil() {}
+
   public static byte[] zip(String str) throws IOException {
     byte[] strBytes = str.getBytes(StandardCharsets.UTF_8);
     ByteArrayOutputStream bais = new ByteArrayOutputStream(strBytes.length);
@@ -20,7 +22,13 @@ public class StringUtil {
 
   // Replace newline, carriage return, tab, single quote, double quote, and backslash characters
   public static String sanitize(String input) {
-    if (input == null) return null;
+    if (input == null) {
+      return null;
+    }
     return input.replaceAll("[\\n\\r\\t'\"\\\\]", "_");
+  }
+
+  public static boolean isNullOrBlank(String value) {
+    return value == null || value.isBlank();
   }
 }

@@ -12,7 +12,7 @@ public class CreditorInstitutionValidator extends ValidationStep {
   @Override
   public ValidationResult validate(ValidationArgs args) {
 
-    ConfigDataV1 configData = args.getArgument("configData", ConfigDataV1.class);
+    ConfigDataV1 configData = args.getArgument("configDataV1", ConfigDataV1.class);
     String creditorInstitutionId = args.getArgument("creditorInstitutionId", String.class);
 
     CreditorInstitution creditorInstitution =

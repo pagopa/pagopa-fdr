@@ -59,12 +59,10 @@ public class Config {
   @SneakyThrows
   public ConfigDataV1 getClonedCache() {
     if (this.cache == null) {
-      log.debug("Api config cache NOT INITIALIZED");
-      return null;
-    } else {
-      return objectMapper.readValue(
-          objectMapper.writeValueAsString(this.cache), ConfigDataV1.class);
+      log.debug("Api config cache NOT INITIALIZED. Initializing it by demand.");
+      this.cache = nodeCacheApi.cache(null);
     }
+    return objectMapper.readValue(objectMapper.writeValueAsString(this.cache), ConfigDataV1.class);
   }
 
   private final Logger log;

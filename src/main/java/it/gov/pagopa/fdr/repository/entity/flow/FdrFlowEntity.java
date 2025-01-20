@@ -61,6 +61,11 @@ public class FdrFlowEntity extends PanacheMongoEntity {
     return this.id;
   }
 
+  public static PanacheQuery<PanacheMongoEntityBase> findByQuery(
+      String query, Sort sort, Parameters parameters) {
+    return find(query, sort, parameters.map());
+  }
+
   public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String name, String pspId) {
     return find(
         "name = :name and sender.psp_id = :pspId",

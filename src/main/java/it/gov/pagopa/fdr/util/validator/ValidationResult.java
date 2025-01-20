@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.util.validator;
 
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
+import java.io.Serializable;
 import lombok.Getter;
 
 public class ValidationResult {
@@ -9,7 +10,7 @@ public class ValidationResult {
 
   @Getter private final AppErrorCodeMessageEnum error;
 
-  @Getter private final String[] errorArgs;
+  @Getter private final Serializable[] errorArgs;
 
   private ValidationResult(boolean isValid, AppErrorCodeMessageEnum error, String... errorArgs) {
     this.isValid = isValid;
@@ -18,7 +19,7 @@ public class ValidationResult {
   }
 
   public static ValidationResult asValid() {
-    return new ValidationResult(true, null, null);
+    return new ValidationResult(true, null);
   }
 
   public static ValidationResult asInvalid(AppErrorCodeMessageEnum error, String... errorArgs) {

@@ -4,7 +4,8 @@ import it.gov.pagopa.fdr.controller.interfaces.IOrganizationsController;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
-import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
+import it.gov.pagopa.fdr.service.FlowService;
+import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
 import java.time.Instant;
@@ -13,12 +14,12 @@ import org.jboss.logging.Logger;
 public class OrganizationsController implements IOrganizationsController {
 
   private final Logger log;
-  private final OrganizationsService organizationsService;
+  private final FlowService flowService;
 
-  protected OrganizationsController(Logger log, OrganizationsService service) {
+  protected OrganizationsController(Logger log, FlowService flowService) {
 
     this.log = log;
-    this.organizationsService = service;
+    this.flowService = flowService;
   }
 
   @Override
@@ -26,8 +27,14 @@ public class OrganizationsController implements IOrganizationsController {
   public PaginatedFlowsResponse getAllPublishedFlows(
       String organizationId, String pspId, Instant publishedGt, long pageNumber, long pageSize) {
 
-    return null;
-    // return baseGetAll(organizationId, idPsp, publishedGt, pageNumber, pageSize, false);
+    return this.flowService.getPaginatedPublishedFlows(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .publishedGt(publishedGt)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 
   @Override

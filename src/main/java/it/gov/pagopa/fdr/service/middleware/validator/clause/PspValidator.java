@@ -12,7 +12,7 @@ public class PspValidator extends ValidationStep {
   @Override
   public ValidationResult validate(ValidationArgs args) {
 
-    ConfigDataV1 configData = args.getArgument("configData", ConfigDataV1.class);
+    ConfigDataV1 configData = args.getArgument("configDataV1", ConfigDataV1.class);
     String pspId = args.getArgument("pspId", String.class);
 
     PaymentServiceProvider psp = configData.getPsps().get(pspId);

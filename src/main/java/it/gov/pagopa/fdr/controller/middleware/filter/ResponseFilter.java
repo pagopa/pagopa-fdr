@@ -1,6 +1,15 @@
 package it.gov.pagopa.fdr.controller.middleware.filter;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.*;
+import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
+import static it.gov.pagopa.fdr.util.MDCKeys.ELAPSED;
+import static it.gov.pagopa.fdr.util.MDCKeys.EVENT_CATEGORY;
+import static it.gov.pagopa.fdr.util.MDCKeys.FDR;
+import static it.gov.pagopa.fdr.util.MDCKeys.HTTP_TYPE;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.STATUS_CODE;
+import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.URI;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +18,11 @@ import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.*;
+import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
+import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
+import it.gov.pagopa.fdr.service.re.model.ReInterface;
 import it.gov.pagopa.fdr.util.AppReUtil;
 import it.gov.pagopa.fdr.util.MDCKeys;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
