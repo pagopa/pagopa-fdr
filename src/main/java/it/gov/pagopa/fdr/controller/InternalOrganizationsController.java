@@ -5,6 +5,7 @@ import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.service.FlowService;
+import it.gov.pagopa.fdr.service.PaymentService;
 import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
@@ -14,9 +15,13 @@ public class InternalOrganizationsController implements IInternalOrganizationsCo
 
   private final FlowService flowService;
 
-  protected InternalOrganizationsController(FlowService flowService) {
+  private final PaymentService paymentService;
+
+  protected InternalOrganizationsController(
+      FlowService flowService, PaymentService paymentService) {
 
     this.flowService = flowService;
+    this.paymentService = paymentService;
   }
 
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_FDR)
@@ -55,7 +60,7 @@ public class InternalOrganizationsController implements IInternalOrganizationsCo
       long pageNumber,
       long pageSize) {
 
-    return this.flowService.getPaymentsFromPublishedFlow(
+    return this.paymentService.getPaymentsFromPublishedFlow(
         FindFlowsByFiltersArgs.builder()
             .organizationId(organizationId)
             .pspId(pspId)
