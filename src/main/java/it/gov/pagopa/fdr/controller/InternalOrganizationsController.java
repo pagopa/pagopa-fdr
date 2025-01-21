@@ -4,37 +4,46 @@ import it.gov.pagopa.fdr.controller.interfaces.IInternalOrganizationsController;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
-import it.gov.pagopa.fdr.service.organizations.OrganizationsService;
+import it.gov.pagopa.fdr.service.FlowService;
+import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
 import java.time.Instant;
-import org.jboss.logging.Logger;
 
 public class InternalOrganizationsController implements IInternalOrganizationsController {
 
-  private final Logger log;
-  private final OrganizationsService organizationsService;
+  private final FlowService flowService;
 
-  protected InternalOrganizationsController(Logger log, OrganizationsService service) {
+  protected InternalOrganizationsController(FlowService flowService) {
 
-    this.log = log;
-    this.organizationsService = service;
+    this.flowService = flowService;
   }
 
   @Re(action = FdrActionEnum.INTERNAL_GET_ALL_FDR)
   public PaginatedFlowsResponse getAllPublishedFlowsForInternalUse(
       String organizationId, String pspId, Instant publishedGt, long pageNumber, long pageSize) {
 
-    return null;
-    // return baseGetAll(organizationId, idPsp, publishedGt, pageNumber, pageSize, true);
+    return this.flowService.getPaginatedPublishedFlows(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .publishedGt(publishedGt)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR)
   public SingleFlowResponse getSingleFlowForInternalUse(
       String organizationId, String flowName, Long revision, String pspId) {
 
-    return null;
-    // return baseGet(organizationId, fdr, rev, psp, true);
+    return this.flowService.getSinglePublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .revision(revision)
+            .build());
   }
 
   @Re(action = FdrActionEnum.INTERNAL_GET_FDR_PAYMENT)
@@ -46,7 +55,14 @@ public class InternalOrganizationsController implements IInternalOrganizationsCo
       long pageNumber,
       long pageSize) {
 
-    return null;
-    // return baseGetFdrPayment(organizationId, fdr, rev, psp, pageNumber, pageSize, true);
+    return this.flowService.getPaymentsFromPublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .revision(revision)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 }

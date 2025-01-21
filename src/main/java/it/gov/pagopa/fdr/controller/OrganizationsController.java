@@ -9,16 +9,13 @@ import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
 import java.time.Instant;
-import org.jboss.logging.Logger;
 
 public class OrganizationsController implements IOrganizationsController {
 
-  private final Logger log;
   private final FlowService flowService;
 
-  protected OrganizationsController(Logger log, FlowService flowService) {
+  protected OrganizationsController(FlowService flowService) {
 
-    this.log = log;
     this.flowService = flowService;
   }
 
