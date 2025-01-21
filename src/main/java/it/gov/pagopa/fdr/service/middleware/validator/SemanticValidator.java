@@ -1,6 +1,10 @@
 package it.gov.pagopa.fdr.service.middleware.validator;
 
+import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.exception.AppException;
+import it.gov.pagopa.fdr.service.middleware.validator.clause.BrokerPspValidator;
+import it.gov.pagopa.fdr.service.middleware.validator.clause.ChannelValidator;
+import it.gov.pagopa.fdr.service.middleware.validator.clause.CreateFlowRequestValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.CreditorInstitutionValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.FlowNameFormatValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.PspValidator;
@@ -82,6 +86,35 @@ public class SemanticValidator {
         new PspValidator()
             .linkTo(new CreditorInstitutionValidator())
             .linkTo(new FlowNameFormatValidator())
+            .validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
+  public static void validateCreateEmptyFlow(
+      ConfigDataV1 cachedConfig, String pspId, String flowName, CreateFlowRequest request)
+      throws AppException {
+
+    // set validation arguments
+    ValidationArgs validationArgs =
+        ValidationArgs.newArgs()
+            .addArgument("configDataV1", cachedConfig)
+            .addArgument("pspId", pspId)
+            .addArgument("channelId", request.getSender().getChannelId())
+            .addArgument("brokerPspId", request.getSender().getPspBrokerId())
+            .addArgument("creditorInstitutionId", request.getReceiver().getOrganizationId())
+            .addArgument("flowName", flowName)
+            .addArgument("request", request);
+
+    ValidationResult validationResult =
+        new PspValidator()
+            .linkTo(new BrokerPspValidator())
+            .linkTo(new ChannelValidator())
+            .linkTo(new CreditorInstitutionValidator())
+            .linkTo(new FlowNameFormatValidator())
+            .linkTo(new CreateFlowRequestValidator())
             .validate(validationArgs);
 
     if (validationResult.isInvalid()) {

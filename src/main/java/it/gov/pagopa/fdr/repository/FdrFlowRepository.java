@@ -27,6 +27,12 @@ public class FdrFlowRepository extends Repository {
           + " and receiver.organization_id = :organizationId"
           + " and status = :status";
 
+  public static final String QUERY_GET_UNPUBLISHED_BY_PSP_NAME =
+      "sender.psp_id = :pspId" + " and name = :flowName" + " and status != 'PUBLISHED'";
+
+  public static final String QUERY_GET_PUBLISHED_BY_PSP_NAME =
+      "sender.psp_id = :pspId" + " and name = :flowName" + " and status = 'PUBLISHED'";
+
   /**
    * @param organizationId *mandatory*
    * @param pspId
@@ -104,5 +110,34 @@ public class FdrFlowRepository extends Repository {
         .project(FdrFlowIdProjection.class)
         .firstResultOptional()
         .orElse(null);
+  }
+
+  public FdrFlowEntity findUnpublishedByPspAndName(String pspId, String flowName) {
+
+    Parameters parameters = new Parameters();
+    parameters.and("pspId", pspId);
+    parameters.and("flowName", flowName);
+
+    return FdrFlowEntity.findByQuery(
+            FdrFlowRepository.QUERY_GET_UNPUBLISHED_BY_PSP_NAME, parameters)
+        .project(FdrFlowEntity.class)
+        .firstResultOptional()
+        .orElse(null);
+  }
+
+  public FdrFlowEntity findPublishedByPspAndName(String pspId, String flowName) {
+
+    Parameters parameters = new Parameters();
+    parameters.and("pspId", pspId);
+    parameters.and("flowName", flowName);
+
+    return FdrFlowEntity.findByQuery(FdrFlowRepository.QUERY_GET_PUBLISHED_BY_PSP_NAME, parameters)
+        .project(FdrFlowEntity.class)
+        .firstResultOptional()
+        .orElse(null);
+  }
+
+  public void createEntity(FdrFlowEntity entity) {
+    entity.persist();
   }
 }

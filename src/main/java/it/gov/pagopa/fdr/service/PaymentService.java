@@ -1,6 +1,8 @@
 package it.gov.pagopa.fdr.service;
 
 import it.gov.pagopa.fdr.Config;
+import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
+import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
@@ -14,6 +16,7 @@ import it.gov.pagopa.fdr.service.middleware.mapper.PaymentMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
@@ -62,7 +65,7 @@ public class PaymentService {
     long pageSize = args.getPageSize();
 
     log.debugf(
-        "Executing query on payments related on flow by organizationId [%s], pspId [%s] flowName"
+        "Executing query on payments related on flow by organizationId [%s], pspId [%s], flowName"
             + " [%s], revision:[%s]",
         organizationId, pspId, flowName, revision);
 
@@ -81,5 +84,23 @@ public class PaymentService {
             flowIdProjection.getId(), (int) pageNumber, (int) pageSize);
 
     return paymentMapper.toPaginatedPaymentsResponse(paginatedResult, pageSize, pageNumber);
+  }
+
+  @Transactional
+  public GenericResponse addPaymentToExistingFlow(
+      String pspId, String flowName, AddPaymentRequest request) {
+
+    /*
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+    String action = (String) MDC.get(ACTION);
+    MDC.put(FDR, fdr);
+    MDC.put(PSP_ID, pspId);
+     */
+
+    log.debugf(
+        "Adding [%s] new payments on flow [%s], pspId [%s]",
+        request.getPayments().size(), flowName, pspId);
+
+    return GenericResponse.builder().message(String.format("Fdr [%s] saved", flowName)).build();
   }
 }

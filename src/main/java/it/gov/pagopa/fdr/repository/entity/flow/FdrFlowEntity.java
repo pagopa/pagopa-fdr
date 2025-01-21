@@ -12,7 +12,6 @@ import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bson.codecs.pojo.annotations.BsonProperty;
-import org.bson.types.ObjectId;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -60,10 +59,6 @@ public class FdrFlowEntity extends PanacheMongoEntity {
 
   @BsonProperty("ref_json")
   private HistoryBlobBody refJson;
-
-  public ObjectId getObjectId() {
-    return this.id;
-  }
 
   public static PanacheQuery<PanacheMongoEntityBase> findPageByQuery(
       String query, Sort sort, Parameters parameters) {

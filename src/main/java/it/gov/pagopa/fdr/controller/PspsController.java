@@ -10,22 +10,24 @@ import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
-import it.gov.pagopa.fdr.service.psps.PspsService;
+import it.gov.pagopa.fdr.service.FlowService;
+import it.gov.pagopa.fdr.service.PaymentService;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
+import jakarta.ws.rs.core.Response.Status;
 import java.time.Instant;
-import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 
 public class PspsController implements IPspsController {
 
-  private Logger log;
-  private PspsService service;
+  private FlowService flowService;
 
-  protected PspsController(Logger log, PspsService service) {
+  private PaymentService paymentService;
 
-    this.log = log;
-    this.service = service;
+  protected PspsController(FlowService flowService, PaymentService paymentService) {
+
+    this.flowService = flowService;
+    this.paymentService = paymentService;
   }
 
   @Override
@@ -33,8 +35,8 @@ public class PspsController implements IPspsController {
   public RestResponse<GenericResponse> createEmptyFlow(
       String pspId, String flowName, CreateFlowRequest request) {
 
-    return null;
-    // return baseCreate(pspId, fdr, createRequest);
+    GenericResponse response = this.flowService.createEmptyFlow(pspId, flowName, request);
+    return RestResponse.status(Status.CREATED, response);
   }
 
   @Override
@@ -42,7 +44,7 @@ public class PspsController implements IPspsController {
   public GenericResponse addPaymentToExistingFlow(
       String pspId, String flowName, AddPaymentRequest request) {
 
-    return null;
+    return this.paymentService.addPaymentToExistingFlow(pspId, flowName, request);
     // return baseAddPayment(pspId, fdr, addPaymentRequest);
   }
 

@@ -1,6 +1,8 @@
 package it.gov.pagopa.fdr.service;
 
 import it.gov.pagopa.fdr.Config;
+import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
+import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
@@ -12,6 +14,7 @@ import it.gov.pagopa.fdr.service.middleware.mapper.FlowMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
@@ -100,5 +103,53 @@ public class FlowService {
 
     log.debugf("Entity found. Mapping data to final response.");
     return this.flowMapper.toSingleFlowResponse(result);
+  }
+
+  @Transactional
+  public GenericResponse createEmptyFlow(String pspId, String flowName, CreateFlowRequest request) {
+
+    /*
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+    String action = (String) MDC.get(ACTION);
+    MDC.put(PSP_ID, pspId);
+    MDC.put(ORGANIZATION_ID, request.getReceiver().getOrganizationId());
+    MDC.put(FDR, fdr);
+     */
+
+    log.debugf(
+        "Saving new flows by organizationId [%s], pspId [%s], flowName [%s]",
+        request.getReceiver().getOrganizationId(), pspId, flowName);
+
+    ConfigDataV1 configData = cachedConfig.getClonedCache();
+    SemanticValidator.validateCreateEmptyFlow(configData, pspId, flowName, request);
+
+    // check if there is already another unpublished flow that is in progress
+    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspAndName(pspId, flowName);
+    if (publishingFlow != null) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
+          flowName,
+          publishingFlow.getStatus());
+    }
+
+    // retrieve the last published flow, in order to take its revision and increment it
+    FdrFlowEntity lastPublishedFlow = flowRepository.findPublishedByPspAndName(pspId, flowName);
+    Long revision = lastPublishedFlow != null ? (lastPublishedFlow.getRevision() + 1) : 1L;
+
+    // finally, persist the newly generated entity
+    FdrFlowEntity entity = flowMapper.toEntity(request, revision);
+    this.flowRepository.createEntity(entity);
+
+    /*
+    reService.sendEvent(
+        ReInternal.builder()
+            .serviceIdentifier(AppVersionEnum.FDR003).created(Instant.now())
+            .sessionId(sessionId).eventType(EventTypeEnum.INTERNAL).fdrPhysicalDelete(false)
+            .fdrStatus(it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.CREATED)
+            .flowRead(false).fdr(fdr).pspId(pspId).organizationId(ecId)
+            .revision(revision).fdrAction(FdrActionEnum.CREATE_FLOW).build());
+     */
+
+    return GenericResponse.builder().message(String.format("Fdr [%s] saved", flowName)).build();
   }
 }
