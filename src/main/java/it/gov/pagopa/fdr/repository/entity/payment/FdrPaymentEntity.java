@@ -1,5 +1,9 @@
 package it.gov.pagopa.fdr.repository.entity.payment;
 
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.InsertOneModel;
+import com.mongodb.client.model.WriteModel;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -7,8 +11,10 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.enums.PaymentStatusEnum;
+import it.gov.pagopa.fdr.repository.exception.TransactionRollbackException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,6 +54,35 @@ public class FdrPaymentEntity extends PanacheMongoEntity {
   public static PanacheQuery<PanacheMongoEntityBase> findPageByQuery(
       String query, Sort sort, Parameters parameters) {
     return find(query, sort, parameters.map());
+  }
+
+  public static long countByQuery(String query, Parameters parameters) {
+    return count(query, parameters.map());
+  }
+
+  public static void persistBulkInTransaction(
+      ClientSession session, Iterable<FdrPaymentEntity> entityBatch)
+      throws TransactionRollbackException {
+
+    try {
+      session.startTransaction();
+      MongoCollection<FdrPaymentEntity> collection = mongoCollection();
+
+      List<WriteModel<FdrPaymentEntity>> bulkOperations = new ArrayList<>();
+      for (FdrPaymentEntity entity : entityBatch) {
+        bulkOperations.add(new InsertOneModel<>(entity));
+      }
+      collection.bulkWrite(session, bulkOperations);
+
+      session.commitTransaction();
+
+    } catch (Exception e) {
+
+      if (session.hasActiveTransaction()) {
+        session.abortTransaction();
+      }
+      throw new TransactionRollbackException(e);
+    }
   }
 
   public static void persistFdrPaymentHistoryEntities(

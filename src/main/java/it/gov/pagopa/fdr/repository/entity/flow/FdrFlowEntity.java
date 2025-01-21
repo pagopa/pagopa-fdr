@@ -60,6 +60,14 @@ public class FdrFlowEntity extends PanacheMongoEntity {
   @BsonProperty("ref_json")
   private HistoryBlobBody refJson;
 
+  public void addOnComputedTotAmount(double value) {
+    this.computedTotAmount += value;
+  }
+
+  public void addOnComputedTotPayments(int value) {
+    this.computedTotPayments += value;
+  }
+
   public static PanacheQuery<PanacheMongoEntityBase> findPageByQuery(
       String query, Sort sort, Parameters parameters) {
     return find(query, sort, parameters.map());

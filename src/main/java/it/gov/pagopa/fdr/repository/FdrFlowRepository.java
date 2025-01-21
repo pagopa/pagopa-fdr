@@ -140,4 +140,8 @@ public class FdrFlowRepository extends Repository {
   public void createEntity(FdrFlowEntity entity) {
     entity.persist();
   }
+
+  public void updateEntity(FdrFlowEntity entity) {
+    entity.update();
+  }
 }
