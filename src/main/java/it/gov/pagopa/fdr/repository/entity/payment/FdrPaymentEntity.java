@@ -45,6 +45,11 @@ public class FdrPaymentEntity extends PanacheMongoEntity {
   @BsonProperty("ref_fdr")
   private ReferencedFdrEntity refFdr;
 
+  public static PanacheQuery<PanacheMongoEntityBase> findPageByQuery(
+      String query, Sort sort, Parameters parameters) {
+    return find(query, sort, parameters.map());
+  }
+
   public static void persistFdrPaymentHistoryEntities(
       List<FdrPaymentEntity> fdrPaymentHistoryEntities) {
     persist(fdrPaymentHistoryEntities);

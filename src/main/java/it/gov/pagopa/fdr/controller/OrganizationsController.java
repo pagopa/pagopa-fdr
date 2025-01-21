@@ -61,7 +61,14 @@ public class OrganizationsController implements IOrganizationsController {
       long pageNumber,
       long pageSize) {
 
-    return null;
-    // return baseGetFdrPayment(organizationId, fdr, rev, psp, pageNumber, pageSize, false);
+    return this.flowService.getPaymentsFromPublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .revision(revision)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 }

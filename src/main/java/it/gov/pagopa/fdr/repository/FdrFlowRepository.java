@@ -8,6 +8,7 @@ import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.repository.entity.common.Repository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
+import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrFlowIdProjection;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,6 +19,13 @@ import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
 public class FdrFlowRepository extends Repository {
+
+  public static final String QUERY_GET_BY_PSP_NAME_REVISION_ORGANIZATION_AND_STATUS =
+      "sender.psp_id = :pspId"
+          + " and name = :flowName"
+          + " and revision = :revision"
+          + " and receiver.organization_id = :organizationId"
+          + " and status = :status";
 
   /**
    * @param organizationId *mandatory*
@@ -65,23 +73,35 @@ public class FdrFlowRepository extends Repository {
   public FdrFlowEntity findPublishedByOrganizationIdAndPspIdAndName(
       String organizationId, String pspId, String flowName, long revision) {
 
-    Parameters parameters = new Parameters();
-
     // defining query with mandatory fields
-    String queryString =
-        "sender.psp_id = :pspId"
-            + " and name = :flowName"
-            + " and revision = :revision"
-            + " and receiver.organization_id = :organizationId"
-            + " and status = :status";
+    Parameters parameters = new Parameters();
     parameters.and("pspId", pspId);
     parameters.and("flowName", flowName);
     parameters.and("revision", revision);
     parameters.and("organizationId", organizationId);
     parameters.and("status", FlowStatusEnum.PUBLISHED);
 
-    return FdrFlowEntity.findByQuery(queryString, parameters)
+    return FdrFlowEntity.findByQuery(
+            FdrFlowRepository.QUERY_GET_BY_PSP_NAME_REVISION_ORGANIZATION_AND_STATUS, parameters)
         .project(FdrFlowEntity.class)
+        .firstResultOptional()
+        .orElse(null);
+  }
+
+  public FdrFlowIdProjection findIdByOrganizationIdAndPspIdAndName(
+      String organizationId, String pspId, String flowName, long revision, FlowStatusEnum status) {
+
+    // defining query with mandatory fields
+    Parameters parameters = new Parameters();
+    parameters.and("pspId", pspId);
+    parameters.and("flowName", flowName);
+    parameters.and("revision", revision);
+    parameters.and("organizationId", organizationId);
+    parameters.and("status", status);
+
+    return FdrFlowEntity.findByQuery(
+            FdrFlowRepository.QUERY_GET_BY_PSP_NAME_REVISION_ORGANIZATION_AND_STATUS, parameters)
+        .project(FdrFlowIdProjection.class)
         .firstResultOptional()
         .orElse(null);
   }

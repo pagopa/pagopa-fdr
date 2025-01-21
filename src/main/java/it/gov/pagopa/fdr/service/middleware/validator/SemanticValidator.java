@@ -65,4 +65,27 @@ public class SemanticValidator {
       throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
     }
   }
+
+  public static void validateGetPaymentsFromPublishedFlow(
+      ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
+
+    // set validation arguments
+    String pspId = args.getPspId();
+    ValidationArgs validationArgs =
+        ValidationArgs.newArgs()
+            .addArgument("configDataV1", cachedConfig)
+            .addArgument("pspId", pspId)
+            .addArgument("creditorInstitutionId", args.getOrganizationId())
+            .addArgument("flowName", args.getFlowName());
+
+    ValidationResult validationResult =
+        new PspValidator()
+            .linkTo(new CreditorInstitutionValidator())
+            .linkTo(new FlowNameFormatValidator())
+            .validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
 }
