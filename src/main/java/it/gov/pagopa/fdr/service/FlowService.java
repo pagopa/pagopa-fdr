@@ -4,6 +4,7 @@ import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsPublishedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
@@ -16,7 +17,6 @@ import it.gov.pagopa.fdr.service.middleware.mapper.FlowMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
 import java.time.Instant;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
@@ -41,7 +41,7 @@ public class FlowService {
     this.flowMapper = flowMapper;
   }
 
-  public PaginatedFlowsResponse getPaginatedPublishedFlows(FindFlowsByFiltersArgs args) {
+  public PaginatedFlowsResponse getPaginatedPublishedFlowsForCI(FindFlowsByFiltersArgs args) {
 
     /*
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
@@ -58,21 +58,49 @@ public class FlowService {
     long pageSize = args.getPageSize();
 
     log.debugf(
-        "Executing query on flows by organizationId [%s], pspId [%s] - pageIndex: [%s],"
+        "Executing query on published flows by organizationId [%s], pspId [%s] - pageIndex: [%s],"
             + " pageSize:[%s]",
         organizationId, pspId, pageNumber, pageSize);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateGetPaginatedFlowsRequest(configData, args);
+    SemanticValidator.validateGetPaginatedFlowsRequestByCI(configData, args);
 
     RepositoryPagedResult<FdrFlowEntity> paginatedResult =
-        this.flowRepository.findPublishedByOrganizationIdAndPspId(
+        this.flowRepository.findPublishedByOrganizationIdAndOptionalPspId(
             organizationId, pspId, args.getPublishedGt(), (int) pageNumber, (int) pageSize);
     log.debugf(
         "Found [%s] entities in [%s] pages. Mapping data to final response.",
         paginatedResult.getTotalElements(), paginatedResult.getTotalPages());
 
-    return flowMapper.toPaginatedFlowResponse(paginatedResult, pageSize, pageNumber);
+    return flowMapper.toPaginatedFlowResponse(
+        paginatedResult, args.getPageSize(), args.getPageNumber());
+  }
+
+  public PaginatedFlowsPublishedResponse getPaginatedPublishedFlowsForPSP(
+      FindFlowsByFiltersArgs args) {
+
+    String organizationId = args.getOrganizationId();
+    String pspId = args.getPspId();
+    long pageNumber = args.getPageNumber();
+    long pageSize = args.getPageSize();
+
+    log.debugf(
+        "Executing query on published flows by pspId [%s], organizationId [%s] - pageIndex: [%s],"
+            + " pageSize:[%s]",
+        pspId, organizationId, pageNumber, pageSize);
+
+    ConfigDataV1 configData = cachedConfig.getClonedCache();
+    SemanticValidator.validateGetPaginatedFlowsRequestByPSP(configData, args);
+
+    RepositoryPagedResult<FdrFlowEntity> paginatedResult =
+        this.flowRepository.findPublishedByPspIdAndOptionalOrganizationId(
+            pspId, organizationId, args.getPublishedGt(), (int) pageNumber, (int) pageSize);
+    log.debugf(
+        "Found [%s] entities in [%s] pages. Mapping data to final response.",
+        paginatedResult.getTotalElements(), paginatedResult.getTotalPages());
+
+    return flowMapper.toPaginatedFlowPublishedResponse(
+        paginatedResult, args.getPageSize(), args.getPageNumber());
   }
 
   public PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatus(
@@ -169,7 +197,6 @@ public class FlowService {
     return this.flowMapper.toSingleFlowCreatedResponse(result);
   }
 
-  @Transactional
   public GenericResponse createEmptyFlow(String pspId, String flowName, CreateFlowRequest request) {
 
     /*

@@ -28,7 +28,7 @@ public class OrganizationsController implements IOrganizationsController {
   public PaginatedFlowsResponse getAllPublishedFlows(
       String organizationId, String pspId, Instant publishedGt, long pageNumber, long pageSize) {
 
-    return this.flowService.getPaginatedPublishedFlows(
+    return this.flowService.getPaginatedPublishedFlowsForCI(
         FindFlowsByFiltersArgs.builder()
             .organizationId(organizationId)
             .pspId(pspId)

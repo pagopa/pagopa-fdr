@@ -114,8 +114,14 @@ public class PspsController implements IPspsController {
   public PaginatedFlowsPublishedResponse getAllFlowsInPublishedStatus(
       String pspId, String organizationId, Instant publishedGt, long pageNumber, long pageSize) {
 
-    return null;
-    // return baseGetAllPublished(idPsp, organizationId, publishedGt, pageNumber, pageSize);
+    return this.flowService.getPaginatedPublishedFlowsForPSP(
+        FindFlowsByFiltersArgs.builder()
+            .pspId(pspId)
+            .organizationId(organizationId)
+            .publishedGt(publishedGt)
+            .pageSize(pageSize)
+            .pageNumber(pageNumber)
+            .build());
   }
 
   @Override
@@ -123,8 +129,13 @@ public class PspsController implements IPspsController {
   public SingleFlowResponse getSingleFlowInPublishedStatus(
       String pspId, String flowName, Long revision, String organizationId) {
 
-    return null;
-    // return baseGetPublished(psp, fdr, rev, organizationId);
+    return this.flowService.getSinglePublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .revision(revision)
+            .build());
   }
 
   @Override
@@ -137,7 +148,14 @@ public class PspsController implements IPspsController {
       long pageNumber,
       long pageSize) {
 
-    return null;
-    // return baseGetFdrPaymentPublished(psp, fdr, rev, organizationId, pageNumber, pageSize);
+    return this.paymentService.getPaymentsFromPublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .revision(revision)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 }

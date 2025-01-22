@@ -42,7 +42,7 @@ public class FdrFlowRepository extends Repository {
   public static final String QUERY_GET_PUBLISHED_BY_PSP_AND_NAME =
       "sender.psp_id = :pspId and name = :flowName and status = 'PUBLISHED'";
 
-  public RepositoryPagedResult<FdrFlowEntity> findPublishedByOrganizationIdAndPspId(
+  public RepositoryPagedResult<FdrFlowEntity> findPublishedByOrganizationIdAndOptionalPspId(
       String organizationId, String pspId, Instant publishedGt, int pageNumber, int pageSize) {
 
     Parameters parameters = new Parameters();
@@ -56,6 +56,41 @@ public class FdrFlowRepository extends Repository {
     if (!StringUtil.isNullOrBlank(pspId)) {
       queryBuilder.add("sender.psp_id = :pspId");
       parameters.and("pspId", pspId);
+    }
+
+    // setting optional field: publish date
+    if (publishedGt != null) {
+      queryBuilder.add("published > :publishedGt");
+      parameters.and("publishedGt", publishedGt);
+    }
+
+    // setting mandatory field: flow status
+    queryBuilder.add("status = :status");
+    parameters.and("status", FlowStatusEnum.PUBLISHED);
+    String queryString = String.join(" and ", queryBuilder);
+
+    Page page = Page.of(pageNumber - 1, pageSize);
+    Sort sort = getSort(Pair.of("_id", Direction.Ascending));
+
+    PanacheQuery<FdrFlowEntity> resultPage =
+        FdrFlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
+    return getPagedResult(resultPage);
+  }
+
+  public RepositoryPagedResult<FdrFlowEntity> findPublishedByPspIdAndOptionalOrganizationId(
+      String pspId, String organizationId, Instant publishedGt, int pageNumber, int pageSize) {
+
+    Parameters parameters = new Parameters();
+    List<String> queryBuilder = new ArrayList<>();
+
+    // setting mandatory field: PSP id
+    queryBuilder.add("sender.psp_id = :pspId");
+    parameters.and("pspId", pspId);
+
+    // setting optional field: organization id
+    if (!StringUtil.isNullOrBlank(organizationId)) {
+      queryBuilder.add("receiver.organization_id = :organizationId");
+      parameters.and("organizationId", organizationId);
     }
 
     // setting optional field: publish date

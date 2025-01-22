@@ -20,7 +20,7 @@ public class SemanticValidator {
 
   private SemanticValidator() {}
 
-  public static void validateGetPaginatedFlowsRequest(
+  public static void validateGetPaginatedFlowsRequestByCI(
       ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
 
     // set validation arguments
@@ -39,6 +39,35 @@ public class SemanticValidator {
     }
 
     // if "filter-by-psp" is passed, include it in validation
+    else {
+      validationResult =
+          new PspValidator().linkTo(new CreditorInstitutionValidator()).validate(validationArgs);
+    }
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
+  public static void validateGetPaginatedFlowsRequestByPSP(
+      ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
+
+    // set validation arguments
+    String organizationId = args.getOrganizationId();
+    ValidationArgs validationArgs =
+        ValidationArgs.newArgs()
+            .addArgument("configDataV1", cachedConfig)
+            .addArgument("pspId", args.getPspId())
+            .addArgument("creditorInstitutionId", organizationId);
+
+    ValidationResult validationResult;
+
+    // if "filter-by-organization" is not passed, exclude from validation
+    if (StringUtil.isNullOrBlank(organizationId)) {
+      validationResult = new PspValidator().validate(validationArgs);
+    }
+
+    // if "filter-by-organization" is passed, include it in validation
     else {
       validationResult =
           new PspValidator().linkTo(new CreditorInstitutionValidator()).validate(validationArgs);

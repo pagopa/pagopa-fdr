@@ -28,7 +28,7 @@ public class InternalOrganizationsController implements IInternalOrganizationsCo
   public PaginatedFlowsResponse getAllPublishedFlowsForInternalUse(
       String organizationId, String pspId, Instant publishedGt, long pageNumber, long pageSize) {
 
-    return this.flowService.getPaginatedPublishedFlows(
+    return this.flowService.getPaginatedPublishedFlowsForCI(
         FindFlowsByFiltersArgs.builder()
             .organizationId(organizationId)
             .pspId(pspId)

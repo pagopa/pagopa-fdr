@@ -2,11 +2,13 @@ package it.gov.pagopa.fdr.service.middleware.mapper;
 
 import it.gov.pagopa.fdr.controller.model.common.Metadata;
 import it.gov.pagopa.fdr.controller.model.flow.FlowByCICreated;
+import it.gov.pagopa.fdr.controller.model.flow.FlowByCIPublished;
 import it.gov.pagopa.fdr.controller.model.flow.FlowByPSP;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsPublishedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
@@ -60,6 +62,22 @@ public interface FlowMapper {
     return converted;
   }
 
+  default List<FlowByCIPublished> toFlowByCIPublished(List<FdrFlowEntity> list) {
+
+    List<FlowByCIPublished> converted = new ArrayList<>();
+    for (FdrFlowEntity entity : list) {
+      converted.add(
+          FlowByCIPublished.builder()
+              .fdr(entity.getName())
+              .organizationId(
+                  entity.getReceiver() != null ? entity.getReceiver().getOrganizationId() : null)
+              .revision(entity.getRevision())
+              .published(entity.getPublished())
+              .build());
+    }
+    return converted;
+  }
+
   default PaginatedFlowsResponse toPaginatedFlowResponse(
       RepositoryPagedResult<FdrFlowEntity> paginatedResult, long pageSize, long pageNumber) {
 
@@ -87,6 +105,21 @@ public interface FlowMapper {
                 .build())
         .count(paginatedResult.getTotalElements())
         .data(toFlowByCICreated(paginatedResult.getData()))
+        .build();
+  }
+
+  default PaginatedFlowsPublishedResponse toPaginatedFlowPublishedResponse(
+      RepositoryPagedResult<FdrFlowEntity> paginatedResult, long pageSize, long pageNumber) {
+
+    return PaginatedFlowsPublishedResponse.builder()
+        .metadata(
+            Metadata.builder()
+                .pageSize((int) pageSize)
+                .pageNumber((int) pageNumber)
+                .totPage(paginatedResult.getTotalPages())
+                .build())
+        .count(paginatedResult.getTotalElements())
+        .data(toFlowByCIPublished(paginatedResult.getData()))
         .build();
   }
 
