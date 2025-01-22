@@ -10,16 +10,18 @@ import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
-import it.gov.pagopa.fdr.service.psps.PspsService;
+import it.gov.pagopa.fdr.service.FlowService;
+import it.gov.pagopa.fdr.service.PaymentService;
+import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Response.Status;
 import java.time.Instant;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @Tag(name = "Internal PSP", description = "PSP operations")
@@ -28,13 +30,14 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Produces("application/json")
 public class InternalPspsController implements IInternalPspsController {
 
-  private Logger log;
-  private PspsService service;
+  private FlowService flowService;
 
-  protected InternalPspsController(Logger log, PspsService service) {
+  private PaymentService paymentService;
 
-    this.log = log;
-    this.service = service;
+  protected InternalPspsController(FlowService flowService, PaymentService paymentService) {
+
+    this.flowService = flowService;
+    this.paymentService = paymentService;
   }
 
   @Override
@@ -42,8 +45,8 @@ public class InternalPspsController implements IInternalPspsController {
   public RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       String pspId, String flowName, CreateFlowRequest request) {
 
-    return null;
-    // return baseCreate(pspId, fdr, createRequest);
+    GenericResponse response = this.flowService.createEmptyFlow(pspId, flowName, request);
+    return RestResponse.status(Status.CREATED, response);
   }
 
   @Override
@@ -51,8 +54,7 @@ public class InternalPspsController implements IInternalPspsController {
   public GenericResponse addPaymentToExistingFlowForInternalUse(
       String pspId, String flowName, AddPaymentRequest request) {
 
-    return null;
-    // return baseAddPayment(pspId, fdr, addPaymentRequest);
+    return this.paymentService.addPaymentToExistingFlow(pspId, flowName, request);
   }
 
   @Override
@@ -60,24 +62,21 @@ public class InternalPspsController implements IInternalPspsController {
   public GenericResponse deletePaymentFromExistingFlowForInternalUse(
       String pspId, String flowName, DeletePaymentRequest request) {
 
-    return null;
-    // return baseDeletePayment(pspId, fdr, deletePaymentRequest);
+    return this.paymentService.deletePaymentFromExistingFlow(pspId, flowName, request);
   }
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_PUBLISH)
   public GenericResponse publishFlowForInternalUse(String pspId, String flowName) {
 
-    return null;
-    // return basePublish(pspId, fdr, true);
+    return this.flowService.publishFlow(pspId, flowName, true);
   }
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_DELETE_FLOW)
   public GenericResponse deleteExistingFlowForInternalUse(String pspId, String flowName) {
 
-    return null;
-    // return baseDelete(pspId, fdr);
+    return this.flowService.deleteExistingFlow(pspId, flowName);
   }
 
   @Override
@@ -85,8 +84,13 @@ public class InternalPspsController implements IInternalPspsController {
   public PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatusForInternalUse(
       String pspId, Instant createdGt, long pageNumber, long pageSize) {
 
-    return null;
-    // return baseGetAllCreated(pspId, createdGt, pageNumber, pageSize);
+    return this.flowService.getAllFlowsNotInPublishedStatus(
+        FindFlowsByFiltersArgs.builder()
+            .pspId(pspId)
+            .createdGt(createdGt)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 
   @Override
@@ -94,8 +98,12 @@ public class InternalPspsController implements IInternalPspsController {
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
       String pspId, String flowName, String organizationId) {
 
-    return null;
-    // return baseGetCreated(fdr, psp, organizationId);
+    return this.flowService.getSingleFlowNotInPublishedStatus(
+        FindFlowsByFiltersArgs.builder()
+            .pspId(pspId)
+            .flowName(flowName)
+            .organizationId(organizationId)
+            .build());
   }
 
   @Override
@@ -103,8 +111,14 @@ public class InternalPspsController implements IInternalPspsController {
   public PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatusForInternalUse(
       String pspId, String flowName, String organizationId, long pageNumber, long pageSize) {
 
-    return null;
-    // return baseGetCreatedFdrPayment(fdr, psp, organizationId, pageNumber, pageSize);
+    return this.paymentService.getPaymentsFromUnpublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 
   @Override
@@ -112,8 +126,14 @@ public class InternalPspsController implements IInternalPspsController {
   public PaginatedFlowsPublishedResponse getAllFlowsInPublishedStatusForInternalUse(
       String pspId, String organizationId, Instant publishedGt, long pageNumber, long pageSize) {
 
-    return null;
-    // return baseGetAllPublished(idPsp, organizationId, publishedGt, pageNumber, pageSize);
+    return this.flowService.getPaginatedPublishedFlowsForPSP(
+        FindFlowsByFiltersArgs.builder()
+            .pspId(pspId)
+            .organizationId(organizationId)
+            .publishedGt(publishedGt)
+            .pageSize(pageSize)
+            .pageNumber(pageNumber)
+            .build());
   }
 
   @Override
@@ -121,8 +141,13 @@ public class InternalPspsController implements IInternalPspsController {
   public SingleFlowResponse getSingleFlowInPublishedStatusForInternalUse(
       String pspId, String flowName, Long revision, String organizationId) {
 
-    return null;
-    // return baseGetPublished(organizationId, fdr, rev, psp);
+    return this.flowService.getSinglePublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .revision(revision)
+            .build());
   }
 
   @Override
@@ -135,7 +160,14 @@ public class InternalPspsController implements IInternalPspsController {
       long pageNumber,
       long pageSize) {
 
-    return null;
-    // return baseGetFdrPaymentPublished(organizationId, fdr, rev, psp, pageNumber, pageSize);
+    return this.paymentService.getPaymentsFromPublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .revision(revision)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 }
