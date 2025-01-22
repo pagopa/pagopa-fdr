@@ -11,8 +11,11 @@ import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.FdrFlowRepository;
+import it.gov.pagopa.fdr.repository.FdrPaymentRepository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
+import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
+import it.gov.pagopa.fdr.repository.exception.TransactionRollbackException;
 import it.gov.pagopa.fdr.service.middleware.mapper.FlowMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
@@ -30,14 +33,21 @@ public class FlowService {
 
   private final FdrFlowRepository flowRepository;
 
+  private final FdrPaymentRepository paymentRepository;
+
   private final FlowMapper flowMapper;
 
   public FlowService(
-      Logger log, Config cachedConfig, FdrFlowRepository flowRepository, FlowMapper flowMapper) {
+      Logger log,
+      Config cachedConfig,
+      FdrFlowRepository flowRepository,
+      FdrPaymentRepository paymentRepository,
+      FlowMapper flowMapper) {
 
     this.log = log;
     this.cachedConfig = cachedConfig;
     this.flowRepository = flowRepository;
+    this.paymentRepository = paymentRepository;
     this.flowMapper = flowMapper;
   }
 
@@ -212,7 +222,7 @@ public class FlowService {
         request.getReceiver().getOrganizationId(), pspId, flowName);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateCreateEmptyFlowRequest(configData, pspId, flowName, request);
+    SemanticValidator.validateCreateFlowRequest(configData, pspId, flowName, request);
 
     // check if there is already another unpublished flow that is in progress
     FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
@@ -242,5 +252,87 @@ public class FlowService {
      */
 
     return GenericResponse.builder().message(String.format("Fdr [%s] saved", flowName)).build();
+  }
+
+  public GenericResponse publishFlow(String pspId, String flowName, boolean isInternalCall) {
+
+    /*
+     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+     String action = (String) MDC.get(ACTION);
+     MDC.put(FDR, fdr);
+     MDC.put(PSP_ID, pspId);
+    */
+
+    log.debugf("Publishing existing flows by pspId [%s], flowName [%s]", pspId, flowName);
+
+    ConfigDataV1 configData = cachedConfig.getClonedCache();
+    SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
+
+    // check if there is an unpublished flow that is in progress
+    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    if (publishingFlow == null) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
+    }
+    if (publishingFlow.getStatus() != FlowStatusEnum.INSERTED) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+          flowName,
+          publishingFlow.getStatus());
+    }
+
+    // check if retrieved flow can be published
+    SemanticValidator.validatePublishingFlow(publishingFlow);
+
+    // update the publishing flow in order to set its status to PUBLISHED
+    Instant now = Instant.now();
+    publishingFlow.setUpdated(now);
+    publishingFlow.setPublished(now);
+    publishingFlow.setStatus(FlowStatusEnum.PUBLISHED);
+    this.flowRepository.updateEntity(publishingFlow);
+
+    // TODO do this in transactional way
+    // FdrFlowToHistoryEntity flowToHistoryEntity = flowMapper.toEntity(publishingFlow,
+    // isInternalCall);
+    // this.flowToHistoryRepository.createEntity(flowToHistoryEntity);
+
+    return GenericResponse.builder().message(String.format("Fdr [%s] published", flowName)).build();
+  }
+
+  public GenericResponse deleteExistingFlow(String pspId, String flowName) {
+
+    /*
+     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+     String action = (String) MDC.get(ACTION);
+     MDC.put(FDR, fdr);
+     MDC.put(PSP_ID, pspId);
+    */
+
+    log.debugf("Deleting existing flows by pspId [%s], flowName [%s]", pspId, flowName);
+
+    ConfigDataV1 configData = cachedConfig.getClonedCache();
+    SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
+
+    // check if there is already another unpublished flow that is in progress
+    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    if (publishingFlow == null) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
+    }
+
+    // delete flow and if there are multiple payments related to it yet, delete them
+    this.flowRepository.deleteEntity(publishingFlow);
+    if (publishingFlow.getComputedTotPayments() > 0) {
+
+      // try to delete payments using a transaction: if it does not end successfully, it throws an
+      // accepted Exception that will cause a compensation operation in order to execute the
+      // rollback.
+      try {
+        this.paymentRepository.deleteByFlowObjectId(publishingFlow.id);
+      } catch (TransactionRollbackException e) {
+        this.flowRepository.createEntity(publishingFlow);
+        throw e;
+      }
+    }
+
+    return GenericResponse.builder().message(String.format("Fdr [%s] deleted", flowName)).build();
   }
 }

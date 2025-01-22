@@ -30,6 +30,9 @@ public class FdrFlowRepository extends Repository {
   public static final String QUERY_GET_UNPUBLISHED_BY_PSP =
       "sender.psp_id = :pspId and status != 'PUBLISHED'";
 
+  public static final String QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME =
+      "sender.psp_id = :pspId and name = :flowName and status != 'PUBLISHED'";
+
   public static final String QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME_AND_ORGANIZATION =
       "sender.psp_id = :pspId"
           + " and name = :flowName"
@@ -235,5 +238,9 @@ public class FdrFlowRepository extends Repository {
   public void updateEntity(FdrFlowEntity entity) {
     entity.setTimestamp(Instant.now());
     entity.update();
+  }
+
+  public void deleteEntity(FdrFlowEntity entity) {
+    entity.delete();
   }
 }

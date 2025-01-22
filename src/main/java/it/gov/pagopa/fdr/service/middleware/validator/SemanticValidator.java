@@ -2,14 +2,19 @@ package it.gov.pagopa.fdr.service.middleware.validator;
 
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.exception.AppException;
+import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.AddPaymentRequestValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.BrokerPspValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.ChannelValidator;
+import it.gov.pagopa.fdr.service.middleware.validator.clause.ComputedPaymentsValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.CreateFlowRequestValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.CreditorInstitutionValidator;
+import it.gov.pagopa.fdr.service.middleware.validator.clause.DeletePaymentRequestValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.FlowNameFormatValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.PspValidator;
+import it.gov.pagopa.fdr.service.middleware.validator.clause.PublishableStatusValidator;
 import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.util.StringUtil;
 import it.gov.pagopa.fdr.util.validator.ValidationArgs;
@@ -43,6 +48,24 @@ public class SemanticValidator {
     }
   }
 
+  public static void validateOnlyFlowFilters(
+      ConfigDataV1 cachedConfig, String pspId, String flowName) throws AppException {
+
+    // set validation arguments
+    ValidationArgs validationArgs =
+        ValidationArgs.newArgs()
+            .addArgument("configDataV1", cachedConfig)
+            .addArgument("pspId", pspId)
+            .addArgument("flowName", flowName);
+
+    ValidationResult validationResult =
+        new PspValidator().linkTo(new FlowNameFormatValidator()).validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
   public static void validateOnlyPspFilters(
       ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) {
 
@@ -54,6 +77,21 @@ public class SemanticValidator {
             .addArgument("pspId", pspId);
 
     ValidationResult validationResult = new PspValidator().validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
+  public static void validatePublishingFlow(FdrFlowEntity flow) throws AppException {
+
+    // set validation arguments
+    ValidationArgs validationArgs = ValidationArgs.newArgs().addArgument("flow", flow);
+
+    ValidationResult validationResult =
+        new PublishableStatusValidator()
+            .linkTo(new ComputedPaymentsValidator())
+            .validate(validationArgs);
 
     if (validationResult.isInvalid()) {
       throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
@@ -118,7 +156,7 @@ public class SemanticValidator {
     }
   }
 
-  public static void validateCreateEmptyFlowRequest(
+  public static void validateCreateFlowRequest(
       ConfigDataV1 cachedConfig, String pspId, String flowName, CreateFlowRequest request)
       throws AppException {
 
@@ -147,7 +185,7 @@ public class SemanticValidator {
     }
   }
 
-  public static void validateAddPaymentToExistingFlowRequest(
+  public static void validateAddPaymentRequest(
       ConfigDataV1 cachedConfig, String pspId, String flowName, AddPaymentRequest request) {
 
     // set validation arguments
@@ -162,6 +200,28 @@ public class SemanticValidator {
         new PspValidator()
             .linkTo(new FlowNameFormatValidator())
             .linkTo(new AddPaymentRequestValidator())
+            .validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
+  public static void validateDeletePaymentRequest(
+      ConfigDataV1 cachedConfig, String pspId, String flowName, DeletePaymentRequest request) {
+
+    // set validation arguments
+    ValidationArgs validationArgs =
+        ValidationArgs.newArgs()
+            .addArgument("configDataV1", cachedConfig)
+            .addArgument("pspId", pspId)
+            .addArgument("flowName", flowName)
+            .addArgument("request", request);
+
+    ValidationResult validationResult =
+        new PspValidator()
+            .linkTo(new FlowNameFormatValidator())
+            .linkTo(new DeletePaymentRequestValidator())
             .validate(validationArgs);
 
     if (validationResult.isInvalid()) {

@@ -23,7 +23,8 @@ public class FdrPaymentRepository extends Repository {
 
   public static final String QUERY_GET_BY_FLOW_OBJID = "ref_fdr.id = :flowObjId";
 
-  public static final String QUERY_GET_BY_FLOW_OBJID_AND_INDEXES = "ref_fdr.id = :flowObjId";
+  public static final String QUERY_GET_BY_FLOW_OBJID_AND_INDEXES =
+      "ref_fdr.id = :flowObjId" + " and index in :indexes";
 
   private final MongoClient mongoClient;
 
@@ -66,7 +67,7 @@ public class FdrPaymentRepository extends Repository {
     return getPagedResult(resultPage);
   }
 
-  public Long countByFlowAndIndexes(ObjectId flowId, Set<Long> indexes) {
+  public Long countByFlowObjectIdAndIndexes(ObjectId flowId, Set<Long> indexes) {
 
     // defining query with mandatory fields
     Parameters parameters = new Parameters();
@@ -77,11 +78,43 @@ public class FdrPaymentRepository extends Repository {
         FdrPaymentRepository.QUERY_GET_BY_FLOW_OBJID_AND_INDEXES, parameters);
   }
 
+  public List<FdrPaymentEntity> findByFlowObjectIdAndIndexes(ObjectId flowId, Set<Long> indexes) {
+
+    // defining query with mandatory fields
+    Parameters parameters = new Parameters();
+    parameters.and("flowObjId", flowId);
+    parameters.and("indexes", indexes);
+
+    Page page = Page.of(0, indexes.size());
+    Sort sort = getSort(Pair.of("index", Direction.Ascending));
+
+    PanacheQuery<FdrPaymentEntity> resultPage =
+        FdrPaymentEntity.findPageByQuery(
+                FdrPaymentRepository.QUERY_GET_BY_FLOW_OBJID_AND_INDEXES, sort, parameters)
+            .page(page);
+    return resultPage.list();
+  }
+
+  public void deleteByFlowObjectId(ObjectId flowId) {
+
+    try (ClientSession session = this.mongoClient.startSession()) {
+      FdrPaymentEntity.deleteBulkInTransaction(session, "ref_fdr.id", flowId);
+    }
+  }
+
   public void createEntityInTransaction(List<FdrPaymentEntity> entityBatch)
       throws TransactionRollbackException {
 
     try (ClientSession session = this.mongoClient.startSession()) {
       FdrPaymentEntity.persistBulkInTransaction(session, entityBatch);
+    }
+  }
+
+  public void deleteEntityInTransaction(List<FdrPaymentEntity> entityBatch)
+      throws TransactionRollbackException {
+
+    try (ClientSession session = this.mongoClient.startSession()) {
+      FdrPaymentEntity.deleteBulkInTransaction(session, entityBatch);
     }
   }
 }

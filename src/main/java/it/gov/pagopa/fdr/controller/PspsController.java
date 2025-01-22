@@ -53,24 +53,21 @@ public class PspsController implements IPspsController {
   public GenericResponse deletePaymentFromExistingFlow(
       String pspId, String flowName, DeletePaymentRequest request) {
 
-    return null;
-    // return baseDeletePayment(pspId, fdr, deletePaymentRequest);
+    return this.paymentService.deletePaymentFromExistingFlow(pspId, flowName, request);
   }
 
   @Override
   @Re(action = FdrActionEnum.PUBLISH)
   public GenericResponse publishFlow(String pspId, String flowName) {
 
-    return null;
-    // return basePublish(pspId, fdr, false);
+    return this.flowService.publishFlow(pspId, flowName, false);
   }
 
   @Override
   @Re(action = FdrActionEnum.DELETE_FLOW)
   public GenericResponse deleteExistingFlow(String pspId, String flowName) {
 
-    return null;
-    // return baseDelete(pspId, fdr);
+    return this.flowService.deleteExistingFlow(pspId, flowName);
   }
 
   @Override
