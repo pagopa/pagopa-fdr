@@ -12,6 +12,7 @@ public class FindFlowsByFiltersArgs {
   private String organizationId;
   private String flowName;
   private Long revision;
+  private Instant createdGt;
   private Instant publishedGt;
   private long pageNumber;
   private long pageSize;

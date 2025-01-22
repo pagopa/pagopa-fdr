@@ -76,7 +76,7 @@ public class PaymentService {
         organizationId, pspId, flowName, revision);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateGetPaymentsFromPublishedFlow(configData, args);
+    SemanticValidator.validateGetPaymentsFromPublishedFlowRequest(configData, args);
 
     FdrFlowIdProjection flowIdProjection =
         this.flowRepository.findIdByOrganizationIdAndPspIdAndName(
@@ -107,10 +107,10 @@ public class PaymentService {
         request.getPayments().size(), flowName, pspId);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateAddPaymentToExistingFlow(configData, pspId, flowName, request);
+    SemanticValidator.validateAddPaymentToExistingFlowRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspAndName(pspId, flowName);
+    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     if (publishingFlow == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
@@ -188,7 +188,7 @@ public class PaymentService {
       // the
       // changed fields are subtracted with previously added values
       FdrFlowEntity publishingFlowToCompensate =
-          flowRepository.findUnpublishedByPspAndName(pspId, flowName);
+          flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
       publishingFlow.addOnComputedTotPayments(-paymentsToAdd);
       publishingFlow.addOnComputedTotAmount(-amountToAdd);
       if (oldUpdateDate.isBefore(publishingFlowToCompensate.getUpdated())) {

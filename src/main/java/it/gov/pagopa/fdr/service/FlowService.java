@@ -3,7 +3,9 @@ package it.gov.pagopa.fdr.service;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
@@ -15,6 +17,7 @@ import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import java.time.Instant;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
@@ -72,6 +75,34 @@ public class FlowService {
     return flowMapper.toPaginatedFlowResponse(paginatedResult, pageSize, pageNumber);
   }
 
+  public PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatus(
+      FindFlowsByFiltersArgs args) {
+
+    /*
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+    String action = (String) MDC.get(ACTION);
+    if (null != idPsp && !idPsp.isBlank()) {
+      MDC.put(PSP_ID, idPsp);
+    }
+     */
+
+    String pspId = args.getPspId();
+    Instant createdGt = args.getCreatedGt();
+    long pageSize = args.getPageSize();
+    long pageNumber = args.getPageNumber();
+
+    log.debugf("Executing query on flows by pspId [%s] created after [%s]", pspId, createdGt);
+
+    ConfigDataV1 configData = cachedConfig.getClonedCache();
+    SemanticValidator.validateGetAllFlowsNotInPublishedStatusRequest(configData, args);
+
+    RepositoryPagedResult<FdrFlowEntity> paginatedResult =
+        this.flowRepository.findUnpublishedByPspId(
+            pspId, createdGt, (int) pageSize, (int) pageNumber);
+
+    return this.flowMapper.toPaginatedFlowCreatedResponse(paginatedResult, pageSize, pageNumber);
+  }
+
   public SingleFlowResponse getSinglePublishedFlow(FindFlowsByFiltersArgs args) {
 
     /*
@@ -88,7 +119,8 @@ public class FlowService {
     long revision = args.getRevision();
 
     log.debugf(
-        "Executing query on flows by organizationId [%s], pspId [%s] flowName [%s], revision:[%s]",
+        "Executing query on published flows by organizationId [%s], pspId [%s] flowName [%s],"
+            + " revision:[%s]",
         organizationId, pspId, flowName, revision);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
@@ -103,6 +135,38 @@ public class FlowService {
 
     log.debugf("Entity found. Mapping data to final response.");
     return this.flowMapper.toSingleFlowResponse(result);
+  }
+
+  public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(FindFlowsByFiltersArgs args) {
+
+    /*
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+    String action = (String) MDC.get(ACTION);
+    MDC.put(FDR, fdr);
+    MDC.put(PSP_ID, psp);
+    MDC.put(ORGANIZATION_ID, organizationId);
+     */
+
+    String organizationId = args.getOrganizationId();
+    String pspId = args.getPspId();
+    String flowName = args.getFlowName();
+
+    log.debugf(
+        "Executing query on unpublished flows by organizationId [%s], pspId [%s] flowName [%s]",
+        organizationId, pspId, flowName);
+
+    ConfigDataV1 configData = cachedConfig.getClonedCache();
+    SemanticValidator.validateGetSingleFlowRequest(configData, args);
+
+    FdrFlowEntity result =
+        this.flowRepository.findUnpublishedByOrganizationIdAndPspIdAndName(
+            organizationId, pspId, flowName);
+    if (result == null) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
+    }
+
+    log.debugf("Entity found. Mapping data to final response.");
+    return this.flowMapper.toSingleFlowCreatedResponse(result);
   }
 
   @Transactional
@@ -121,10 +185,10 @@ public class FlowService {
         request.getReceiver().getOrganizationId(), pspId, flowName);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateCreateEmptyFlow(configData, pspId, flowName, request);
+    SemanticValidator.validateCreateEmptyFlowRequest(configData, pspId, flowName, request);
 
     // check if there is already another unpublished flow that is in progress
-    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspAndName(pspId, flowName);
+    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     if (publishingFlow != null) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
@@ -133,7 +197,7 @@ public class FlowService {
     }
 
     // retrieve the last published flow, in order to take its revision and increment it
-    FdrFlowEntity lastPublishedFlow = flowRepository.findPublishedByPspAndName(pspId, flowName);
+    FdrFlowEntity lastPublishedFlow = flowRepository.findPublishedByPspIdAndName(pspId, flowName);
     Long revision = lastPublishedFlow != null ? (lastPublishedFlow.getRevision() + 1) : 1L;
 
     // finally, persist the newly generated entity

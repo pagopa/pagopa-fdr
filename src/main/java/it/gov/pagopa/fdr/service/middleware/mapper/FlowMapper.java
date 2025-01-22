@@ -1,11 +1,14 @@
 package it.gov.pagopa.fdr.service.middleware.mapper;
 
 import it.gov.pagopa.fdr.controller.model.common.Metadata;
+import it.gov.pagopa.fdr.controller.model.flow.FlowByCICreated;
 import it.gov.pagopa.fdr.controller.model.flow.FlowByPSP;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
@@ -41,6 +44,22 @@ public interface FlowMapper {
     return converted;
   }
 
+  default List<FlowByCICreated> toFlowByCICreated(List<FdrFlowEntity> list) {
+
+    List<FlowByCICreated> converted = new ArrayList<>();
+    for (FdrFlowEntity entity : list) {
+      converted.add(
+          FlowByCICreated.builder()
+              .fdr(entity.getName())
+              .organizationId(
+                  entity.getReceiver() != null ? entity.getReceiver().getOrganizationId() : null)
+              .revision(entity.getRevision())
+              .created(entity.getCreated())
+              .build());
+    }
+    return converted;
+  }
+
   default PaginatedFlowsResponse toPaginatedFlowResponse(
       RepositoryPagedResult<FdrFlowEntity> paginatedResult, long pageSize, long pageNumber) {
 
@@ -56,10 +75,30 @@ public interface FlowMapper {
         .build();
   }
 
+  default PaginatedFlowsCreatedResponse toPaginatedFlowCreatedResponse(
+      RepositoryPagedResult<FdrFlowEntity> paginatedResult, long pageSize, long pageNumber) {
+
+    return PaginatedFlowsCreatedResponse.builder()
+        .metadata(
+            Metadata.builder()
+                .pageSize((int) pageSize)
+                .pageNumber((int) pageNumber)
+                .totPage(paginatedResult.getTotalPages())
+                .build())
+        .count(paginatedResult.getTotalElements())
+        .data(toFlowByCICreated(paginatedResult.getData()))
+        .build();
+  }
+
   @Mapping(source = "name", target = "fdr")
   @Mapping(source = "totAmount", target = "sumPayments")
   @Mapping(source = "computedTotAmount", target = "computedSumPayments")
   SingleFlowResponse toSingleFlowResponse(FdrFlowEntity result);
+
+  @Mapping(source = "name", target = "fdr")
+  @Mapping(source = "totAmount", target = "sumPayments")
+  @Mapping(source = "computedTotAmount", target = "computedSumPayments")
+  SingleFlowCreatedResponse toSingleFlowCreatedResponse(FdrFlowEntity result);
 
   default FdrFlowEntity toEntity(CreateFlowRequest request, Long revision) {
 

@@ -12,6 +12,7 @@ import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.service.FlowService;
 import it.gov.pagopa.fdr.service.PaymentService;
+import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
 import jakarta.ws.rs.core.Response.Status;
@@ -45,7 +46,6 @@ public class PspsController implements IPspsController {
       String pspId, String flowName, AddPaymentRequest request) {
 
     return this.paymentService.addPaymentToExistingFlow(pspId, flowName, request);
-    // return baseAddPayment(pspId, fdr, addPaymentRequest);
   }
 
   @Override
@@ -78,8 +78,13 @@ public class PspsController implements IPspsController {
   public PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatus(
       String pspId, Instant createdGt, long pageNumber, long pageSize) {
 
-    return null;
-    // return baseGetAllCreated(pspId, createdGt, pageNumber, pageSize);
+    return this.flowService.getAllFlowsNotInPublishedStatus(
+        FindFlowsByFiltersArgs.builder()
+            .pspId(pspId)
+            .createdGt(createdGt)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 
   @Override
@@ -87,8 +92,12 @@ public class PspsController implements IPspsController {
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(
       String pspId, String flowName, String organizationId) {
 
-    return null;
-    // return baseGetCreated(fdr, psp, organizationId);
+    return this.flowService.getSingleFlowNotInPublishedStatus(
+        FindFlowsByFiltersArgs.builder()
+            .pspId(pspId)
+            .flowName(flowName)
+            .organizationId(organizationId)
+            .build());
   }
 
   @Override

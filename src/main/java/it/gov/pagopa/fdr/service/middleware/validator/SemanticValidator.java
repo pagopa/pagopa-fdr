@@ -72,7 +72,24 @@ public class SemanticValidator {
     }
   }
 
-  public static void validateGetPaymentsFromPublishedFlow(
+  public static void validateGetAllFlowsNotInPublishedStatusRequest(
+      ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) {
+
+    // set validation arguments
+    String pspId = args.getPspId();
+    ValidationArgs validationArgs =
+        ValidationArgs.newArgs()
+            .addArgument("configDataV1", cachedConfig)
+            .addArgument("pspId", pspId);
+
+    ValidationResult validationResult = new PspValidator().validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
+  public static void validateGetPaymentsFromPublishedFlowRequest(
       ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
 
     // set validation arguments
@@ -95,7 +112,7 @@ public class SemanticValidator {
     }
   }
 
-  public static void validateCreateEmptyFlow(
+  public static void validateCreateEmptyFlowRequest(
       ConfigDataV1 cachedConfig, String pspId, String flowName, CreateFlowRequest request)
       throws AppException {
 
@@ -124,7 +141,7 @@ public class SemanticValidator {
     }
   }
 
-  public static void validateAddPaymentToExistingFlow(
+  public static void validateAddPaymentToExistingFlowRequest(
       ConfigDataV1 cachedConfig, String pspId, String flowName, AddPaymentRequest request) {
 
     // set validation arguments
