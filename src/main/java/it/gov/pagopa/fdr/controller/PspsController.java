@@ -105,8 +105,14 @@ public class PspsController implements IPspsController {
   public PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatus(
       String pspId, String flowName, String organizationId, long pageNumber, long pageSize) {
 
-    return null;
-    // return baseGetCreatedFdrPayment(fdr, psp, organizationId, pageNumber, pageSize);
+    return this.paymentService.getPaymentsFromUnpublishedFlow(
+        FindFlowsByFiltersArgs.builder()
+            .organizationId(organizationId)
+            .pspId(pspId)
+            .flowName(flowName)
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .build());
   }
 
   @Override

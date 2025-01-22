@@ -63,7 +63,7 @@ public class FlowService {
         organizationId, pspId, pageNumber, pageSize);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateGetPaginatedFlowsRequestByCI(configData, args);
+    SemanticValidator.validateGetPaginatedFlowsRequestForOrganizations(configData, args);
 
     RepositoryPagedResult<FdrFlowEntity> paginatedResult =
         this.flowRepository.findPublishedByOrganizationIdAndOptionalPspId(
@@ -90,7 +90,7 @@ public class FlowService {
         pspId, organizationId, pageNumber, pageSize);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateGetPaginatedFlowsRequestByPSP(configData, args);
+    SemanticValidator.validateGetPaginatedFlowsRequestForPsps(configData, args);
 
     RepositoryPagedResult<FdrFlowEntity> paginatedResult =
         this.flowRepository.findPublishedByPspIdAndOptionalOrganizationId(
@@ -122,7 +122,7 @@ public class FlowService {
     log.debugf("Executing query on flows by pspId [%s] created after [%s]", pspId, createdGt);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateGetAllFlowsNotInPublishedStatusRequest(configData, args);
+    SemanticValidator.validateOnlyPspFilters(configData, args);
 
     RepositoryPagedResult<FdrFlowEntity> paginatedResult =
         this.flowRepository.findUnpublishedByPspId(
@@ -152,7 +152,7 @@ public class FlowService {
         organizationId, pspId, flowName, revision);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateGetSingleFlowRequest(configData, args);
+    SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
     FdrFlowEntity result =
         this.flowRepository.findPublishedByOrganizationIdAndPspIdAndName(
@@ -184,7 +184,7 @@ public class FlowService {
         organizationId, pspId, flowName);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateGetSingleFlowRequest(configData, args);
+    SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
     FdrFlowEntity result =
         this.flowRepository.findUnpublishedByOrganizationIdAndPspIdAndName(

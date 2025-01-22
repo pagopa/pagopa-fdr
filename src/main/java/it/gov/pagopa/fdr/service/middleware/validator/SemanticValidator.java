@@ -20,7 +20,47 @@ public class SemanticValidator {
 
   private SemanticValidator() {}
 
-  public static void validateGetPaginatedFlowsRequestByCI(
+  public static void validateGetSingleFlowFilters(
+      ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
+
+    // set validation arguments
+    String pspId = args.getPspId();
+    ValidationArgs validationArgs =
+        ValidationArgs.newArgs()
+            .addArgument("configDataV1", cachedConfig)
+            .addArgument("pspId", pspId)
+            .addArgument("creditorInstitutionId", args.getOrganizationId())
+            .addArgument("flowName", args.getFlowName());
+
+    ValidationResult validationResult =
+        new PspValidator()
+            .linkTo(new CreditorInstitutionValidator())
+            .linkTo(new FlowNameFormatValidator())
+            .validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
+  public static void validateOnlyPspFilters(
+      ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) {
+
+    // set validation arguments
+    String pspId = args.getPspId();
+    ValidationArgs validationArgs =
+        ValidationArgs.newArgs()
+            .addArgument("configDataV1", cachedConfig)
+            .addArgument("pspId", pspId);
+
+    ValidationResult validationResult = new PspValidator().validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
+  public static void validateGetPaginatedFlowsRequestForOrganizations(
       ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
 
     // set validation arguments
@@ -49,7 +89,7 @@ public class SemanticValidator {
     }
   }
 
-  public static void validateGetPaginatedFlowsRequestByPSP(
+  public static void validateGetPaginatedFlowsRequestForPsps(
       ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
 
     // set validation arguments
@@ -72,69 +112,6 @@ public class SemanticValidator {
       validationResult =
           new PspValidator().linkTo(new CreditorInstitutionValidator()).validate(validationArgs);
     }
-
-    if (validationResult.isInvalid()) {
-      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
-    }
-  }
-
-  public static void validateGetSingleFlowRequest(
-      ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
-
-    // set validation arguments
-    String pspId = args.getPspId();
-    ValidationArgs validationArgs =
-        ValidationArgs.newArgs()
-            .addArgument("configDataV1", cachedConfig)
-            .addArgument("pspId", pspId)
-            .addArgument("creditorInstitutionId", args.getOrganizationId())
-            .addArgument("flowName", args.getFlowName());
-
-    ValidationResult validationResult =
-        new PspValidator()
-            .linkTo(new CreditorInstitutionValidator())
-            .linkTo(new FlowNameFormatValidator())
-            .validate(validationArgs);
-
-    if (validationResult.isInvalid()) {
-      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
-    }
-  }
-
-  public static void validateGetAllFlowsNotInPublishedStatusRequest(
-      ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) {
-
-    // set validation arguments
-    String pspId = args.getPspId();
-    ValidationArgs validationArgs =
-        ValidationArgs.newArgs()
-            .addArgument("configDataV1", cachedConfig)
-            .addArgument("pspId", pspId);
-
-    ValidationResult validationResult = new PspValidator().validate(validationArgs);
-
-    if (validationResult.isInvalid()) {
-      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
-    }
-  }
-
-  public static void validateGetPaymentsFromPublishedFlowRequest(
-      ConfigDataV1 cachedConfig, FindFlowsByFiltersArgs args) throws AppException {
-
-    // set validation arguments
-    String pspId = args.getPspId();
-    ValidationArgs validationArgs =
-        ValidationArgs.newArgs()
-            .addArgument("configDataV1", cachedConfig)
-            .addArgument("pspId", pspId)
-            .addArgument("creditorInstitutionId", args.getOrganizationId())
-            .addArgument("flowName", args.getFlowName());
-
-    ValidationResult validationResult =
-        new PspValidator()
-            .linkTo(new CreditorInstitutionValidator())
-            .linkTo(new FlowNameFormatValidator())
-            .validate(validationArgs);
 
     if (validationResult.isInvalid()) {
       throw new AppException(validationResult.getError(), validationResult.getErrorArgs());

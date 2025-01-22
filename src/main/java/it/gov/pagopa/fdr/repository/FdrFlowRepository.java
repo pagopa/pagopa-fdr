@@ -30,8 +30,11 @@ public class FdrFlowRepository extends Repository {
   public static final String QUERY_GET_UNPUBLISHED_BY_PSP =
       "sender.psp_id = :pspId and status != 'PUBLISHED'";
 
-  public static final String QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME =
-      "sender.psp_id = :pspId and name = :flowName and status != 'PUBLISHED'";
+  public static final String QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME_AND_ORGANIZATION =
+      "sender.psp_id = :pspId"
+          + " and name = :flowName"
+          + " and receiver.organization_id = :organizationId"
+          + " and status != 'PUBLISHED'";
 
   public static final String QUERY_GET_UNPUBLISHED_BY_ORGANIZATION_AND_PSP_AND_NAME =
       "sender.psp_id = :pspId"
@@ -189,7 +192,7 @@ public class FdrFlowRepository extends Repository {
         .orElse(null);
   }
 
-  public FdrFlowIdProjection findIdByOrganizationIdAndPspIdAndName(
+  public FdrFlowIdProjection findIdByOrganizationIdAndPspIdAndNameAndRevision(
       String organizationId, String pspId, String flowName, long revision, FlowStatusEnum status) {
 
     // defining query with mandatory fields
@@ -203,6 +206,22 @@ public class FdrFlowRepository extends Repository {
     return FdrFlowEntity.findByQuery(
             FdrFlowRepository.QUERY_GET_BY_PSP_AND_NAME_AND_REVISION_AND_ORGANIZATION_AND_STATUS,
             parameters)
+        .project(FdrFlowIdProjection.class)
+        .firstResultOptional()
+        .orElse(null);
+  }
+
+  public FdrFlowIdProjection findUnpublishedIdByPspIdAndNameAndOrganization(
+      String pspId, String flowName, String organizationId) {
+
+    // defining query with mandatory fields
+    Parameters parameters = new Parameters();
+    parameters.and("pspId", pspId);
+    parameters.and("flowName", flowName);
+    parameters.and("organizationId", organizationId);
+
+    return FdrFlowEntity.findByQuery(
+            FdrFlowRepository.QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME_AND_ORGANIZATION, parameters)
         .project(FdrFlowIdProjection.class)
         .firstResultOptional()
         .orElse(null);

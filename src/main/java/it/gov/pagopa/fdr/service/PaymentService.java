@@ -71,16 +71,54 @@ public class PaymentService {
     long pageSize = args.getPageSize();
 
     log.debugf(
-        "Executing query on payments related on flow by organizationId [%s], pspId [%s], flowName"
-            + " [%s], revision:[%s]",
+        "Executing query on payments related on published flow by organizationId [%s], pspId [%s],"
+            + " flowName [%s], revision:[%s]",
         organizationId, pspId, flowName, revision);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateGetPaymentsFromPublishedFlowRequest(configData, args);
+    SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
     FdrFlowIdProjection flowIdProjection =
-        this.flowRepository.findIdByOrganizationIdAndPspIdAndName(
+        this.flowRepository.findIdByOrganizationIdAndPspIdAndNameAndRevision(
             organizationId, pspId, flowName, revision, FlowStatusEnum.PUBLISHED);
+    if (flowIdProjection == null) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
+    }
+
+    RepositoryPagedResult<FdrPaymentEntity> paginatedResult =
+        this.paymentRepository.findByFlowObjectId(
+            flowIdProjection.getId(), (int) pageNumber, (int) pageSize);
+
+    return paymentMapper.toPaginatedPaymentsResponse(paginatedResult, pageSize, pageNumber);
+  }
+
+  public PaginatedPaymentsResponse getPaymentsFromUnpublishedFlow(FindFlowsByFiltersArgs args) {
+
+    /*
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
+    String action = (String) MDC.get(ACTION);
+    MDC.put(ORGANIZATION_ID, organizationId);
+    MDC.put(FDR, fdr);
+    MDC.put(PSP_ID, psp);
+     */
+
+    String organizationId = args.getOrganizationId();
+    String pspId = args.getPspId();
+    String flowName = args.getFlowName();
+    long pageNumber = args.getPageNumber();
+    long pageSize = args.getPageSize();
+
+    log.debugf(
+        "Executing query on payments related on unpublished flow by organizationId [%s], pspId"
+            + " [%s], flowName [%s]",
+        organizationId, pspId, flowName);
+
+    ConfigDataV1 configData = cachedConfig.getClonedCache();
+    SemanticValidator.validateGetSingleFlowFilters(configData, args);
+
+    FdrFlowIdProjection flowIdProjection =
+        this.flowRepository.findUnpublishedIdByPspIdAndNameAndOrganization(
+            pspId, flowName, organizationId);
     if (flowIdProjection == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
