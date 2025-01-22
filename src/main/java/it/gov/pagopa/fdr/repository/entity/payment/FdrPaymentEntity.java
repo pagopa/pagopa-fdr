@@ -51,6 +51,9 @@ public class FdrPaymentEntity extends PanacheMongoEntity {
   @BsonProperty("ref_fdr")
   private ReferencedFdrEntity refFdr;
 
+  @BsonProperty("_ts")
+  public Instant timestamp;
+
   public static PanacheQuery<PanacheMongoEntityBase> findPageByQuery(
       String query, Sort sort, Parameters parameters) {
     return find(query, sort, parameters.map());
@@ -65,11 +68,13 @@ public class FdrPaymentEntity extends PanacheMongoEntity {
       throws TransactionRollbackException {
 
     try {
+      Instant now = Instant.now();
       session.startTransaction();
       MongoCollection<FdrPaymentEntity> collection = mongoCollection();
 
       List<WriteModel<FdrPaymentEntity>> bulkOperations = new ArrayList<>();
       for (FdrPaymentEntity entity : entityBatch) {
+        entity.setTimestamp(now);
         bulkOperations.add(new InsertOneModel<>(entity));
       }
       collection.bulkWrite(session, bulkOperations);

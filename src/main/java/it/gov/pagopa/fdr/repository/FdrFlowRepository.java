@@ -138,10 +138,12 @@ public class FdrFlowRepository extends Repository {
   }
 
   public void createEntity(FdrFlowEntity entity) {
+    entity.setTimestamp(Instant.now());
     entity.persist();
   }
 
   public void updateEntity(FdrFlowEntity entity) {
+    entity.setTimestamp(Instant.now());
     entity.update();
   }
 }

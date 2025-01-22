@@ -60,6 +60,9 @@ public class FdrFlowEntity extends PanacheMongoEntity {
   @BsonProperty("ref_json")
   private HistoryBlobBody refJson;
 
+  @BsonProperty("_ts")
+  public Instant timestamp;
+
   public void addOnComputedTotAmount(double value) {
     this.computedTotAmount += value;
   }
