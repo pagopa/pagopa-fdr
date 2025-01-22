@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.repository.entity.payment;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
-import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.enums.PaymentStatusEnum;
@@ -16,7 +15,6 @@ import org.bson.types.ObjectId;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@MongoEntity(collection = "fdr_payment_publish")
 public class FdrPaymentPublishEntity extends PanacheMongoEntity {
 
   private Long index;

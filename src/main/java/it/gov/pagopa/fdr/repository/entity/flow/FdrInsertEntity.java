@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.repository.entity.flow;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
-import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import java.time.Instant;
@@ -13,7 +12,6 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@MongoEntity(collection = "fdr_insert")
 public class FdrInsertEntity extends PanacheMongoEntity {
 
   private Long revision;

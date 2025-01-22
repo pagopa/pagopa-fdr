@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.repository.entity.flow;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
-import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
@@ -15,7 +14,6 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@MongoEntity(collection = "fdr_publish")
 public class FdrPublishEntity extends PanacheMongoEntity {
 
   private Long revision;
