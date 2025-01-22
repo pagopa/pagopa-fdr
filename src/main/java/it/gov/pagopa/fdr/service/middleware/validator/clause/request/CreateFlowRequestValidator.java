@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.middleware.validator.clause;
+package it.gov.pagopa.fdr.service.middleware.validator.clause.request;
 
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
