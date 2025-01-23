@@ -13,7 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
-import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
+import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import java.time.Instant;
 
 public class TestUtil {
@@ -154,7 +154,7 @@ public class TestUtil {
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,

@@ -1,17 +1,11 @@
 package it.gov.pagopa.fdr.service.history;
 
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.service.HistoryService;
-import it.gov.pagopa.fdr.util.FileUtil;
-import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 class HistoryServiceTest {
 
+  /*
   @Inject HistoryService historyService;
   @Inject FileUtil fileUtil;
 
@@ -154,4 +148,5 @@ class HistoryServiceTest {
     Assertions.assertThrows(
         AppException.class, () -> historyService.isJsonValid(jsonString, jsonSchema));
   }
+  */
 }

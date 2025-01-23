@@ -53,12 +53,5 @@ public class AppStartup {
     } else {
       log.info("Start EventHub Re and blob DISABLED");
     }
-
-    if (historyEnabled) {
-      log.info("History ENABLED");
-      historyService.init();
-    } else {
-      log.info("History DISABLED");
-    }
   }
 }

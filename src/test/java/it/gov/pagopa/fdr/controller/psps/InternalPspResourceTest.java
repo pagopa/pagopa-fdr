@@ -29,7 +29,6 @@ import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
@@ -216,12 +215,7 @@ class InternalPspResourceTest {
 
     String bodyFmt =
         TestUtil.FLOW_TEMPLATE.formatted(
-            flowName,
-            SenderTypeEnumDto.ABI_CODE.name(),
-            PSP_CODE,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
+            flowName, SenderTypeEnum.ABI_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse res =
         given()
@@ -244,12 +238,7 @@ class InternalPspResourceTest {
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
-            flowName,
-            SenderTypeEnumDto.BIC_CODE.name(),
-            PSP_CODE,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
+            flowName, SenderTypeEnum.BIC_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse res =
         given()
@@ -273,7 +262,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -334,7 +323,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -390,7 +379,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -480,7 +469,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -536,7 +525,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -598,7 +587,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -645,7 +634,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -692,7 +681,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -740,7 +729,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -788,7 +777,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -838,7 +827,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             pspNotMatch,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -876,7 +865,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -930,7 +919,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1006,7 +995,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1070,7 +1059,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1136,7 +1125,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             pspUnknown,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1165,7 +1154,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE_NOT_ENABLED,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1197,7 +1186,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             brokerPspUnknown,
             CHANNEL_CODE,
@@ -1230,7 +1219,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE_NOT_ENABLED,
             CHANNEL_CODE,
@@ -1265,7 +1254,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             channelUnknown,
@@ -1297,7 +1286,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE_NOT_ENABLED,
@@ -1326,7 +1315,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE_2,
             CHANNEL_CODE,
@@ -1364,7 +1353,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE_2,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1402,7 +1391,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1435,7 +1424,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1468,7 +1457,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1502,7 +1491,7 @@ class InternalPspResourceTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,

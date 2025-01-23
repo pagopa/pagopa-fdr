@@ -45,7 +45,6 @@ import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
@@ -230,7 +229,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = TestUtil.FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.ABI_CODE.name(),
+    String bodyFmt = TestUtil.FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.ABI_CODE.name(),
         PSP_CODE,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
@@ -252,7 +252,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.BIC_CODE.name(), PSP_CODE,
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.BIC_CODE.name(), PSP_CODE,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse res = given()
@@ -273,7 +274,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -323,7 +325,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -370,7 +373,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -442,7 +446,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -490,7 +495,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -540,7 +546,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -577,7 +584,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
     GenericResponse resSave = given()
         .body(bodyFmt)
@@ -613,7 +621,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -648,7 +657,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -683,7 +693,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -720,7 +731,8 @@ class PspResourceTest {
     String pspNotMatch = "PSP_NOT_MATCH";
 
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         pspNotMatch,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
     ErrorResponse resDelError = given()
@@ -745,7 +757,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -782,7 +795,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -839,7 +853,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -887,7 +902,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
 
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse resSave = given()
@@ -937,7 +953,8 @@ class PspResourceTest {
     String pspUnknown = "PSP_UNKNOWN";
 
     String url = FLOWS_URL.formatted(pspUnknown, flowName);
-    String bodyFmt = FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+    String bodyFmt = FLOW_TEMPLATE.formatted(flowName,
+        SenderTypeEnum.LEGAL_PERSON.name(),
         pspUnknown,
         BROKER_CODE, CHANNEL_CODE, EC_CODE);
     ErrorResponse res = given()
@@ -960,7 +977,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE_NOT_ENABLED, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE_NOT_ENABLED, BROKER_CODE, CHANNEL_CODE, EC_CODE);
     ErrorResponse res = given()
         .body(bodyFmt)
@@ -983,7 +1001,8 @@ class PspResourceTest {
     String brokerPspUnknown = "BROKERPSP_UNKNOWN";
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(), PSP_CODE,
             brokerPspUnknown,
             CHANNEL_CODE, EC_CODE);
 
@@ -1008,7 +1027,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE_NOT_ENABLED, CHANNEL_CODE, EC_CODE);
 
     ErrorResponse res = given()
@@ -1033,7 +1053,8 @@ class PspResourceTest {
     String channelUnknown = "CHANNEL_UNKNOWN";
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, channelUnknown, EC_CODE);
 
     ErrorResponse res = given()
@@ -1056,7 +1077,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE_NOT_ENABLED, EC_CODE);
 
     ErrorResponse res = given()
@@ -1079,7 +1101,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE_2, CHANNEL_CODE, EC_CODE);
 
     ErrorResponse res = given()
@@ -1104,7 +1127,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE_2, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(),
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE_2, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     ErrorResponse res = given()
@@ -1129,7 +1153,8 @@ class PspResourceTest {
     String ecUnknown = "EC_UNKNOWN";
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE, ecUnknown);
 
     ErrorResponse res = given()
@@ -1152,7 +1177,8 @@ class PspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, SenderTypeEnumDto.LEGAL_PERSON.name(), PSP_CODE,
+        FLOW_TEMPLATE.formatted(flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(), PSP_CODE,
             BROKER_CODE, CHANNEL_CODE, EC_CODE_NOT_ENABLED);
 
     ErrorResponse res = given()
@@ -1175,7 +1201,7 @@ class PspResourceTest {
     String url = FLOWS_URL.formatted(PSP_CODE, REPORTING_FLOW_NAME_DATE_WRONG_FORMAT);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     ErrorResponse res = given()
@@ -1199,7 +1225,7 @@ class PspResourceTest {
     String url = FLOWS_URL.formatted(PSP_CODE, REPORTING_FLOW_NAME_PSP_WRONG_FORMAT);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     ErrorResponse res = given()
@@ -1403,7 +1429,7 @@ class PspResourceTest {
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
@@ -1616,7 +1642,7 @@ class PspResourceTest {
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,

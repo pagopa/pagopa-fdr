@@ -7,7 +7,6 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
-import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -58,7 +57,7 @@ public class FdrFlowEntity extends PanacheMongoEntity {
   private ReceiverEntity receiver;
 
   @BsonProperty("ref_json")
-  private HistoryBlobBody refJson;
+  private BlobBodyReferenceEntity refJson;
 
   @BsonProperty("_ts")
   public Instant timestamp;
