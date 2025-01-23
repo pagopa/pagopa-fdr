@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.controller.interfaces.annotation;
 
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import java.lang.annotation.ElementType;

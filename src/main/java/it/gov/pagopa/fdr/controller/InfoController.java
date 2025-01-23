@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.controller;
 
-import it.gov.pagopa.fdr.controller.interfaces.IInfoController;
+import it.gov.pagopa.fdr.controller.interfaces.controller.IInfoController;
 import it.gov.pagopa.fdr.controller.model.common.response.InfoResponse;
 import it.gov.pagopa.fdr.service.HealthCheckService;
 

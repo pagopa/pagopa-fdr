@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.interfaces;
+package it.gov.pagopa.fdr.controller.interfaces.controller;
 
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsBySenderAndReceiverResponse;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;

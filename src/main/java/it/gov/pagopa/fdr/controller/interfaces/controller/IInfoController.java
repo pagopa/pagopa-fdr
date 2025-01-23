@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.interfaces;
+package it.gov.pagopa.fdr.controller.interfaces.controller;
 
 import it.gov.pagopa.fdr.controller.model.common.response.InfoResponse;
 import jakarta.ws.rs.GET;

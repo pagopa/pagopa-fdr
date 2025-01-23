@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.controller;
 
-import it.gov.pagopa.fdr.controller.interfaces.ISupportController;
+import it.gov.pagopa.fdr.controller.interfaces.controller.ISupportController;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsBySenderAndReceiverResponse;
 import it.gov.pagopa.fdr.service.TechnicalSupportService;
 import it.gov.pagopa.fdr.service.model.arguments.FindPaymentsByFiltersArgs;

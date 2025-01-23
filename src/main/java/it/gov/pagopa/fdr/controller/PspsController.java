@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.controller;
 
-import it.gov.pagopa.fdr.controller.interfaces.IPspsController;
+import it.gov.pagopa.fdr.controller.interfaces.annotation.Re;
+import it.gov.pagopa.fdr.controller.interfaces.controller.IPspsController;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
@@ -14,7 +15,6 @@ import it.gov.pagopa.fdr.service.FlowService;
 import it.gov.pagopa.fdr.service.PaymentService;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
-import it.gov.pagopa.fdr.util.Re;
 import jakarta.ws.rs.core.Response.Status;
 import java.time.Instant;
 import org.jboss.resteasy.reactive.RestResponse;
