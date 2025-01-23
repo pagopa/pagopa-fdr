@@ -1,5 +1,8 @@
 package it.gov.pagopa.fdr.service;
 
+import static io.opentelemetry.api.trace.SpanKind.SERVER;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.payment.Payment;
@@ -31,7 +34,7 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 @ApplicationScoped
 public class PaymentService {
 
-  private Logger log;
+  private final Logger log;
 
   private final Config cachedConfig;
 
@@ -55,6 +58,7 @@ public class PaymentService {
     this.paymentMapper = paymentMapper;
   }
 
+  @WithSpan(kind = SERVER)
   public PaginatedPaymentsResponse getPaymentsFromPublishedFlow(FindFlowsByFiltersArgs args) {
 
     /*
@@ -94,6 +98,7 @@ public class PaymentService {
     return paymentMapper.toPaginatedPaymentsResponse(paginatedResult, pageSize, pageNumber);
   }
 
+  @WithSpan(kind = SERVER)
   public PaginatedPaymentsResponse getPaymentsFromUnpublishedFlow(FindFlowsByFiltersArgs args) {
 
     /*
@@ -132,6 +137,7 @@ public class PaymentService {
     return paymentMapper.toPaginatedPaymentsResponse(paginatedResult, pageSize, pageNumber);
   }
 
+  @WithSpan(kind = SERVER)
   public GenericResponse addPaymentToExistingFlow(
       String pspId, String flowName, AddPaymentRequest request) {
 
@@ -189,6 +195,7 @@ public class PaymentService {
         .build();
   }
 
+  @WithSpan(kind = SERVER)
   public GenericResponse deletePaymentFromExistingFlow(
       String pspId, String flowName, DeletePaymentRequest request) {
 
@@ -334,9 +341,9 @@ public class PaymentService {
   }
 
   /**
-   * ... it is required to rollback changes: due to impossibility to operate a multi-collection
-   * transaction, the 'rollback' on FdrFlowEntity must be executed with a compensation operation, on
-   * which the changed fields are subtracted with previously added values
+   * ... Due to impossibility to operate a multi-collection transaction on CosmosDB with MongoDB
+   * APIs, the 'rollback' on FdrFlowEntity must be executed with a compensation operation, on which
+   * the changed fields are subtracted with previously added values
    *
    * @param pspId
    * @param flowName

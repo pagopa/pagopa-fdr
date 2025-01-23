@@ -1,5 +1,8 @@
 package it.gov.pagopa.fdr.service;
 
+import static io.opentelemetry.api.trace.SpanKind.SERVER;
+
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
@@ -27,7 +30,7 @@ import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 @ApplicationScoped
 public class FlowService {
 
-  private Logger log;
+  private final Logger log;
 
   private final Config cachedConfig;
 
@@ -51,6 +54,7 @@ public class FlowService {
     this.flowMapper = flowMapper;
   }
 
+  @WithSpan(kind = SERVER)
   public PaginatedFlowsResponse getPaginatedPublishedFlowsForCI(FindFlowsByFiltersArgs args) {
 
     /*
@@ -86,6 +90,7 @@ public class FlowService {
         paginatedResult, args.getPageSize(), args.getPageNumber());
   }
 
+  @WithSpan(kind = SERVER)
   public PaginatedFlowsPublishedResponse getPaginatedPublishedFlowsForPSP(
       FindFlowsByFiltersArgs args) {
 
@@ -113,6 +118,7 @@ public class FlowService {
         paginatedResult, args.getPageSize(), args.getPageNumber());
   }
 
+  @WithSpan(kind = SERVER)
   public PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatus(
       FindFlowsByFiltersArgs args) {
 
@@ -141,6 +147,7 @@ public class FlowService {
     return this.flowMapper.toPaginatedFlowCreatedResponse(paginatedResult, pageSize, pageNumber);
   }
 
+  @WithSpan(kind = SERVER)
   public SingleFlowResponse getSinglePublishedFlow(FindFlowsByFiltersArgs args) {
 
     /*
@@ -175,6 +182,7 @@ public class FlowService {
     return this.flowMapper.toSingleFlowResponse(result);
   }
 
+  @WithSpan(kind = SERVER)
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(FindFlowsByFiltersArgs args) {
 
     /*
@@ -207,6 +215,7 @@ public class FlowService {
     return this.flowMapper.toSingleFlowCreatedResponse(result);
   }
 
+  @WithSpan(kind = SERVER)
   public GenericResponse createEmptyFlow(String pspId, String flowName, CreateFlowRequest request) {
 
     /*
@@ -254,6 +263,7 @@ public class FlowService {
     return GenericResponse.builder().message(String.format("Fdr [%s] saved", flowName)).build();
   }
 
+  @WithSpan(kind = SERVER)
   public GenericResponse publishFlow(String pspId, String flowName, boolean isInternalCall) {
 
     /*
@@ -298,6 +308,7 @@ public class FlowService {
     return GenericResponse.builder().message(String.format("Fdr [%s] published", flowName)).build();
   }
 
+  @WithSpan(kind = SERVER)
   public GenericResponse deleteExistingFlow(String pspId, String flowName) {
 
     /*
