@@ -9,6 +9,7 @@ import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.repository.entity.common.Repository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
+import it.gov.pagopa.fdr.repository.entity.common.SortField;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
 import it.gov.pagopa.fdr.repository.exception.PersistenceFailureException;
 import it.gov.pagopa.fdr.repository.exception.TransactionRollbackException;
@@ -17,7 +18,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bson.types.ObjectId;
 import org.eclipse.microprofile.faulttolerance.Retry;
 
@@ -45,7 +45,7 @@ public class FdrPaymentRepository extends Repository {
       int pageSize) {
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(Pair.of("index", Direction.Ascending));
+    Sort sort = getSort(SortField.of("index", Direction.Ascending));
 
     PanacheQuery<FdrPaymentEntity> query =
         FdrPaymentEntity.executeQueryByPspIuvAndIur(pspId, iuv, iur, createdFrom, createdTo, sort)
@@ -61,7 +61,7 @@ public class FdrPaymentRepository extends Repository {
     parameters.and("flowObjId", flowId);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(Pair.of("index", Direction.Ascending));
+    Sort sort = getSort(SortField.of("index", Direction.Ascending));
 
     PanacheQuery<FdrPaymentEntity> resultPage =
         FdrPaymentEntity.findPageByQuery(
@@ -89,7 +89,7 @@ public class FdrPaymentRepository extends Repository {
     parameters.and("indexes", indexes);
 
     Page page = Page.of(0, indexes.size());
-    Sort sort = getSort(Pair.of("index", Direction.Ascending));
+    Sort sort = getSort(SortField.of("index", Direction.Ascending));
 
     PanacheQuery<FdrPaymentEntity> resultPage =
         FdrPaymentEntity.findPageByQuery(

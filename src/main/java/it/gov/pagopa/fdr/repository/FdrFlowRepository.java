@@ -7,6 +7,7 @@ import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.repository.entity.common.Repository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
+import it.gov.pagopa.fdr.repository.entity.common.SortField;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrFlowIdProjection;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
@@ -15,7 +16,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
 public class FdrFlowRepository extends Repository {
@@ -76,7 +76,7 @@ public class FdrFlowRepository extends Repository {
     String queryString = String.join(" and ", queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(Pair.of("_id", Direction.Ascending));
+    Sort sort = getSort(SortField.of("_id", Direction.Ascending));
 
     PanacheQuery<FdrFlowEntity> resultPage =
         FdrFlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
@@ -111,7 +111,7 @@ public class FdrFlowRepository extends Repository {
     String queryString = String.join(" and ", queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(Pair.of("_id", Direction.Ascending));
+    Sort sort = getSort(SortField.of("_id", Direction.Ascending));
 
     PanacheQuery<FdrFlowEntity> resultPage =
         FdrFlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
@@ -158,7 +158,7 @@ public class FdrFlowRepository extends Repository {
     parameters.and("createdGt", createdGt);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(Pair.of("_id", Direction.Ascending));
+    Sort sort = getSort(SortField.of("_id", Direction.Ascending));
 
     PanacheQuery<FdrFlowEntity> resultPage =
         FdrFlowEntity.findPageByQuery(

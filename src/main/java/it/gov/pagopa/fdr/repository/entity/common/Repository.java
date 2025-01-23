@@ -4,7 +4,6 @@ import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class Repository {
 
@@ -26,12 +25,12 @@ public abstract class Repository {
   }
 
   @SafeVarargs
-  protected static Sort getSort(Pair<String, Direction>... sortColumns) {
+  protected static Sort getSort(SortField... sortColumns) {
     Sort sort = Sort.empty();
     if (sortColumns != null) {
-      for (Pair<String, Direction> sortColumn : sortColumns) {
-        String column = sortColumn.getLeft();
-        Direction direction = sortColumn.getRight();
+      for (SortField sortColumn : sortColumns) {
+        String column = sortColumn.getField();
+        Direction direction = sortColumn.getDirection();
         if (!column.isBlank()) {
           if (direction != null) {
             sort.and(column, direction);
