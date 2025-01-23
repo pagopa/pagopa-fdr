@@ -18,12 +18,14 @@ import it.gov.pagopa.fdr.repository.FdrPaymentRepository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
-import it.gov.pagopa.fdr.repository.exception.TransactionRollbackException;
+import it.gov.pagopa.fdr.repository.exception.PersistenceFailureException;
 import it.gov.pagopa.fdr.service.middleware.mapper.FlowMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
+import org.bson.types.ObjectId;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
@@ -329,21 +331,31 @@ public class FlowService {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
-    // delete flow and if there are multiple payments related to it yet, delete them
+    // delete flow and if there are multiple payments related to it yet, delete them in async mode
     this.flowRepository.deleteEntity(publishingFlow);
-    if (publishingFlow.getComputedTotPayments() > 0) {
-
-      // try to delete payments using a transaction: if it does not end successfully, it throws an
-      // accepted Exception that will cause a compensation operation in order to execute the
-      // rollback.
-      try {
-        this.paymentRepository.deleteByFlowObjectId(publishingFlow.id);
-      } catch (TransactionRollbackException e) {
-        this.flowRepository.createEntity(publishingFlow);
-        throw e;
-      }
-    }
+    deleteFlowPaymentsInAsync(publishingFlow.id);
 
     return GenericResponse.builder().message(String.format("Fdr [%s] deleted", flowName)).build();
+  }
+
+  private void deleteFlowPaymentsInAsync(ObjectId flowObjectId) {
+    CompletableFuture.supplyAsync(
+        () -> {
+          try {
+            log.infof(
+                "Asynchronously deleting payments related to flow with id [%s]", flowObjectId);
+            long deletedPayments = this.paymentRepository.deleteByFlowObjectId(flowObjectId);
+            log.debugf("Deleted existing flows and all [%s] related payments", deletedPayments);
+          } catch (PersistenceFailureException e) {
+            log.error(
+                String.format(
+                    "Deleted existing flows but not all related payments were deleted. If the"
+                        + " deletion is required, you can find them searching by fdr_ref.id = [%s]."
+                        + " Error cause: ",
+                    flowObjectId),
+                e);
+          }
+          return null;
+        });
   }
 }

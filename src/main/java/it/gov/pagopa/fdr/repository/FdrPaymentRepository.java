@@ -10,13 +10,16 @@ import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.repository.entity.common.Repository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
+import it.gov.pagopa.fdr.repository.exception.PersistenceFailureException;
 import it.gov.pagopa.fdr.repository.exception.TransactionRollbackException;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.types.ObjectId;
+import org.eclipse.microprofile.faulttolerance.Retry;
 
 @ApplicationScoped
 public class FdrPaymentRepository extends Repository {
@@ -95,19 +98,25 @@ public class FdrPaymentRepository extends Repository {
     return resultPage.list();
   }
 
-  public void deleteByFlowObjectId(ObjectId flowId) {
-
-    try (ClientSession session = this.mongoClient.startSession()) {
-      FdrPaymentEntity.deleteBulkInTransaction(session, "ref_fdr.id", flowId);
-    }
-  }
-
   public void createEntityInTransaction(List<FdrPaymentEntity> entityBatch)
       throws TransactionRollbackException {
 
     try (ClientSession session = this.mongoClient.startSession()) {
       FdrPaymentEntity.persistBulkInTransaction(session, entityBatch);
     }
+  }
+
+  // https://quarkus.io/guides/smallrye-fault-tolerance
+  @Retry(
+      delay = 1000,
+      maxRetries = -1,
+      maxDuration = 1,
+      durationUnit = ChronoUnit.MINUTES,
+      retryOn = PersistenceFailureException.class)
+  public long deleteByFlowObjectId(ObjectId flowId) throws PersistenceFailureException {
+
+    System.out.print("[AD] executing deleteByFilter try... ");
+    return FdrPaymentEntity.deleteByFilter("ref_fdr.id", flowId);
   }
 
   public void deleteEntityInTransaction(List<FdrPaymentEntity> entityBatch)

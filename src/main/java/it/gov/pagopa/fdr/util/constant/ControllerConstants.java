@@ -66,10 +66,10 @@ public class ControllerConstants {
           + ControllerConstants.URL_PARAMETER_ORGANIZATION;
 
   public static final String URL_API_GET_PAYMENTS_FOR_NOT_PUBLISHED_FLOW =
-      ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW + "}/payments";
+      ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW + "/payments";
 
   public static final String URL_API_GET_PAYMENTS_FOR_PUBLISHED_FLOW =
-      ControllerConstants.URL_API_GET_SINGLE_PUBLISHED_FLOW + "}/payments";
+      ControllerConstants.URL_API_GET_SINGLE_PUBLISHED_FLOW + "/payments";
   public static final String URL_API_ADD_PAYMENT_IN_FLOW =
       "/" + ControllerConstants.URL_PARAMETER_FDR + "/payments/add";
 
