@@ -1,19 +1,19 @@
 package it.gov.pagopa.fdr.controller.middleware.filter;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.MDCKeys.EVENT_CATEGORY;
-import static it.gov.pagopa.fdr.util.MDCKeys.HTTP_TYPE;
-import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
-import static it.gov.pagopa.fdr.util.MDCKeys.URI;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.ACTION;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.EVENT_CATEGORY;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.HTTP_TYPE;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.ORGANIZATION_ID;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.PSP_ID;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.TRX_ID;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.URI;
 
 import it.gov.pagopa.fdr.service.ReService;
 import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
-import it.gov.pagopa.fdr.util.AppReUtil;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
+import it.gov.pagopa.fdr.util.re.AppReUtil;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MultivaluedMap;

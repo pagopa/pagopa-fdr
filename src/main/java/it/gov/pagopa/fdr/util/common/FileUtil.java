@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.util.common;
 
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;

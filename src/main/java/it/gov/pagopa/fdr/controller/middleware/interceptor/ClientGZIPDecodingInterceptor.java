@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.controller.middleware.interceptor;
 
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_ENCODING;
 

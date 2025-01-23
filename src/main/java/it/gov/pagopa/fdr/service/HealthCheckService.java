@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.service;
 
 import it.gov.pagopa.fdr.controller.model.common.response.InfoResponse;
-import it.gov.pagopa.fdr.util.AppMessageUtil;
+import it.gov.pagopa.fdr.util.logging.AppMessageUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 

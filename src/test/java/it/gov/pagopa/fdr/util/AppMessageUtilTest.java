@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.quarkus.test.junit.QuarkusTest;
+import it.gov.pagopa.fdr.util.logging.AppMessageUtil;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest

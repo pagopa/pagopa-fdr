@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.exception;
 
-import it.gov.pagopa.fdr.util.AppMessageUtil;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
+import it.gov.pagopa.fdr.util.logging.AppMessageUtil;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.Status;
 

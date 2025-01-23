@@ -16,7 +16,7 @@ import it.gov.pagopa.fdr.service.middleware.validator.clause.request.AddPaymentR
 import it.gov.pagopa.fdr.service.middleware.validator.clause.request.CreateFlowRequestValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.request.DeletePaymentRequestValidator;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
-import it.gov.pagopa.fdr.util.StringUtil;
+import it.gov.pagopa.fdr.util.common.StringUtil;
 import it.gov.pagopa.fdr.util.validator.ValidationArgs;
 import it.gov.pagopa.fdr.util.validator.ValidationResult;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;

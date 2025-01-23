@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.controller.middleware.exceptionhandler;
 
-import static it.gov.pagopa.fdr.util.AppMessageUtil.logErrorMessage;
-import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.TRX_ID;
+import static it.gov.pagopa.fdr.util.logging.AppMessageUtil.logErrorMessage;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -13,7 +13,7 @@ import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageInterface;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.util.AppMessageUtil;
+import it.gov.pagopa.fdr.util.logging.AppMessageUtil;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.UnexpectedTypeException;
 import jakarta.ws.rs.WebApplicationException;

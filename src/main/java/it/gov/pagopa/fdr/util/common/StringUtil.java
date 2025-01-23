@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.util.common;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

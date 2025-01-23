@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util;
+package it.gov.pagopa.fdr.util.logging;
 
 import java.text.MessageFormat;
 import java.util.Locale;
