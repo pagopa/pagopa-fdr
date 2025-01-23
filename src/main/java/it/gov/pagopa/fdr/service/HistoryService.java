@@ -1,48 +1,13 @@
-package it.gov.pagopa.fdr.service.history;
+package it.gov.pagopa.fdr.service;
 
-import com.azure.core.util.BinaryData;
-import com.azure.data.tables.TableClient;
-import com.azure.data.tables.TableServiceClient;
-import com.azure.data.tables.TableServiceClientBuilder;
-import com.azure.data.tables.models.TableEntity;
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.repository.entity.flow.FdrPublishEntity;
-import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentPublishEntity;
-import it.gov.pagopa.fdr.service.history.constants.HistoryConstants;
-import it.gov.pagopa.fdr.service.history.mapper.HistoryServiceMapper;
-import it.gov.pagopa.fdr.service.history.model.FdrHistoryEntity;
-import it.gov.pagopa.fdr.service.history.model.FdrHistoryPaymentEntity;
-import it.gov.pagopa.fdr.service.history.model.HistoryBlobBody;
-import it.gov.pagopa.fdr.service.history.model.JsonSchemaVersionEnum;
-import it.gov.pagopa.fdr.util.FileUtil;
-import it.gov.pagopa.fdr.util.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class HistoryService {
 
+  // TODO to be refactored when historicization cron will be defined
+
+  /*
   private final HistoryServiceMapper mapper;
   private final Logger logger;
   private final ObjectMapper objMapper;
@@ -295,4 +260,5 @@ public class HistoryService {
           tableClient.createEntity(entity);
         });
   }
+   */
 }

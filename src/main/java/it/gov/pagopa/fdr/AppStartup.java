@@ -1,8 +1,7 @@
 package it.gov.pagopa.fdr;
 
 import io.quarkus.runtime.Startup;
-import it.gov.pagopa.fdr.service.conversion.ConversionService;
-import it.gov.pagopa.fdr.service.history.HistoryService;
+import it.gov.pagopa.fdr.service.HistoryService;
 import it.gov.pagopa.fdr.service.re.ReService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,20 +28,12 @@ public class AppStartup {
 
   private final Config config;
 
-  private final ConversionService conversionQueue;
-
   private final ReService reService;
   private final HistoryService historyService;
 
-  public AppStartup(
-      Logger log,
-      Config config,
-      ConversionService conversionQueue,
-      ReService reService,
-      HistoryService historyService) {
+  public AppStartup(Logger log, Config config, ReService reService, HistoryService historyService) {
     this.log = log;
     this.config = config;
-    this.conversionQueue = conversionQueue;
     this.reService = reService;
     this.historyService = historyService;
   }
@@ -54,13 +45,6 @@ public class AppStartup {
       config.init();
     } else {
       log.info("Start Cache DISABLED");
-    }
-
-    if (queueConversionEnabled) {
-      log.info("Start Queue Conversion ENABLED");
-      conversionQueue.init();
-    } else {
-      log.info("Start Queue Conversion DISABLED");
     }
 
     if (eHubReEnabled) {
