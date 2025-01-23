@@ -3,7 +3,7 @@ package it.gov.pagopa.fdr.controller.model.flow;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
-import it.gov.pagopa.fdr.util.constant.AppConstant;
+import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
@@ -40,7 +40,7 @@ public class Sender {
   @Schema(
       example = "60000000001",
       description = "[XML NodoInviaFlussoRendicontazione]=[identificativoPSP]")
-  @JsonProperty(AppConstant.PSP)
+  @JsonProperty(ControllerConstants.PARAMETER_PSP)
   private String pspId;
 
   @NotNull

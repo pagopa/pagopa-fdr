@@ -15,7 +15,7 @@ import it.gov.pagopa.fdr.service.PaymentService;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
-import it.gov.pagopa.fdr.util.constant.AppConstant;
+import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -25,7 +25,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 
 @Tag(name = "Internal PSP", description = "PSP operations")
-@Path("/internal/psps/{" + AppConstant.PSP + "}")
+@Path("/internal/psps/{" + ControllerConstants.PARAMETER_PSP + "}")
 @Consumes("application/json")
 @Produces("application/json")
 public class InternalPspsController implements IInternalPspsController {

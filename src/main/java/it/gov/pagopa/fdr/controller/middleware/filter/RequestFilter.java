@@ -13,6 +13,7 @@ import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppReUtil;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
+import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -49,11 +50,20 @@ public class RequestFilter implements ContainerRequestFilter {
     String requestMethod = containerRequestContext.getMethod();
     String requestPath = containerRequestContext.getUriInfo().getAbsolutePath().getPath();
     String pspPathParam =
-        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.PSP);
+        containerRequestContext
+            .getUriInfo()
+            .getPathParameters()
+            .getFirst(ControllerConstants.PARAMETER_PSP);
     String fdrPathParam =
-        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.FDR);
+        containerRequestContext
+            .getUriInfo()
+            .getPathParameters()
+            .getFirst(ControllerConstants.PARAMETER_FDR);
     String ecPathParam =
-        containerRequestContext.getUriInfo().getPathParameters().getFirst(AppConstant.ORGANIZATION);
+        containerRequestContext
+            .getUriInfo()
+            .getPathParameters()
+            .getFirst(ControllerConstants.PARAMETER_ORGANIZATION);
 
     FdrActionEnum fdrActionEnum =
         AppReUtil.getFlowNamebyAnnotation(
@@ -76,11 +86,11 @@ public class RequestFilter implements ContainerRequestFilter {
     String pspId = null;
     String organizationId = null;
     if (!pathparam.isEmpty()) {
-      if (pathparam.containsKey(AppConstant.PSP)) {
-        subject = pathparam.getFirst(AppConstant.PSP);
+      if (pathparam.containsKey(ControllerConstants.PARAMETER_PSP)) {
+        subject = pathparam.getFirst(ControllerConstants.PARAMETER_PSP);
         pspId = subject;
-      } else if (pathparam.containsKey(AppConstant.ORGANIZATION)) {
-        subject = pathparam.getFirst(AppConstant.ORGANIZATION);
+      } else if (pathparam.containsKey(ControllerConstants.PARAMETER_ORGANIZATION)) {
+        subject = pathparam.getFirst(ControllerConstants.PARAMETER_ORGANIZATION);
         organizationId = subject;
       }
     }

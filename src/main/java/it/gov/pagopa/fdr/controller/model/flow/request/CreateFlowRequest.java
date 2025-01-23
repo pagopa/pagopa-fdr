@@ -3,7 +3,7 @@ package it.gov.pagopa.fdr.controller.model.flow.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
-import it.gov.pagopa.fdr.util.constant.AppConstant;
+import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -26,7 +26,7 @@ public class CreateFlowRequest {
   @Schema(
       example = "2016-08-16pspTest-1178",
       description = "[XML NodoInviaFlussoRendicontazione]=[identificativoFlusso]")
-  @JsonProperty(AppConstant.FDR)
+  @JsonProperty(ControllerConstants.PARAMETER_FDR)
   private String fdr;
 
   @NotNull

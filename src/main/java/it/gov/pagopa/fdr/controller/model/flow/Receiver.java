@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.controller.model.flow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.gov.pagopa.fdr.util.constant.AppConstant;
+import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
@@ -27,7 +27,7 @@ public class Receiver {
   @Schema(
       example = "20000000001",
       description = "[XML NodoInviaFlussoRendicontazione]=[identificativoDominio]")
-  @JsonProperty(AppConstant.ORGANIZATION)
+  @JsonProperty(ControllerConstants.PARAMETER_ORGANIZATION)
   private String organizationId;
 
   @NotNull

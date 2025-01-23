@@ -9,7 +9,6 @@ import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
-import it.gov.pagopa.fdr.util.constant.AppConstant;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -161,7 +160,8 @@ public interface IInternalPspsController {
                     schema = @Schema(implementation = GenericResponse.class)))
       })
   GenericResponse deleteExistingFlowForInternalUse(
-      @PathParam(AppConstant.PSP) String pspId, @PathParam(AppConstant.FDR) String flowName);
+      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_NOT_PUBLISHED_FLOWS)

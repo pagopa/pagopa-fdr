@@ -28,7 +28,7 @@ import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
-import it.gov.pagopa.fdr.util.constant.AppConstant;
+import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 class InternalOrganizationResourceTest {
 
   private static final String GET_ALL_PUBLISHED_FLOW_URL =
-      "/internal/organizations/%s/fdrs?" + AppConstant.PSP + "=%s";
+      "/internal/organizations/%s/fdrs?" + ControllerConstants.PARAMETER_PSP + "=%s";
   private static final String GET_REPORTING_FLOW_URL =
       "/internal/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL =
