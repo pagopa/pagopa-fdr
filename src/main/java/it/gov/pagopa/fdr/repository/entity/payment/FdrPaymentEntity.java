@@ -1,11 +1,7 @@
 package it.gov.pagopa.fdr.repository.entity.payment;
 
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.DeleteOneModel;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.InsertOneModel;
-import com.mongodb.client.model.WriteModel;
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
 import io.quarkus.mongodb.panache.PanacheQuery;
@@ -14,7 +10,6 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.enums.PaymentStatusEnum;
 import it.gov.pagopa.fdr.repository.exception.PersistenceFailureException;
-import it.gov.pagopa.fdr.repository.exception.TransactionRollbackException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,78 +90,7 @@ public class FdrPaymentEntity extends PanacheMongoEntity {
     return deletedEntities;
   }
 
-  public static void persistBulkInTransaction(
-      ClientSession session, Iterable<FdrPaymentEntity> entityBatch)
-      throws TransactionRollbackException {
-
-    try {
-      Instant now = Instant.now();
-      session.startTransaction();
-      MongoCollection<FdrPaymentEntity> collection = mongoCollection();
-
-      List<WriteModel<FdrPaymentEntity>> bulkOperations = new ArrayList<>();
-      for (FdrPaymentEntity entity : entityBatch) {
-        entity.setTimestamp(now);
-        bulkOperations.add(new InsertOneModel<>(entity));
-      }
-      collection.bulkWrite(session, bulkOperations);
-
-      session.commitTransaction();
-
-    } catch (Exception e) {
-
-      if (session.hasActiveTransaction()) {
-        session.abortTransaction();
-      }
-      throw new TransactionRollbackException(e);
-    }
-  }
-
-  public static void deleteBulkInTransaction(
-      ClientSession session, Iterable<FdrPaymentEntity> entityBatch)
-      throws TransactionRollbackException {
-
-    try {
-      session.startTransaction();
-      MongoCollection<FdrPaymentEntity> collection = mongoCollection();
-
-      List<WriteModel<FdrPaymentEntity>> bulkOperations = new ArrayList<>();
-      for (FdrPaymentEntity entity : entityBatch) {
-        bulkOperations.add(new DeleteOneModel<>(Filters.eq("_id", entity.id)));
-      }
-      collection.bulkWrite(session, bulkOperations);
-
-      session.commitTransaction();
-
-    } catch (Exception e) {
-
-      if (session.hasActiveTransaction()) {
-        session.abortTransaction();
-      }
-      throw new TransactionRollbackException(e);
-    }
-  }
-
-  public static PanacheQuery<PanacheMongoEntityBase> executeQueryByPspIuvAndIur(
-      String psp, String iuv, String iur, Instant createdFrom, Instant createdTo, Sort sort) {
-    String query = "ref_fdr_sender_psp_id = :psp";
-    Parameters params = new Parameters().and("psp", psp);
-    if (iuv != null) {
-      query += " and iuv = :iuv";
-      params.and("iuv", iuv);
-    }
-    if (iur != null) {
-      query += " and iur = :iur";
-      params.and("iur", iur);
-    }
-    if (createdFrom != null) {
-      query += " and created >= :createdFrom";
-      params.and("createdFrom", createdFrom);
-    }
-    if (createdTo != null) {
-      query += " and created <= :createdTo";
-      params.and("createdTo", createdTo);
-    }
-    return find(query, sort, params);
+  public static MongoCollection<FdrPaymentEntity> getCollection() {
+    return mongoCollection();
   }
 }

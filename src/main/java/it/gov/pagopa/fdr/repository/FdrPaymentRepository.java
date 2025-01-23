@@ -2,6 +2,11 @@ package it.gov.pagopa.fdr.repository;
 
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.DeleteOneModel;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.InsertOneModel;
+import com.mongodb.client.model.WriteModel;
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Parameters;
@@ -16,6 +21,7 @@ import it.gov.pagopa.fdr.repository.exception.TransactionRollbackException;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.bson.types.ObjectId;
@@ -44,13 +50,31 @@ public class FdrPaymentRepository extends Repository {
       int pageNumber,
       int pageSize) {
 
+    String query = "ref_fdr_sender_psp_id = :psp";
+    Parameters params = new Parameters().and("psp", pspId);
+    if (iuv != null) {
+      query += " and iuv = :iuv";
+      params.and("iuv", iuv);
+    }
+    if (iur != null) {
+      query += " and iur = :iur";
+      params.and("iur", iur);
+    }
+    if (createdFrom != null) {
+      query += " and created >= :createdFrom";
+      params.and("createdFrom", createdFrom);
+    }
+    if (createdTo != null) {
+      query += " and created <= :createdTo";
+      params.and("createdTo", createdTo);
+    }
+
     Page page = Page.of(pageNumber - 1, pageSize);
     Sort sort = getSort(SortField.of("index", Direction.Ascending));
 
-    PanacheQuery<FdrPaymentEntity> query =
-        FdrPaymentEntity.executeQueryByPspIuvAndIur(pspId, iuv, iur, createdFrom, createdTo, sort)
-            .page(page);
-    return getPagedResult(query);
+    PanacheQuery<FdrPaymentEntity> resultPage =
+        FdrPaymentEntity.findPageByQuery(query, sort, params).page(page);
+    return getPagedResult(resultPage);
   }
 
   public RepositoryPagedResult<FdrPaymentEntity> findByFlowObjectId(
@@ -102,7 +126,33 @@ public class FdrPaymentRepository extends Repository {
       throws TransactionRollbackException {
 
     try (ClientSession session = this.mongoClient.startSession()) {
-      FdrPaymentEntity.persistBulkInTransaction(session, entityBatch);
+
+      try {
+
+        // first, start a new transaction
+        session.startTransaction();
+        MongoCollection<FdrPaymentEntity> collection = FdrPaymentEntity.getCollection();
+
+        // add each entity in a bulk write, in order to save it as a single batch in transaction
+        Instant now = Instant.now();
+        List<WriteModel<FdrPaymentEntity>> bulkOperations = new ArrayList<>();
+        for (FdrPaymentEntity entity : entityBatch) {
+          entity.setTimestamp(now);
+          bulkOperations.add(new InsertOneModel<>(entity));
+        }
+        collection.bulkWrite(session, bulkOperations);
+
+        // finally, close and commit the transaction
+        session.commitTransaction();
+
+      } catch (Exception e) {
+
+        // if the transaction is active, abort it
+        if (session.hasActiveTransaction()) {
+          session.abortTransaction();
+        }
+        throw new TransactionRollbackException(e);
+      }
     }
   }
 
@@ -115,7 +165,6 @@ public class FdrPaymentRepository extends Repository {
       retryOn = PersistenceFailureException.class)
   public long deleteByFlowObjectId(ObjectId flowId) throws PersistenceFailureException {
 
-    System.out.print("[AD] executing deleteByFilter try... ");
     return FdrPaymentEntity.deleteByFilter("ref_fdr.id", flowId);
   }
 
@@ -123,7 +172,31 @@ public class FdrPaymentRepository extends Repository {
       throws TransactionRollbackException {
 
     try (ClientSession session = this.mongoClient.startSession()) {
-      FdrPaymentEntity.deleteBulkInTransaction(session, entityBatch);
+
+      try {
+
+        // first, start a new transaction
+        session.startTransaction();
+        MongoCollection<FdrPaymentEntity> collection = FdrPaymentEntity.getCollection();
+
+        // add each entity in a bulk write, in order to delete it as a single batch in transaction
+        List<WriteModel<FdrPaymentEntity>> bulkOperations = new ArrayList<>();
+        for (FdrPaymentEntity entity : entityBatch) {
+          bulkOperations.add(new DeleteOneModel<>(Filters.eq("_id", entity.id)));
+        }
+        collection.bulkWrite(session, bulkOperations);
+
+        // finally, close and commit the transaction
+        session.commitTransaction();
+
+      } catch (Exception e) {
+
+        // if the transaction is active, abort it
+        if (session.hasActiveTransaction()) {
+          session.abortTransaction();
+        }
+        throw new TransactionRollbackException(e);
+      }
     }
   }
 }

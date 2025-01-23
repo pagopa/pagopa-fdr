@@ -79,40 +79,4 @@ public class FdrFlowEntity extends PanacheMongoEntity {
       String query, Parameters parameters) {
     return find(query, parameters.map());
   }
-
-  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(String name, String pspId) {
-    return find(
-        "name = :name and sender.psp_id = :pspId",
-        Parameters.with("name", name).and("pspId", pspId).map());
-  }
-
-  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspId(
-      String name, String pspId, Sort sort) {
-    return find(
-        "name = :name and sender.psp_id = :pspId",
-        sort,
-        Parameters.with("name", name).and("pspId", pspId).map());
-  }
-
-  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndPspIdAndOrganizationId(
-      String name, String pspId, String organizationId) {
-    return find(
-        "name = :name and sender.psp_id = :pspId and receiver.organization_id = :organizationId",
-        Parameters.with("name", name)
-            .and("pspId", pspId)
-            .and("organizationId", organizationId)
-            .map());
-  }
-
-  public static PanacheQuery<PanacheMongoEntityBase> findByFdrAndRevAndPspIdAndOrganizationId(
-      String name, Long rev, String pspId, String organizationId) {
-    return find(
-        "name = :name and sender.psp_id = :pspId and revision = :rev and receiver.organization_id ="
-            + " :organizationId",
-        Parameters.with("name", name)
-            .and("pspId", pspId)
-            .and("rev", rev)
-            .and("organizationId", organizationId)
-            .map());
-  }
 }
