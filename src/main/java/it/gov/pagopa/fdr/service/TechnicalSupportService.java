@@ -6,7 +6,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.controller.model.common.Metadata;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsBySenderAndReceiverResponse;
 import it.gov.pagopa.fdr.repository.FdrPaymentRepository;
-import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
+import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
 import it.gov.pagopa.fdr.service.middleware.mapper.TechnicalSupportMapper;
 import it.gov.pagopa.fdr.service.model.arguments.FindPaymentsByFiltersArgs;

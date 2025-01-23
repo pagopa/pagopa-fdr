@@ -15,7 +15,7 @@ import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.FdrFlowRepository;
 import it.gov.pagopa.fdr.repository.FdrPaymentRepository;
-import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
+import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.repository.exception.PersistenceFailureException;

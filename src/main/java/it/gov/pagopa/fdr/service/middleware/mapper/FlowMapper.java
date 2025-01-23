@@ -12,7 +12,7 @@ import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsPublishedR
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
-import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
+import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.entity.flow.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.entity.flow.SenderEntity;

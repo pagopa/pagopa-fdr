@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.entity.common;
+package it.gov.pagopa.fdr.repository.common;
 
 import java.util.List;
 import lombok.Builder;

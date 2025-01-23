@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.repository.entity.common;
+package it.gov.pagopa.fdr.repository.common;
 
 import io.quarkus.mongodb.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
@@ -24,7 +24,6 @@ public abstract class Repository {
         .build();
   }
 
-  @SafeVarargs
   protected static Sort getSort(SortField... sortColumns) {
     Sort sort = Sort.empty();
     if (sortColumns != null) {

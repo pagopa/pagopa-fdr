@@ -4,7 +4,7 @@ import it.gov.pagopa.fdr.controller.model.common.Metadata;
 import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
-import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
+import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
 import it.gov.pagopa.fdr.repository.entity.payment.ReferencedFdrEntity;
