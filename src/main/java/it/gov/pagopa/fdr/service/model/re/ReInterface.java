@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.re.model;
+package it.gov.pagopa.fdr.service.model.re;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;

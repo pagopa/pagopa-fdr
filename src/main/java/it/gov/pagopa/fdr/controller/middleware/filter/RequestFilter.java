@@ -1,9 +1,16 @@
 package it.gov.pagopa.fdr.controller.middleware.filter;
 
-import static it.gov.pagopa.fdr.util.MDCKeys.*;
+import static it.gov.pagopa.fdr.util.MDCKeys.ACTION;
+import static it.gov.pagopa.fdr.util.MDCKeys.EVENT_CATEGORY;
+import static it.gov.pagopa.fdr.util.MDCKeys.HTTP_TYPE;
+import static it.gov.pagopa.fdr.util.MDCKeys.ORGANIZATION_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.PSP_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.TRX_ID;
+import static it.gov.pagopa.fdr.util.MDCKeys.URI;
 
-import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.*;
+import it.gov.pagopa.fdr.service.ReService;
+import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
+import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppReUtil;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -14,8 +21,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
@@ -89,24 +94,24 @@ public class RequestFilter implements ContainerRequestFilter {
             .collect(Collectors.joining("\n"));
     containerRequestContext.setEntityStream(new ByteArrayInputStream(body.getBytes()));
 
-    reService.sendEvent(
-        ReInterface.builder()
-            .serviceIdentifier(AppVersionEnum.FDR003)
-            .created(Instant.now())
-            .sessionId(sessionId)
-            .eventType(EventTypeEnum.INTERFACE)
-            .httpType(HttpTypeEnum.REQ)
-            .httpMethod(requestMethod)
-            .httpUrl(requestPath)
-            .payload(body)
-            .header(
-                containerRequestContext.getHeaders().entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
-            .pspId(pspPathParam)
-            .fdr(fdrPathParam)
-            .organizationId(ecPathParam)
-            .fdrAction(fdrActionEnum)
-            .build());
+    /*reService.sendEvent(
+    ReInterface.builder()
+        .serviceIdentifier(AppVersionEnum.FDR003)
+        .created(Instant.now())
+        .sessionId(sessionId)
+        .eventType(EventTypeEnum.INTERFACE)
+        .httpType(HttpTypeEnum.REQ)
+        .httpMethod(requestMethod)
+        .httpUrl(requestPath)
+        .payload(body)
+        .header(
+            containerRequestContext.getHeaders().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+        .pspId(pspPathParam)
+        .fdr(fdrPathParam)
+        .organizationId(ecPathParam)
+        .fdrAction(fdrActionEnum)
+        .build());*/
 
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
     log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);

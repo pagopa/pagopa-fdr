@@ -15,7 +15,7 @@ import it.gov.pagopa.fdr.service.middleware.validator.clause.PublishableStatusVa
 import it.gov.pagopa.fdr.service.middleware.validator.clause.request.AddPaymentRequestValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.request.CreateFlowRequestValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.request.DeletePaymentRequestValidator;
-import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
+import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.util.StringUtil;
 import it.gov.pagopa.fdr.util.validator.ValidationArgs;
 import it.gov.pagopa.fdr.util.validator.ValidationResult;

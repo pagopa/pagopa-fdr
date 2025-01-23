@@ -17,12 +17,9 @@ import it.gov.pagopa.fdr.controller.model.error.ErrorMessage;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.service.re.ReService;
-import it.gov.pagopa.fdr.service.re.model.AppVersionEnum;
-import it.gov.pagopa.fdr.service.re.model.EventTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
-import it.gov.pagopa.fdr.service.re.model.HttpTypeEnum;
-import it.gov.pagopa.fdr.service.re.model.ReInterface;
+import it.gov.pagopa.fdr.service.ReService;
+import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
+import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.util.AppReUtil;
 import it.gov.pagopa.fdr.util.MDCKeys;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
@@ -32,12 +29,9 @@ import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.Provider;
-import java.time.Instant;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
 import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
@@ -104,27 +98,27 @@ public class ResponseFilter implements ContainerResponseFilter {
         throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
       }
 
-      reService.sendEvent(
-          ReInterface.builder()
-              .serviceIdentifier(AppVersionEnum.FDR003)
-              .created(Instant.now())
-              .sessionId(sessionId)
-              .eventType(EventTypeEnum.INTERFACE)
-              .httpType(HttpTypeEnum.RES)
-              .httpMethod(requestMethod)
-              .httpUrl(requestPath)
-              .payload(responsePayload)
-              .header(
-                  responseContext.getHeaders().entrySet().stream()
-                      .collect(
-                          Collectors.toMap(
-                              Map.Entry::getKey,
-                              a -> Stream.of(a.getValue()).map(Object::toString).toList())))
-              .pspId(psp)
-              .fdr(fdr)
-              .organizationId(organizationId)
-              .fdrAction(fdrActionEnum)
-              .build());
+      /*reService.sendEvent(
+      ReInterface.builder()
+          .serviceIdentifier(AppVersionEnum.FDR003)
+          .created(Instant.now())
+          .sessionId(sessionId)
+          .eventType(EventTypeEnum.INTERFACE)
+          .httpType(HttpTypeEnum.RES)
+          .httpMethod(requestMethod)
+          .httpUrl(requestPath)
+          .payload(responsePayload)
+          .header(
+              responseContext.getHeaders().entrySet().stream()
+                  .collect(
+                      Collectors.toMap(
+                          Map.Entry::getKey,
+                          a -> Stream.of(a.getValue()).map(Object::toString).toList())))
+          .pspId(psp)
+          .fdr(fdr)
+          .organizationId(organizationId)
+          .fdrAction(fdrActionEnum)
+          .build());*/
 
       MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
       if (responseContext.getStatus() != Response.Status.OK.getStatusCode()

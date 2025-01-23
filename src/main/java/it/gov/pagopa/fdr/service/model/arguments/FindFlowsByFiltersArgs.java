@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.service.model;
+package it.gov.pagopa.fdr.service.model.arguments;
 
 import java.time.Instant;
 import lombok.Builder;

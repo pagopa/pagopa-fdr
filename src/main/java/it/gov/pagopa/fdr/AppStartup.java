@@ -2,7 +2,7 @@ package it.gov.pagopa.fdr;
 
 import io.quarkus.runtime.Startup;
 import it.gov.pagopa.fdr.service.HistoryService;
-import it.gov.pagopa.fdr.service.re.ReService;
+import it.gov.pagopa.fdr.service.ReService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -14,15 +14,6 @@ public class AppStartup {
 
   @ConfigProperty(name = "startconfig.enabled")
   boolean startconfig;
-
-  @ConfigProperty(name = "queue.conversion.enabled")
-  boolean queueConversionEnabled;
-
-  @ConfigProperty(name = "eHub.re.enabled")
-  boolean eHubReEnabled;
-
-  @ConfigProperty(name = "history.enabled")
-  boolean historyEnabled;
 
   private final Logger log;
 
@@ -45,13 +36,6 @@ public class AppStartup {
       config.init();
     } else {
       log.info("Start Cache DISABLED");
-    }
-
-    if (eHubReEnabled) {
-      log.info("Start EventHub Re and blob ENABLED");
-      reService.init();
-    } else {
-      log.info("Start EventHub Re and blob DISABLED");
     }
   }
 }

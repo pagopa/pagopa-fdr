@@ -9,7 +9,7 @@ import it.gov.pagopa.fdr.repository.FdrPaymentRepository;
 import it.gov.pagopa.fdr.repository.entity.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
 import it.gov.pagopa.fdr.service.middleware.mapper.TechnicalSupportMapper;
-import it.gov.pagopa.fdr.service.model.FindPaymentsByFiltersArgs;
+import it.gov.pagopa.fdr.service.model.arguments.FindPaymentsByFiltersArgs;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
 import org.jboss.logging.Logger;

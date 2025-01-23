@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.util;
 
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;

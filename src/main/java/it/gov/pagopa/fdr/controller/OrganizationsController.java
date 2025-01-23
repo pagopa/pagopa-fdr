@@ -6,8 +6,8 @@ import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.service.FlowService;
 import it.gov.pagopa.fdr.service.PaymentService;
-import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
+import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.util.Re;
 import java.time.Instant;
 

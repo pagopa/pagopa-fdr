@@ -21,7 +21,7 @@ import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.repository.exception.TransactionRollbackException;
 import it.gov.pagopa.fdr.service.middleware.mapper.PaymentMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
-import it.gov.pagopa.fdr.service.model.FindFlowsByFiltersArgs;
+import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
 import java.util.HashSet;

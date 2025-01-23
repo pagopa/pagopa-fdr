@@ -1,36 +1,11 @@
-package it.gov.pagopa.fdr.service.re;
+package it.gov.pagopa.fdr.service;
 
-import com.azure.core.util.BinaryData;
-import com.azure.messaging.eventhubs.EventData;
-import com.azure.messaging.eventhubs.EventDataBatch;
-import com.azure.messaging.eventhubs.EventHubClientBuilder;
-import com.azure.messaging.eventhubs.EventHubProducerClient;
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.service.re.model.BlobHttpBody;
-import it.gov.pagopa.fdr.service.re.model.ReAbstract;
-import it.gov.pagopa.fdr.service.re.model.ReInterface;
-import it.gov.pagopa.fdr.util.StringUtil;
-import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class ReService {
 
+  /*
   private final Logger log;
 
   @ConfigProperty(name = "ehub.re.connect-str")
@@ -160,4 +135,5 @@ public class ReService {
       producer.send(eventDataBatch);
     }
   }
+   */
 }

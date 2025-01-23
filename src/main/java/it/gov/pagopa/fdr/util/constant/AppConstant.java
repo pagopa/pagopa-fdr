@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.util.constant;
 
-import it.gov.pagopa.fdr.service.re.model.FdrActionEnum;
+import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import java.util.ArrayList;
 import java.util.List;
 
