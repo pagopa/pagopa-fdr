@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.util.validator;
 
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import java.io.Serializable;
 import lombok.Getter;
 

@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.service.middleware.validator;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
-import it.gov.pagopa.fdr.exception.AppException;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.BrokerPspValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.ChannelValidator;
@@ -17,6 +16,7 @@ import it.gov.pagopa.fdr.service.middleware.validator.clause.request.CreateFlowR
 import it.gov.pagopa.fdr.service.middleware.validator.clause.request.DeletePaymentRequestValidator;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.util.common.StringUtil;
+import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import it.gov.pagopa.fdr.util.validator.ValidationArgs;
 import it.gov.pagopa.fdr.util.validator.ValidationResult;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;

@@ -1,11 +1,11 @@
-package it.gov.pagopa.fdr.exception;
+package it.gov.pagopa.fdr.util.error.enums;
 
 import it.gov.pagopa.fdr.util.constant.AppConstant;
 import it.gov.pagopa.fdr.util.logging.AppMessageUtil;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.Status;
 
-public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
+public enum AppErrorCodeMessageEnum {
   ERROR("0500", "system.error", RestResponse.Status.INTERNAL_SERVER_ERROR),
   BAD_REQUEST("0400", "bad.request", RestResponse.Status.BAD_REQUEST),
   BAD_REQUEST_INPUT_JSON("0401", "bad.request.inputJson", RestResponse.Status.BAD_REQUEST),
@@ -73,17 +73,14 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
     this.httpStatus = httpStatus;
   }
 
-  @Override
   public String errorCode() {
     return AppConstant.SERVICE_CODE_APP + "-" + errorCode;
   }
 
-  @Override
   public String message(Object... args) {
     return AppMessageUtil.getMessage(errorMessageKey, args);
   }
 
-  @Override
   public RestResponse.Status httpStatus() {
     return httpStatus;
   }

@@ -2,7 +2,7 @@ package it.gov.pagopa.fdr.service.middleware.validator.clause.request;
 
 import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.validator.ValidationArgs;
 import it.gov.pagopa.fdr.util.validator.ValidationResult;
 import it.gov.pagopa.fdr.util.validator.ValidationStep;

@@ -1,7 +1,7 @@
 package it.gov.pagopa.fdr.util.common;
 
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.exception.AppException;
+import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.BufferedReader;
 import java.io.IOException;

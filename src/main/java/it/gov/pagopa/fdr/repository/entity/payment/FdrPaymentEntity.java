@@ -9,7 +9,7 @@ import io.quarkus.mongodb.panache.common.MongoEntity;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.enums.PaymentStatusEnum;
-import it.gov.pagopa.fdr.repository.exception.PersistenceFailureException;
+import it.gov.pagopa.fdr.util.error.exception.persistence.PersistenceFailureException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

@@ -10,9 +10,8 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import it.gov.pagopa.fdr.controller.model.error.ErrorMessage;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageInterface;
-import it.gov.pagopa.fdr.exception.AppException;
+import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import it.gov.pagopa.fdr.util.logging.AppMessageUtil;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.UnexpectedTypeException;
@@ -50,7 +49,7 @@ public class ExceptionMappers {
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapAppException(AppException appEx) {
-    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
     String message = codeMessage.message(appEx.getArgs());
 
@@ -72,7 +71,7 @@ public class ExceptionMappers {
         new AppException(
             jsonMappingException, AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT);
 
-    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
     ErrorResponse errorResponse =
@@ -95,7 +94,7 @@ public class ExceptionMappers {
         new AppException(
             jsonParseException, AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT);
 
-    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
     ErrorResponse errorResponse =
@@ -161,7 +160,7 @@ public class ExceptionMappers {
               currentValue);
     }
 
-    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
     ErrorResponse errorResponse =
@@ -192,7 +191,7 @@ public class ExceptionMappers {
             AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_DESERIALIZE_ERROR,
             field);
 
-    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
     ErrorResponse errorResponse =
@@ -219,7 +218,7 @@ public class ExceptionMappers {
     log.errorf(logErrorMessage(exception.getMessage()));
 
     AppException appEx = new AppException(exception, AppErrorCodeMessageEnum.ERROR);
-    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
     ErrorResponse errorResponse =
@@ -242,7 +241,7 @@ public class ExceptionMappers {
 
     AppException appEx =
         new AppException(constraintViolationException, AppErrorCodeMessageEnum.BAD_REQUEST);
-    AppErrorCodeMessageInterface codeMessage = appEx.getCodeMessage();
+    AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
 
     ErrorResponse errorResponse =
