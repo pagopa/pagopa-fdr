@@ -144,7 +144,7 @@ public class FlowService {
 
     RepositoryPagedResult<FdrFlowEntity> paginatedResult =
         this.flowRepository.findUnpublishedByPspId(
-            pspId, createdGt, (int) pageSize, (int) pageNumber);
+            pspId, createdGt, (int) pageNumber, (int) pageSize);
 
     return this.flowMapper.toPaginatedFlowCreatedResponse(paginatedResult, pageSize, pageNumber);
   }
