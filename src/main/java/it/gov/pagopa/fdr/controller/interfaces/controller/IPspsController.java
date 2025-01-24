@@ -11,11 +11,11 @@ import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.util.openapi.OpenAPIAppErrorMetadata;
-import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata;
-import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata.APISecurityMode;
-import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata.APISynchronism;
-import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata.ReadWrite;
+import it.gov.pagopa.fdr.util.openapi.APIAppErrorMetadata;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISecurityMode;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISynchronism;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.ReadWrite;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -67,14 +67,14 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
       authentication = APISecurityMode.APIKEY,
       idempotency = false,
       readWriteIntense = ReadWrite.WRITE)
-  @OpenAPIAppErrorMetadata(
+  @APIAppErrorMetadata(
       errors = {
         AppErrorCodeMessageEnum.PSP_UNKNOWN,
         AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
@@ -118,7 +118,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -150,7 +150,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -181,7 +181,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -211,7 +211,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -241,7 +241,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedFlowsCreatedResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -279,7 +279,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SingleFlowCreatedResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -310,7 +310,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -349,7 +349,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedFlowsPublishedResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -389,7 +389,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SingleFlowResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,
@@ -421,7 +421,7 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
       })
-  @OpenAPITableMetadata(
+  @APITableMetadata(
       internal = false,
       synchronism = APISynchronism.SYNC,
       authorization = APISecurityMode.AUTHORIZER,

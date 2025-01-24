@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface OpenAPIAppErrorMetadata {
+public @interface APIAppErrorMetadata {
 
   AppErrorCodeMessageEnum[] errors() default {};
 }

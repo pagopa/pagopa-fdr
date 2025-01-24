@@ -118,15 +118,14 @@ public class OpenAPIGenerator implements OASFilter {
 
         if (method.isPresent()) {
           // write app error that can be returned as response
-          OpenAPIAppErrorMetadata appErrorMetadata =
-              method.get().getAnnotation(OpenAPIAppErrorMetadata.class);
+          APIAppErrorMetadata appErrorMetadata =
+              method.get().getAnnotation(APIAppErrorMetadata.class);
           if (appErrorMetadata != null) {
             operation.setDescription(
                 operation.getDescription() + "\n\n" + buildErrorData(appErrorMetadata));
           }
           // write table related to API characteristics
-          OpenAPITableMetadata tableMetadata =
-              method.get().getAnnotation(OpenAPITableMetadata.class);
+          APITableMetadata tableMetadata = method.get().getAnnotation(APITableMetadata.class);
           if (tableMetadata != null) {
             operation.setDescription(
                 operation.getDescription() + "\n\n" + buildTableData(tableMetadata));
@@ -138,7 +137,7 @@ public class OpenAPIGenerator implements OASFilter {
     }
   }
 
-  private static String buildErrorData(OpenAPIAppErrorMetadata annotation) {
+  private static String buildErrorData(APIAppErrorMetadata annotation) {
     StringBuilder builder = new StringBuilder();
     builder.append("## Error codes:").append("\n");
 
@@ -152,7 +151,7 @@ public class OpenAPIGenerator implements OASFilter {
     return builder.toString();
   }
 
-  private static String buildTableData(OpenAPITableMetadata annotation) {
+  private static String buildTableData(APITableMetadata annotation) {
     return "## API properties:\n"
         + "PROPERTY"
         + TABLE_SEPARATOR
@@ -203,7 +202,7 @@ public class OpenAPIGenerator implements OASFilter {
         + "\n";
   }
 
-  private static String parseReadWrite(OpenAPITableMetadata.ReadWrite readWrite) {
+  private static String parseReadWrite(APITableMetadata.ReadWrite readWrite) {
     return readWrite.getValue();
   }
 

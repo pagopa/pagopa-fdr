@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface OpenAPITableMetadata {
+public @interface APITableMetadata {
 
   /** The field that define if the API is used for internal communications. */
   boolean internal() default true;
