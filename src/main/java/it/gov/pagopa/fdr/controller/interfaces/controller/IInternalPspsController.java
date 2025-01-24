@@ -44,7 +44,7 @@ public interface IInternalPspsController {
   @POST
   @Path(ControllerConstants.URL_API_CREATE_EMPTY_FLOW)
   @Operation(
-      operationId = "createEmptyFlowForInternalUse",
+      operationId = "IInternalPspsController.createEmptyFlowForInternalUse",
       summary = "Create fdr",
       description = "Create fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
@@ -70,7 +70,7 @@ public interface IInternalPspsController {
   @PUT
   @Path(ControllerConstants.URL_API_ADD_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "addPaymentToExistingFlowForInternalUse",
+      operationId = "IInternalPspsController.addPaymentToExistingFlowForInternalUse",
       summary = "Add payments to fdr",
       description = "Add payments to fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
@@ -95,7 +95,7 @@ public interface IInternalPspsController {
   @PUT
   @Path(ControllerConstants.URL_API_DELETE_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "deletePaymentFromExistingFlowForInternalUse",
+      operationId = "IInternalPspsController.deletePaymentFromExistingFlowForInternalUse",
       summary = "Delete payments to fdr",
       description = "Delete payments to fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
@@ -120,7 +120,7 @@ public interface IInternalPspsController {
   @POST
   @Path(ControllerConstants.URL_API_PUBLISH_FLOW)
   @Operation(
-      operationId = "publishFlowForInternalUse",
+      operationId = "IInternalPspsController.publishFlowForInternalUse",
       summary = "Publish fdr",
       description = "Publish fdr")
   @APIResponses(
@@ -143,7 +143,7 @@ public interface IInternalPspsController {
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
   @Operation(
-      operationId = "deleteExistingFlowForInternalUse",
+      operationId = "IInternalPspsController.deleteExistingFlowForInternalUse",
       summary = "Delete fdr",
       description = "Delete fdr")
   @APIResponses(
@@ -166,7 +166,7 @@ public interface IInternalPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_NOT_PUBLISHED_FLOWS)
   @Operation(
-      operationId = "getAllFlowsNotInPublishedStatusForInternalUse",
+      operationId = "IInternalPspsController.getAllFlowsNotInPublishedStatusForInternalUse",
       summary = "Get all fdr created",
       description = "Get all fdr created")
   @APIResponses(
@@ -197,7 +197,7 @@ public interface IInternalPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW)
   @Operation(
-      operationId = "getSingleFlowNotInPublishedStatusForInternalUse",
+      operationId = "IInternalPspsController.getSingleFlowNotInPublishedStatusForInternalUse",
       summary = "Get created fdr",
       description = "Get created fdr")
   @APIResponses(
@@ -221,7 +221,7 @@ public interface IInternalPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_NOT_PUBLISHED_FLOW)
   @Operation(
-      operationId = "getPaymentsForFlowNotInPublishedStatusForInternalUse",
+      operationId = "IInternalPspsController.getPaymentsForFlowNotInPublishedStatusForInternalUse",
       summary = "Get created payments of fdr",
       description = "Get created payments of fdr")
   @APIResponses(
@@ -253,7 +253,7 @@ public interface IInternalPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_PUBLISHED_FLOWS)
   @Operation(
-      operationId = "getAllFlowsInPublishedStatusForInternalUse",
+      operationId = "IInternalPspsController.getAllFlowsInPublishedStatusForInternalUse",
       summary = "Get all fdr published",
       description = "Get all fdr published")
   @APIResponses(
@@ -286,7 +286,7 @@ public interface IInternalPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_PUBLISHED_FLOW)
   @Operation(
-      operationId = "getSingleFlowInPublishedStatusForInternalUse",
+      operationId = "IInternalPspsController.getSingleFlowInPublishedStatusForInternalUse",
       summary = "Get fdr Published",
       description = "Get fdr Published")
   @APIResponses(
@@ -311,7 +311,7 @@ public interface IInternalPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_PUBLISHED_FLOW)
   @Operation(
-      operationId = "getPaymentsForFlowInPublishedStatusForInternalUse",
+      operationId = "IInternalPspsController.getPaymentsForFlowInPublishedStatusForInternalUse",
       summary = "Get payments of fdr Published",
       description = "Get payments of fdr Published")
   @APIResponses(

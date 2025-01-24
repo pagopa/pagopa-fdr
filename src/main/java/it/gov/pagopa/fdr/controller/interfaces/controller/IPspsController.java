@@ -10,6 +10,10 @@ import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
+import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata;
+import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata.APISecurityMode;
+import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata.APISynchronism;
+import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata.ReadWrite;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -43,7 +47,10 @@ public interface IPspsController {
 
   @POST
   @Path(ControllerConstants.URL_API_CREATE_EMPTY_FLOW)
-  @Operation(operationId = "createEmptyFlow", summary = "Create fdr", description = "Create fdr")
+  @Operation(
+      operationId = "IPspsController.createEmptyFlow",
+      summary = "Create fdr",
+      description = "Create fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
       value = {
@@ -58,6 +65,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
   RestResponse<GenericResponse> createEmptyFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
@@ -67,7 +81,7 @@ public interface IPspsController {
   @PUT
   @Path(ControllerConstants.URL_API_ADD_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "addPaymentToExistingFlow",
+      operationId = "IPspsController.addPaymentToExistingFlow",
       summary = "Add payments to fdr",
       description = "Add payments to fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
@@ -84,6 +98,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
   GenericResponse addPaymentToExistingFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -92,7 +113,7 @@ public interface IPspsController {
   @PUT
   @Path(ControllerConstants.URL_API_DELETE_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "deletePaymentFromExistingFlow",
+      operationId = "IPspsController.deletePaymentFromExistingFlow",
       summary = "Delete payments to fdr",
       description = "Delete payments to fdr")
   @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
@@ -109,6 +130,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
   GenericResponse deletePaymentFromExistingFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -116,7 +144,10 @@ public interface IPspsController {
 
   @POST
   @Path(ControllerConstants.URL_API_PUBLISH_FLOW)
-  @Operation(operationId = "publishFlow", summary = "Publish fdr", description = "Publish fdr")
+  @Operation(
+      operationId = "IPspsController.publishFlow",
+      summary = "Publish fdr",
+      description = "Publish fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -130,13 +161,23 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
   GenericResponse publishFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
 
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
-  @Operation(operationId = "deleteExistingFlow", summary = "Delete fdr", description = "Delete fdr")
+  @Operation(
+      operationId = "IPspsController.deleteExistingFlow",
+      summary = "Delete fdr",
+      description = "Delete fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -150,6 +191,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = GenericResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.BOTH)
   GenericResponse deleteExistingFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
@@ -157,7 +205,7 @@ public interface IPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_NOT_PUBLISHED_FLOWS)
   @Operation(
-      operationId = "getAllFlowsNotInPublishedStatus",
+      operationId = "IPspsController.getAllFlowsNotInPublishedStatus",
       summary = "Get all fdr created",
       description = "Get all fdr created")
   @APIResponses(
@@ -173,6 +221,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedFlowsCreatedResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      readWriteIntense = ReadWrite.READ,
+      cacheable = true)
   PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @QueryParam(ControllerConstants.PARAMETER_CREATED_GREATER_THAN) Instant createdGt,
@@ -188,7 +243,7 @@ public interface IPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW)
   @Operation(
-      operationId = "getSingleFlowNotInPublishedStatus",
+      operationId = "IPspsController.getSingleFlowNotInPublishedStatus",
       summary = "Get created fdr",
       description = "Get created fdr")
   @APIResponses(
@@ -204,6 +259,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SingleFlowCreatedResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      readWriteIntense = ReadWrite.READ,
+      cacheable = true)
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -212,7 +274,7 @@ public interface IPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_NOT_PUBLISHED_FLOW)
   @Operation(
-      operationId = "getPaymentsForFlowNotInPublishedStatus",
+      operationId = "IPspsController.getPaymentsForFlowNotInPublishedStatus",
       summary = "Get created payments of fdr",
       description = "Get created payments of fdr")
   @APIResponses(
@@ -228,6 +290,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      readWriteIntense = ReadWrite.READ,
+      cacheable = true)
   PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -244,7 +313,7 @@ public interface IPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_PUBLISHED_FLOWS)
   @Operation(
-      operationId = "getAllFlowsInPublishedStatus",
+      operationId = "IPspsController.getAllFlowsInPublishedStatus",
       summary = "Get all fdr published",
       description = "Get all fdr published")
   @APIResponses(
@@ -260,6 +329,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedFlowsPublishedResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      readWriteIntense = ReadWrite.READ,
+      cacheable = true)
   PaginatedFlowsPublishedResponse getAllFlowsInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @QueryParam(ControllerConstants.PARAMETER_ORGANIZATION) @Pattern(regexp = "^(.{1,35})$")
@@ -277,7 +353,7 @@ public interface IPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_PUBLISHED_FLOW)
   @Operation(
-      operationId = "getSingleFlowInPublishedStatus",
+      operationId = "IPspsController.getSingleFlowInPublishedStatus",
       summary = "Get fdr Published",
       description = "Get fdr Published")
   @APIResponses(
@@ -293,6 +369,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SingleFlowResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      readWriteIntense = ReadWrite.READ,
+      cacheable = true)
   SingleFlowResponse getSingleFlowInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -302,7 +385,7 @@ public interface IPspsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_PUBLISHED_FLOW)
   @Operation(
-      operationId = "getPaymentsForFlowInPublishedStatus",
+      operationId = "IPspsController.getPaymentsForFlowInPublishedStatus",
       summary = "Get payments of fdr Published",
       description = "Get payments of fdr Published")
   @APIResponses(
@@ -318,6 +401,13 @@ public interface IPspsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
       })
+  @OpenAPITableMetadata(
+      internal = false,
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.AUTHORIZER,
+      authentication = APISecurityMode.APIKEY,
+      readWriteIntense = ReadWrite.READ,
+      cacheable = true)
   PaginatedPaymentsResponse getPaymentsForFlowInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,

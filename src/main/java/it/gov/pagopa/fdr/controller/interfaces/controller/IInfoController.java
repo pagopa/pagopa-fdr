@@ -1,6 +1,8 @@
 package it.gov.pagopa.fdr.controller.interfaces.controller;
 
 import it.gov.pagopa.fdr.controller.model.common.response.InfoResponse;
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
+import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -18,10 +20,19 @@ public interface IInfoController {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Get health check and deployment-related information")
+  @Operation(
+      operationId = "IInfoController.healthCheck",
+      summary = "Get health check and deployment-related information")
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE)),
         @APIResponse(
             responseCode = "200",
             description = "Success",

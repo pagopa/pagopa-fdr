@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.controller.interfaces.controller;
 
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsBySenderAndReceiverResponse;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.validation.constraints.Min;
@@ -29,14 +30,43 @@ public interface ISupportController {
   @GET
   @Path("iuv/{" + ControllerConstants.PARAMETER_IUV + "}/")
   @Operation(
-      operationId = "getByIuv",
+      operationId = "ISupportController.getByIuv",
       summary = "Get all payments by psp id and iuv",
       description = "Get all payments by psp id and iuv")
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
+        @APIResponse(
+            responseCode = "400 (Syntactic error)",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUESTFIELD_EXAMPLE)),
+        @APIResponse(
+            responseCode = "400 (Semantic error)",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE)),
         @APIResponse(
             responseCode = "200",
             description = "Success",
@@ -63,7 +93,7 @@ public interface ISupportController {
   @GET
   @Path("iur/{" + ControllerConstants.PARAMETER_IUR + "}/")
   @Operation(
-      operationId = "getByIur",
+      operationId = "ISupportController.getByIur",
       summary = "Get all payments by psp id and iur",
       description = "Get all payments by psp id and iur")
   @APIResponses(

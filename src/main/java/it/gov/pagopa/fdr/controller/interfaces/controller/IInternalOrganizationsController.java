@@ -30,7 +30,7 @@ public interface IInternalOrganizationsController {
 
   @GET
   @Operation(
-      operationId = "getAllPublishedFlowsForInternalUse",
+      operationId = "IInternalOrganizationsController.getAllPublishedFlowsForInternalUse",
       summary = "Get all fdr published",
       description = "Get all fdr published")
   @APIResponses(
@@ -63,7 +63,7 @@ public interface IInternalOrganizationsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_FLOW)
   @Operation(
-      operationId = "getSingleFlowForInternalUse",
+      operationId = "IInternalOrganizationsController.getSingleFlowForInternalUse",
       summary = "Get fdr",
       description = "Get fdr by id but not payments")
   @APIResponses(
@@ -89,7 +89,7 @@ public interface IInternalOrganizationsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_FLOW_PAYMENTS)
   @Operation(
-      operationId = "getFlowPaymentsForInternalUse",
+      operationId = "IInternalOrganizationsController.getFlowPaymentsForInternalUse",
       summary = "Get payments of fdr",
       description = "Get payments of fdr")
   @APIResponses(

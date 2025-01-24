@@ -17,10 +17,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @RegisterForReflection
 public class ErrorMessage {
 
-  @Schema(example = "demo.test")
+  @Schema() // (example = "demo.test")
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private String path;
 
-  @Schema(example = "An unexpected error has occurred. Please contact support.")
+  @Schema() // (example = "An unexpected error has occurred. Please contact support.")
   private String message;
 }

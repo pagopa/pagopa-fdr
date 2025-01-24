@@ -30,7 +30,7 @@ public interface IOrganizationsController {
 
   @GET
   @Operation(
-      operationId = "getAllPublishedFlows",
+      operationId = "IOrganizationsController.getAllPublishedFlows",
       summary = "Get all fdr published",
       description = "Get all fdr published")
   @APIResponses(
@@ -62,7 +62,10 @@ public interface IOrganizationsController {
 
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_FLOW)
-  @Operation(operationId = "getSinglePublishedFlow", summary = "Get fdr", description = "Get fdr")
+  @Operation(
+      operationId = "IOrganizationsController.getSinglePublishedFlow",
+      summary = "Get fdr",
+      description = "Get fdr")
   @APIResponses(
       value = {
         @APIResponse(ref = "#/components/responses/InternalServerError"),
@@ -85,7 +88,7 @@ public interface IOrganizationsController {
   @GET
   @Path(ControllerConstants.URL_API_GET_FLOW_PAYMENTS)
   @Operation(
-      operationId = "getPaymentsFromPublishedFlow",
+      operationId = "IOrganizationsController.getPaymentsFromPublishedFlow",
       summary = "Get payments of fdr",
       description = "Get payments of fdr")
   @APIResponses(
