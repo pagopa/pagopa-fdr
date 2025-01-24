@@ -22,7 +22,8 @@ public interface IInfoController {
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
       operationId = "IInfoController.healthCheck",
-      summary = "Get health check and deployment-related information")
+      summary = "Health-check",
+      description = "Get health check and deployment-related information")
   @APIResponses(
       value = {
         @APIResponse(

@@ -96,6 +96,7 @@ public class OpenAPIGenerator implements OASFilter {
     for (PathItem path : paths.getPathItems().values()) {
       List<Operation> operationPerSamePath = path.getOperations().values().stream().toList();
       for (Operation operation : operationPerSamePath) {
+        operation.setDescription("## Description:\n" + operation.getDescription());
         extractTableMetadata(operation);
       }
     }
@@ -116,14 +117,19 @@ public class OpenAPIGenerator implements OASFilter {
                 .findFirst();
 
         if (method.isPresent()) {
-          OpenAPITableMetadata openAPITableMetadata =
-              method.get().getAnnotation(OpenAPITableMetadata.class);
-          if (openAPITableMetadata != null) {
+          // write app error that can be returned as response
+          OpenAPIAppErrorMetadata appErrorMetadata =
+              method.get().getAnnotation(OpenAPIAppErrorMetadata.class);
+          if (appErrorMetadata != null) {
             operation.setDescription(
-                "### Description:\n"
-                    + operation.getDescription()
-                    + "\n\n"
-                    + buildData(openAPITableMetadata));
+                operation.getDescription() + "\n\n" + buildErrorData(appErrorMetadata));
+          }
+          // write table related to API characteristics
+          OpenAPITableMetadata tableMetadata =
+              method.get().getAnnotation(OpenAPITableMetadata.class);
+          if (tableMetadata != null) {
+            operation.setDescription(
+                operation.getDescription() + "\n\n" + buildTableData(tableMetadata));
           }
         }
       }
@@ -132,52 +138,66 @@ public class OpenAPIGenerator implements OASFilter {
     }
   }
 
-  private static String buildData(OpenAPITableMetadata annotation) {
-    return "### API properties:\n"
-        + "Property"
+  private static String buildErrorData(OpenAPIAppErrorMetadata annotation) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("## Error codes:").append("\n");
+
+    builder.append("CODE").append(TABLE_SEPARATOR).append("MESSAGE\n");
+    builder.append("-").append(TABLE_SEPARATOR).append("-\n");
+
+    for (AppErrorCodeMessageEnum error : annotation.errors()) {
+      builder.append("**").append(error.errorCode()).append("**").append(TABLE_SEPARATOR);
+      builder.append(" ").append(error.message()).append("\n");
+    }
+    return builder.toString();
+  }
+
+  private static String buildTableData(OpenAPITableMetadata annotation) {
+    return "## API properties:\n"
+        + "PROPERTY"
         + TABLE_SEPARATOR
-        + "Value\n"
+        + "VALUE\n"
         + "-"
         + TABLE_SEPARATOR
         + "-\n"
-        + "Internal"
+        + "***Internal***"
         + TABLE_SEPARATOR
         + parseBoolToYN(annotation.internal())
         + "\n"
-        + "External"
+        + "***External***"
         + TABLE_SEPARATOR
         + parseBoolToYN(annotation.external())
         + "\n"
-        + "Synchronous"
+        + "***Synchronous***"
         + TABLE_SEPARATOR
-        + annotation.synchronism()
+        + annotation.synchronism().value
         + "\n"
-        + "Authorization"
+        + "***Authorization***"
         + TABLE_SEPARATOR
-        + annotation.authorization()
+        + annotation.authorization().value
         + "\n"
-        + "Authentication"
+        + "***Authentication***"
         + TABLE_SEPARATOR
-        + annotation.authentication()
+        + annotation.authentication().value
         + "\n"
-        + "TPS"
+        + "***TPS***"
         + TABLE_SEPARATOR
         + annotation.tps()
         + "/sec"
         + "\n"
-        + "Idempotency"
+        + "***Idempotency***"
         + TABLE_SEPARATOR
         + parseBoolToYN(annotation.idempotency())
         + "\n"
-        + "Stateless"
+        + "***Stateless***"
         + TABLE_SEPARATOR
         + parseBoolToYN(annotation.stateless())
         + "\n"
-        + "Read/Write Intensive"
+        + "***Read/Write Intensive***"
         + TABLE_SEPARATOR
         + parseReadWrite(annotation.readWriteIntense())
         + "\n"
-        + "Cacheable"
+        + "***Cacheable***"
         + TABLE_SEPARATOR
         + parseBoolToYN(annotation.cacheable())
         + "\n";

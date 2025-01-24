@@ -10,6 +10,8 @@ import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
+import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.util.openapi.OpenAPIAppErrorMetadata;
 import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata;
 import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata.APISecurityMode;
 import it.gov.pagopa.fdr.util.openapi.OpenAPITableMetadata.APISynchronism;
@@ -72,6 +74,24 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       idempotency = false,
       readWriteIntense = ReadWrite.WRITE)
+  @OpenAPIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
+        AppErrorCodeMessageEnum.BROKER_UNKNOWN,
+        AppErrorCodeMessageEnum.BROKER_NOT_ENABLED,
+        AppErrorCodeMessageEnum.CHANNEL_UNKNOWN,
+        AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED,
+        AppErrorCodeMessageEnum.CHANNEL_BROKER_WRONG_CONFIG,
+        AppErrorCodeMessageEnum.CHANNEL_PSP_WRONG_CONFIG,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH
+      })
   RestResponse<GenericResponse> createEmptyFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
