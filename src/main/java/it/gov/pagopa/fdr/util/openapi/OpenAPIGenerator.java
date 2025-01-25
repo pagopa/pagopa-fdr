@@ -141,12 +141,14 @@ public class OpenAPIGenerator implements OASFilter {
     StringBuilder builder = new StringBuilder();
     builder.append("## Error codes:").append("\n");
 
-    builder.append("CODE").append(TABLE_SEPARATOR).append("MESSAGE\n");
-    builder.append("-").append(TABLE_SEPARATOR).append("-\n");
+    builder.append("APPLICATIVE CODE").append(TABLE_SEPARATOR);
+    builder.append("HTTP CODE").append(TABLE_SEPARATOR).append("MESSAGE\n");
+    builder.append("-").append(TABLE_SEPARATOR).append("-").append(TABLE_SEPARATOR).append("-\n");
 
     for (AppErrorCodeMessageEnum error : annotation.errors()) {
       builder.append("**").append(error.errorCode()).append("**").append(TABLE_SEPARATOR);
-      builder.append(" ").append(error.message()).append("\n");
+      builder.append(error.httpStatus()).append(TABLE_SEPARATOR);
+      builder.append(error.message()).append("\n");
     }
     return builder.toString();
   }
