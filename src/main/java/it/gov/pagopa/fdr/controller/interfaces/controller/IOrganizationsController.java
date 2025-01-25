@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.controller.interfaces.controller;
 
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
@@ -44,7 +45,15 @@ public interface IOrganizationsController {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = PaginatedFlowsResponse.class)))
+                    schema = @Schema(implementation = PaginatedFlowsResponse.class))),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE)),
       })
   PaginatedFlowsResponse getAllPublishedFlows(
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) @Pattern(regexp = "^(.{1,35})$")

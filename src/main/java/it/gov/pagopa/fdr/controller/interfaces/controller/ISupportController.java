@@ -36,15 +36,7 @@ public interface ISupportController {
   @APIResponses(
       value = {
         @APIResponse(
-            responseCode = "400 (Syntactic error)",
-            description = "Bad Request",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ErrorResponse.class),
-                    example = ControllerConstants.OPENAPI_BADREQUESTFIELD_EXAMPLE)),
-        @APIResponse(
-            responseCode = "400 (Semantic error)",
+            responseCode = "400",
             description = "Bad Request",
             content =
                 @Content(

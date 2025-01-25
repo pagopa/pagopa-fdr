@@ -27,20 +27,20 @@ public interface IInfoController {
   @APIResponses(
       value = {
         @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = InfoResponse.class))),
+        @APIResponse(
             responseCode = "500",
             description = "Internal Server Error",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ErrorResponse.class),
-                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE)),
-        @APIResponse(
-            responseCode = "200",
-            description = "Success",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = InfoResponse.class)))
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   InfoResponse healthCheck();
 }
