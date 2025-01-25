@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.controller.interfaces.controller;
 
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
@@ -42,16 +43,37 @@ public interface IInternalOperationsController {
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "201",
             description = "Created",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GenericResponse.class)))
+                    schema = @Schema(implementation = GenericResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
@@ -68,16 +90,37 @@ public interface IInternalOperationsController {
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GenericResponse.class)))
+                    schema = @Schema(implementation = GenericResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   GenericResponse addPaymentToExistingFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
@@ -93,16 +136,37 @@ public interface IInternalOperationsController {
   @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GenericResponse.class)))
+                    schema = @Schema(implementation = GenericResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   GenericResponse deletePaymentFromExistingFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
@@ -117,16 +181,37 @@ public interface IInternalOperationsController {
       description = "Publish fdr")
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GenericResponse.class)))
+                    schema = @Schema(implementation = GenericResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   GenericResponse publishFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
@@ -140,16 +225,37 @@ public interface IInternalOperationsController {
       description = "Delete fdr")
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = GenericResponse.class)))
+                    schema = @Schema(implementation = GenericResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   GenericResponse deleteExistingFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
@@ -163,16 +269,37 @@ public interface IInternalOperationsController {
       description = "Get created fdr")
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SingleFlowCreatedResponse.class)))
+                    schema = @Schema(implementation = SingleFlowCreatedResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,

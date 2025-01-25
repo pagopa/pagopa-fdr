@@ -36,6 +36,14 @@ public interface ISupportController {
   @APIResponses(
       value = {
         @APIResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema =
+                        @Schema(implementation = PaginatedFlowsBySenderAndReceiverResponse.class))),
+        @APIResponse(
             responseCode = "400",
             description = "Bad Request",
             content =
@@ -58,15 +66,7 @@ public interface ISupportController {
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ErrorResponse.class),
-                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE)),
-        @APIResponse(
-            responseCode = "200",
-            description = "Success",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema =
-                        @Schema(implementation = PaginatedFlowsBySenderAndReceiverResponse.class)))
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   PaginatedFlowsBySenderAndReceiverResponse getByIuv(
       @PathParam(ControllerConstants.PARAMETER_PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
@@ -90,9 +90,6 @@ public interface ISupportController {
       description = "Get all payments by psp id and iur")
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
@@ -100,7 +97,31 @@ public interface ISupportController {
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema =
-                        @Schema(implementation = PaginatedFlowsBySenderAndReceiverResponse.class)))
+                        @Schema(implementation = PaginatedFlowsBySenderAndReceiverResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   PaginatedFlowsBySenderAndReceiverResponse getByIur(
       @PathParam(ControllerConstants.PARAMETER_PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,

@@ -47,13 +47,29 @@ public interface IOrganizationsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = PaginatedFlowsResponse.class))),
         @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
             responseCode = "500",
             description = "Internal Server Error",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ErrorResponse.class),
-                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE)),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   PaginatedFlowsResponse getAllPublishedFlows(
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) @Pattern(regexp = "^(.{1,35})$")
@@ -77,16 +93,37 @@ public interface IOrganizationsController {
       description = "Get fdr")
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SingleFlowResponse.class)))
+                    schema = @Schema(implementation = SingleFlowResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   SingleFlowResponse getSinglePublishedFlow(
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
@@ -102,16 +139,37 @@ public interface IOrganizationsController {
       description = "Get payments of fdr")
   @APIResponses(
       value = {
-        @APIResponse(ref = "#/components/responses/InternalServerError"),
-        @APIResponse(ref = "#/components/responses/AppException400"),
-        @APIResponse(ref = "#/components/responses/AppException404"),
         @APIResponse(
             responseCode = "200",
             description = "Success",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = PaginatedPaymentsResponse.class)))
+                    schema = @Schema(implementation = PaginatedPaymentsResponse.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Bad Request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_BADREQUEST_EXAMPLE)),
+        @APIResponse(
+            responseCode = "404",
+            description = "Not Found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_NOTFOUND_EXAMPLE)),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ErrorResponse.class),
+                    example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   PaginatedPaymentsResponse getPaymentsFromPublishedFlow(
       @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
