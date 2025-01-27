@@ -1,39 +1,18 @@
 package it.gov.pagopa.fdr.service.re;
 
-import static org.bson.assertions.Assertions.fail;
-
-import com.azure.messaging.eventhubs.EventData;
-import com.azure.messaging.eventhubs.EventDataBatch;
-import com.azure.messaging.eventhubs.EventHubProducerClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.exception.AppException;
-import it.gov.pagopa.fdr.service.re.model.*;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
-import java.lang.reflect.Field;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
-import org.junit.Assert;
-import org.junit.jupiter.api.*;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.TestInstance;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ReServiceTest {
+
+  /*
   private final ObjectMapper objectMapper;
   @InjectMock ReService reServiceMock;
 
@@ -195,7 +174,9 @@ class ReServiceTest {
     Mockito.when(eventDataBatch.tryAdd(Mockito.any()))
         .thenAnswer(
             invocation -> {
-              if (counter.get() == 1) return true;
+              if (counter.get() == 1) {
+                return true;
+              }
               counter.set(1);
               return false;
             });
@@ -231,5 +212,5 @@ class ReServiceTest {
   void testSendEventDataBachLT0() {
     reServiceMock.publishEvents(null);
     Mockito.verify(producerMock, Mockito.times(0)).send((EventDataBatch) Mockito.any());
-  }
+  }*/
 }

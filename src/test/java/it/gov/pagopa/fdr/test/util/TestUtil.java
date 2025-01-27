@@ -12,11 +12,12 @@ import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import it.gov.pagopa.fdr.rest.model.GenericResponse;
-import it.gov.pagopa.fdr.service.dto.SenderTypeEnumDto;
+import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
+import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import java.time.Instant;
 
 public class TestUtil {
+
   public static String getDynamicFlowName() {
     return getDynamicFlowName(PSP_CODE);
   }
@@ -54,51 +55,51 @@ public class TestUtil {
 
   public static String PAYMENTS_ADD_TEMPLATE =
       """
-      {
-        "payments": [{
-            "index": 100,
-            "iuv": "a",
-            "iur": "abcdefg",
-            "idTransfer": 1,
-            "pay": 0.01,
-            "payStatus": "EXECUTED",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          },{
-            "index": 101,
-            "iuv": "b",
-            "iur": "abcdefg",
-            "idTransfer": 2,
-            "pay": 0.01,
-            "payStatus": "REVOKED",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          },{
-            "index": 102,
-            "iuv": "c",
-            "iur": "abcdefg",
-            "idTransfer": 3,
-            "pay": 0.01,
-            "payStatus": "NO_RPT",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          },{
-            "index": 103,
-            "iuv": "d",
-            "iur": "abcdefg",
-            "idTransfer": 4,
-            "pay": 0.01,
-            "payStatus": "STAND_IN",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          },{
-            "index": 104,
-            "iuv": "e",
-            "iur": "abcdefg",
-            "idTransfer": 5,
-            "pay": 0.01,
-            "payStatus": "STAND_IN_NO_RPT",
-            "payDate": "2023-02-03T12:00:30.900000Z"
+          {
+            "payments": [{
+                "index": 100,
+                "iuv": "a",
+                "iur": "abcdefg",
+                "idTransfer": 1,
+                "pay": 0.01,
+                "payStatus": "EXECUTED",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "index": 101,
+                "iuv": "b",
+                "iur": "abcdefg",
+                "idTransfer": 2,
+                "pay": 0.01,
+                "payStatus": "REVOKED",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "index": 102,
+                "iuv": "c",
+                "iur": "abcdefg",
+                "idTransfer": 3,
+                "pay": 0.01,
+                "payStatus": "NO_RPT",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "index": 103,
+                "iuv": "d",
+                "iur": "abcdefg",
+                "idTransfer": 4,
+                "pay": 0.01,
+                "payStatus": "STAND_IN",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              },{
+                "index": 104,
+                "iuv": "e",
+                "iur": "abcdefg",
+                "idTransfer": 5,
+                "pay": 0.01,
+                "payStatus": "STAND_IN_NO_RPT",
+                "payDate": "2023-02-03T12:00:30.900000Z"
+              }
+            ]
           }
-        ]
-      }
-      """;
+          """;
 
   public static String PAYMENTS_ADD_TEMPLATE_2 =
       """
@@ -153,7 +154,7 @@ public class TestUtil {
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,
-            SenderTypeEnumDto.LEGAL_PERSON.name(),
+            SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
             CHANNEL_CODE,
