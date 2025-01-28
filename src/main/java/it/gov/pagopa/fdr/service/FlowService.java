@@ -302,8 +302,8 @@ public class FlowService {
     publishingFlow.setPublished(now);
     publishingFlow.setIsLatest(true);
     publishingFlow.setStatus(FlowStatusEnum.PUBLISHED);
+    this.flowRepository.updateLastPublishedAsNotLatest(pspId, flowName);
     this.flowRepository.updateEntity(publishingFlow);
-    this.flowRepository.updateIsLatestFlag(pspId, flowName);
 
     // TODO do this in transactional way
     // FdrFlowToHistoryEntity flowToHistoryEntity = flowMapper.toEntity(publishingFlow,

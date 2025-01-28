@@ -238,14 +238,7 @@ public class FdrFlowRepository extends Repository {
         .orElse(null);
   }
 
-  // https://quarkus.io/guides/smallrye-fault-tolerance
-  @Retry(
-      delay = 1000,
-      maxRetries = -1,
-      maxDuration = 1,
-      durationUnit = ChronoUnit.MINUTES,
-      retryOn = Exception.class)
-  public void updateIsLatestFlag(String pspId, String flowName) {
+  public void updateLastPublishedAsNotLatest(String pspId, String flowName) {
 
     FdrFlowEntity entity = findLastPublishedByPspIdAndName(pspId, flowName);
     if (entity != null) {
@@ -259,6 +252,13 @@ public class FdrFlowRepository extends Repository {
     entity.persist();
   }
 
+  // https://quarkus.io/guides/smallrye-fault-tolerance
+  @Retry(
+      delay = 1000,
+      maxRetries = -1,
+      maxDuration = 1,
+      durationUnit = ChronoUnit.MINUTES,
+      retryOn = Exception.class)
   public void updateEntity(FdrFlowEntity entity) {
     entity.setTimestamp(Instant.now());
     entity.update();
