@@ -23,6 +23,7 @@ import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import it.gov.pagopa.fdr.util.error.exception.persistence.PersistenceFailureException;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import org.bson.types.ObjectId;
@@ -295,15 +296,7 @@ public class FlowService {
 
     // check if retrieved flow can be published
     SemanticValidator.validatePublishingFlow(publishingFlow);
-
-    // update the publishing flow in order to set its status to PUBLISHED
-    Instant now = Instant.now();
-    publishingFlow.setUpdated(now);
-    publishingFlow.setPublished(now);
-    publishingFlow.setIsLatest(true);
-    publishingFlow.setStatus(FlowStatusEnum.PUBLISHED);
-    this.flowRepository.updateLastPublishedAsNotLatest(pspId, flowName);
-    this.flowRepository.updateEntity(publishingFlow);
+    publishNewRevision(pspId, flowName, publishingFlow);
 
     // TODO do this in transactional way
     // FdrFlowToHistoryEntity flowToHistoryEntity = flowMapper.toEntity(publishingFlow,
@@ -360,5 +353,19 @@ public class FlowService {
           }
           return null;
         });
+  }
+
+  @Transactional(rollbackOn = Exception.class)
+  public void publishNewRevision(String pspId, String flowName, FdrFlowEntity publishingFlow) {
+
+    // update the publishing flow in order to set its status to PUBLISHED
+    Instant now = Instant.now();
+    publishingFlow.setUpdated(now);
+    publishingFlow.setPublished(now);
+    publishingFlow.setIsLatest(true);
+    publishingFlow.setStatus(FlowStatusEnum.PUBLISHED);
+
+    this.flowRepository.updateLastPublishedAsNotLatest(pspId, flowName);
+    this.flowRepository.updateEntity(publishingFlow);
   }
 }
