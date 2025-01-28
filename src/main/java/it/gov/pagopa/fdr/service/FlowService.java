@@ -82,7 +82,7 @@ public class FlowService {
     SemanticValidator.validateGetPaginatedFlowsRequestForOrganizations(configData, args);
 
     RepositoryPagedResult<FdrFlowEntity> paginatedResult =
-        this.flowRepository.findPublishedByOrganizationIdAndOptionalPspId(
+        this.flowRepository.findLatestPublishedByOrganizationIdAndOptionalPspId(
             organizationId, pspId, args.getPublishedGt(), (int) pageNumber, (int) pageSize);
     log.debugf(
         "Found [%s] entities in [%s] pages. Mapping data to final response.",
@@ -245,7 +245,8 @@ public class FlowService {
     }
 
     // retrieve the last published flow, in order to take its revision and increment it
-    FdrFlowEntity lastPublishedFlow = flowRepository.findPublishedByPspIdAndName(pspId, flowName);
+    FdrFlowEntity lastPublishedFlow =
+        flowRepository.findLastPublishedByPspIdAndName(pspId, flowName);
     Long revision = lastPublishedFlow != null ? (lastPublishedFlow.getRevision() + 1) : 1L;
 
     // finally, persist the newly generated entity
@@ -299,8 +300,10 @@ public class FlowService {
     Instant now = Instant.now();
     publishingFlow.setUpdated(now);
     publishingFlow.setPublished(now);
+    publishingFlow.setIsLatest(true);
     publishingFlow.setStatus(FlowStatusEnum.PUBLISHED);
     this.flowRepository.updateEntity(publishingFlow);
+    this.flowRepository.updateIsLatestFlag(pspId, flowName);
 
     // TODO do this in transactional way
     // FdrFlowToHistoryEntity flowToHistoryEntity = flowMapper.toEntity(publishingFlow,
