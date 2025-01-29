@@ -8,9 +8,12 @@ Manage FDR ( aka "Flussi di Rendicontazione" ) exchanged between PSP and EC
 
 ## Api Documentation 📖
 
-- Internal API - See the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_internal.json)
-- Organization API - See the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_organization.json)
-- PSP API - See the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_psp.json)
+- Internal API - See
+  the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_internal.json)
+- Organization API - See
+  the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_organization.json)
+- PSP API - See
+  the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_psp.json)
 
 In local env typing following url on browser for ui interface:
 
@@ -78,7 +81,9 @@ You can run your application in dev mode that enables live coding using:
 ```shell script
 ./mvnw compile quarkus:dev
 ```
+
 Otherwise, with quarkus CLI:
+
 ```
 brew install quarkusio/tap/quarkus
 quarkus dev -DskipTests=true
@@ -96,6 +101,14 @@ sh build-and-run.sh build
 ```
 
 for run use ```sh build-and-run.sh run```
+
+## Creating updated OpenAPI Swaggers
+
+You can create all updated OpenAPI Swaggers using:
+
+```shell script
+sh build-and-run.sh generate_openapi
+```
 
 ---
 
