@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.rest.organizations;
+package it.gov.pagopa.fdr.controller.organizations;
 
 import static io.restassured.RestAssured.given;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
@@ -19,18 +19,18 @@ import static org.hamcrest.Matchers.hasSize;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.rest.exceptionmapper.ErrorResponse;
-import it.gov.pagopa.fdr.rest.model.Payment;
-import it.gov.pagopa.fdr.rest.model.PaymentStatusEnum;
-import it.gov.pagopa.fdr.rest.model.ReportingFlowStatusEnum;
-import it.gov.pagopa.fdr.rest.organizations.response.GetAllResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetPaymentResponse;
-import it.gov.pagopa.fdr.rest.organizations.response.GetResponse;
+import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
+import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.payment.Payment;
+import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
+import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
-import it.gov.pagopa.fdr.util.AppConstant;
+import it.gov.pagopa.fdr.util.constant.ControllerConstants;
+import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,8 +40,9 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(MongoResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationResourceTest {
+
   private static final String GET_ALL_PUBLISHED_FLOW_URL =
-      "/organizations/%s/fdrs?" + AppConstant.PSP + "=%s";
+      "/organizations/%s/fdrs?" + ControllerConstants.PARAMETER_PSP + "=%s";
   private static final String GET_REPORTING_FLOW_URL =
       "/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
   private static final String GET_REPORTING_FLOW_PAYMENTS_URL =
@@ -54,7 +55,7 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
-    GetAllResponse res =
+    PaginatedFlowsResponse res =
         given()
             .header(HEADER)
             .when()
@@ -62,7 +63,7 @@ class OrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetAllResponse.class);
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(
         res.getData(),
@@ -77,7 +78,7 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
-    GetAllResponse res =
+    PaginatedFlowsResponse res =
         given()
             .header(HEADER)
             .when()
@@ -85,7 +86,7 @@ class OrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetAllResponse.class);
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 
@@ -186,7 +187,7 @@ class OrganizationResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
-    GetResponse res =
+    SingleFlowResponse res =
         given()
             .header(HEADER)
             .when()
@@ -194,7 +195,7 @@ class OrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetResponse.class);
+            .as(SingleFlowResponse.class);
     assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
@@ -210,7 +211,7 @@ class OrganizationResourceTest {
     TestUtil.pspSunnyDay(flowName);
 
     String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2L, PSP_CODE);
-    GetResponse res =
+    SingleFlowResponse res =
         given()
             .header(HEADER)
             .when()
@@ -218,7 +219,7 @@ class OrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetResponse.class);
+            .as(SingleFlowResponse.class);
     assertThat(res.getFdr(), equalTo(flowName));
     assertThat(res.getRevision(), equalTo(2L));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
@@ -260,7 +261,7 @@ class OrganizationResourceTest {
 
     String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
 
-    GetPaymentResponse res =
+    PaginatedPaymentsResponse res =
         given()
             .header(HEADER)
             .when()
@@ -268,7 +269,7 @@ class OrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetPaymentResponse.class);
+            .as(PaginatedPaymentsResponse.class);
     assertThat(res.getCount(), equalTo(5L));
     List expectedList =
         List.of(
@@ -294,7 +295,7 @@ class OrganizationResourceTest {
     String url =
         (GET_REPORTING_FLOW_PAYMENTS_URL + "?page=2&size=1")
             .formatted(EC_CODE, flowName, 1L, PSP_CODE);
-    GetPaymentResponse res =
+    PaginatedPaymentsResponse res =
         given()
             .header(HEADER)
             .when()
@@ -302,7 +303,7 @@ class OrganizationResourceTest {
             .then()
             .statusCode(200)
             .extract()
-            .as(GetPaymentResponse.class);
+            .as(PaginatedPaymentsResponse.class);
     List<Payment> data = res.getData();
 
     assertThat(res.getMetadata().getPageSize(), equalTo(1));
