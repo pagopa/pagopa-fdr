@@ -32,6 +32,9 @@ public class FdrFlowEntity extends PanacheMongoEntity {
 
   private Instant published;
 
+  @BsonProperty("is_latest")
+  private Boolean isLatest;
+
   @BsonProperty("tot_amount")
   private Double totAmount;
 

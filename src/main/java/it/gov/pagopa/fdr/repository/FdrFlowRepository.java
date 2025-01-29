@@ -14,8 +14,10 @@ import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.util.common.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.microprofile.faulttolerance.Retry;
 
 @ApplicationScoped
 public class FdrFlowRepository extends Repository {
@@ -45,10 +47,11 @@ public class FdrFlowRepository extends Repository {
           + " and receiver.organization_id = :organizationId"
           + " and status != 'PUBLISHED'";
 
-  public static final String QUERY_GET_PUBLISHED_BY_PSP_AND_NAME =
-      "sender.psp_id = :pspId and name = :flowName and status = 'PUBLISHED'";
+  public static final String QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME =
+      "sender.psp_id = :pspId and name = :flowName and status = 'PUBLISHED' and is_latest ="
+          + " :isLatest";
 
-  public RepositoryPagedResult<FdrFlowEntity> findPublishedByOrganizationIdAndOptionalPspId(
+  public RepositoryPagedResult<FdrFlowEntity> findLatestPublishedByOrganizationIdAndOptionalPspId(
       String organizationId, String pspId, Instant publishedGt, int pageNumber, int pageSize) {
 
     Parameters parameters = new Parameters();
@@ -73,6 +76,10 @@ public class FdrFlowRepository extends Repository {
     // setting mandatory field: flow status
     queryBuilder.add("status = :status");
     parameters.and("status", FlowStatusEnum.PUBLISHED);
+
+    // setting mandatory field: is_latest flag as true
+    queryBuilder.add("is_latest = :isLatest");
+    parameters.and("isLatest", true);
     String queryString = String.join(" and ", queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
@@ -137,14 +144,15 @@ public class FdrFlowRepository extends Repository {
         .orElse(null);
   }
 
-  public FdrFlowEntity findPublishedByPspIdAndName(String pspId, String flowName) {
+  public FdrFlowEntity findLastPublishedByPspIdAndName(String pspId, String flowName) {
 
     Parameters parameters = new Parameters();
     parameters.and("pspId", pspId);
     parameters.and("flowName", flowName);
+    parameters.and("isLatest", true);
 
     return FdrFlowEntity.findByQuery(
-            FdrFlowRepository.QUERY_GET_PUBLISHED_BY_PSP_AND_NAME, parameters)
+            FdrFlowRepository.QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME, parameters)
         .project(FdrFlowEntity.class)
         .firstResultOptional()
         .orElse(null);
@@ -230,11 +238,27 @@ public class FdrFlowRepository extends Repository {
         .orElse(null);
   }
 
+  public void updateLastPublishedAsNotLatest(String pspId, String flowName) {
+
+    FdrFlowEntity entity = findLastPublishedByPspIdAndName(pspId, flowName);
+    if (entity != null) {
+      entity.setIsLatest(false);
+      updateEntity(entity);
+    }
+  }
+
   public void createEntity(FdrFlowEntity entity) {
     entity.setTimestamp(Instant.now());
     entity.persist();
   }
 
+  // https://quarkus.io/guides/smallrye-fault-tolerance
+  @Retry(
+      delay = 1000,
+      maxRetries = -1,
+      maxDuration = 1,
+      durationUnit = ChronoUnit.MINUTES,
+      retryOn = Exception.class)
   public void updateEntity(FdrFlowEntity entity) {
     entity.setTimestamp(Instant.now());
     entity.update();
