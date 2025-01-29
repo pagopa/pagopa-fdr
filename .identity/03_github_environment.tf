@@ -4,7 +4,9 @@ resource "github_repository_environment" "github_repository_environment" {
   # filter teams reviewers from github_organization_teams
   # if reviewers_teams is null no reviewers will be configured for environment
   dynamic "reviewers" {
-    for_each = (var.github_repository_environment.reviewers_teams == null || var.env_short != "p" ? [] : [1])
+    for_each = (var.github_repository_environment.reviewers_teams == null || var.env_short != "p" ? [] : [
+      1
+    ])
     content {
       teams = matchkeys(
         data.github_organization_teams.all.teams.*.id,
@@ -24,10 +26,10 @@ locals {
     "CD_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd.client_id,
     "CI_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_ci.client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
-    "INTERNAL_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_internal_subscription_key[0].value : data.azurerm_key_vault_secret.opex_internal_subscription_key[0].value,
+    "INTERNAL_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_internal_subscription_key[0].value : data.azurerm_key_vault_secret.opex_internal_subscription_key[0].value,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
-    "PSP_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value : ""
-    "ORG_SUBSCRIPTION_KEY": var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value : ""
+    "PSP_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value : ""
+    "ORG_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value : ""
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -36,8 +38,8 @@ locals {
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "DOMAIN" : local.domain,
     "NAMESPACE" : local.domain,
-    "INTEGRATION_TEST_STORAGE_ACCOUNT_NAME": local.integration_test.storage_account_name
-    "INTEGRATION_TEST_REPORTS_FOLDER": local.integration_test.reports_folder
+    "INTEGRATION_TEST_STORAGE_ACCOUNT_NAME" : local.integration_test.storage_account_name
+    "INTEGRATION_TEST_REPORTS_FOLDER" : local.integration_test.reports_folder
   }
 }
 
@@ -71,30 +73,30 @@ resource "github_actions_environment_variable" "github_environment_runner_variab
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
 resource "github_actions_secret" "secret_sonar_token" {
-  repository       = local.github.repository
-  secret_name      = "SONAR_TOKEN"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_sonar.value
+  repository      = local.github.repository
+  secret_name     = "SONAR_TOKEN"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_sonar.value
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
 resource "github_actions_secret" "secret_bot_token" {
-  repository       = local.github.repository
-  secret_name      = "BOT_TOKEN_GITHUB"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_token.value
+  repository      = local.github.repository
+  secret_name     = "BOT_TOKEN_GITHUB"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_bot_cd_token.value
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
 resource "github_actions_secret" "secret_slack_webhook" {
-  repository       = local.github.repository
-  secret_name      = "SLACK_WEBHOOK_URL"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
+  repository      = local.github.repository
+  secret_name     = "SLACK_WEBHOOK_URL"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
 resource "github_actions_secret" "secret_integrationtest_slack_webhook" {
-  repository       = local.github.repository
-  secret_name      = "INTEGRATION_TEST_SLACK_WEBHOOK_URL"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_integration_test_slack_webhook_url.value
+  repository      = local.github.repository
+  secret_name     = "INTEGRATION_TEST_SLACK_WEBHOOK_URL"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_slack_webhook_url.value
 }
 
 ############
