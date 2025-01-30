@@ -23,6 +23,7 @@ import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import it.gov.pagopa.fdr.util.error.exception.persistence.PersistenceFailureException;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import org.bson.types.ObjectId;
@@ -82,7 +83,7 @@ public class FlowService {
     SemanticValidator.validateGetPaginatedFlowsRequestForOrganizations(configData, args);
 
     RepositoryPagedResult<FdrFlowEntity> paginatedResult =
-        this.flowRepository.findPublishedByOrganizationIdAndOptionalPspId(
+        this.flowRepository.findLatestPublishedByOrganizationIdAndOptionalPspId(
             organizationId, pspId, args.getPublishedGt(), (int) pageNumber, (int) pageSize);
     log.debugf(
         "Found [%s] entities in [%s] pages. Mapping data to final response.",
@@ -245,7 +246,8 @@ public class FlowService {
     }
 
     // retrieve the last published flow, in order to take its revision and increment it
-    FdrFlowEntity lastPublishedFlow = flowRepository.findPublishedByPspIdAndName(pspId, flowName);
+    FdrFlowEntity lastPublishedFlow =
+        flowRepository.findLastPublishedByPspIdAndName(pspId, flowName);
     Long revision = lastPublishedFlow != null ? (lastPublishedFlow.getRevision() + 1) : 1L;
 
     // finally, persist the newly generated entity
@@ -294,13 +296,7 @@ public class FlowService {
 
     // check if retrieved flow can be published
     SemanticValidator.validatePublishingFlow(publishingFlow);
-
-    // update the publishing flow in order to set its status to PUBLISHED
-    Instant now = Instant.now();
-    publishingFlow.setUpdated(now);
-    publishingFlow.setPublished(now);
-    publishingFlow.setStatus(FlowStatusEnum.PUBLISHED);
-    this.flowRepository.updateEntity(publishingFlow);
+    publishNewRevision(pspId, flowName, publishingFlow);
 
     // TODO do this in transactional way
     // FdrFlowToHistoryEntity flowToHistoryEntity = flowMapper.toEntity(publishingFlow,
@@ -357,5 +353,19 @@ public class FlowService {
           }
           return null;
         });
+  }
+
+  @Transactional(rollbackOn = Exception.class)
+  public void publishNewRevision(String pspId, String flowName, FdrFlowEntity publishingFlow) {
+
+    // update the publishing flow in order to set its status to PUBLISHED
+    Instant now = Instant.now();
+    publishingFlow.setUpdated(now);
+    publishingFlow.setPublished(now);
+    publishingFlow.setIsLatest(true);
+    publishingFlow.setStatus(FlowStatusEnum.PUBLISHED);
+
+    this.flowRepository.updateLastPublishedAsNotLatest(pspId, flowName);
+    this.flowRepository.updateEntity(publishingFlow);
   }
 }

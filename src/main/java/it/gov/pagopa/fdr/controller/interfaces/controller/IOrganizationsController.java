@@ -44,13 +44,14 @@ public interface IOrganizationsController {
       summary = "Get all published flow by creditor institution",
       description =
           """
-This API permits to search all published flows for a specific creditor institution,
-formatted in a paginated view. The search can be enhanced including the PSP identifier
-in order to filter only the flows for certain PSP.<br>
-Before executing the query, the search filters are validated against entities configured for
-<i>Nodo dei Pagamenti</i> environment, in particular on PSP (if that search filter is defined).<br>
-The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
-""")
+              This API permits to search all published flows for a specific creditor institution,
+              formatted in a paginated view. The search can be enhanced including the PSP identifier
+              in order to filter only the flows for certain PSP. The only flows retrieved are the latest
+              revision, as same as "nodoChiediElencoFlussiRendicontazione" primitive does.<br>
+              Before executing the query, the search filters are validated against entities configured for
+              <i>Nodo dei Pagamenti</i> environment, in particular on PSP (if that search filter is defined).<br>
+              The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+              """)
   @APIResponses(
       value = {
         @APIResponse(
@@ -139,17 +140,17 @@ The result of the query is paginated and contains all the metadata needed for pa
       summary = "Get single flow by creditor institution, searching by name and revision",
       description =
           """
-This API permits to search a single flows for a specific creditor institution.
-In order to do so, it is required to add the following search filters:
- - Creditor institution identifier: for filtering by specific organization
- - PSP identifier: for filtering by flow-related PSP
- - Flow name: for filtering by specific instance of the flow
- - Revision: for filtering by flow revision
+              This API permits to search a single flows for a specific creditor institution.
+              In order to do so, it is required to add the following search filters:
+               - Creditor institution identifier: for filtering by specific organization
+               - PSP identifier: for filtering by flow-related PSP
+               - Flow name: for filtering by specific instance of the flow
+               - Revision: for filtering by flow revision
 
-Before executing the query, the search filters are validated against entities configured for
-<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
-the name of the flow is validated against a specific standard format.<br>
-""")
+              Before executing the query, the search filters are validated against entities configured for
+              <i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
+              the name of the flow is validated against a specific standard format.<br>
+              """)
   @APIResponses(
       value = {
         @APIResponse(
@@ -230,18 +231,18 @@ the name of the flow is validated against a specific standard format.<br>
           "Get all payments of single flow by creditor institution, searching by name and revision",
       description =
           """
-This API permits to search all the payments of single flows for a specific creditor institution,
-formatted in a paginated view. In order to do so, it is required to add the following search filters:
- - Creditor institution identifier: for filtering by specific organization
- - PSP identifier: for filtering by flow-related PSP
- - Flow name: for filtering by specific instance of the flow
- - Revision: for filtering by flow revision
+              This API permits to search all the payments of single flows for a specific creditor institution,
+              formatted in a paginated view. In order to do so, it is required to add the following search filters:
+               - Creditor institution identifier: for filtering by specific organization
+               - PSP identifier: for filtering by flow-related PSP
+               - Flow name: for filtering by specific instance of the flow
+               - Revision: for filtering by flow revision
 
-Before executing the query, the search filters are validated against entities configured for
-<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
-the name of the flow is validated against a specific standard format.<br>
-The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
-""")
+              Before executing the query, the search filters are validated against entities configured for
+              <i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
+              the name of the flow is validated against a specific standard format.<br>
+              The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+              """)
   @APIResponses(
       value = {
         @APIResponse(
