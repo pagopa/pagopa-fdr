@@ -88,15 +88,15 @@ resource "github_actions_secret" "secret_bot_token" {
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
 resource "github_actions_secret" "secret_slack_webhook" {
   repository      = local.github.repository
-  secret_name     = "SLACK_WEBHOOK_URL"
-  plaintext_value = data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
+  secret_name     = "SLACK_WEBHOOK_URL_DEPLOY"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_deploy_slack_webhook.value
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
 resource "github_actions_secret" "secret_integrationtest_slack_webhook" {
   repository      = local.github.repository
-  secret_name     = "INTEGRATION_TEST_SLACK_WEBHOOK_URL"
-  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_slack_webhook_url.value
+  secret_name     = "SLACK_WEBHOOK_URL_INTEGRATION_TEST"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_slack_webhook.value
 }
 
 ############
