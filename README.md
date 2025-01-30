@@ -9,11 +9,11 @@ Manage FDR ( aka "Flussi di Rendicontazione" ) exchanged between PSP and EC
 ## Api Documentation 📖
 
 - Internal API - See
-  the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_internal.json)
+  the [OpenApi 3 here](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_internal.json)
 - Organization API - See
-  the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_organization.json)
+  the [OpenApi 3 here](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_organization.json)
 - PSP API - See
-  the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_psp.json)
+  the [OpenApi 3 here](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi_psp.json)
 
 In local env typing following url on browser for ui interface:
 
