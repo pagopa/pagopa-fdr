@@ -26,14 +26,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
-@AllArgsConstructor
 public class FdrPaymentRepository extends Repository {
 
   public static final String QUERY_GET_BY_FLOW_OBJID = "ref_fdr.id = :flowObjId";
@@ -45,8 +43,13 @@ public class FdrPaymentRepository extends Repository {
 
   private final MongoClient mongoClient;
 
-  @ConfigProperty(name = "quarkus.mongodb.custom.fdr_payments.bulk-size", defaultValue = "100")
+  @ConfigProperty(name = "quarkus.mongodb.custom.fdr_payments.bulk-size")
   private Integer bulkSize;
+
+  public FdrPaymentRepository(Logger log, MongoClient mongoClient) {
+    this.log = log;
+    this.mongoClient = mongoClient;
+  }
 
   public RepositoryPagedResult<FdrPaymentEntity> executeQueryByPspAndIuvAndIur(
       String pspId,
