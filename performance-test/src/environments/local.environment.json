@@ -1,8 +1,8 @@
 {
   "environment": [
     {
-      "env": "dev",
-      "base_path": "https://api.dev.platform.pagopa.it/fdr-psp/service/v1",
+      "env": "local",
+      "base_path": "http://localhost:8080",
       "psp_type": "BIC_CODE",
       "psp_id": "SELBIT2B",
       "psp_domain_id": "88888888888",
