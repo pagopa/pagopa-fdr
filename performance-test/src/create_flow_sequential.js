@@ -66,6 +66,7 @@ export default function () {
   });
   if (createFlowResponse.status !== 201) {
     console.log(`Create flow in error: ${createFlowUrl} => response: ${createFlowResponse.status} - ${createFlowResponse.body}`);
+    return;
   }
 
   const partitions = generatePartitionIndexes(paymentsInFlow, 1000);
@@ -80,6 +81,7 @@ export default function () {
     });
     if (addPaymentsResponse.status !== 200) {
       console.log(`Add Payments in error: ${addPaymentsUrl} =>  response: ${addPaymentsResponse.status} - ${addPaymentsResponse.body}`);
+      return;
     }
   }
 
