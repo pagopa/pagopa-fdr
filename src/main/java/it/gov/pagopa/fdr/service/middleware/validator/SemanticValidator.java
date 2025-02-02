@@ -4,6 +4,7 @@ import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
+import it.gov.pagopa.fdr.repository.sql.FlowEntity;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.BrokerPspValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.ChannelValidator;
 import it.gov.pagopa.fdr.service.middleware.validator.clause.ComputedPaymentsValidator;
@@ -84,6 +85,21 @@ public class SemanticValidator {
   }
 
   public static void validatePublishingFlow(FdrFlowEntity flow) throws AppException {
+
+    // set validation arguments
+    ValidationArgs validationArgs = ValidationArgs.newArgs().addArgument("flow", flow);
+
+    ValidationResult validationResult =
+        new PublishableStatusValidator()
+            .linkTo(new ComputedPaymentsValidator())
+            .validate(validationArgs);
+
+    if (validationResult.isInvalid()) {
+      throw new AppException(validationResult.getError(), validationResult.getErrorArgs());
+    }
+  }
+
+  public static void validatePublishingFlow(FlowEntity flow) throws AppException {
 
     // set validation arguments
     ValidationArgs validationArgs = ValidationArgs.newArgs().addArgument("flow", flow);

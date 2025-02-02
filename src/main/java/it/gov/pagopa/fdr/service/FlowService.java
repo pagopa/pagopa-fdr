@@ -16,17 +16,18 @@ import it.gov.pagopa.fdr.repository.FdrPaymentRepository;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
+import it.gov.pagopa.fdr.repository.sql.FlowEntity;
+import it.gov.pagopa.fdr.repository.sql.FlowRepository;
+import it.gov.pagopa.fdr.repository.sql.PaymentRepository;
 import it.gov.pagopa.fdr.service.middleware.mapper.FlowMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
-import it.gov.pagopa.fdr.util.error.exception.persistence.PersistenceFailureException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
-import org.bson.types.ObjectId;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
@@ -39,7 +40,11 @@ public class FlowService {
 
   private final FdrFlowRepository flowRepository;
 
+  private final FlowRepository sqlFlowRepository;
+
   private final FdrPaymentRepository paymentRepository;
+
+  private final PaymentRepository sqlPaymentRepository;
 
   private final FlowMapper flowMapper;
 
@@ -48,12 +53,16 @@ public class FlowService {
       Config cachedConfig,
       FdrFlowRepository flowRepository,
       FdrPaymentRepository paymentRepository,
+      FlowRepository sqlFlowRepository,
+      PaymentRepository sqlPaymentRepository,
       FlowMapper flowMapper) {
 
     this.log = log;
     this.cachedConfig = cachedConfig;
     this.flowRepository = flowRepository;
     this.paymentRepository = paymentRepository;
+    this.sqlFlowRepository = sqlFlowRepository;
+    this.sqlPaymentRepository = sqlPaymentRepository;
     this.flowMapper = flowMapper;
   }
 
@@ -219,6 +228,7 @@ public class FlowService {
   }
 
   @WithSpan(kind = SERVER)
+  @Transactional(rollbackOn = Exception.class)
   public GenericResponse createEmptyFlow(String pspId, String flowName, CreateFlowRequest request) {
 
     /*
@@ -237,7 +247,8 @@ public class FlowService {
     SemanticValidator.validateCreateFlowRequest(configData, pspId, flowName, request);
 
     // check if there is already another unpublished flow that is in progress
-    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    // FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    FlowEntity publishingFlow = sqlFlowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     if (publishingFlow != null) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
@@ -246,13 +257,17 @@ public class FlowService {
     }
 
     // retrieve the last published flow, in order to take its revision and increment it
-    FdrFlowEntity lastPublishedFlow =
-        flowRepository.findLastPublishedByPspIdAndName(pspId, flowName);
+    // FdrFlowEntity lastPublishedFlow = flowRepository.findLastPublishedByPspIdAndName(pspId,
+    // flowName);
+    FlowEntity lastPublishedFlow =
+        sqlFlowRepository.findLastPublishedByPspIdAndName(pspId, flowName);
     Long revision = lastPublishedFlow != null ? (lastPublishedFlow.getRevision() + 1) : 1L;
 
     // finally, persist the newly generated entity
-    FdrFlowEntity entity = flowMapper.toEntity(request, revision);
-    this.flowRepository.createEntity(entity);
+    // FdrFlowEntity entity = flowMapper.toEntity(request, revision);
+    // this.flowRepository.createEntity(entity);
+    FlowEntity entity = flowMapper.toSqlEntity(request, revision);
+    this.sqlFlowRepository.createEntity(entity);
 
     /*
     reService.sendEvent(
@@ -268,6 +283,7 @@ public class FlowService {
   }
 
   @WithSpan(kind = SERVER)
+  @Transactional(rollbackOn = Exception.class)
   public GenericResponse publishFlow(String pspId, String flowName, boolean isInternalCall) {
 
     /*
@@ -283,11 +299,12 @@ public class FlowService {
     SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
 
     // check if there is an unpublished flow that is in progress
-    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    // FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    FlowEntity publishingFlow = sqlFlowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     if (publishingFlow == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
-    if (publishingFlow.getStatus() != FlowStatusEnum.INSERTED) {
+    if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           flowName,
@@ -307,6 +324,7 @@ public class FlowService {
   }
 
   @WithSpan(kind = SERVER)
+  @Transactional(rollbackOn = Exception.class)
   public GenericResponse deleteExistingFlow(String pspId, String flowName) {
 
     /*
@@ -322,50 +340,50 @@ public class FlowService {
     SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
 
     // check if there is already another unpublished flow that is in progress
-    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    // FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    FlowEntity publishingFlow = sqlFlowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     if (publishingFlow == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
     // delete flow and if there are multiple payments related to it yet, delete them in async mode
-    this.flowRepository.deleteEntity(publishingFlow);
-    deleteFlowPaymentsInAsync(publishingFlow.id);
+    // this.flowRepository.deleteEntity(publishingFlow);
+    this.sqlFlowRepository.deleteEntity(publishingFlow);
+    // deleteFlowPaymentsInAsync(publishingFlow.getId());
 
     return GenericResponse.builder().message(String.format("Fdr [%s] deleted", flowName)).build();
   }
 
-  private void deleteFlowPaymentsInAsync(ObjectId flowObjectId) {
+  private void deleteFlowPaymentsInAsync(Long flowId) {
     CompletableFuture.supplyAsync(
         () -> {
           try {
-            log.infof(
-                "Asynchronously deleting payments related to flow with id [%s]", flowObjectId);
-            long deletedPayments = this.paymentRepository.deleteByFlowObjectId(flowObjectId);
+            log.infof("Asynchronously deleting payments related to flow with id [%s]", flowId);
+            long deletedPayments = this.sqlPaymentRepository.deleteByFlow(flowId);
             log.debugf("Deleted existing flows and all [%s] related payments", deletedPayments);
-          } catch (PersistenceFailureException e) {
+          } catch (Exception e) {
             log.error(
                 String.format(
                     "Deleted existing flows but not all related payments were deleted. If the"
                         + " deletion is required, you can find them searching by fdr_ref.id = [%s]."
                         + " Error cause: ",
-                    flowObjectId),
+                    flowId),
                 e);
           }
           return null;
         });
   }
 
-  @Transactional(rollbackOn = Exception.class)
-  public void publishNewRevision(String pspId, String flowName, FdrFlowEntity publishingFlow) {
+  public void publishNewRevision(String pspId, String flowName, FlowEntity publishingFlow) {
 
     // update the publishing flow in order to set its status to PUBLISHED
     Instant now = Instant.now();
     publishingFlow.setUpdated(now);
     publishingFlow.setPublished(now);
     publishingFlow.setIsLatest(true);
-    publishingFlow.setStatus(FlowStatusEnum.PUBLISHED);
+    publishingFlow.setStatus(FlowStatusEnum.PUBLISHED.name());
 
-    this.flowRepository.updateLastPublishedAsNotLatest(pspId, flowName);
-    this.flowRepository.updateEntity(publishingFlow);
+    this.sqlFlowRepository.updateLastPublishedAsNotLatest(pspId, flowName);
+    this.sqlFlowRepository.updateEntity(publishingFlow);
   }
 }

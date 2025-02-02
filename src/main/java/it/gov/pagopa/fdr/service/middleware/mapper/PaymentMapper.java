@@ -8,6 +8,9 @@ import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
 import it.gov.pagopa.fdr.repository.entity.payment.ReferencedFdrEntity;
+import it.gov.pagopa.fdr.repository.sql.FlowEntity;
+import it.gov.pagopa.fdr.repository.sql.PaymentEntity;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -79,6 +82,28 @@ public interface PaymentMapper {
       entity.setCreated(operationTime);
       entity.setUpdated(operationTime);
       entity.setRefFdr(referencedFdrEntity);
+      converted.add(entity);
+    }
+
+    return converted;
+  }
+
+  default List<PaymentEntity> toSqlEntity(
+      FlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
+
+    List<PaymentEntity> converted = new LinkedList<>();
+    for (Payment payment : payments) {
+      PaymentEntity entity = new PaymentEntity();
+      entity.setFlowId(flowEntity.getId());
+      entity.setIuv(payment.getIuv());
+      entity.setIur(payment.getIur());
+      entity.setIndex(payment.getIndex());
+      entity.setAmount(BigDecimal.valueOf(payment.getPay()));
+      entity.setPayStatus(payment.getPayStatus().name());
+      entity.setPayDate(payment.getPayDate());
+      entity.setTransferId(payment.getIdTransfer());
+      entity.setCreated(operationTime);
+      entity.setUpdated(operationTime);
       converted.add(entity);
     }
 

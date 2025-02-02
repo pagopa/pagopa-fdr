@@ -16,6 +16,10 @@ import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.entity.flow.projection.FdrFlowIdProjection;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
+import it.gov.pagopa.fdr.repository.sql.FlowEntity;
+import it.gov.pagopa.fdr.repository.sql.FlowRepository;
+import it.gov.pagopa.fdr.repository.sql.PaymentEntity;
+import it.gov.pagopa.fdr.repository.sql.PaymentRepository;
 import it.gov.pagopa.fdr.service.middleware.mapper.PaymentMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
@@ -23,6 +27,7 @@ import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import it.gov.pagopa.fdr.util.error.exception.persistence.TransactionRollbackException;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +45,11 @@ public class PaymentService {
 
   private final FdrFlowRepository flowRepository;
 
+  private final FlowRepository sqlFlowRepository;
+
   private final FdrPaymentRepository paymentRepository;
+
+  private final PaymentRepository sqlPaymentRepository;
 
   private final PaymentMapper paymentMapper;
 
@@ -49,12 +58,16 @@ public class PaymentService {
       Config cachedConfig,
       FdrFlowRepository flowRepository,
       FdrPaymentRepository paymentRepository,
+      FlowRepository sqlFlowRepository,
+      PaymentRepository sqlPaymentRepository,
       PaymentMapper paymentMapper) {
 
     this.log = log;
     this.cachedConfig = cachedConfig;
     this.flowRepository = flowRepository;
     this.paymentRepository = paymentRepository;
+    this.sqlFlowRepository = sqlFlowRepository;
+    this.sqlPaymentRepository = sqlPaymentRepository;
     this.paymentMapper = paymentMapper;
   }
 
@@ -138,6 +151,7 @@ public class PaymentService {
   }
 
   @WithSpan(kind = SERVER)
+  @Transactional(rollbackOn = Exception.class)
   public GenericResponse addPaymentToExistingFlow(
       String pspId, String flowName, AddPaymentRequest request) {
 
@@ -156,7 +170,8 @@ public class PaymentService {
     SemanticValidator.validateAddPaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    // FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    FlowEntity publishingFlow = sqlFlowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     if (publishingFlow == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
@@ -165,7 +180,7 @@ public class PaymentService {
     List<Payment> paymentsToAdd = request.getPayments();
     Set<Long> indexes = paymentsToAdd.stream().map(Payment::getIndex).collect(Collectors.toSet());
     long numberOfAlreadyUsedIndexes =
-        paymentRepository.countByFlowObjectIdAndIndexes(publishingFlow.id, indexes);
+        sqlPaymentRepository.countByFlowIdAndIndexes(publishingFlow.getId(), indexes);
     if (numberOfAlreadyUsedIndexes > 0) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX, flowName);
@@ -173,8 +188,8 @@ public class PaymentService {
 
     // create all entities in batch, from each payment to be added, in transactional way
     Instant now = Instant.now();
-    List<FdrPaymentEntity> paymentEntities =
-        paymentMapper.toEntity(publishingFlow, paymentsToAdd, now);
+    List<PaymentEntity> paymentEntities =
+        paymentMapper.toSqlEntity(publishingFlow, paymentsToAdd, now);
     addPaymentToExistingFlowInTransaction(publishingFlow, paymentEntities, now);
 
     /*
@@ -196,6 +211,7 @@ public class PaymentService {
   }
 
   @WithSpan(kind = SERVER)
+  @Transactional(rollbackOn = Exception.class)
   public GenericResponse deletePaymentFromExistingFlow(
       String pspId, String flowName, DeletePaymentRequest request) {
 
@@ -214,12 +230,14 @@ public class PaymentService {
     SemanticValidator.validateDeletePaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    FdrFlowEntity publishingFlow =
-        this.flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    // FdrFlowEntity publishingFlow = this.flowRepository.findUnpublishedByPspIdAndName(pspId,
+    // flowName);
+    FlowEntity publishingFlow =
+        this.sqlFlowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     if (publishingFlow == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
-    if (publishingFlow.getStatus() != FlowStatusEnum.INSERTED) {
+    if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           flowName,
@@ -228,11 +246,13 @@ public class PaymentService {
 
     // check if each passed index refers to an existing payment
     Set<Long> indexes = new HashSet<>(request.getIndexList());
-    List<FdrPaymentEntity> paymentEntities =
-        this.paymentRepository.findByFlowObjectIdAndIndexes(publishingFlow.id, indexes);
+    // List<FdrPaymentEntity> paymentEntities =
+    // this.paymentRepository.findByFlowObjectIdAndIndexes(publishingFlow.id, indexes);
+    List<PaymentEntity> paymentEntities =
+        this.sqlPaymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
     boolean containsAllIndexes =
         paymentEntities.stream()
-            .map(FdrPaymentEntity::getIndex)
+            .map(PaymentEntity::getIndex)
             .collect(Collectors.toSet())
             .containsAll(indexes);
     if (!containsAllIndexes) {
@@ -265,29 +285,31 @@ public class PaymentService {
   }
 
   private void addPaymentToExistingFlowInTransaction(
-      FdrFlowEntity publishingFlow, List<FdrPaymentEntity> paymentEntities, Instant now)
+      FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now)
       throws TransactionRollbackException {
 
     // making a backup of previous data, to be used for rollback operation
-    Instant oldUpdateDate = Instant.from(publishingFlow.getUpdated());
-    FlowStatusEnum oldStatus = FlowStatusEnum.valueOf(publishingFlow.getStatus().name());
+    // Instant oldUpdateDate = Instant.from(publishingFlow.getUpdated());
+    // FlowStatusEnum oldStatus = FlowStatusEnum.valueOf(publishingFlow.getStatus().name());
 
     // generate quantity to add on computed values
     int paymentsToAdd = paymentEntities.size();
-    double amountToAdd = paymentEntities.stream().mapToDouble(FdrPaymentEntity::getAmount).sum();
+    double amountToAdd =
+        paymentEntities.stream().mapToDouble(payment -> payment.getAmount().doubleValue()).sum();
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed
     publishingFlow.addOnComputedTotPayments(paymentsToAdd);
     publishingFlow.addOnComputedTotAmount(amountToAdd);
     publishingFlow.setUpdated(now);
-    publishingFlow.setStatus(FlowStatusEnum.INSERTED);
-    flowRepository.updateEntity(publishingFlow);
+    publishingFlow.setStatus(FlowStatusEnum.INSERTED.name());
+    this.sqlFlowRepository.updateEntity(publishingFlow);
+    this.sqlPaymentRepository.createEntityInBulk(paymentEntities);
 
     // try to persist payments using a transaction: if it does not end successfully, it throws an
     // accepted Exception that will cause a compensation operation in order to execute the
     // rollback.
-    try {
+    /*try {
 
       paymentRepository.createEntityInTransaction(paymentEntities);
 
@@ -297,21 +319,24 @@ public class PaymentService {
       String flowName = publishingFlow.getName();
       compensateFlowChanges(pspId, flowName, paymentsToAdd, amountToAdd, oldUpdateDate, oldStatus);
       throw e;
-    }
+    }*/
   }
 
   private void deletePaymentToExistingFlowInTransaction(
-      FdrFlowEntity publishingFlow, List<FdrPaymentEntity> paymentEntities, Instant now)
+      FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now)
       throws TransactionRollbackException {
 
     // making a backup of previous data, to be used for rollback operation
-    Instant oldUpdateDate = Instant.from(publishingFlow.getUpdated());
-    FlowStatusEnum oldStatus = FlowStatusEnum.valueOf(publishingFlow.getStatus().name());
+    // Instant oldUpdateDate = Instant.from(publishingFlow.getUpdated());
+    // FlowStatusEnum oldStatus = FlowStatusEnum.valueOf(publishingFlow.getStatus().name());
 
     // generate quantity to subtract on computed values (evaluated as negative value)
     int paymentsToAdd = -1 * paymentEntities.size();
     double amountToAdd =
-        -1 * paymentEntities.stream().mapToDouble(FdrPaymentEntity::getAmount).sum();
+        -1
+            * paymentEntities.stream()
+                .mapToDouble(payment -> payment.getAmount().doubleValue())
+                .sum();
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed
@@ -320,14 +345,15 @@ public class PaymentService {
     publishingFlow.setUpdated(now);
     publishingFlow.setStatus(
         publishingFlow.getComputedTotPayments() > 0
-            ? FlowStatusEnum.INSERTED
-            : FlowStatusEnum.CREATED);
-    flowRepository.updateEntity(publishingFlow);
+            ? FlowStatusEnum.INSERTED.name()
+            : FlowStatusEnum.CREATED.name());
+    this.sqlFlowRepository.updateEntity(publishingFlow);
+    this.sqlPaymentRepository.deleteEntityInBulk(paymentEntities);
 
     // try to delete payments using a transaction: if it does not end successfully, it throws an
     // accepted Exception that will cause a compensation operation in order to execute the
     // rollback.
-    try {
+    /*try {
 
       paymentRepository.deleteEntityInTransaction(paymentEntities);
 
@@ -337,7 +363,7 @@ public class PaymentService {
       String flowName = publishingFlow.getName();
       compensateFlowChanges(pspId, flowName, paymentsToAdd, amountToAdd, oldUpdateDate, oldStatus);
       throw e;
-    }
+    }*/
   }
 
   /**

@@ -18,6 +18,8 @@ import it.gov.pagopa.fdr.repository.entity.flow.ReceiverEntity;
 import it.gov.pagopa.fdr.repository.entity.flow.SenderEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.repository.enums.SenderTypeEnum;
+import it.gov.pagopa.fdr.repository.sql.FlowEntity;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +171,41 @@ public interface FlowMapper {
     entity.setBicCodePouringBank(request.getBicCodePouringBank());
     entity.setSender(sender);
     entity.setReceiver(receiver);
+    return entity;
+  }
+
+  default FlowEntity toSqlEntity(CreateFlowRequest request, Long revision) {
+
+    Instant now = Instant.now();
+
+    Sender requestSender = request.getSender();
+    Receiver requestReceiver = request.getReceiver();
+
+    FlowEntity entity = new FlowEntity();
+    entity.setName(request.getFdr());
+    entity.setRevision(revision);
+    entity.setDate(request.getFdrDate());
+    entity.setStatus(FlowStatusEnum.CREATED.name());
+    entity.setCreated(now);
+    entity.setUpdated(now);
+    entity.setTotAmount(BigDecimal.valueOf(request.getSumPayments()));
+    entity.setTotPayments(request.getTotPayments());
+    entity.setComputedTotPayments(0L);
+    entity.setComputedTotAmount(BigDecimal.valueOf(0.0));
+    entity.setRegulation(request.getRegulation());
+    entity.setRegulationDate(request.getRegulationDate());
+    entity.setBicCodePouringBank(request.getBicCodePouringBank());
+    entity.setSenderId(requestSender.getId());
+    entity.setSenderType(SenderTypeEnum.valueOf(requestSender.getType().name()));
+    entity.setSenderPspId(requestSender.getPspId());
+    entity.setSenderPspBrokerId(requestSender.getPspBrokerId());
+    entity.setSenderChannelId(requestSender.getChannelId());
+    entity.setSenderPspName(requestSender.getPspName());
+    entity.setSenderPassword(requestSender.getPassword());
+    entity.setReceiverId(requestReceiver.getId());
+    entity.setReceiverOrganizationId(requestReceiver.getOrganizationId());
+    entity.setReceiverOrganizationName(requestReceiver.getOrganizationName());
+
     return entity;
   }
 }
