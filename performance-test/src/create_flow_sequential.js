@@ -34,12 +34,12 @@ const numberOfPartitions = 1 + (paymentsInFlow / 1000);
 const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 
 
-let params = {};
+var params = {};
 
 export function setup() {
   // Before All
   params = {
-    tags: { api_name: "" }
+    tags: { 'api_name': '' },
     headers: {
       'Content-Type': 'application/json',
       'Ocp-Apim-Subscription-Key': subscriptionKey
@@ -52,7 +52,7 @@ export default function () {
   setup();
 
   // Generating essentials information
-  console.log(`VU: ${__VU}  -  ITER: ${__ITER}`);
+  //console.log(`VU: ${__VU}  -  ITER: ${__ITER}`);
   let flowNameAndDate = generateFlowNameAndDate(requestValues.pspDomainId, `${__VU}`);
   let flowName = flowNameAndDate[0]
   let flowDate = flowNameAndDate[1]
