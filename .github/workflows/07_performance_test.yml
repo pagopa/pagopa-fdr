@@ -1,8 +1,8 @@
 name: Performance Test
 
 on:
-#  schedule:
-#    - cron: '35 16 * * *'
+  #  schedule:
+  #    - cron: '35 16 * * *'
 
   workflow_dispatch:
     inputs:
@@ -19,9 +19,9 @@ on:
         type: choice
         description: Select the Test Type
         options:
-          - ramping
           - constant
           - load
+          - ramping
           - smoke
           - soak
           - spike
@@ -31,7 +31,7 @@ on:
         type: choice
         description: Select the Script Name
         options:
-          - happy_case_scenario
+          - create_flow_sequential
 
 permissions:
   id-token: write
@@ -52,6 +52,6 @@ jobs:
         run: |
           cd ./performance-test
           sub_key="${{ secrets.PSP_SUBSCRIPTION_KEY }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" docker compose -f docker-compose.yaml up
-#          sh ./performance-test/run_performance_test.sh ${{ env.ENVIRONMENT }} ${{ env.TEST_TYPE }} ${{ env.SCRIPT }} ${{ secrets.API_SUBSCRIPTION_KEY }}
+        #          sh ./performance-test/run_performance_test.sh ${{ env.ENVIRONMENT }} ${{ env.TEST_TYPE }} ${{ env.SCRIPT }} ${{ secrets.API_SUBSCRIPTION_KEY }}
         #${{ secrets.COSMOS_SUBSCRIPTION_KEY }}
 
