@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.3
+    tag: 1.1.3-2-poc-sql
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -37,6 +37,7 @@ microservice-chart:
       ADAPTER_API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
       OTEL_AUTH_BEARER: "otel-auth-bearer"
       MONGODB_CONNECTION_STRING: "mongodb-connection-string"
+      POSTGRES_PASSWORD: "db-fdr-password"
       #BLOB_RE_CONNECTION_STRING: "fdr-re-sa-connection-string"
     keyvault:
       name: "pagopa-d-fdr-kv"
