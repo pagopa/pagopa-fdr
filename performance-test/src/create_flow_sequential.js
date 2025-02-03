@@ -39,6 +39,7 @@ let params = {};
 export function setup() {
   // Before All
   params = {
+    tags: { api_name: "" }
     headers: {
       'Content-Type': 'application/json',
       'Ocp-Apim-Subscription-Key': subscriptionKey
@@ -59,6 +60,7 @@ export default function () {
   // Create a new flow
   let createFlowRequest = buildCreateFlowRequest(flowName, flowDate, paymentsInFlow, totalAmount, requestValues);
   const createFlowUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}`
+  params.tags.api_name = "create_empty_flow";
   var createFlowResponse = http.post(createFlowUrl, createFlowRequest, params);
   //console.log(`\nCreate flowrequest: ${createFlowRequest}  -  response: ${createFlowResponse.status} - ${createFlowResponse.body}`);
   check(createFlowResponse, {
@@ -71,6 +73,7 @@ export default function () {
 
   const partitions = generatePartitionIndexes(paymentsInFlow, 1000);
   const addPaymentsUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}/payments/add`
+  params.tags.api_name = "add_payment";
   for (const partition of partitions) {
 
     // Add new payments
@@ -87,6 +90,7 @@ export default function () {
 
   // Publish the flow
   const publishFlowUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}/publish`
+  params.tags.api_name = "publish_flow";
   var publishFlowResponse = http.post(publishFlowUrl, {}, params);
   //console.log(`request: None  -  response: ${publishFlowResponse.status} - ${publishFlowResponse.body}`);
   check(publishFlowResponse, {
