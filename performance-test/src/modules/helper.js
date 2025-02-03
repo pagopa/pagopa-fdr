@@ -1,11 +1,12 @@
 import http from "k6/http";
 
-export function generateFlowNameAndDate(pspId) {
+export function generateFlowNameAndDate(pspId, virtualUser) {
     const today = new Date();
     const todayISO = new Date().toISOString();
     const formattedDate = todayISO.slice(0, 10);
-    const timestampWithoutFirstThreeDigit = Date.now().toString().slice(3);
-    const fdrName = `${formattedDate}${pspId}-${timestampWithoutFirstThreeDigit}`;
+    const timestampWithoutFirstDigits = Date.now().toString().slice(3);
+    const formattedVU = virtualUser.padStart(3, "0");
+    const fdrName = `${formattedDate}${pspId}-${timestampWithoutFirstDigits}${virtualUser}`;
     const fdrDate = todayISO.slice(0, -1) + 'Z';
     return [fdrName, fdrDate];
 }
