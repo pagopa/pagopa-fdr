@@ -321,7 +321,6 @@ public class FlowService {
     SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
 
     // check if there is already another unpublished flow that is in progress
-    // FdrFlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     FlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
     if (publishingFlow == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
@@ -335,6 +334,8 @@ public class FlowService {
 
   public void publishNewRevision(String pspId, String flowName, FlowEntity publishingFlow) {
 
+    this.flowRepository.updateLastPublishedAsNotLatest(pspId, flowName);
+
     // update the publishing flow in order to set its status to PUBLISHED
     Instant now = Instant.now();
     publishingFlow.setUpdated(now);
@@ -342,7 +343,6 @@ public class FlowService {
     publishingFlow.setIsLatest(true);
     publishingFlow.setStatus(FlowStatusEnum.PUBLISHED.name());
 
-    this.flowRepository.updateLastPublishedAsNotLatest(pspId, flowName);
     this.flowRepository.updateEntity(publishingFlow);
   }
 }

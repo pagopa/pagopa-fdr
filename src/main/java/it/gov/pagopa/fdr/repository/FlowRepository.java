@@ -76,7 +76,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
     // setting mandatory field: flow status
     queryBuilder.add("status != :status");
-    parameters.and("status", FlowStatusEnum.PUBLISHED);
+    parameters.and("status", FlowStatusEnum.PUBLISHED.name());
 
     // setting optional field: created date
     if (createdGt != null) {
@@ -115,12 +115,12 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     List<String> queryBuilder = new ArrayList<>();
 
     // setting mandatory field: PSP id
-    queryBuilder.add("sender.psp_id = :pspId");
+    queryBuilder.add("senderPspId = :pspId");
     parameters.and("pspId", pspId);
 
     // setting optional field: organization id
     if (!StringUtil.isNullOrBlank(organizationId)) {
-      queryBuilder.add("receiver.organization_id = :organizationId");
+      queryBuilder.add("receiverOrganizationId = :organizationId");
       parameters.and("organizationId", organizationId);
     }
 
@@ -132,7 +132,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
     // setting mandatory field: flow status
     queryBuilder.add("status = :status");
-    parameters.and("status", FlowStatusEnum.PUBLISHED);
+    parameters.and("status", FlowStatusEnum.PUBLISHED.name());
     String queryString = String.join(" and ", queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
@@ -212,7 +212,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
     // setting mandatory field: flow status
     queryBuilder.add("status = :status");
-    parameters.and("status", FlowStatusEnum.PUBLISHED);
+    parameters.and("status", FlowStatusEnum.PUBLISHED.name());
 
     // setting mandatory field: is_latest flag as true
     queryBuilder.add("isLatest = :isLatest");
