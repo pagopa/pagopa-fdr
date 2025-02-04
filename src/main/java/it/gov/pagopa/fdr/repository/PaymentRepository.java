@@ -52,22 +52,24 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
       int pageNumber,
       int pageSize) {
 
-    String query = "ref_fdr_sender_psp_id = :psp";
+    StringBuilder query =
+        new StringBuilder(
+            "SELECT p FROM PaymentEntity p LEFT JOIN FETCH p.flow WHERE p.flow.senderPspId = :psp");
     Parameters params = new Parameters().and("psp", pspId);
     if (iuv != null) {
-      query += " and iuv = :iuv";
+      query.append(" and iuv = :iuv");
       params.and("iuv", iuv);
     }
     if (iur != null) {
-      query += " and iur = :iur";
+      query.append(" and iur = :iur");
       params.and("iur", iur);
     }
     if (createdFrom != null) {
-      query += " and created >= :createdFrom";
+      query.append(" and created >= :createdFrom");
       params.and("createdFrom", createdFrom);
     }
     if (createdTo != null) {
-      query += " and created <= :createdTo";
+      query.append(" and created <= :createdTo");
       params.and("createdTo", createdTo);
     }
 
@@ -75,7 +77,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     Sort sort = getSort(SortField.of("index", Direction.Ascending));
 
     PanacheQuery<PaymentEntity> resultPage =
-        PaymentEntity.findPageByQuery(query, sort, params).page(page);
+        PaymentEntity.findPageByQuery(query.toString(), sort, params).page(page);
     return getPagedResult(resultPage);
   }
 

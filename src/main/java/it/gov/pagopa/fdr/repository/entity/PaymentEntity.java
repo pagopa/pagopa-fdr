@@ -6,9 +6,12 @@ import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -64,9 +67,9 @@ public class PaymentEntity extends PanacheEntityBase {
   @Column(name = "updated")
   public Instant updated;
 
-  // @ManyToOne(fetch = FetchType.LAZY)
-  // @JoinColumn(name = "flow_id", referencedColumnName = "id")
-  // public FlowEntity flow;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "flow_id", referencedColumnName = "id", insertable = false, updatable = false)
+  public FlowEntity flow;
 
   public static PanacheQuery<PaymentEntity> findPageByQuery(
       String query, Sort sort, Parameters parameters) {
