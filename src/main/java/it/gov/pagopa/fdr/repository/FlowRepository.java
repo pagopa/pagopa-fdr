@@ -13,9 +13,16 @@ import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.util.common.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.Session;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class FlowRepository extends Repository implements PanacheRepository<FlowEntity> {
@@ -45,11 +52,35 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   public static final String QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME =
       "senderPspId = ?1 and name = ?2 and status = ?3 and isLatest = ?4";
 
+  private EntityManager entityManager;
+
+  private Logger log;
+
+  public FlowRepository(Logger log, EntityManager em) {
+    this.log = log;
+    this.entityManager = em;
+  }
+
   public FlowEntity findUnpublishedByPspIdAndName(String pspId, String flowName) {
     return find(
             QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME, pspId, flowName, FlowStatusEnum.PUBLISHED.name())
         .firstResultOptional()
         .orElse(null);
+  }
+
+  public FlowEntity findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
+    FlowEntity entity =
+        find(
+                QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME,
+                pspId,
+                flowName,
+                FlowStatusEnum.PUBLISHED.name())
+            .firstResultOptional()
+            .orElse(null);
+    if (entity != null) {
+      entityManager.detach(entity);
+    }
+    return entity;
   }
 
   public FlowEntity findUnpublishedByOrganizationIdAndPspIdAndName(
@@ -228,13 +259,41 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   }
 
   public void createEntity(FlowEntity entity) {
-    // entity.setTimestamp(Instant.now());
+
     entity.persist();
   }
 
   public void updateEntity(FlowEntity entity) {
-    // entity.setTimestamp(Instant.now());
+
     persist(entity);
+  }
+
+  public void updateComputedValues(
+      Long flowId, Long payments, BigDecimal amount, Instant now, FlowStatusEnum status)
+      throws SQLException {
+
+    Session session = entityManager.unwrap(Session.class);
+
+    String query =
+        "UPDATE flow"
+            + " SET computed_tot_payments = ?, computed_tot_amount = ?, updated = ?, status = ?"
+            + " WHERE id = ?";
+
+    try (PreparedStatement preparedStatement =
+        session.doReturningWork(connection -> connection.prepareStatement(query))) {
+
+      preparedStatement.setLong(1, payments);
+      preparedStatement.setBigDecimal(2, amount);
+      preparedStatement.setTimestamp(3, Timestamp.from(now));
+      preparedStatement.setString(4, status.name());
+      preparedStatement.setLong(5, flowId);
+      preparedStatement.execute();
+
+    } catch (SQLException e) {
+
+      log.error("An error occurred while executing payments bulk insert", e);
+      throw e;
+    }
   }
 
   public void updateLastPublishedAsNotLatest(String pspId, String flowName) {

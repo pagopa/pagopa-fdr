@@ -235,7 +235,8 @@ public class FlowService {
     SemanticValidator.validateCreateFlowRequest(configData, pspId, flowName, request);
 
     // check if there is already another unpublished flow that is in progress
-    FlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    FlowEntity publishingFlow =
+        flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
     if (publishingFlow != null) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,

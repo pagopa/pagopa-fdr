@@ -106,16 +106,6 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     }
   }
 
-  public List<PaymentEntity> findByFlowIdAndIndexes(Long flowId, Set<Long> indexes) {
-    return find(QUERY_GET_BY_FLOW_ID_AND_INDEXES, flowId, indexes).list();
-  }
-
-  public void deleteEntityInBulk(List<PaymentEntity> entityBatch) {
-
-    Set<Long> ids = entityBatch.stream().map(PaymentEntity::getId).collect(Collectors.toSet());
-    delete(QUERY_DELETE_BY_ID, ids);
-  }
-
   public RepositoryPagedResult<PaymentEntity> findByFlowId(
       Long flowId, int pageNumber, int pageSize) {
 
@@ -124,5 +114,15 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
 
     PanacheQuery<PaymentEntity> resultPage = find(QUERY_GET_BY_FLOW_ID, sort, flowId).page(page);
     return getPagedResult(resultPage);
+  }
+
+  public List<PaymentEntity> findByFlowIdAndIndexes(Long flowId, Set<Long> indexes) {
+    return find(QUERY_GET_BY_FLOW_ID_AND_INDEXES, flowId, indexes).list();
+  }
+
+  public void deleteEntityInBulk(List<PaymentEntity> entityBatch) {
+
+    Set<Long> ids = entityBatch.stream().map(PaymentEntity::getId).collect(Collectors.toSet());
+    delete(QUERY_DELETE_BY_ID, ids);
   }
 }

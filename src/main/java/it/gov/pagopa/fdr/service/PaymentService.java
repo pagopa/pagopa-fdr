@@ -22,6 +22,7 @@ import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -155,7 +156,8 @@ public class PaymentService {
     SemanticValidator.validateAddPaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    FlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    FlowEntity publishingFlow =
+        flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
     if (publishingFlow == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
@@ -214,7 +216,8 @@ public class PaymentService {
     SemanticValidator.validateDeletePaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    FlowEntity publishingFlow = this.flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    FlowEntity publishingFlow =
+        this.flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
     if (publishingFlow == null) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
@@ -274,14 +277,15 @@ public class PaymentService {
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed
-    publishingFlow.addOnComputedTotPayments(paymentsToAdd);
-    publishingFlow.addOnComputedTotAmount(amountToAdd);
-    publishingFlow.setUpdated(now);
-    publishingFlow.setStatus(FlowStatusEnum.INSERTED.name());
-    this.flowRepository.updateEntity(publishingFlow);
+    long newPayments = publishingFlow.getComputedTotPayments() + paymentsToAdd;
+    BigDecimal newAmounts =
+        BigDecimal.valueOf(amountToAdd).add(publishingFlow.getComputedTotAmount());
+    this.flowRepository.updateComputedValues(
+        publishingFlow.getId(), newPayments, newAmounts, now, FlowStatusEnum.INSERTED);
     this.paymentRepository.createEntityInBulk(paymentEntities);
   }
 
+  @SneakyThrows
   private void deletePaymentToExistingFlowInTransaction(
       FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
 
@@ -295,14 +299,15 @@ public class PaymentService {
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed
-    publishingFlow.addOnComputedTotPayments(paymentsToAdd);
-    publishingFlow.addOnComputedTotAmount(amountToAdd);
-    publishingFlow.setUpdated(now);
-    publishingFlow.setStatus(
+    long newPayments = publishingFlow.getComputedTotPayments() + paymentsToAdd;
+    BigDecimal newAmounts =
+        BigDecimal.valueOf(amountToAdd).add(publishingFlow.getComputedTotAmount());
+    FlowStatusEnum status =
         publishingFlow.getComputedTotPayments() > 0
-            ? FlowStatusEnum.INSERTED.name()
-            : FlowStatusEnum.CREATED.name());
-    this.flowRepository.updateEntity(publishingFlow);
+            ? FlowStatusEnum.INSERTED
+            : FlowStatusEnum.CREATED;
+    this.flowRepository.updateComputedValues(
+        publishingFlow.getId(), newPayments, newAmounts, now, status);
     this.paymentRepository.deleteEntityInBulk(paymentEntities);
   }
 }
