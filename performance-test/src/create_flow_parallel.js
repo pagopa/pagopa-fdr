@@ -35,6 +35,7 @@ const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 
 
 var params = {};
+var data = {};
 
 export function setup() {
   // Before All
@@ -45,6 +46,21 @@ export function setup() {
       'Ocp-Apim-Subscription-Key': subscriptionKey
     },
   };
+
+  let flowNameAndDate = generateFlowNameAndDate(requestValues.pspDomainId, `${__VU}`);
+
+
+  let requests = [];
+  const partitions = generatePartitionIndexes(paymentsInFlow, 1000);
+  for (const partition of partitions) {
+    requests.push(buildAddPaymentsRequest(partition, 100.00, flowNameAndDate[1]));
+  }
+
+  data = {
+    flowName: flowNameAndDate[0],
+    flowDate: flowNameAndDate[1],
+    addPaymentsRequests: requests
+  };
 }
 
 export default function () {
@@ -53,16 +69,14 @@ export default function () {
 
   // Generating essentials information
   //console.log(`VU: ${__VU}  -  ITER: ${__ITER}`);
-  let flowNameAndDate = generateFlowNameAndDate(requestValues.pspDomainId, `${__VU}`);
-  let flowName = flowNameAndDate[0]
-  let flowDate = flowNameAndDate[1]
 
   // Create a new flow
+  const flowName = data.flowName;
+  const flowDate = data.flowDate;
   let createFlowRequest = buildCreateFlowRequest(flowName, flowDate, paymentsInFlow, totalAmount, requestValues);
   const createFlowUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}`
   params.tags.api_name = "create_empty_flow";
   var createFlowResponse = http.post(createFlowUrl, createFlowRequest, params);
-  //console.log(`\nCreate flowrequest: ${createFlowRequest}  -  response: ${createFlowResponse.status} - ${createFlowResponse.body}`);
   check(createFlowResponse, {
     'Check if empty flow was created [HTTP Code: 201]': (_r) => createFlowResponse.status === 201,
   });
@@ -71,28 +85,29 @@ export default function () {
     return;
   }
 
-  const partitions = generatePartitionIndexes(paymentsInFlow, 1000);
+  // Add all payments on the created flow
   const addPaymentsUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}/payments/add`
   params.tags.api_name = "add_payment";
-  for (const partition of partitions) {
-
-    // Add new payments
-    let addPaymentsRequest = buildAddPaymentsRequest(partition, 100.00, flowDate);
-    var addPaymentsResponse = http.put(addPaymentsUrl, addPaymentsRequest, params);
-    check(addPaymentsResponse, {
-      'Check if payments were added to flow [HTTP Code: 200]': (_r) => addPaymentsResponse.status === 200,
-    });
-    if (addPaymentsResponse.status !== 200) {
-      console.log(`Add Payments in error: ${addPaymentsUrl} =>  response: ${addPaymentsResponse.status} - ${addPaymentsResponse.body}`);
-      return;
+  let requests = data.addPaymentsRequests.map((addPaymentsRequest) => {
+    return {
+      method: 'PUT',
+      url: addPaymentsUrl,
+      body: addPaymentsRequest,
+      params: params,
+    };
+  });
+  let responses = http.batch(requests); 
+  responses.forEach((res, index) => {
+    check(res, { 'Check if payments were added to flow [HTTP Code: 200]': (r) => r.status === 200 });
+    if (res.status !== 200) {
+      console.log(`Add Payments in error: ${requests[index].url} => response: ${res.status} - ${res.body}`);
     }
-  }
+  });
 
   // Publish the flow
   const publishFlowUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}/publish`
   params.tags.api_name = "publish_flow";
   var publishFlowResponse = http.post(publishFlowUrl, {}, params);
-  //console.log(`request: None  -  response: ${publishFlowResponse.status} - ${publishFlowResponse.body}`);
   check(publishFlowResponse, {
     'Check if flow was published [HTTP Code: 200]': (_r) => publishFlowResponse.status === 200,
   });
