@@ -53,7 +53,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
           java-version: '21'
@@ -65,7 +65,7 @@ jobs:
       - name: Print diffs
         run: git --no-pager diff
       - name: suggester / google-java-format
-        uses: reviewdog/action-suggester@v1
+        uses: reviewdog/action-suggester@a3026c6020837c23b61a79d12db223a00df19e6a # v1
         with:
           tool_name: google-java-format
           fail_on_error: true
