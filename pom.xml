@@ -130,10 +130,6 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-mongodb-panache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-scheduler</artifactId>
     </dependency>
     <dependency>
@@ -151,20 +147,6 @@
       <artifactId>junit-jupiter</artifactId>
       <version>1.16.0</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>mongodb</artifactId>
-      <version>1.18.3</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-storage-queue</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-messaging-eventhubs</artifactId>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
