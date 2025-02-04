@@ -1,6 +1,5 @@
-package it.gov.pagopa.fdr.repository.sql;
+package it.gov.pagopa.fdr.repository.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Parameters;
@@ -13,6 +12,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -66,12 +68,22 @@ public class PaymentEntity extends PanacheEntityBase {
   // @JoinColumn(name = "flow_id", referencedColumnName = "id")
   // public FlowEntity flow;
 
-  public static PanacheQuery<PanacheEntity> findPageByQuery(
+  public static PanacheQuery<PaymentEntity> findPageByQuery(
       String query, Sort sort, Parameters parameters) {
     return find(query, sort, parameters.map());
   }
 
-  public static long countByQuery(String query, Parameters parameters) {
-    return count(query, parameters.map());
+  public void exportInPreparedStatement(PreparedStatement preparedStatement) throws SQLException {
+
+    preparedStatement.setLong(1, this.flowId);
+    preparedStatement.setString(2, this.iuv);
+    preparedStatement.setString(3, this.iur);
+    preparedStatement.setLong(4, this.index);
+    preparedStatement.setBigDecimal(5, this.amount);
+    preparedStatement.setTimestamp(6, this.payDate != null ? Timestamp.from(this.payDate) : null);
+    preparedStatement.setString(7, this.payStatus);
+    preparedStatement.setLong(8, this.transferId);
+    preparedStatement.setTimestamp(9, this.created != null ? Timestamp.from(this.created) : null);
+    preparedStatement.setTimestamp(10, this.updated != null ? Timestamp.from(this.updated) : null);
   }
 }

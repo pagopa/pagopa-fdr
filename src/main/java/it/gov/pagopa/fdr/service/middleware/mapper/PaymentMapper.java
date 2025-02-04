@@ -5,11 +5,8 @@ import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
-import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
-import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
-import it.gov.pagopa.fdr.repository.entity.payment.ReferencedFdrEntity;
-import it.gov.pagopa.fdr.repository.sql.FlowEntity;
-import it.gov.pagopa.fdr.repository.sql.PaymentEntity;
+import it.gov.pagopa.fdr.repository.entity.FlowEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,18 +21,18 @@ public interface PaymentMapper {
 
   PaymentMapper INSTANCE = Mappers.getMapper(PaymentMapper.class);
 
-  default List<Payment> toPayment(List<FdrPaymentEntity> list) {
+  default List<Payment> toPayment(List<PaymentEntity> list) {
 
     List<Payment> converted = new ArrayList<>();
-    for (FdrPaymentEntity entity : list) {
+    for (PaymentEntity entity : list) {
       converted.add(
           Payment.builder()
               .index(entity.getIndex())
               .iuv(entity.getIuv())
               .iur(entity.getIur())
               .idTransfer(entity.getTransferId())
-              .pay(entity.getAmount())
-              .payStatus(PaymentStatusEnum.valueOf(entity.getPayStatus().name()))
+              .pay(entity.getAmount().doubleValue())
+              .payStatus(PaymentStatusEnum.valueOf(entity.getPayStatus()))
               .payDate(entity.getPayDate())
               .build());
     }
@@ -43,7 +40,7 @@ public interface PaymentMapper {
   }
 
   default PaginatedPaymentsResponse toPaginatedPaymentsResponse(
-      RepositoryPagedResult<FdrPaymentEntity> paginatedResult, long pageSize, long pageNumber) {
+      RepositoryPagedResult<PaymentEntity> paginatedResult, long pageSize, long pageNumber) {
 
     return PaginatedPaymentsResponse.builder()
         .metadata(
@@ -57,38 +54,7 @@ public interface PaymentMapper {
         .build();
   }
 
-  default List<FdrPaymentEntity> toEntity(
-      FdrFlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
-
-    ReferencedFdrEntity referencedFdrEntity = new ReferencedFdrEntity();
-    referencedFdrEntity.setId(flowEntity.id);
-    referencedFdrEntity.setName(flowEntity.getName());
-    referencedFdrEntity.setRevision(flowEntity.getRevision());
-    referencedFdrEntity.setSenderPspId(flowEntity.getSender().getPspId());
-    referencedFdrEntity.setReceiverOrganizationId(flowEntity.getReceiver().getOrganizationId());
-
-    List<FdrPaymentEntity> converted = new LinkedList<>();
-    for (Payment payment : payments) {
-      FdrPaymentEntity entity = new FdrPaymentEntity();
-      entity.setIuv(payment.getIuv());
-      entity.setIur(payment.getIur());
-      entity.setIndex(payment.getIndex());
-      entity.setAmount(payment.getPay());
-      entity.setPayStatus(
-          it.gov.pagopa.fdr.repository.enums.PaymentStatusEnum.valueOf(
-              payment.getPayStatus().name()));
-      entity.setPayDate(payment.getPayDate());
-      entity.setTransferId(payment.getIdTransfer());
-      entity.setCreated(operationTime);
-      entity.setUpdated(operationTime);
-      entity.setRefFdr(referencedFdrEntity);
-      converted.add(entity);
-    }
-
-    return converted;
-  }
-
-  default List<PaymentEntity> toSqlEntity(
+  default List<PaymentEntity> toEntity(
       FlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
 
     List<PaymentEntity> converted = new LinkedList<>();

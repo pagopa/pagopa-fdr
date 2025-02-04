@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.service.middleware.validator.clause;
 
-import it.gov.pagopa.fdr.repository.sql.FlowEntity;
+import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.validator.ValidationArgs;
 import it.gov.pagopa.fdr.util.validator.ValidationResult;

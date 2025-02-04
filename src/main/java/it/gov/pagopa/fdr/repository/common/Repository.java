@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.repository.common;
 
-import io.quarkus.mongodb.panache.PanacheQuery;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.panache.common.Sort.Direction;
 import java.util.List;

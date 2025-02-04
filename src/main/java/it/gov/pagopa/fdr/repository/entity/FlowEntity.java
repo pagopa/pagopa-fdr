@@ -1,6 +1,5 @@
-package it.gov.pagopa.fdr.repository.sql;
+package it.gov.pagopa.fdr.repository.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Parameters;
@@ -113,12 +112,8 @@ public class FlowEntity extends PanacheEntityBase {
     this.computedTotPayments += value;
   }
 
-  public static PanacheQuery<PanacheEntity> findPageByQuery(
+  public static PanacheQuery<FlowEntity> findPageByQuery(
       String query, Sort sort, Parameters parameters) {
     return find(query, sort, parameters.map());
-  }
-
-  public static PanacheQuery<PanacheEntity> findByQuery(String query, Parameters parameters) {
-    return find(query, parameters.map());
   }
 }
