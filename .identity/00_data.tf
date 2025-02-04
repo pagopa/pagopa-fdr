@@ -51,11 +51,6 @@ data "azurerm_key_vault_secret" "key_vault_cucumber_token" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
 }
 
-data "azurerm_key_vault_secret" "key_vault_slack_webhook_url" {
-  name         = "slack-webhook-url"
-  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
-}
-
 data "azurerm_key_vault_secret" "integration_test_internal_subscription_key" {
   count        = var.env_short == "p" ? 0 : 1
   name         = "integration-test-internal-subscription-key"
@@ -92,8 +87,13 @@ data "azurerm_key_vault_secret" "opex_org_subscription_key" {
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
-data "azurerm_key_vault_secret" "key_vault_integration_test_slack_webhook_url" {
-  name         = "slack-webhook-url"
+data "azurerm_key_vault_secret" "key_vault_deploy_slack_webhook" {
+  name         = "pagopa-pagamenti-deploy-slack-webhook"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "key_vault_integration_test_slack_webhook" {
+  name         = "pagopa-pagamenti-integration-test-slack-webhook"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
@@ -112,6 +112,8 @@ data "azurerm_user_assigned_identity" "identity_cd" {
 }
 
 data "azurerm_user_assigned_identity" "identity_ci" {
+  count  = var.env_short == "p" ? 0 : 1
+  
   name                = "${local.product}-${local.domain}-01-github-ci-identity"
   resource_group_name = "${local.product}-identity-rg"
 }
