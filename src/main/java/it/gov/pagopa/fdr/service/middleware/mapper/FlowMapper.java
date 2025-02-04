@@ -15,7 +15,6 @@ import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
-import it.gov.pagopa.fdr.repository.enums.SenderTypeEnum;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -121,14 +120,34 @@ public interface FlowMapper {
   }
 
   @Mapping(source = "name", target = "fdr")
+  @Mapping(source = "date", target = "fdrDate")
   @Mapping(source = "totAmount", target = "sumPayments")
   @Mapping(source = "computedTotAmount", target = "computedSumPayments")
+  @Mapping(target = "sender", expression = "java(toSender(result))")
+  @Mapping(target = "receiver", expression = "java(toReceiver(result))")
   SingleFlowResponse toSingleFlowResponse(FlowEntity result);
 
   @Mapping(source = "name", target = "fdr")
+  @Mapping(source = "date", target = "fdrDate")
   @Mapping(source = "totAmount", target = "sumPayments")
   @Mapping(source = "computedTotAmount", target = "computedSumPayments")
+  @Mapping(target = "sender", expression = "java(toSender(result))")
+  @Mapping(target = "receiver", expression = "java(toReceiver(result))")
   SingleFlowCreatedResponse toSingleFlowCreatedResponse(FlowEntity result);
+
+  @Mapping(source = "senderType", target = "type")
+  @Mapping(source = "senderId", target = "id")
+  @Mapping(source = "senderPspId", target = "pspId")
+  @Mapping(source = "senderPspName", target = "pspName")
+  @Mapping(source = "senderPspBrokerId", target = "pspBrokerId")
+  @Mapping(source = "senderChannelId", target = "channelId")
+  @Mapping(source = "senderPassword", target = "password")
+  Sender toSender(FlowEntity result);
+
+  @Mapping(source = "receiverId", target = "id")
+  @Mapping(source = "receiverOrganizationId", target = "organizationId")
+  @Mapping(source = "receiverOrganizationName", target = "organizationName")
+  Receiver toReceiver(FlowEntity result);
 
   default FlowEntity toEntity(CreateFlowRequest request, Long revision) {
 
@@ -142,6 +161,7 @@ public interface FlowMapper {
     entity.setRevision(revision);
     entity.setDate(request.getFdrDate());
     entity.setStatus(FlowStatusEnum.CREATED.name());
+    entity.setIsLatest(false);
     entity.setCreated(now);
     entity.setUpdated(now);
     entity.setTotAmount(BigDecimal.valueOf(request.getSumPayments()));
@@ -152,7 +172,7 @@ public interface FlowMapper {
     entity.setRegulationDate(request.getRegulationDate());
     entity.setBicCodePouringBank(request.getBicCodePouringBank());
     entity.setSenderId(requestSender.getId());
-    entity.setSenderType(SenderTypeEnum.valueOf(requestSender.getType().name()));
+    entity.setSenderType(requestSender.getType().name());
     entity.setSenderPspId(requestSender.getPspId());
     entity.setSenderPspBrokerId(requestSender.getPspBrokerId());
     entity.setSenderChannelId(requestSender.getChannelId());

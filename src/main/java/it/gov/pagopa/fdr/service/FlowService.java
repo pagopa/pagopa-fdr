@@ -342,7 +342,6 @@ public class FlowService {
     publishingFlow.setPublished(now);
     publishingFlow.setIsLatest(true);
     publishingFlow.setStatus(FlowStatusEnum.PUBLISHED.name());
-
     this.flowRepository.updateEntity(publishingFlow);
   }
 }

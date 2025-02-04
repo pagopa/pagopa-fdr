@@ -4,7 +4,6 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
-import it.gov.pagopa.fdr.repository.enums.SenderTypeEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -84,7 +83,7 @@ public class FlowEntity extends PanacheEntityBase {
   public String senderPspName;
 
   @Column(name = "sender_type")
-  public SenderTypeEnum senderType;
+  public String senderType;
 
   @Column(name = "receiver_id")
   public String receiverId;
