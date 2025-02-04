@@ -22,7 +22,6 @@ import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -277,12 +276,9 @@ public class PaymentService {
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed
-    long newPayments = publishingFlow.getComputedTotPayments() + paymentsToAdd;
-    BigDecimal newAmounts =
-        BigDecimal.valueOf(amountToAdd).add(publishingFlow.getComputedTotAmount());
-    this.flowRepository.updateComputedValues(
-        publishingFlow.getId(), newPayments, newAmounts, now, FlowStatusEnum.INSERTED);
     this.paymentRepository.createEntityInBulk(paymentEntities);
+    this.flowRepository.updateComputedValues(
+        publishingFlow.getId(), paymentsToAdd, amountToAdd, now, FlowStatusEnum.INSERTED);
   }
 
   @SneakyThrows
@@ -299,15 +295,12 @@ public class PaymentService {
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed
-    long newPayments = publishingFlow.getComputedTotPayments() + paymentsToAdd;
-    BigDecimal newAmounts =
-        BigDecimal.valueOf(amountToAdd).add(publishingFlow.getComputedTotAmount());
     FlowStatusEnum status =
         publishingFlow.getComputedTotPayments() > 0
             ? FlowStatusEnum.INSERTED
             : FlowStatusEnum.CREATED;
-    this.flowRepository.updateComputedValues(
-        publishingFlow.getId(), newPayments, newAmounts, now, status);
     this.paymentRepository.deleteEntityInBulk(paymentEntities);
+    this.flowRepository.updateComputedValues(
+        publishingFlow.getId(), paymentsToAdd, amountToAdd, now, status);
   }
 }

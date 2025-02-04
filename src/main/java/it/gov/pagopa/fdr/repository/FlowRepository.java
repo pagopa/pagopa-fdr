@@ -14,7 +14,6 @@ import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.util.common.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -263,21 +262,24 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   }
 
   public void updateComputedValues(
-      Long flowId, Long payments, BigDecimal amount, Instant now, FlowStatusEnum status)
+      Long flowId, int paymentsToAdd, double amountToAdd, Instant now, FlowStatusEnum status)
       throws SQLException {
 
     Session session = entityManager.unwrap(Session.class);
 
     String query =
-        "UPDATE flow"
-            + " SET computed_tot_payments = ?, computed_tot_amount = ?, updated = ?, status = ?"
+        "UPDATE flow SET"
+            + " computed_tot_payments = computed_tot_payments + ?,"
+            + " computed_tot_amount = computed_tot_amount + ?,"
+            + " updated = ?,"
+            + " status = ?"
             + " WHERE id = ?";
 
     try (PreparedStatement preparedStatement =
         session.doReturningWork(connection -> connection.prepareStatement(query))) {
 
-      preparedStatement.setLong(1, payments);
-      preparedStatement.setBigDecimal(2, amount);
+      preparedStatement.setLong(1, paymentsToAdd);
+      preparedStatement.setDouble(2, amountToAdd);
       preparedStatement.setTimestamp(3, Timestamp.from(now));
       preparedStatement.setString(4, status.name());
       preparedStatement.setLong(5, flowId);
