@@ -32,6 +32,7 @@ on:
         description: Select the Script Name
         options:
           - create_flow_sequential
+          - create_flow_parallel
       flow-size:
         required: true
         type: number
@@ -57,6 +58,3 @@ jobs:
         run: |
           cd ./performance-test
           sub_key="${{ secrets.PSP_SUBSCRIPTION_KEY }}" payments_in_flow="${{ inputs.flow-size }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" db_name=fdr3_k6 docker compose -f docker-compose.yaml up
-        #          sh ./performance-test/run_performance_test.sh ${{ env.ENVIRONMENT }} ${{ env.TEST_TYPE }} ${{ env.SCRIPT }} ${{ secrets.API_SUBSCRIPTION_KEY }}
-        #${{ secrets.COSMOS_SUBSCRIPTION_KEY }}
-
