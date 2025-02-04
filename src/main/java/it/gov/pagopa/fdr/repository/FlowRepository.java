@@ -14,6 +14,8 @@ import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.util.common.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -279,7 +281,8 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
         session.doReturningWork(connection -> connection.prepareStatement(query))) {
 
       preparedStatement.setLong(1, paymentsToAdd);
-      preparedStatement.setDouble(2, amountToAdd);
+      preparedStatement.setBigDecimal(
+          2, BigDecimal.valueOf(amountToAdd).setScale(2, RoundingMode.HALF_UP));
       preparedStatement.setTimestamp(3, Timestamp.from(now));
       preparedStatement.setString(4, status.name());
       preparedStatement.setLong(5, flowId);

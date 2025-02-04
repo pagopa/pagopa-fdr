@@ -6,6 +6,7 @@ import it.gov.pagopa.fdr.util.validator.ValidationArgs;
 import it.gov.pagopa.fdr.util.validator.ValidationResult;
 import it.gov.pagopa.fdr.util.validator.ValidationStep;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class ComputedPaymentsValidator extends ValidationStep {
 
@@ -27,10 +28,8 @@ public class ComputedPaymentsValidator extends ValidationStep {
     }
 
     // check if computed total amount is equals to pre-set total amount
-    // Double totAmount = flow.getTotAmount();
-    // Double computedTotAmount = flow.getComputedTotAmount();
-    BigDecimal totAmount = flow.getTotAmount();
-    BigDecimal computedTotAmount = flow.getComputedTotAmount();
+    BigDecimal totAmount = flow.getTotAmount().setScale(2, RoundingMode.HALF_UP);
+    BigDecimal computedTotAmount = flow.getComputedTotAmount().setScale(2, RoundingMode.HALF_UP);
     if (!totAmount.equals(computedTotAmount)) {
       return ValidationResult.asInvalid(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_SUM_PAYMENT,
