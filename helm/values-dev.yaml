@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.5-2-PAGOPA-2624
+    tag: 1.1.5-3-PAGOPA-2624
     pullPolicy: Always
   readinessProbe:
     httpGet:
