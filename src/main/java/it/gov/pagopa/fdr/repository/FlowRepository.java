@@ -28,29 +28,23 @@ import org.jboss.logging.Logger;
 public class FlowRepository extends Repository implements PanacheRepository<FlowEntity> {
 
   public static final String QUERY_GET_BY_PSP_AND_NAME_AND_REVISION_AND_ORGANIZATION_AND_STATUS =
-      "senderPspId = ?1"
+      "pspDomainId = ?1"
           + " and name = ?2"
           + " and revision = ?3"
-          + " and receiverOrganizationId = ?4"
+          + " and orgDomainId = ?4"
           + " and status = ?5";
 
   public static final String QUERY_GET_UNPUBLISHED_BY_ORGANIZATION_AND_PSP_AND_NAME =
-      "senderPspId = ?1"
-          + " and name = ?2"
-          + " and receiverOrganizationId = ?3"
-          + " and status != ?4";
+      "pspDomainId = ?1" + " and name = ?2" + " and orgDomainId = ?3" + " and status != ?4";
 
   public static final String QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME =
-      "senderPspId = ?1 and name = ?2 and status != ?3";
+      "pspDomainId = ?1 and name = ?2 and status != ?3";
 
   public static final String QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME_AND_ORGANIZATION =
-      "senderPspId = ?1"
-          + " and name = ?2"
-          + " and receiverOrganizationId = ?3"
-          + " and status != ?4";
+      "pspDomainId = ?1" + " and name = ?2" + " and orgDomainId = ?3" + " and status != ?4";
 
   public static final String QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME =
-      "senderPspId = ?1 and name = ?2 and status = ?3 and isLatest = ?4";
+      "pspDomainId = ?1 and name = ?2 and status = ?3 and isLatest = ?4";
 
   private EntityManager entityManager;
 
@@ -102,7 +96,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     List<String> queryBuilder = new ArrayList<>();
 
     // setting mandatory field: organization id
-    queryBuilder.add("senderPspId = :pspId");
+    queryBuilder.add("pspDomainId = :pspId");
     parameters.and("pspId", pspId);
 
     // setting mandatory field: flow status
@@ -146,12 +140,12 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     List<String> queryBuilder = new ArrayList<>();
 
     // setting mandatory field: PSP id
-    queryBuilder.add("senderPspId = :pspId");
+    queryBuilder.add("pspDomainId = :pspId");
     parameters.and("pspId", pspId);
 
     // setting optional field: organization id
     if (!StringUtil.isNullOrBlank(organizationId)) {
-      queryBuilder.add("receiverOrganizationId = :organizationId");
+      queryBuilder.add("orgDomainId = :organizationId");
       parameters.and("organizationId", organizationId);
     }
 
@@ -226,12 +220,12 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     List<String> queryBuilder = new ArrayList<>();
 
     // setting mandatory field: organization id
-    queryBuilder.add("receiverOrganizationId = :organizationId");
+    queryBuilder.add("orgDomainId = :organizationId");
     parameters.and("organizationId", organizationId);
 
     // setting optional field: PSP id
     if (!StringUtil.isNullOrBlank(pspId)) {
-      queryBuilder.add("senderPspId = :pspId");
+      queryBuilder.add("pspDomainId = :pspId");
       parameters.and("pspId", pspId);
     }
 

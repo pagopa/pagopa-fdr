@@ -54,7 +54,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
 
     StringBuilder query =
         new StringBuilder(
-            "SELECT p FROM PaymentEntity p LEFT JOIN FETCH p.flow WHERE p.flow.senderPspId = :psp");
+            "SELECT p FROM PaymentEntity p LEFT JOIN FETCH p.flow WHERE p.flow.pspDomainId = :psp");
     Parameters params = new Parameters().and("psp", pspId);
     if (iuv != null) {
       query.append(" and iuv = :iuv");

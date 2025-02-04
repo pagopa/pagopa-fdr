@@ -43,11 +43,11 @@ public class FlowEntity extends PanacheEntityBase {
   @Column(name = "is_latest")
   public Boolean isLatest;
 
-  @Column(name = "sender_psp_id")
-  public String senderPspId; // domainId
+  @Column(name = "psp_domain_id")
+  public String pspDomainId; // domainId
 
-  @Column(name = "receiver_organization_id")
-  public String receiverOrganizationId; // domainId
+  @Column(name = "org_domain_id")
+  public String orgDomainId; // domainId
 
   @Column(name = "tot_amount")
   public BigDecimal totAmount;

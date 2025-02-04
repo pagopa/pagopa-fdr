@@ -15,8 +15,8 @@ public interface TechnicalSupportMapper {
 
   List<FlowBySenderAndReceiver> toFlowBySenderAndReceiver(List<PaymentEntity> list);
 
-  @Mapping(source = "flow.senderPspId", target = "pspId")
-  @Mapping(source = "flow.receiverOrganizationId", target = "organizationId")
+  @Mapping(source = "flow.pspDomainId", target = "pspId")
+  @Mapping(source = "flow.orgDomainId", target = "organizationId")
   @Mapping(source = "flow.name", target = "fdr")
   @Mapping(source = "flow.revision", target = "revision")
   FlowBySenderAndReceiver toFlowBySenderAndReceiver(PaymentEntity list);

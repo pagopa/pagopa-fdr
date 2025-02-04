@@ -36,7 +36,7 @@ public interface FlowMapper {
       converted.add(
           FlowByPSP.builder()
               .fdr(entity.getName())
-              .pspId(entity.getSenderPspId())
+              .pspId(entity.getPspDomainId())
               .revision(entity.getRevision())
               .published(entity.getPublished())
               .build());
@@ -51,7 +51,7 @@ public interface FlowMapper {
       converted.add(
           FlowByCICreated.builder()
               .fdr(entity.getName())
-              .organizationId(entity.getReceiverOrganizationId())
+              .organizationId(entity.getOrgDomainId())
               .revision(entity.getRevision())
               .created(entity.getCreated())
               .build());
@@ -66,7 +66,7 @@ public interface FlowMapper {
       converted.add(
           FlowByCIPublished.builder()
               .fdr(entity.getName())
-              .organizationId(entity.getReceiverOrganizationId())
+              .organizationId(entity.getOrgDomainId())
               .revision(entity.getRevision())
               .published(entity.getPublished())
               .build());
@@ -137,7 +137,7 @@ public interface FlowMapper {
 
   @Mapping(source = "senderType", target = "type")
   @Mapping(source = "senderId", target = "id")
-  @Mapping(source = "senderPspId", target = "pspId")
+  @Mapping(source = "pspDomainId", target = "pspId")
   @Mapping(source = "senderPspName", target = "pspName")
   @Mapping(source = "senderPspBrokerId", target = "pspBrokerId")
   @Mapping(source = "senderChannelId", target = "channelId")
@@ -145,7 +145,7 @@ public interface FlowMapper {
   Sender toSender(FlowEntity result);
 
   @Mapping(source = "receiverId", target = "id")
-  @Mapping(source = "receiverOrganizationId", target = "organizationId")
+  @Mapping(source = "orgDomainId", target = "organizationId")
   @Mapping(source = "receiverOrganizationName", target = "organizationName")
   Receiver toReceiver(FlowEntity result);
 
@@ -173,13 +173,13 @@ public interface FlowMapper {
     entity.setBicCodePouringBank(request.getBicCodePouringBank());
     entity.setSenderId(requestSender.getId());
     entity.setSenderType(requestSender.getType().name());
-    entity.setSenderPspId(requestSender.getPspId());
+    entity.setPspDomainId(requestSender.getPspId());
     entity.setSenderPspBrokerId(requestSender.getPspBrokerId());
     entity.setSenderChannelId(requestSender.getChannelId());
     entity.setSenderPspName(requestSender.getPspName());
     entity.setSenderPassword(requestSender.getPassword());
     entity.setReceiverId(requestReceiver.getId());
-    entity.setReceiverOrganizationId(requestReceiver.getOrganizationId());
+    entity.setOrgDomainId(requestReceiver.getOrganizationId());
     entity.setReceiverOrganizationName(requestReceiver.getOrganizationName());
 
     return entity;
