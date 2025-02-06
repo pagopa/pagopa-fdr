@@ -29,7 +29,7 @@ microservice-chart:
     ADAPTER_API_CONFIG_CACHE_CRON: "0 */1 * * * ?"
     BLOB_RE_CONTAINER_NAME: "re-payload"
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.d.internal.postgresql.pagopa.it:6432/fdr3?sslmode=require&prepareThreshold=0"
-    DATASOURCE_USERNAME: "fdr"
+    DATASOURCE_USERNAME: "fdr3"
     DATASOURCE_POOL_SIZE: "20"
   envFieldRef:
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
@@ -39,7 +39,7 @@ microservice-chart:
     envSecrets:
       ADAPTER_API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
       OTEL_AUTH_BEARER: "otel-auth-bearer"
-      DATASOURCE_PASSWORD: "db-fdr-password"
+      DATASOURCE_PASSWORD: "db-fdr3-password"
       #BLOB_RE_CONNECTION_STRING: "fdr-re-sa-connection-string"
     keyvault:
       name: "pagopa-d-fdr-kv"
