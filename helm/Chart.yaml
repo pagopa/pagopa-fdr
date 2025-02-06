@@ -3,7 +3,7 @@ name: pagopa-fdr-chart
 description: Flussi di rendicontazioni
 type: application
 version: "1.56.0"
-appVersion: "1.1.3-3-PAGOPA-2043"
+appVersion: "1.1.5"
 dependencies:
   - name: microservice-chart
     version: 3.0.0
