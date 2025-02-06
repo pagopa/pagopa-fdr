@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.repository;
 
+import com.google.common.collect.Lists;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -15,6 +16,7 @@ import io.quarkus.panache.common.Sort.Direction;
 import it.gov.pagopa.fdr.repository.common.Repository;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.common.SortField;
+import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
 import it.gov.pagopa.fdr.repository.entity.payment.FdrPaymentEntity;
 import it.gov.pagopa.fdr.util.error.exception.persistence.PersistenceFailureException;
 import it.gov.pagopa.fdr.util.error.exception.persistence.TransactionRollbackException;
@@ -25,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.bson.types.ObjectId;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class FdrPaymentRepository extends Repository {
@@ -35,9 +39,15 @@ public class FdrPaymentRepository extends Repository {
   public static final String QUERY_GET_BY_FLOW_OBJID_AND_INDEXES =
       "ref_fdr.id = :flowObjId" + " and index in :indexes";
 
+  private final Logger log;
+
   private final MongoClient mongoClient;
 
-  public FdrPaymentRepository(MongoClient mongoClient) {
+  @ConfigProperty(name = "quarkus.mongodb.custom.fdr_payments.bulk-size")
+  private Integer bulkSize;
+
+  public FdrPaymentRepository(Logger log, MongoClient mongoClient) {
+    this.log = log;
     this.mongoClient = mongoClient;
   }
 
@@ -87,6 +97,8 @@ public class FdrPaymentRepository extends Repository {
     Page page = Page.of(pageNumber - 1, pageSize);
     Sort sort = getSort(SortField.of("index", Direction.Ascending));
 
+    explainQuery(log, FdrPaymentEntity.mongoCollection(), QUERY_GET_BY_FLOW_OBJID, parameters);
+
     PanacheQuery<FdrPaymentEntity> resultPage =
         FdrPaymentEntity.findPageByQuery(
                 FdrPaymentRepository.QUERY_GET_BY_FLOW_OBJID, sort, parameters)
@@ -101,6 +113,9 @@ public class FdrPaymentRepository extends Repository {
     parameters.and("flowObjId", flowId);
     parameters.and("indexes", indexes);
 
+    explainQuery(
+        log, FdrFlowEntity.mongoCollection(), QUERY_GET_BY_FLOW_OBJID_AND_INDEXES, parameters);
+
     return FdrPaymentEntity.countByQuery(
         FdrPaymentRepository.QUERY_GET_BY_FLOW_OBJID_AND_INDEXES, parameters);
   }
@@ -114,6 +129,9 @@ public class FdrPaymentRepository extends Repository {
 
     Page page = Page.of(0, indexes.size());
     Sort sort = getSort(SortField.of("index", Direction.Ascending));
+
+    explainQuery(
+        log, FdrFlowEntity.mongoCollection(), QUERY_GET_BY_FLOW_OBJID_AND_INDEXES, parameters);
 
     PanacheQuery<FdrPaymentEntity> resultPage =
         FdrPaymentEntity.findPageByQuery(
@@ -135,12 +153,16 @@ public class FdrPaymentRepository extends Repository {
 
         // add each entity in a bulk write, in order to save it as a single batch in transaction
         Instant now = Instant.now();
-        List<WriteModel<FdrPaymentEntity>> bulkOperations = new ArrayList<>();
-        for (FdrPaymentEntity entity : entityBatch) {
-          entity.setTimestamp(now);
-          bulkOperations.add(new InsertOneModel<>(entity));
+        List<List<FdrPaymentEntity>> partitions = Lists.partition(entityBatch, bulkSize);
+
+        for (List<FdrPaymentEntity> partition : partitions) {
+          List<WriteModel<FdrPaymentEntity>> bulkOperations = new ArrayList<>();
+          for (FdrPaymentEntity entity : partition) {
+            entity.setTimestamp(now);
+            bulkOperations.add(new InsertOneModel<>(entity));
+          }
+          collection.bulkWrite(session, bulkOperations);
         }
-        collection.bulkWrite(session, bulkOperations);
 
         // finally, close and commit the transaction
         session.commitTransaction();

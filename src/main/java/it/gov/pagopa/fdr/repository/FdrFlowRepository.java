@@ -17,9 +17,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.eclipse.microprofile.faulttolerance.Retry;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
+@AllArgsConstructor
 public class FdrFlowRepository extends Repository {
 
   public static final String QUERY_GET_BY_PSP_AND_NAME_AND_REVISION_AND_ORGANIZATION_AND_STATUS =
@@ -50,6 +53,8 @@ public class FdrFlowRepository extends Repository {
   public static final String QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME =
       "sender.psp_id = :pspId and name = :flowName and status = 'PUBLISHED' and is_latest ="
           + " :isLatest";
+
+  private final Logger log;
 
   public RepositoryPagedResult<FdrFlowEntity> findLatestPublishedByOrganizationIdAndOptionalPspId(
       String organizationId, String pspId, Instant publishedGt, int pageNumber, int pageSize) {
@@ -136,6 +141,12 @@ public class FdrFlowRepository extends Repository {
     parameters.and("organizationId", organizationId);
     parameters.and("status", FlowStatusEnum.PUBLISHED);
 
+    explainQuery(
+        log,
+        FdrFlowEntity.mongoCollection(),
+        QUERY_GET_BY_PSP_AND_NAME_AND_REVISION_AND_ORGANIZATION_AND_STATUS,
+        parameters);
+
     return FdrFlowEntity.findByQuery(
             FdrFlowRepository.QUERY_GET_BY_PSP_AND_NAME_AND_REVISION_AND_ORGANIZATION_AND_STATUS,
             parameters)
@@ -150,6 +161,9 @@ public class FdrFlowRepository extends Repository {
     parameters.and("pspId", pspId);
     parameters.and("flowName", flowName);
     parameters.and("isLatest", true);
+
+    explainQuery(
+        log, FdrFlowEntity.mongoCollection(), QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME, parameters);
 
     return FdrFlowEntity.findByQuery(
             FdrFlowRepository.QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME, parameters)
@@ -168,6 +182,8 @@ public class FdrFlowRepository extends Repository {
     Page page = Page.of(pageNumber - 1, pageSize);
     Sort sort = getSort(SortField.of("_id", Direction.Ascending));
 
+    explainQuery(log, FdrFlowEntity.mongoCollection(), QUERY_GET_UNPUBLISHED_BY_PSP, parameters);
+
     PanacheQuery<FdrFlowEntity> resultPage =
         FdrFlowEntity.findPageByQuery(
                 FdrFlowRepository.QUERY_GET_UNPUBLISHED_BY_PSP, sort, parameters)
@@ -180,6 +196,9 @@ public class FdrFlowRepository extends Repository {
     Parameters parameters = new Parameters();
     parameters.and("pspId", pspId);
     parameters.and("flowName", flowName);
+
+    explainQuery(
+        log, FdrFlowEntity.mongoCollection(), QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME, parameters);
 
     return FdrFlowEntity.findByQuery(
             FdrFlowRepository.QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME, parameters)
@@ -195,6 +214,12 @@ public class FdrFlowRepository extends Repository {
     parameters.and("organizationId", organizationId);
     parameters.and("pspId", pspId);
     parameters.and("flowName", flowName);
+
+    explainQuery(
+        log,
+        FdrFlowEntity.mongoCollection(),
+        QUERY_GET_UNPUBLISHED_BY_ORGANIZATION_AND_PSP_AND_NAME,
+        parameters);
 
     return FdrFlowEntity.findByQuery(
             FdrFlowRepository.QUERY_GET_UNPUBLISHED_BY_ORGANIZATION_AND_PSP_AND_NAME, parameters)
@@ -214,6 +239,12 @@ public class FdrFlowRepository extends Repository {
     parameters.and("organizationId", organizationId);
     parameters.and("status", status);
 
+    explainQuery(
+        log,
+        FdrFlowEntity.mongoCollection(),
+        QUERY_GET_BY_PSP_AND_NAME_AND_REVISION_AND_ORGANIZATION_AND_STATUS,
+        parameters);
+
     return FdrFlowEntity.findByQuery(
             FdrFlowRepository.QUERY_GET_BY_PSP_AND_NAME_AND_REVISION_AND_ORGANIZATION_AND_STATUS,
             parameters)
@@ -230,6 +261,12 @@ public class FdrFlowRepository extends Repository {
     parameters.and("pspId", pspId);
     parameters.and("flowName", flowName);
     parameters.and("organizationId", organizationId);
+
+    explainQuery(
+        log,
+        FdrFlowEntity.mongoCollection(),
+        QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME_AND_ORGANIZATION,
+        parameters);
 
     return FdrFlowEntity.findByQuery(
             FdrFlowRepository.QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME_AND_ORGANIZATION, parameters)
