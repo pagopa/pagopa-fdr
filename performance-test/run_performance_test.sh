@@ -26,8 +26,8 @@ then
 fi
 if [ -z "$DB_NAME" ]
 then
-  DB_NAME="k6"
-  echo "No DB name specified: 'k6' is used."
+  DB_NAME="fdr3_k6"
+  echo "No DB name specified: 'fdr3_k6' is used."
 fi
 if [ -z "$PAYMENTS_IN_FLOW" ]
 then
