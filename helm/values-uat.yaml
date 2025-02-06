@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.5
+    tag: 1.1.6
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -28,6 +28,8 @@ microservice-chart:
     ADAPTER_API_CONFIG_CACHE_URL: "https://api.uat.platform.pagopa.it/api-config-cache/p/v1"
     ADAPTER_API_CONFIG_CACHE_CRON: "0 */1 * * * ?"
     BLOB_RE_CONTAINER_NAME: "re-payload"
+    MONGODB_EXPLAIN_QUERIES: "true"
+    MONGODB_PAYMENTS_BULK_SIZE: "100"
   envFieldRef:
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"

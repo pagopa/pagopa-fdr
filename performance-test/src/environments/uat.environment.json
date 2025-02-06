@@ -1,0 +1,17 @@
+{
+  "environment": [
+    {
+      "env": "uat",
+      "base_path": "https://upload.uat.platform.pagopa.it/fdr-psp/service/v1",
+      "psp_type": "BIC_CODE",
+      "psp_id": "SELBIT2B",
+      "psp_domain_id": "88888888888",
+      "psp_name": "Banca Sella",
+      "psp_broker_id": "88888888888",
+      "channel_id": "88888888888_01",
+      "creditor_institution_id": "15376371009",
+      "creditor_institution_domain_id": "15376371009",
+      "creditor_institution_name": "PagoPA"
+    }
+  ]
+}
