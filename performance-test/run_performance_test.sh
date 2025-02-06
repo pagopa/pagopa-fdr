@@ -6,6 +6,7 @@ SCRIPT=$3
 DB_NAME=$4
 API_SUBSCRIPTION_KEY=$5
 PAYMENTS_IN_FLOW=$6
+MAX_PARALLEL_CALLS=$7
 
 if [ -z "$ENVIRONMENT" ]
 then
@@ -33,6 +34,11 @@ then
   PAYMENTS_IN_FLOW="1000"
   echo "No number of payments in flow specified: '1000' is used."
 fi
+if [ -z "$MAX_PARALLEL_CALLS" ]
+then
+  MAX_PARALLEL_CALLS="5"
+  echo "No number of maximum parallel calls specified: '5' is used."
+fi
 
 export env=${ENVIRONMENT}
 export type=${TYPE}
@@ -40,6 +46,7 @@ export script=${SCRIPT}
 export db_name=${DB_NAME}
 export sub_key=${API_SUBSCRIPTION_KEY}
 export payments_in_flow=${PAYMENTS_IN_FLOW}
+export max_parallel_calls=${MAX_PARALLEL_CALLS}
 
 docker rm nginx
 docker rm k6

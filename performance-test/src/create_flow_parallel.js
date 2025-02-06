@@ -28,10 +28,13 @@ const requestValues = {
 }
 
 const paymentsInFlow = `${__ENV.PAYMENTS_IN_FLOW}`;
+const maxParallelCalls = __ENV.MAX_PARALLEL_CALLS && Number(__ENV.MAX_PARALLEL_CALLS) > 0 ? Number(__ENV.MAX_PARALLEL_CALLS) : 5;
+const maxPaymentsInCall = 1000;
 const totalAmount = paymentsInFlow * 100.00;
-const numberOfPartitions = 1 + (paymentsInFlow / 1000);
+const numberOfPartitions = 1 + (paymentsInFlow / maxPaymentsInCall);
 
 const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
+console.log(`Defining max [${maxParallelCalls}] parallel calls with max [${paymentsInFlow}] payments.`);
 
 
 var params = {};
@@ -48,10 +51,9 @@ export function setup() {
   };
 
   let flowNameAndDate = generateFlowNameAndDate(requestValues.pspDomainId, `${__VU}`);
-
-
+  
   let requests = [];
-  const partitions = generatePartitionIndexes(paymentsInFlow, 1000);
+  const partitions = generatePartitionIndexes(paymentsInFlow, maxPaymentsInCall);
   for (const partition of partitions) {
     requests.push(buildAddPaymentsRequest(partition, 100.00, flowNameAndDate[1]));
   }
@@ -61,14 +63,12 @@ export function setup() {
     flowDate: flowNameAndDate[1],
     addPaymentsRequests: requests
   };
+
 }
 
 export default function () {
 
   setup();
-
-  // Generating essentials information
-  //console.log(`VU: ${__VU}  -  ITER: ${__ITER}`);
 
   // Create a new flow
   const flowName = data.flowName;
@@ -88,20 +88,27 @@ export default function () {
   // Add all payments on the created flow
   const addPaymentsUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}/payments/add`
   params.tags.api_name = "add_payment";
-  let requests = data.addPaymentsRequests.map((addPaymentsRequest) => {
-    return {
+  let requests = [];
+  data.addPaymentsRequests.forEach((addPaymentsRequest, index) => {
+    if (index % maxParallelCalls === 0) {
+      requests.push([]);
+    }
+    let currentBatchIndex = Math.floor(index / maxParallelCalls);
+    requests[currentBatchIndex].push({
       method: 'PUT',
       url: addPaymentsUrl,
       body: addPaymentsRequest,
       params: params,
-    };
+    });
   });
-  let responses = http.batch(requests); 
-  responses.forEach((res, index) => {
-    check(res, { 'Check if payments were added to flow [HTTP Code: 200]': (r) => r.status === 200 });
-    if (res.status !== 200) {
-      console.log(`Add Payments in error: ${requests[index].url} => response: ${res.status} - ${res.body}`);
-    }
+  requests.forEach(batch => {
+    let responses = http.batch(batch);
+    responses.forEach((res, index) => {
+      check(res, { 'Check if payments were added to flow [HTTP Code: 200]': (r) => r.status === 200 });
+      if (res.status !== 200) {
+        console.log(`Add Payments in error: ${batch[index].url} => response: ${res.status} - ${res.body}`);
+      }
+    });
   });
 
   // Publish the flow

@@ -38,6 +38,11 @@ on:
         type: number
         description: Select the number of payments sent in flow
         default: 100
+      max-parallel-calls:
+        required: false
+        type: number
+        description: Select the number of maximum API calls in parallel (for each VU)
+        default: 5
 
 permissions:
   id-token: write
@@ -57,4 +62,4 @@ jobs:
       - name: Run k6 script
         run: |
           cd ./performance-test
-          sub_key="${{ secrets.PSP_SUBSCRIPTION_KEY }}" payments_in_flow="${{ inputs.flow-size }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" db_name=fdr3_k6 docker compose -f docker-compose.yaml up
+          sub_key="${{ secrets.PSP_SUBSCRIPTION_KEY }}" payments_in_flow="${{ inputs.flow-size }}" max_parallel_calls="${{ inputs.max-parallel-calls }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" db_name=fdr3_k6 docker compose -f docker-compose.yaml up
