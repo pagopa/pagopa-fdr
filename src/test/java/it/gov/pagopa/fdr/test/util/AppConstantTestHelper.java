@@ -10,6 +10,13 @@ public class AppConstantTestHelper {
   public static final String PAYMENTS_ADD_URL = "/psps/%s/fdrs/%s/payments/add";
   public static final String PAYMENTS_DELETE_URL = "/psps/%s/fdrs/%s/payments/del";
 
+  public static final String INTERNAL_FLOWS_URL = "/internal"+FLOWS_URL;
+  public static final String INTERNAL_FLOWS_PUBLISH_URL = "/internal"+FLOWS_PUBLISH_URL;
+  public static final String INTERNAL_FLOWS_DELETE_URL = "/internal"+FLOWS_DELETE_URL;
+  public static final String INTERNAL_PAYMENTS_ADD_URL = "/internal"+PAYMENTS_ADD_URL;
+  public static final String INTERNAL_PAYMENTS_DELETE_URL = "/internal"+PAYMENTS_DELETE_URL;
+
+
   public static final String REPORTING_FLOW_NAME_PSP_WRONG_FORMAT = "2016-08-16-psp-1176";
   public static final String REPORTING_FLOW_NAME_DATE_WRONG_FORMAT = "2016-aa-1660000000001-1176";
   public static final String PSP_CODE = "60000000001";

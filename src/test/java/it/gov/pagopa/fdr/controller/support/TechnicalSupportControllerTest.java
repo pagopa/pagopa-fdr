@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(MongoResource.class)
 @QuarkusTestResource(AzuriteResource.class)
-class SupportTest {
+class TechnicalSupportControllerTest {
 
   private static final String GET_ALL_FDR_BY_PSP_ID_IUV = "/internal/psps/" + "%s" + "/iuv/" + "%s";
   private static final String GET_ALL_FDR_BY_PSP_ID_IUR = "/internal/psps/" + "%s" + "/iur/" + "%s";
