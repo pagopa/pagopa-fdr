@@ -11,15 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BlobHttpBody {
 
-  // @BsonProperty("storage_account")
   private String storageAccount;
 
-  // @BsonProperty("container_name")
   private String containerName;
 
-  // @BsonProperty("file_name")
   private String fileName;
 
-  // @BsonProperty("file_length")
   private long fileLength;
 }
