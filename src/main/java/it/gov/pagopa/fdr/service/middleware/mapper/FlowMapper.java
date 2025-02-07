@@ -13,11 +13,9 @@ import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
-import it.gov.pagopa.fdr.repository.entity.flow.FdrFlowEntity;
-import it.gov.pagopa.fdr.repository.entity.flow.ReceiverEntity;
-import it.gov.pagopa.fdr.repository.entity.flow.SenderEntity;
+import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
-import it.gov.pagopa.fdr.repository.enums.SenderTypeEnum;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +29,14 @@ public interface FlowMapper {
 
   FlowMapper INSTANCE = Mappers.getMapper(FlowMapper.class);
 
-  default List<FlowByPSP> toFlowByPSP(List<FdrFlowEntity> list) {
+  default List<FlowByPSP> toFlowByPSP(List<FlowEntity> list) {
 
     List<FlowByPSP> converted = new ArrayList<>();
-    for (FdrFlowEntity entity : list) {
+    for (FlowEntity entity : list) {
       converted.add(
           FlowByPSP.builder()
               .fdr(entity.getName())
-              .pspId(entity.getSender() != null ? entity.getSender().getPspId() : null)
+              .pspId(entity.getPspDomainId())
               .revision(entity.getRevision())
               .published(entity.getPublished())
               .build());
@@ -46,15 +44,14 @@ public interface FlowMapper {
     return converted;
   }
 
-  default List<FlowByCICreated> toFlowByCICreated(List<FdrFlowEntity> list) {
+  default List<FlowByCICreated> toFlowByCICreated(List<FlowEntity> list) {
 
     List<FlowByCICreated> converted = new ArrayList<>();
-    for (FdrFlowEntity entity : list) {
+    for (FlowEntity entity : list) {
       converted.add(
           FlowByCICreated.builder()
               .fdr(entity.getName())
-              .organizationId(
-                  entity.getReceiver() != null ? entity.getReceiver().getOrganizationId() : null)
+              .organizationId(entity.getOrgDomainId())
               .revision(entity.getRevision())
               .created(entity.getCreated())
               .build());
@@ -62,15 +59,14 @@ public interface FlowMapper {
     return converted;
   }
 
-  default List<FlowByCIPublished> toFlowByCIPublished(List<FdrFlowEntity> list) {
+  default List<FlowByCIPublished> toFlowByCIPublished(List<FlowEntity> list) {
 
     List<FlowByCIPublished> converted = new ArrayList<>();
-    for (FdrFlowEntity entity : list) {
+    for (FlowEntity entity : list) {
       converted.add(
           FlowByCIPublished.builder()
               .fdr(entity.getName())
-              .organizationId(
-                  entity.getReceiver() != null ? entity.getReceiver().getOrganizationId() : null)
+              .organizationId(entity.getOrgDomainId())
               .revision(entity.getRevision())
               .published(entity.getPublished())
               .build());
@@ -79,7 +75,7 @@ public interface FlowMapper {
   }
 
   default PaginatedFlowsResponse toPaginatedFlowResponse(
-      RepositoryPagedResult<FdrFlowEntity> paginatedResult, long pageSize, long pageNumber) {
+      RepositoryPagedResult<FlowEntity> paginatedResult, long pageSize, long pageNumber) {
 
     return PaginatedFlowsResponse.builder()
         .metadata(
@@ -94,7 +90,7 @@ public interface FlowMapper {
   }
 
   default PaginatedFlowsCreatedResponse toPaginatedFlowCreatedResponse(
-      RepositoryPagedResult<FdrFlowEntity> paginatedResult, long pageSize, long pageNumber) {
+      RepositoryPagedResult<FlowEntity> paginatedResult, long pageSize, long pageNumber) {
 
     return PaginatedFlowsCreatedResponse.builder()
         .metadata(
@@ -109,7 +105,7 @@ public interface FlowMapper {
   }
 
   default PaginatedFlowsPublishedResponse toPaginatedFlowPublishedResponse(
-      RepositoryPagedResult<FdrFlowEntity> paginatedResult, long pageSize, long pageNumber) {
+      RepositoryPagedResult<FlowEntity> paginatedResult, long pageSize, long pageNumber) {
 
     return PaginatedFlowsPublishedResponse.builder()
         .metadata(
@@ -124,51 +120,68 @@ public interface FlowMapper {
   }
 
   @Mapping(source = "name", target = "fdr")
+  @Mapping(source = "date", target = "fdrDate")
   @Mapping(source = "totAmount", target = "sumPayments")
   @Mapping(source = "computedTotAmount", target = "computedSumPayments")
-  SingleFlowResponse toSingleFlowResponse(FdrFlowEntity result);
+  @Mapping(target = "sender", expression = "java(toSender(result))")
+  @Mapping(target = "receiver", expression = "java(toReceiver(result))")
+  SingleFlowResponse toSingleFlowResponse(FlowEntity result);
 
   @Mapping(source = "name", target = "fdr")
+  @Mapping(source = "date", target = "fdrDate")
   @Mapping(source = "totAmount", target = "sumPayments")
   @Mapping(source = "computedTotAmount", target = "computedSumPayments")
-  SingleFlowCreatedResponse toSingleFlowCreatedResponse(FdrFlowEntity result);
+  @Mapping(target = "sender", expression = "java(toSender(result))")
+  @Mapping(target = "receiver", expression = "java(toReceiver(result))")
+  SingleFlowCreatedResponse toSingleFlowCreatedResponse(FlowEntity result);
 
-  default FdrFlowEntity toEntity(CreateFlowRequest request, Long revision) {
+  @Mapping(source = "senderType", target = "type")
+  @Mapping(source = "senderId", target = "id")
+  @Mapping(source = "pspDomainId", target = "pspId")
+  @Mapping(source = "senderPspName", target = "pspName")
+  @Mapping(source = "senderPspBrokerId", target = "pspBrokerId")
+  @Mapping(source = "senderChannelId", target = "channelId")
+  @Mapping(source = "senderPassword", target = "password")
+  Sender toSender(FlowEntity result);
+
+  @Mapping(source = "receiverId", target = "id")
+  @Mapping(source = "orgDomainId", target = "organizationId")
+  @Mapping(source = "receiverOrganizationName", target = "organizationName")
+  Receiver toReceiver(FlowEntity result);
+
+  default FlowEntity toEntity(CreateFlowRequest request, Long revision) {
 
     Instant now = Instant.now();
 
     Sender requestSender = request.getSender();
-    SenderEntity sender = new SenderEntity();
-    sender.setId(requestSender.getId());
-    sender.setType(SenderTypeEnum.valueOf(requestSender.getType().name()));
-    sender.setPspId(requestSender.getPspId());
-    sender.setPspBrokerId(requestSender.getPspBrokerId());
-    sender.setChannelId(requestSender.getChannelId());
-    sender.setPspName(requestSender.getPspName());
-    sender.setPassword(requestSender.getPassword());
-
     Receiver requestReceiver = request.getReceiver();
-    ReceiverEntity receiver = new ReceiverEntity();
-    receiver.setId(requestReceiver.getId());
-    receiver.setOrganizationId(requestReceiver.getOrganizationId());
-    receiver.setOrganizationName(requestReceiver.getOrganizationName());
 
-    FdrFlowEntity entity = new FdrFlowEntity();
+    FlowEntity entity = new FlowEntity();
     entity.setName(request.getFdr());
     entity.setRevision(revision);
-    entity.setFdrDate(request.getFdrDate());
-    entity.setStatus(FlowStatusEnum.CREATED);
+    entity.setDate(request.getFdrDate());
+    entity.setStatus(FlowStatusEnum.CREATED.name());
+    entity.setIsLatest(false);
     entity.setCreated(now);
     entity.setUpdated(now);
-    entity.setTotAmount(request.getSumPayments());
+    entity.setTotAmount(BigDecimal.valueOf(request.getSumPayments()));
     entity.setTotPayments(request.getTotPayments());
     entity.setComputedTotPayments(0L);
-    entity.setComputedTotAmount(0.0);
+    entity.setComputedTotAmount(BigDecimal.valueOf(0.0));
     entity.setRegulation(request.getRegulation());
     entity.setRegulationDate(request.getRegulationDate());
     entity.setBicCodePouringBank(request.getBicCodePouringBank());
-    entity.setSender(sender);
-    entity.setReceiver(receiver);
+    entity.setSenderId(requestSender.getId());
+    entity.setSenderType(requestSender.getType().name());
+    entity.setPspDomainId(requestSender.getPspId());
+    entity.setSenderPspBrokerId(requestSender.getPspBrokerId());
+    entity.setSenderChannelId(requestSender.getChannelId());
+    entity.setSenderPspName(requestSender.getPspName());
+    entity.setSenderPassword(requestSender.getPassword());
+    entity.setReceiverId(requestReceiver.getId());
+    entity.setOrgDomainId(requestReceiver.getOrganizationId());
+    entity.setReceiverOrganizationName(requestReceiver.getOrganizationName());
+
     return entity;
   }
 }

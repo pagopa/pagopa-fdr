@@ -96,7 +96,7 @@ jobs:
         run: echo "environment=${{env.ENVIRNOMENT}}" >> $GITHUB_OUTPUT
 
   release:
-    needs: [setup]
+    needs: [ setup ]
     name: Create a New Release
     runs-on: ubuntu-latest
     if: ${{ needs.setup.outputs.semver != 'skip' }}
@@ -105,7 +105,7 @@ jobs:
     steps:
       - name: Make Release
         id: release
-        uses: pagopa/github-actions-template/maven-release@d91a1fd0b913c9830589be5d86cdb71c90813fae # v1.5.4
+        uses: pagopa/github-actions-template/maven-release@b10935d242185a53fc28bf60acecea7d54d9688b # v2.1.2
         with:
           semver: ${{ needs.setup.outputs.semver }}
           github_token: ${{ secrets.BOT_TOKEN_GITHUB }}
