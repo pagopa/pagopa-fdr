@@ -1,8 +1,8 @@
 name: Performance Test
 
 on:
-#  schedule:
-#    - cron: '35 16 * * *'
+  #  schedule:
+  #    - cron: '35 16 * * *'
 
   workflow_dispatch:
     inputs:
@@ -19,9 +19,9 @@ on:
         type: choice
         description: Select the Test Type
         options:
-          - ramping
           - constant
           - load
+          - ramping
           - smoke
           - soak
           - spike
@@ -31,7 +31,18 @@ on:
         type: choice
         description: Select the Script Name
         options:
-          - happy_case_scenario
+          - create_flow_sequential
+          - create_flow_parallel
+      flow-size:
+        required: true
+        type: number
+        description: Select the number of payments sent in flow
+        default: 100
+      max-parallel-calls:
+        required: false
+        type: number
+        description: Select the number of maximum API calls in parallel (for each VU)
+        default: 5
 
 permissions:
   id-token: write
@@ -51,7 +62,4 @@ jobs:
       - name: Run k6 script
         run: |
           cd ./performance-test
-          sub_key="${{ secrets.PSP_SUBSCRIPTION_KEY }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" docker compose -f docker-compose.yaml up
-#          sh ./performance-test/run_performance_test.sh ${{ env.ENVIRONMENT }} ${{ env.TEST_TYPE }} ${{ env.SCRIPT }} ${{ secrets.API_SUBSCRIPTION_KEY }}
-        #${{ secrets.COSMOS_SUBSCRIPTION_KEY }}
-
+          sub_key="${{ secrets.PSP_SUBSCRIPTION_KEY }}" payments_in_flow="${{ inputs.flow-size }}" max_parallel_calls="${{ inputs.max-parallel-calls }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" db_name=fdr3_k6 docker compose -f docker-compose.yaml up

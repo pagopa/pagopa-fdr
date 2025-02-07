@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>it.gov.pagopa</groupId>
   <artifactId>pagopa-fdr</artifactId>
-  <version>1.1.5-7-PAGOPA-2624</version>
+  <version>1.1.6</version>
   <properties>
     <compiler-plugin.version>3.11.0</compiler-plugin.version>
     <lombok.version>1.18.26</lombok.version>
@@ -144,6 +144,20 @@
       <artifactId>junit-jupiter</artifactId>
       <version>1.16.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>mongodb</artifactId>
+      <version>1.18.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.azure</groupId>
+      <artifactId>azure-storage-queue</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.azure</groupId>
+      <artifactId>azure-messaging-eventhubs</artifactId>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
