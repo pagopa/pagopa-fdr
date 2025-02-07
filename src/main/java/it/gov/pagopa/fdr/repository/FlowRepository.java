@@ -64,17 +64,18 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   }
 
   public Optional<FlowEntity> findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
-    Optional<FlowEntity> entity =
+    FlowEntity entity =
         find(
                 QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME,
                 pspId,
                 flowName,
                 FlowStatusEnum.PUBLISHED.name())
-            .firstResultOptional();
-    if (entity.isPresent()) {
+            .firstResultOptional()
+            .orElse(null);
+    if (entity != null) {
       entityManager.detach(entity);
     }
-    return entity;
+    return Optional.ofNullable(entity);
   }
 
   public Optional<FlowEntity> findUnpublishedByOrganizationIdAndPspIdAndName(
