@@ -24,6 +24,7 @@ import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.util.Optional;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
@@ -171,15 +172,15 @@ public class FlowService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
-    FlowEntity result =
+    Optional<FlowEntity> result =
         this.flowRepository.findPublishedByOrganizationIdAndPspIdAndName(
             organizationId, pspId, flowName, revision);
-    if (result == null) {
+    if (result.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
     log.debugf("Entity found. Mapping data to final response.");
-    return this.flowMapper.toSingleFlowResponse(result);
+    return this.flowMapper.toSingleFlowResponse(result.get());
   }
 
   @WithSpan(kind = SERVER)
@@ -204,15 +205,15 @@ public class FlowService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
-    FlowEntity result =
+    Optional<FlowEntity> result =
         this.flowRepository.findUnpublishedByOrganizationIdAndPspIdAndName(
             organizationId, pspId, flowName);
-    if (result == null) {
+    if (result.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
     log.debugf("Entity found. Mapping data to final response.");
-    return this.flowMapper.toSingleFlowCreatedResponse(result);
+    return this.flowMapper.toSingleFlowCreatedResponse(result.get());
   }
 
   @WithSpan(kind = SERVER)
@@ -235,18 +236,19 @@ public class FlowService {
     SemanticValidator.validateCreateFlowRequest(configData, pspId, flowName, request);
 
     // check if there is already another unpublished flow that is in progress
-    FlowEntity publishingFlow =
+    Optional<FlowEntity> optPublishingFlow =
         flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
-    if (publishingFlow != null) {
+    if (optPublishingFlow.isPresent()) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
           flowName,
-          publishingFlow.getStatus());
+          optPublishingFlow.get().getStatus());
     }
 
     // retrieve the last published flow, in order to take its revision and increment it
-    FlowEntity lastPublishedFlow = flowRepository.findLastPublishedByPspIdAndName(pspId, flowName);
-    Long revision = lastPublishedFlow != null ? (lastPublishedFlow.getRevision() + 1) : 1L;
+    Optional<FlowEntity> lastPublishedFlow =
+        flowRepository.findLastPublishedByPspIdAndName(pspId, flowName);
+    Long revision = lastPublishedFlow.map(flowEntity -> (flowEntity.getRevision() + 1)).orElse(1L);
 
     // finally, persist the newly generated entity
     FlowEntity entity = flowMapper.toEntity(request, revision);
@@ -282,10 +284,12 @@ public class FlowService {
     SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
 
     // check if there is an unpublished flow that is in progress
-    FlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
-    if (publishingFlow == null) {
+    Optional<FlowEntity> optPublishingFlow =
+        flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    if (optPublishingFlow.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
+    FlowEntity publishingFlow = optPublishingFlow.get();
     if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
@@ -322,12 +326,14 @@ public class FlowService {
     SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
 
     // check if there is already another unpublished flow that is in progress
-    FlowEntity publishingFlow = flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
-    if (publishingFlow == null) {
+    Optional<FlowEntity> optPublishingFlow =
+        flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    if (optPublishingFlow.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
     // delete flow and if there are multiple payments related to it yet, delete them in async mode
+    FlowEntity publishingFlow = optPublishingFlow.get();
     this.flowRepository.deleteEntity(publishingFlow);
 
     return GenericResponse.builder().message(String.format("Fdr [%s] deleted", flowName)).build();

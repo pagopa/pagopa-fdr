@@ -22,6 +22,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
@@ -56,29 +57,27 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     this.entityManager = em;
   }
 
-  public FlowEntity findUnpublishedByPspIdAndName(String pspId, String flowName) {
+  public Optional<FlowEntity> findUnpublishedByPspIdAndName(String pspId, String flowName) {
     return find(
             QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME, pspId, flowName, FlowStatusEnum.PUBLISHED.name())
-        .firstResultOptional()
-        .orElse(null);
+        .firstResultOptional();
   }
 
-  public FlowEntity findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
-    FlowEntity entity =
+  public Optional<FlowEntity> findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
+    Optional<FlowEntity> entity =
         find(
                 QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME,
                 pspId,
                 flowName,
                 FlowStatusEnum.PUBLISHED.name())
-            .firstResultOptional()
-            .orElse(null);
-    if (entity != null) {
+            .firstResultOptional();
+    if (entity.isPresent()) {
       entityManager.detach(entity);
     }
     return entity;
   }
 
-  public FlowEntity findUnpublishedByOrganizationIdAndPspIdAndName(
+  public Optional<FlowEntity> findUnpublishedByOrganizationIdAndPspIdAndName(
       String organizationId, String pspId, String flowName) {
     return find(
             QUERY_GET_UNPUBLISHED_BY_ORGANIZATION_AND_PSP_AND_NAME,
@@ -86,8 +85,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
             flowName,
             organizationId,
             FlowStatusEnum.PUBLISHED.name())
-        .firstResultOptional()
-        .orElse(null);
+        .firstResultOptional();
   }
 
   public RepositoryPagedResult<FlowEntity> findUnpublishedByPspId(
@@ -120,7 +118,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     return getPagedResult(resultPage);
   }
 
-  public FlowEntity findPublishedByOrganizationIdAndPspIdAndName(
+  public Optional<FlowEntity> findPublishedByOrganizationIdAndPspIdAndName(
       String organizationId, String pspId, String flowName, long revision) {
 
     return find(
@@ -130,8 +128,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
             revision,
             organizationId,
             FlowStatusEnum.PUBLISHED.name())
-        .firstResultOptional()
-        .orElse(null);
+        .firstResultOptional();
   }
 
   public RepositoryPagedResult<FlowEntity> findPublishedByPspIdAndOptionalOrganizationId(
@@ -169,7 +166,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     return getPagedResult(resultPage);
   }
 
-  public FlowEntity findLastPublishedByPspIdAndName(String pspId, String flowName) {
+  public Optional<FlowEntity> findLastPublishedByPspIdAndName(String pspId, String flowName) {
 
     return find(
             QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME,
@@ -177,11 +174,10 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
             flowName,
             FlowStatusEnum.PUBLISHED.name(),
             true)
-        .firstResultOptional()
-        .orElse(null);
+        .firstResultOptional();
   }
 
-  public Long findIdByOrganizationIdAndPspIdAndNameAndRevision(
+  public Optional<Long> findIdByOrganizationIdAndPspIdAndNameAndRevision(
       String organizationId,
       String pspId,
       String flowName,
@@ -196,11 +192,10 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
             organizationId,
             flowStatusEnum.name())
         .firstResultOptional()
-        .map(FlowEntity::getId)
-        .orElse(null);
+        .map(FlowEntity::getId);
   }
 
-  public Long findUnpublishedIdByPspIdAndNameAndOrganization(
+  public Optional<Long> findUnpublishedIdByPspIdAndNameAndOrganization(
       String pspId, String flowName, String organizationId) {
 
     return find(
@@ -210,8 +205,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
             organizationId,
             FlowStatusEnum.PUBLISHED.name())
         .firstResultOptional()
-        .map(FlowEntity::getId)
-        .orElse(null);
+        .map(FlowEntity::getId);
   }
 
   public RepositoryPagedResult<FlowEntity> findLatestPublishedByOrganizationIdAndOptionalPspId(
@@ -297,8 +291,9 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
   public void updateLastPublishedAsNotLatest(String pspId, String flowName) {
 
-    FlowEntity entity = findLastPublishedByPspIdAndName(pspId, flowName);
-    if (entity != null) {
+    Optional<FlowEntity> optEntity = findLastPublishedByPspIdAndName(pspId, flowName);
+    if (optEntity.isPresent()) {
+      FlowEntity entity = optEntity.get();
       entity.setIsLatest(false);
       updateEntity(entity);
     }

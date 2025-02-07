@@ -25,6 +25,7 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
@@ -84,13 +85,14 @@ public class PaymentService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
-    Long flowId =
+    Optional<Long> optFlowId =
         this.flowRepository.findIdByOrganizationIdAndPspIdAndNameAndRevision(
             organizationId, pspId, flowName, revision, FlowStatusEnum.PUBLISHED);
-    if (flowId == null) {
+    if (optFlowId.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
+    Long flowId = optFlowId.get();
     RepositoryPagedResult<PaymentEntity> paginatedResult =
         this.paymentRepository.findByFlowId(flowId, (int) pageNumber, (int) pageSize);
 
@@ -122,15 +124,15 @@ public class PaymentService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
-    Long flowId =
+    Optional<Long> optFlowId =
         this.flowRepository.findUnpublishedIdByPspIdAndNameAndOrganization(
             pspId, flowName, organizationId);
-    if (flowId == null) {
+    if (optFlowId.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
     RepositoryPagedResult<PaymentEntity> paginatedResult =
-        this.paymentRepository.findByFlowId(flowId, (int) pageNumber, (int) pageSize);
+        this.paymentRepository.findByFlowId(optFlowId.get(), (int) pageNumber, (int) pageSize);
 
     return paymentMapper.toPaginatedPaymentsResponse(paginatedResult, pageSize, pageNumber);
   }
@@ -155,13 +157,14 @@ public class PaymentService {
     SemanticValidator.validateAddPaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    FlowEntity publishingFlow =
+    Optional<FlowEntity> optPublishingFlow =
         flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
-    if (publishingFlow == null) {
+    if (optPublishingFlow.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
     // check if there is any payment that uses at least one of passed indexes
+    FlowEntity publishingFlow = optPublishingFlow.get();
     List<Payment> paymentsToAdd = request.getPayments();
     Set<Long> indexes = paymentsToAdd.stream().map(Payment::getIndex).collect(Collectors.toSet());
     long numberOfAlreadyUsedIndexes =
@@ -215,11 +218,12 @@ public class PaymentService {
     SemanticValidator.validateDeletePaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    FlowEntity publishingFlow =
+    Optional<FlowEntity> optPublishingFlow =
         this.flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
-    if (publishingFlow == null) {
+    if (optPublishingFlow.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
+    FlowEntity publishingFlow = optPublishingFlow.get();
     if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
