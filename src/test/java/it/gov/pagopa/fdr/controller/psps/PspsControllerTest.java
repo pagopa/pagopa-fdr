@@ -2023,10 +2023,10 @@ class PspsControllerTest {
   }
 
   @Test
-  @DisplayName("PSPS - OK - recupero dei payments di un flow creato")
+  @DisplayName("PSPS - OK - unpublished fdr and payments retrieval")
   void test_psp_getReportingFlowPayments_created_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspCreateUnpublishedFlow(flowName);
     String url = (GET_PAYMENTS_FDR_CREATED_URL).formatted(PSP_CODE, flowName, EC_CODE);
     PaginatedPaymentsResponse res =
         given()
@@ -2037,8 +2037,41 @@ class PspsControllerTest {
             .statusCode(200)
             .extract()
             .as(PaginatedPaymentsResponse.class);
+
     List<Payment> data = res.getData();
 
-    assertThat(res.getCount(), equalTo(0L));
+    assertThat(res.getCount(), equalTo(5L));
+
+    assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(100L)));
+    assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(101L)));
+    assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(102L)));
+    assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(103L)));
+    assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(104L)));
+
+    assertTrue(data.stream().allMatch(item -> item.getIur().equals("abcdefg")));
+    assertTrue(data.stream().allMatch(item -> item.getPay().equals(0.01)));
+
+  }
+
+  @Test
+  @DisplayName("PSPS - KO - unpublished flow retrieval for a published flow - Fdr not found")
+  void test_psp_getUnpublishedFlowPayments_Ko() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
+    String url = (GET_PAYMENTS_FDR_CREATED_URL).formatted(PSP_CODE, flowName, EC_CODE);
+    ErrorResponse res =
+            given()
+                    .header(HEADER)
+                    .when()
+                    .get(url)
+                    .then()
+                    .statusCode(404)
+                    .extract()
+                    .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
+
+    assertThat(
+            res.getErrors(),
+            hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowName)))));
   }
 }

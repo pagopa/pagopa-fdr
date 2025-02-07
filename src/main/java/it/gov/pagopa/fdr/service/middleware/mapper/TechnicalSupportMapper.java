@@ -13,8 +13,13 @@ public interface TechnicalSupportMapper {
 
   TechnicalSupportMapper INSTANCE = Mappers.getMapper(TechnicalSupportMapper.class);
 
+  List<FlowBySenderAndReceiver> toFlowBySenderAndReceiver(List<FdrPaymentEntity> list);
+
   @Mapping(source = "refFdr.senderPspId", target = "pspId")
   @Mapping(source = "refFdr.receiverOrganizationId", target = "organizationId")
-  @Mapping(source = "refFdr.name", target = "fdr")
-  List<FlowBySenderAndReceiver> toFlowBySenderAndReceiver(List<FdrPaymentEntity> list);
+  @Mapping(source = "refFdr.name", target ="fdr" )
+  @Mapping(source = "refFdr.revision", target = "revision")
+  FlowBySenderAndReceiver map (FdrPaymentEntity elem);
+
+
 }

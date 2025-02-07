@@ -2,13 +2,14 @@ package it.gov.pagopa.fdr.util.common;
 
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
+import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
+
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -42,4 +43,23 @@ public class FileUtil {
       throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
     }
   }
+
+  public byte[] compressInputStreamtoGzip(@Nonnull final InputStream inputStream) {
+    final InputStream zipInputStream;
+    try {
+      ByteArrayOutputStream bytesOutput = new ByteArrayOutputStream();
+
+        try (inputStream; GZIPOutputStream gzipOutput = new GZIPOutputStream(bytesOutput)) {
+            byte[] buffer = new byte[10240];
+            for (int length = 0; (length = inputStream.read(buffer)) != -1; ) {
+                gzipOutput.write(buffer, 0, length);
+            }
+        }
+      return bytesOutput.toByteArray();
+    } catch (IOException e) {
+      log.error("Error compressing InputStream to Gzip", e);
+      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
+    }
+  }
+
 }
