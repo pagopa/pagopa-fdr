@@ -60,7 +60,7 @@ public class FdrPaymentRepository extends Repository {
       int pageNumber,
       int pageSize) {
 
-    String query = "ref_fdr_sender_psp_id = :psp";
+    String query = "ref_fdr.sender_psp_id = :psp";
     Parameters params = new Parameters().and("psp", pspId);
     if (iuv != null) {
       query += " and iuv = :iuv";
