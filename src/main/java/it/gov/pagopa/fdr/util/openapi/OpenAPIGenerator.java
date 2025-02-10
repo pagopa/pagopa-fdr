@@ -34,12 +34,14 @@ public class OpenAPIGenerator implements OASFilter {
 
     openAPI.setInfo(
         OASFactory.createInfo()
-            .title("FDR - Flussi di Rendicontazione")
+            .title("FDR - Flussi di Rendicontazione (${user_target})")
             .description(getMainDescription())
             .version(version)
             .termsOfService("https://www.pagopa.gov.it/"));
     openAPI.setServers(
-        List.of(OASFactory.createServer().url("http://localhost:8080/").description("Localhost")));
+        List.of(
+            OASFactory.createServer().url("${host}").description("Environment host"),
+            OASFactory.createServer().url("http://localhost:8080/").description("Localhost")));
 
     updateAPIsWithTableMetadata(openAPI.getPaths());
   }
