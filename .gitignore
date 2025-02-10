@@ -43,3 +43,7 @@ nb-configuration.xml
 .cache_ggshield
 /.quarkus/
 .identity/.terraform/*
+
+# Helm
+/helm/charts/*
+**/.terraform/
