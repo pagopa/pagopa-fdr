@@ -71,10 +71,6 @@ public class ResponseFilter implements ContainerResponseFilter {
                   .getResteasyReactiveResourceInfo()
                   .getAnnotations());
 
-      if (fdrActionEnum == null) {
-        log.warn("Attention, missing annotation Re on this action");
-      }
-
       String sessionId = (String) MDC.get(TRX_ID);
       String requestMethod = requestContext.getMethod();
       String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();

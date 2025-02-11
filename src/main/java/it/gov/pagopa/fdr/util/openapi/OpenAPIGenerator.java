@@ -39,7 +39,9 @@ public class OpenAPIGenerator implements OASFilter {
             .version(version)
             .termsOfService("https://www.pagopa.gov.it/"));
     openAPI.setServers(
-        List.of(OASFactory.createServer().url("http://localhost:8080/").description("Localhost")));
+        List.of(
+            OASFactory.createServer().url("${host}").description("Environment host"),
+            OASFactory.createServer().url("http://localhost:8080/").description("Localhost")));
 
     updateAPIsWithTableMetadata(openAPI.getPaths());
   }

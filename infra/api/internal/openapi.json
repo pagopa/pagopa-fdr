@@ -55,7 +55,7 @@
         "properties": {
           "fdr": {
             "type": "string",
-            "examples": [
+            "example": [
               "2016-08-16pspTest-1178"
             ],
             "pattern": "[a-zA-Z0-9\\-_]{1,35}",
@@ -64,7 +64,7 @@
           "fdrDate": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-05T09:21:37.810000Z"
             ],
             "description": "[XML NodoInviaFlussoRendicontazione]=[dataOraFlusso]"
@@ -77,7 +77,7 @@
           },
           "regulation": {
             "type": "string",
-            "examples": [
+            "example": [
               "SEPA - Bonifico xzy"
             ],
             "pattern": "^(.{1,35})$",
@@ -86,14 +86,14 @@
           "regulationDate": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ],
             "description": "[XML FlussoRiversamento]=[dataRegolamento]"
           },
           "bicCodePouringBank": {
             "type": "string",
-            "examples": [
+            "example": [
               "UNCRITMMXXX"
             ],
             "pattern": "^(.{1,35})$",
@@ -102,7 +102,7 @@
           "totPayments": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               1
             ],
             "description": "[XML FlussoRiversamento]=[numeroTotalePagamenti]",
@@ -110,9 +110,8 @@
           },
           "sumPayments": {
             "type": "number",
-            "exclusiveMinimum": 0.0,
             "format": "double",
-            "examples": [
+            "example": [
               0.01
             ],
             "pattern": "^\\d{1,2147483647}([.]\\d{1,2})?$",
@@ -153,26 +152,26 @@
         "properties": {
           "errorId": {
             "type": "string",
-            "examples": [
+            "example": [
               "50905466-1881-457b-b42f-fb7b2bfb1610"
             ]
           },
           "httpStatusCode": {
             "type": "integer",
             "format": "int32",
-            "examples": [
+            "example": [
               500
             ]
           },
           "httpStatusDescription": {
             "type": "string",
-            "examples": [
+            "example": [
               "Internal Server Error"
             ]
           },
           "appErrorCode": {
             "type": "string",
-            "examples": [
+            "example": [
               "FDR-500"
             ]
           },
@@ -189,27 +188,27 @@
         "properties": {
           "fdr": {
             "type": "string",
-            "examples": [
+            "example": [
               "AAABBB"
             ]
           },
           "organizationId": {
             "type": "string",
-            "examples": [
+            "example": [
               "1"
             ]
           },
           "revision": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               1
             ]
           },
           "created": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           }
@@ -220,27 +219,27 @@
         "properties": {
           "fdr": {
             "type": "string",
-            "examples": [
+            "example": [
               "AAABBB"
             ]
           },
           "organizationId": {
             "type": "string",
-            "examples": [
+            "example": [
               "1"
             ]
           },
           "revision": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               1
             ]
           },
           "published": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           }
@@ -251,27 +250,27 @@
         "properties": {
           "fdr": {
             "type": "string",
-            "examples": [
+            "example": [
               "AAABBB"
             ]
           },
           "pspId": {
             "type": "string",
-            "examples": [
+            "example": [
               "1"
             ]
           },
           "revision": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               1
             ]
           },
           "published": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           }
@@ -303,7 +302,7 @@
         "properties": {
           "message": {
             "type": "string",
-            "examples": [
+            "example": [
               "Success"
             ]
           }
@@ -314,25 +313,25 @@
         "properties": {
           "name": {
             "type": "string",
-            "examples": [
+            "example": [
               "pagopa-fdr"
             ]
           },
           "version": {
             "type": "string",
-            "examples": [
+            "example": [
               "1.2.3"
             ]
           },
           "environment": {
             "type": "string",
-            "examples": [
+            "example": [
               "dev"
             ]
           },
           "description": {
             "type": "string",
-            "examples": [
+            "example": [
               "FDR - Flussi di rendicontazione"
             ]
           }
@@ -348,21 +347,21 @@
           "pageSize": {
             "type": "integer",
             "format": "int32",
-            "examples": [
+            "example": [
               25
             ]
           },
           "pageNumber": {
             "type": "integer",
             "format": "int32",
-            "examples": [
+            "example": [
               1
             ]
           },
           "totPage": {
             "type": "integer",
             "format": "int32",
-            "examples": [
+            "example": [
               3
             ]
           }
@@ -377,7 +376,7 @@
           "count": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
@@ -398,7 +397,7 @@
           "count": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
@@ -419,7 +418,7 @@
           "count": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
@@ -440,7 +439,7 @@
           "count": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
@@ -461,7 +460,7 @@
           "count": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
@@ -488,7 +487,7 @@
           "index": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               1
             ],
             "description": "Identificativo del pagamento univoco nel flusso",
@@ -496,7 +495,7 @@
           },
           "iuv": {
             "type": "string",
-            "examples": [
+            "example": [
               "abcdefg"
             ],
             "pattern": "^(.{1,35})$",
@@ -504,7 +503,7 @@
           },
           "iur": {
             "type": "string",
-            "examples": [
+            "example": [
               "abcdefg"
             ],
             "pattern": "^(.{1,35})$",
@@ -513,7 +512,7 @@
           "idTransfer": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               1
             ],
             "description": "[XML FlussoRiversamento]=[datiSingoliPagamenti.indiceDatiSingoloPagamento]",
@@ -522,9 +521,8 @@
           },
           "pay": {
             "type": "number",
-            "exclusiveMinimum": 0.0,
             "format": "double",
-            "examples": [
+            "example": [
               0.01
             ],
             "pattern": "^\\d{1,2147483647}([.]\\d{1,2})?$",
@@ -533,7 +531,7 @@
           "payStatus": {
             "$ref": "#/components/schemas/PaymentStatusEnum",
             "type": "string",
-            "examples": [
+            "example": [
               "EXECUTED"
             ],
             "description": "[XML FlussoRiversamento]=[datiSingoliPagamenti.codiceEsitoSingoloPagamento] \n0 -> EXECUTED\n3 -> REVOKED\n9 -> NO_RPT\n4 -> STAND_IN\n8 -> STAND_IN_NO_RPT"
@@ -541,7 +539,7 @@
           "payDate": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-02-03T12:00:30.900000Z"
             ],
             "description": "[XML FlussoRiversamento]=[datiSingoliPagamenti.dataEsitoSingoloPagamento]"
@@ -568,7 +566,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "examples": [
+            "example": [
               "APPBIT2B"
             ],
             "pattern": "^(.{1,35})$",
@@ -576,7 +574,7 @@
           },
           "organizationId": {
             "type": "string",
-            "examples": [
+            "example": [
               "20000000001"
             ],
             "pattern": "^(.{1,35})$",
@@ -584,7 +582,7 @@
           },
           "organizationName": {
             "type": "string",
-            "examples": [
+            "example": [
               "Comune di xyz"
             ],
             "pattern": "^(.{1,140})$",
@@ -614,14 +612,14 @@
           "type": {
             "$ref": "#/components/schemas/SenderTypeEnum",
             "type": "string",
-            "examples": [
+            "example": [
               "LEGAL_PERSON"
             ],
             "description": "[XML FlussoRiversamento]=[istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco] \nG -> LEGAL_PERSON\nA -> ABI_CODE\nB -> BIC_CODE"
           },
           "id": {
             "type": "string",
-            "examples": [
+            "example": [
               "SELBIT2B"
             ],
             "pattern": "^(.{1,35})$",
@@ -629,7 +627,7 @@
           },
           "pspId": {
             "type": "string",
-            "examples": [
+            "example": [
               "60000000001"
             ],
             "pattern": "^(.{1,35})$",
@@ -637,7 +635,7 @@
           },
           "pspName": {
             "type": "string",
-            "examples": [
+            "example": [
               "Bank"
             ],
             "pattern": "^(.{3,70})$",
@@ -645,7 +643,7 @@
           },
           "pspBrokerId": {
             "type": "string",
-            "examples": [
+            "example": [
               "70000000001"
             ],
             "pattern": "^(.{1,35})$",
@@ -653,7 +651,7 @@
           },
           "channelId": {
             "type": "string",
-            "examples": [
+            "example": [
               "80000000001"
             ],
             "pattern": "^(.{1,35})$",
@@ -662,7 +660,7 @@
           "password": {
             "type": "string",
             "deprecated": true,
-            "examples": [
+            "example": [
               "1234567890"
             ],
             "pattern": "^(\\w{8,15})$",
@@ -684,60 +682,60 @@
           "status": {
             "$ref": "#/components/schemas/ReportingFlowStatusEnum",
             "type": "string",
-            "examples": [
+            "example": [
               "CREATED"
             ]
           },
           "revision": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               4
             ]
           },
           "created": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           },
           "updated": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           },
           "fdr": {
             "type": "string",
-            "examples": [
+            "example": [
               "2016-08-16pspTest-1178"
             ]
           },
           "fdrDate": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-05T09:21:37.810000Z"
             ]
           },
           "regulation": {
             "type": "string",
-            "examples": [
+            "example": [
               "SEPA - Bonifico xzy"
             ]
           },
           "regulationDate": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           },
           "bicCodePouringBank": {
             "type": "string",
-            "examples": [
+            "example": [
               "UNCRITMMXXX"
             ]
           },
@@ -750,28 +748,28 @@
           "computedTotPayments": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
           "computedSumPayments": {
             "type": "number",
             "format": "double",
-            "examples": [
+            "example": [
               100.9
             ]
           },
           "totPayments": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
           "sumPayments": {
             "type": "number",
             "format": "double",
-            "examples": [
+            "example": [
               100.9
             ]
           }
@@ -783,60 +781,60 @@
           "status": {
             "$ref": "#/components/schemas/ReportingFlowStatusEnum",
             "type": "string",
-            "examples": [
+            "example": [
               "CREATED"
             ]
           },
           "revision": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               4
             ]
           },
           "created": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           },
           "updated": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           },
           "fdr": {
             "type": "string",
-            "examples": [
+            "example": [
               "2016-08-16pspTest-1178"
             ]
           },
           "fdrDate": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-05T09:21:37.810000Z"
             ]
           },
           "regulation": {
             "type": "string",
-            "examples": [
+            "example": [
               "SEPA - Bonifico xzy"
             ]
           },
           "regulationDate": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           },
           "bicCodePouringBank": {
             "type": "string",
-            "examples": [
+            "example": [
               "UNCRITMMXXX"
             ]
           },
@@ -849,35 +847,35 @@
           "published": {
             "$ref": "#/components/schemas/Instant",
             "type": "string",
-            "examples": [
+            "example": [
               "2023-04-03T12:00:30.900000Z"
             ]
           },
           "computedTotPayments": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
           "computedSumPayments": {
             "type": "number",
             "format": "double",
-            "examples": [
+            "example": [
               100.9
             ]
           },
           "totPayments": {
             "type": "integer",
             "format": "int64",
-            "examples": [
+            "example": [
               100
             ]
           },
           "sumPayments": {
             "type": "number",
             "format": "double",
-            "examples": [
+            "example": [
               100.9
             ]
           }
@@ -886,6 +884,49 @@
     }
   },
   "paths": {
+    "/info": {
+      "get": {
+        "summary": "Health-check",
+        "description": "## Description:\nGet health check and deployment-related information",
+        "operationId": "IInfoController.healthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
       "get": {
         "summary": "Get created fdr",
@@ -996,6 +1037,218 @@
         }
       }
     },
+    "/internal/psps/{pspId}/fdrs/{fdr}": {
+      "delete": {
+        "summary": "Delete fdr",
+        "description": "## Description:\nDelete fdr",
+        "operationId": "IInternalOperationsController.deleteExistingFlowForInternalUse",
+        "tags": [
+          "Internal Operations"
+        ],
+        "parameters": [
+          {
+            "name": "fdr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pspId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create fdr",
+        "description": "## Description:\nCreate fdr",
+        "operationId": "IInternalOperationsController.createEmptyFlowForInternalUse",
+        "tags": [
+          "Internal Operations"
+        ],
+        "parameters": [
+          {
+            "name": "fdr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "[a-zA-Z0-9\\-_]{1,35}"
+            }
+          },
+          {
+            "name": "pspId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFlowRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/psps/{pspId}/fdrs/{fdr}/payments/add": {
       "put": {
         "summary": "Add payments to fdr",
@@ -1029,9 +1282,221 @@
                 "$ref": "#/components/schemas/AddPaymentRequest"
               }
             }
-          },
-          "required": true
+          }
         },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/psps/{pspId}/fdrs/{fdr}/payments/del": {
+      "put": {
+        "summary": "Delete payments to fdr",
+        "description": "## Description:\nDelete payments to fdr",
+        "operationId": "IInternalOperationsController.deletePaymentFromExistingFlowForInternalUse",
+        "tags": [
+          "Internal Operations"
+        ],
+        "parameters": [
+          {
+            "name": "fdr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pspId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeletePaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/psps/{pspId}/fdrs/{fdr}/publish": {
+      "post": {
+        "summary": "Publish fdr",
+        "description": "## Description:\nPublish fdr",
+        "operationId": "IInternalOperationsController.publishFlowForInternalUse",
+        "tags": [
+          "Internal Operations"
+        ],
+        "parameters": [
+          {
+            "name": "fdr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pspId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -1246,108 +1711,6 @@
         }
       }
     },
-    "/internal/psps/{pspId}/fdrs/{fdr}/publish": {
-      "post": {
-        "summary": "Publish fdr",
-        "description": "## Description:\nPublish fdr",
-        "operationId": "IInternalOperationsController.publishFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/internal/psps/{pspId}/iuv/{iuv}": {
       "get": {
         "summary": "Get all payments by psp id and iuv",
@@ -1485,340 +1848,19 @@
           }
         }
       }
-    },
-    "/internal/psps/{pspId}/fdrs/{fdr}/payments/del": {
-      "put": {
-        "summary": "Delete payments to fdr",
-        "description": "## Description:\nDelete payments to fdr",
-        "operationId": "IInternalOperationsController.deletePaymentFromExistingFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeletePaymentRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/fdrs/{fdr}": {
-      "delete": {
-        "summary": "Delete fdr",
-        "description": "## Description:\nDelete fdr",
-        "operationId": "IInternalOperationsController.deleteExistingFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Create fdr",
-        "description": "## Description:\nCreate fdr",
-        "operationId": "IInternalOperationsController.createEmptyFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "[a-zA-Z0-9\\-_]{1,35}"
-            }
-          },
-          {
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateFlowRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "info": {
     "title": "FDR - Flussi di Rendicontazione",
     "description": "Manage FDR (aka \"Flussi di Rendicontazione\") exchanged between PSP and EC\n\n## OPERATIONAL ERROR CODES\n\n<details><summary>Details</summary>\nNAME | CODE | DESCRIPTION\n- | - | -\n**FDR-0500** | *ERROR* | -\n**FDR-1000** | *BAD_REQUEST* | -\n**FDR-1001** | *BAD_REQUEST_INPUT_JSON* | -\n**FDR-1002** | *BAD_REQUEST_INPUT_JSON_INSTANT* | -\n**FDR-1003** | *BAD_REQUEST_INPUT_JSON_ENUM* | -\n**FDR-1004** | *BAD_REQUEST_INPUT_JSON_DESERIALIZE_ERROR* | -\n**FDR-1005** | *BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT* | -\n**FDR-2000** | *PSP_UNKNOWN* | -\n**FDR-2001** | *PSP_NOT_ENABLED* | -\n**FDR-2002** | *BROKER_UNKNOWN* | -\n**FDR-2003** | *BROKER_NOT_ENABLED* | -\n**FDR-2004** | *CHANNEL_UNKNOWN* | -\n**FDR-2005** | *CHANNEL_NOT_ENABLED* | -\n**FDR-2006** | *CHANNEL_BROKER_WRONG_CONFIG* | -\n**FDR-2007** | *CHANNEL_PSP_WRONG_CONFIG* | -\n**FDR-2008** | *EC_UNKNOWN* | -\n**FDR-2009** | *EC_NOT_ENABLED* | -\n**FDR-3001** | *REPORTING_FLOW_NOT_FOUND* | -\n**FDR-3002** | *REPORTING_FLOW_ALREADY_EXIST* | -\n**FDR-3003** | *REPORTING_FLOW_WRONG_ACTION* | -\n**FDR-3004** | *REPORTING_FLOW_PSP_ID_NOT_MATCH* | -\n**FDR-3005** | *REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST* | -\n**FDR-3006** | *REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX* | -\n**FDR-3007** | *REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX* | -\n**FDR-3008** | *REPORTING_FLOW_NAME_DATE_WRONG_FORMAT* | -\n**FDR-3009** | *REPORTING_FLOW_NAME_PSP_WRONG_FORMAT* | -\n**FDR-3010** | *REPORTING_FLOW_NAME_NOT_MATCH* | -\n**FDR-4001** | *REPORTING_FLOW_WRONG_TOT_PAYMENT* | -\n**FDR-4002** | *REPORTING_FLOW_WRONG_SUM_PAYMENT* | -\n**FDR-5000** | *FILE_UTILS_CONVERSION_ERROR* | -\n**FDR-5001** | *FILE_UTILS_FILE_NOT_FOUND* | -\n**FDR-5002** | *COMPRESS_JSON* | -\n",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.6"
+    "version": "1.1.9"
   },
   "servers": [
+    {
+      "url": "${host}",
+      "description": "Environment host"
+    },
     {
       "url": "http://localhost:8080/",
       "description": "Localhost"
