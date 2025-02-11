@@ -15,14 +15,14 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsBySenderAndReceiverResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
-import it.gov.pagopa.fdr.test.util.MongoResource;
+import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
-@QuarkusTestResource(MongoResource.class)
+@QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class TechnicalSupportControllerTest {
 

@@ -28,7 +28,7 @@ import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
-import it.gov.pagopa.fdr.test.util.MongoResource;
+import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
-@QuarkusTestResource(MongoResource.class)
+@QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
 

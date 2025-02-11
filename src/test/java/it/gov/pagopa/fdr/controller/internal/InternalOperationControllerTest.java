@@ -7,7 +7,7 @@ import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
-import it.gov.pagopa.fdr.test.util.MongoResource;
+import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
-@QuarkusTestResource(MongoResource.class)
+@QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 public class InternalOperationControllerTest {
 
