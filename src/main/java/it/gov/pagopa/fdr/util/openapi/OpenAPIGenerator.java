@@ -34,7 +34,7 @@ public class OpenAPIGenerator implements OASFilter {
 
     openAPI.setInfo(
         OASFactory.createInfo()
-            .title("FDR - Flussi di Rendicontazione (${user_target})")
+            .title("FDR - Flussi di Rendicontazione")
             .description(getMainDescription())
             .version(version)
             .termsOfService("https://www.pagopa.gov.it/"));

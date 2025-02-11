@@ -3,7 +3,7 @@
 ###############
 locals {
   apim_fdr_psp_service_api = {
-    display_name          = "FDR - Flussi di rendicontazione (PSP)"
+    display_name          = "FDR Fase3 - Flussi di rendicontazione (PSP)"
     description           = "FDR - Flussi di rendicontazione (PSP)"
     path                  = "fdr-psp/service"
     subscription_required = true
@@ -11,7 +11,7 @@ locals {
   }
 
   apim_fdr_org_service_api = {
-    display_name          = "FDR - Flussi di rendicontazione (ORGS)"
+    display_name          = "FDR Fase3 - Flussi di rendicontazione (ORGS)"
     description           = "FDR - Flussi di rendicontazione (ORGS)"
     path                  = "fdr-org/service"
     subscription_required = true
@@ -19,7 +19,7 @@ locals {
   }
 
   apim_fdr_service_api_internal = {
-    display_name          = "FDR Fase 3 - Flussi di rendicontazione (INTERNAL)"
+    display_name          = "FDR Fase3 - Flussi di rendicontazione (INTERNAL)"
     description           = "FDR - Flussi di rendicontazione (INTERNAL)"
     path                  = "fdr-internal/service"
     subscription_required = true
@@ -60,8 +60,7 @@ module "apim_api_fdr_api_v1_psp" {
   content_format = "openapi"
 
   content_value = templatefile("./api/psp/openapi.json", {
-    host        = local.apim_hostname
-    user_target = "PSPs"
+    host = local.apim_hostname
   })
 
   xml_content = templatefile("./policy/psp/v1/_base_policy.xml.tpl", {
@@ -102,8 +101,7 @@ module "apim_api_fdr_api_v1_org" {
   content_format = "openapi"
 
   content_value = templatefile("./api/org/openapi.json", {
-    host        = local.apim_hostname
-    user_target = "ORGs"
+    host = local.apim_hostname
   })
 
   xml_content = templatefile("./policy/org/v1/_base_policy.xml.tpl", {
@@ -141,8 +139,7 @@ module "apim_api_fdr_api_v1_internal" {
 
   content_format = "openapi"
   content_value  = templatefile("./api/internal/openapi.json", {
-    host        = local.apim_hostname
-    user_target = "Internal APIs"
+    host = local.apim_hostname
   })
 
   xml_content = templatefile("./policy/_base_policy.xml.tpl", {
