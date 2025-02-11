@@ -89,7 +89,7 @@ module "apim_api_fdr_api_v1_org" {
   api_management_name   = local.apim.name
   resource_group_name   = local.apim.rg
   product_ids           = [local.apim.org_product_id]
-  subscription_required = true #local.apim_fdr_org_service_api.subscription_required
+  subscription_required = local.apim_fdr_org_service_api.subscription_required
   version_set_id        = azurerm_api_management_api_version_set.api_fdr_api_org.id
   api_version           = "v1"
 
