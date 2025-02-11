@@ -59,7 +59,7 @@ module "apim_api_fdr_api_v1_psp" {
 
   content_format = "openapi"
 
-  content_value = templatefile("../openapi/openapi_psp.json", {
+  content_value = templatefile("./api/psp/openapi.json", {
     host        = local.apim_hostname
     user_target = "PSPs"
   })
@@ -101,7 +101,7 @@ module "apim_api_fdr_api_v1_org" {
 
   content_format = "openapi"
 
-  content_value = templatefile("../openapi/openapi_organization.json", {
+  content_value = templatefile("./api/org/openapi.json", {
     host        = local.apim_hostname
     user_target = "ORGs"
   })
@@ -140,7 +140,7 @@ module "apim_api_fdr_api_v1_internal" {
   service_url  = local.apim_fdr_service_api_internal.service_url
 
   content_format = "openapi"
-  content_value  = templatefile("../openapi/openapi_internal.json", {
+  content_value  = templatefile("./api/internal/openapi.json", {
     host        = local.apim_hostname
     user_target = "Internal APIs"
   })
@@ -148,4 +148,30 @@ module "apim_api_fdr_api_v1_internal" {
   xml_content = templatefile("./policy/_base_policy.xml.tpl", {
     hostname = local.hostname
   })
+}
+
+
+#######################
+##  Policies SHA     ##
+#######################
+
+# https://github.com/hashicorp/terraform-provider-azurerm/issues/17016#issuecomment-1314991599
+# https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/2022-04-01-preview/service/policyfragments?pivots=deployment-language-terraform
+
+resource "terraform_data" "sha256_fdr3_policy_psps_v1" {
+  input = sha256(templatefile("./policy/psp/v1/_base_policy.xml.tpl", {
+    hostname = local.hostname
+  }))
+}
+
+resource "terraform_data" "sha256_fdr3_policy_orgs_v1" {
+  input = sha256(templatefile("./policy/org/v1/_base_policy.xml.tpl", {
+    hostname = local.hostname
+  }))
+}
+
+resource "terraform_data" "sha256_fdr3_policy_base" {
+  input = sha256(templatefile("./policy/_base_policy.xml.tpl", {
+    hostname = local.hostname
+  }))
 }

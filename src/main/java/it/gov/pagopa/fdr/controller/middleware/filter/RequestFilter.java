@@ -73,9 +73,7 @@ public class RequestFilter implements ContainerRequestFilter {
                 .getAnnotations());
 
     String fdrAction = null;
-    if (fdrActionEnum == null) {
-      log.warn("Attention, missing annotation Re on this action");
-    } else {
+    if (fdrActionEnum != null) {
       fdrAction = fdrActionEnum.name();
     }
 
