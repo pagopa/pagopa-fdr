@@ -50,4 +50,4 @@ CREATE TABLE payment
 );
 
 ALTER TABLE payment
-    ADD CONSTRAINT FK_PAYMENT_ON_FLOW FOREIGN KEY (flow_id) REFERENCES flow (id);
+    ADD CONSTRAINT FK_PAYMENT_ON_FLOW FOREIGN KEY (flow_id) REFERENCES flow (id) on delete cascade;
