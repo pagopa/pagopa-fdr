@@ -9,7 +9,12 @@ import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
+import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,13 +23,24 @@ import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static it.gov.pagopa.fdr.test.util.TestUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.mock;
 
 
+@Slf4j
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 public class InternalOperationControllerTest {
+
+    private FileUtil fileUtil;
+    private Logger logger;
+
+    @BeforeEach
+    void setUp() {
+        logger = mock(Logger.class);
+        fileUtil = new FileUtil(logger);
+    }
 
 
     @Test
@@ -73,7 +89,7 @@ public class InternalOperationControllerTest {
         String flowName = TestUtil.getDynamicFlowName();
         String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
         String bodyFmt =
-                FLOW_TEMPLATE_WRONG_FIELDS.formatted(
+                fileUtil.getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_FIELDS_PATH).formatted(
                         flowName,
                         SenderTypeEnum.LEGAL_PERSON.name(),
                         PSP_CODE,
@@ -98,14 +114,14 @@ public class InternalOperationControllerTest {
     }
 
     @Test
-    @DisplayName("PSPS - OK - inserimento completo e pubblicazione di un flusso")
+    @DisplayName("PSPS - OK - flow and payments creation with subsequent publish ")
     void test_psp_OK() {
         String flowName = TestUtil.getDynamicFlowName();
         TestUtil.pspSunnyDay(flowName);
     }
 
     @Test
-    @DisplayName("PSPS - OK - inserimento di un flusso per tipo ABI_CODE")
+    @DisplayName("PSPS - OK - flow insert - Type ABI_CODE")
     void test_psp_ABICODE_createFlow_OK() {
         String flowName = TestUtil.getDynamicFlowName();
         String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
@@ -128,7 +144,7 @@ public class InternalOperationControllerTest {
     }
 
     @Test
-    @DisplayName("PSPS - OK - inserimento di un flusso per tipo BIC_CODE")
+    @DisplayName("PSPS - OK - - flow insert - Type BIC_CODE")
     void test_psp_BIC_CODE_createFlow_OK() {
         String flowName = TestUtil.getDynamicFlowName();
         String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
@@ -151,7 +167,7 @@ public class InternalOperationControllerTest {
     }
 
     @Test
-    @DisplayName("PSPS - OK - inserimento e cancellazione di un flusso")
+    @DisplayName("PSPS - OK - flow insert and subsequent delete")
     void test_psp_deleteFlow_OK() {
         String flowName = TestUtil.getDynamicFlowName();
         String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
@@ -212,7 +228,7 @@ public class InternalOperationControllerTest {
     }
 
     @Test
-    @DisplayName("PSPS - OK - inserimento completo e cancellazione del flusso con payments")
+    @DisplayName("PSPS - OK - flow with payments insert and subsequent delete")
     void test_psp_deleteFlowWithPayment_OK() {
         String flowName = TestUtil.getDynamicFlowName();
         String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
@@ -268,7 +284,7 @@ public class InternalOperationControllerTest {
     }
 
     @Test
-    @DisplayName("PSPS - OK - inserimento completo e cancellazione dei payments")
+    @DisplayName("PSPS - OK - payments insert and delete")
     void test_psp_deletePayments_OK() {
         String flowName = TestUtil.getDynamicFlowName();
         String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
@@ -324,7 +340,7 @@ public class InternalOperationControllerTest {
 
         GenericResponse resDelPays =
                 given()
-                        .body(PAYMENTS_DELETE_TEMPLATE)
+                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -336,7 +352,7 @@ public class InternalOperationControllerTest {
 
         ErrorResponse resDelError =
                 given()
-                        .body(PAYMENTS_DELETE_TEMPLATE)
+                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -358,7 +374,7 @@ public class InternalOperationControllerTest {
     }
 
     @Test
-    @DisplayName("PSPS - OK - inserimento completo e cancellazione parziale dei payments")
+    @DisplayName("PSPS - OK - payments insert with partial delete")
     void test_psp_deletePayments_partial_OK() {
         String flowName = TestUtil.getDynamicFlowName();
         String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
@@ -402,7 +418,7 @@ public class InternalOperationControllerTest {
 
         GenericResponse resDelPays =
                 given()
-                        .body(PAYMENTS_DELETE_TEMPLATE)
+                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -552,7 +568,7 @@ public class InternalOperationControllerTest {
         String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowNameUnknown);
         ErrorResponse resDelError =
                 given()
-                        .body(PAYMENTS_DELETE_TEMPLATE)
+                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -695,7 +711,7 @@ public class InternalOperationControllerTest {
         String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
         ErrorResponse resDelError =
                 given()
-                        .body(PAYMENTS_DELETE_TEMPLATE)
+                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -744,7 +760,7 @@ public class InternalOperationControllerTest {
         assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
         String urlAddPays = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-        bodyFmt = PAYMENTS_SAME_INDEX_ADD_TEMPLATE;
+        bodyFmt = fileUtil.getStringFromResourceAsString(PAYMENTS_SAME_INDEX_ADD_TEMPLATE_PATH);
         ErrorResponse resDelError =
                 given()
                         .header(HEADER)
@@ -889,7 +905,7 @@ public class InternalOperationControllerTest {
 
         ErrorResponse resSavePays2 =
                 given()
-                        .body(PAYMENTS_2_ADD_TEMPLATE)
+                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_2_ADD_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlSavePayment)
@@ -954,7 +970,7 @@ public class InternalOperationControllerTest {
         String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
         ErrorResponse resDelError =
                 given()
-                        .body(PAYMENTS_DELETE_WRONG_TEMPLATE)
+                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_WRONG_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -1383,7 +1399,9 @@ public class InternalOperationControllerTest {
         String flowName = TestUtil.getDynamicFlowName();
         String url = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
         String wrongFormatDecimal = "0,01";
-        String bodyFmt = PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE.formatted(wrongFormatDecimal);
+        String bodyFmt =
+                fileUtil.getStringFromResourceAsString(PAYMENTS_ADD_INVALID_FIELD_VALUE_TEMPLATE_PATH)
+                        .formatted(wrongFormatDecimal);
 
         ErrorResponse res =
                 given()
@@ -1415,7 +1433,7 @@ public class InternalOperationControllerTest {
         String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
         String wrongFormatDate = "2023-04-05";
         String bodyFmt =
-                FLOW_TEMPLATE_WRONG_INSTANT.formatted(
+                fileUtil.getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_INSTANT_PATH).formatted(
                         flowName,
                         wrongFormatDate,
                         SenderTypeEnum.LEGAL_PERSON.name(),
@@ -1491,7 +1509,7 @@ public class InternalOperationControllerTest {
 
         ErrorResponse resDelError =
                 given()
-                        .body(PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE)
+                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(url)
@@ -1520,7 +1538,7 @@ public class InternalOperationControllerTest {
 
         ErrorResponse res =
                 given()
-                        .body(MALFORMED_JSON)
+                        .body(fileUtil.getStringFromResourceAsString(MALFORMED_JSON_PATH))
                         .header(HEADER)
                         .when()
                         .post(url)
@@ -1535,161 +1553,5 @@ public class InternalOperationControllerTest {
                 res.getErrors(),
                 hasItem(hasProperty("message", equalTo("Bad request. Json format not valid"))));
     }
-
-
-
-    protected static String PAYMENTS_SAME_INDEX_ADD_TEMPLATE =
-            """
-            {
-              "payments": [{
-                  "index": 100,
-                  "iuv": "a",
-                  "iur": "abcdefg",
-                  "idTransfer": 1,
-                  "pay": 0.01,
-                  "payStatus": "EXECUTED",
-                  "payDate": "2023-02-03T12:00:30.900000Z"
-                },{
-                  "index": 100,
-                  "iuv": "b",
-                  "iur": "abcdefg",
-                  "idTransfer": 2,
-                  "pay": 0.01,
-                  "payStatus": "REVOKED",
-                  "payDate": "2023-02-03T12:00:30.900000Z"
-                }
-              ]
-            }
-            """;
-
-    protected static String PAYMENTS_2_ADD_TEMPLATE =
-            """
-            {
-              "payments": [{
-                "index": 100,
-                "iuv": "a",
-                "iur": "abcdefg",
-                "idTransfer": 1,
-                "pay": 0.01,
-                "payStatus": "EXECUTED",
-                "payDate": "2023-02-03T12:00:30.900000Z"
-              }]
-            }
-            """;
-
-    protected static String PAYMENTS_DELETE_WRONG_TEMPLATE =
-            """
-            {
-              "indexList": [
-                  5
-              ]
-            }
-            """;
-
-    protected static String MALFORMED_JSON =
-            """
-            {
-              12345
-            }
-            """;
-
-    protected static String PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE =
-            """
-            {
-              "payments": {
-                  "index": 100,
-                  "iuv": "a",
-                  "iur": "abcdefg",
-                  "idTransfer": 1,
-                  "pay": "%s",
-                  "payStatus": "EXECUTED",
-                  "payDate": "2023-02-03T12:00:30.900000Z"
-                }
-            }
-            """;
-
-    protected static String FLOW_TEMPLATE_WRONG_INSTANT =
-            """
-            {
-              "fdr": "%s",
-              "fdrDate": "%s",
-              "sender": {
-                "type": "%s",
-                "id": "SELBIT2B",
-                "pspId": "%s",
-                "pspName": "Bank",
-                "pspBrokerId": "%s",
-                "channelId": "%s",
-                "password": "1234567890"
-              },
-              "receiver": {
-                "id": "APPBIT2B",
-                "organizationId": "%s",
-                "organizationName": "Comune di xyz"
-              },
-              "regulation": "SEPA - Bonifico xzy",
-              "regulationDate": "2023-04-03T12:00:30.900000Z",
-              "bicCodePouringBank": "UNCRITMMXXX",
-              "totPayments": 3,
-              "sumPayments": 0.03
-            }
-            """;
-
-    protected static String PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE =
-            """
-            {
-              "payments": [{
-                  "index": 100,
-                  "iuv": "a",
-                  "iur": "abcdefg",
-                  "idTransfer": 1,
-                  "pay": "%s",
-                  "payStatus": "EXECUTED",
-                  "payDate": "2023-02-03T12:00:30.900000Z"
-                }
-              ]
-            }
-            """;
-
-    protected static String FLOW_TEMPLATE_WRONG_FIELDS =
-            """
-            {
-              "fdrFake": "%s",
-              "fdrDate": "2023-04-05T09:21:37.810000Z",
-              "sender": {
-                "type": "%s",
-                "id": "SELBIT2B",
-                "pspId": "%s",
-                "pspName": "Bank",
-                "pspBrokerId": "%s",
-                "channelId": "%s",
-                "password": "1234567890"
-              },
-              "receiver": {
-                "id": "APPBIT2B",
-                "organizationId": "%s",
-                "organizationName": "Comune di xyz"
-              },
-              "regulation": "SEPA - Bonifico xzy",
-              "regulationDate": "2023-04-03T12:00:30.900000Z",
-              "bicCodePouringBank": "UNCRITMMXXX",
-              "totPayments": 3,
-              "sumPayments": 0.03
-            }
-            """;
-
-    protected static String PAYMENTS_DELETE_TEMPLATE =
-            """
-            {
-              "indexList": [
-                  100,
-                  101,
-                  102,
-                  103,
-                  104
-              ]
-            }
-            """;
-
 
 }

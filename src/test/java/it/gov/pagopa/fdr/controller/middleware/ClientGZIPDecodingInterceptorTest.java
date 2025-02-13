@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.ReaderInterceptorContext;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -39,7 +40,8 @@ public class ClientGZIPDecodingInterceptorTest {
     }
 
     @Test
-    public void testAroundReadFrom_withGzipEncoding() throws IOException, WebApplicationException {
+    @DisplayName("Test aroundReadFrom method with gzip encoding")
+    public void testWithGzipEncoding() throws IOException, WebApplicationException {
 
         InputStream inputStream = fileUtil.getFileFromResourceAsStream("test.json");
         InputStream compressedGzipInputStream =new ByteArrayInputStream(fileUtil.compressInputStreamtoGzip(inputStream));
@@ -57,7 +59,8 @@ public class ClientGZIPDecodingInterceptorTest {
 
 
     @Test
-    public void testAroundReadFrom_withoutGzipEncoding() throws IOException, WebApplicationException {
+    @DisplayName("Test aroundReadFrom method without gzip encoding")
+    public void testWithoutGzipEncoding() throws IOException, WebApplicationException {
         InputStream inputStream = fileUtil.getFileFromResourceAsStream("test.json");
         MultivaluedMap<String, String> headerMap= new MultivaluedHashMap<>();
         headerMap.put("Content-Encoding", Collections.singletonList("identity"));

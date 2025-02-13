@@ -2,6 +2,9 @@ package it.gov.pagopa.fdr.test.util;
 
 import io.restassured.http.Header;
 
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
+
 public class AppConstantTestHelper {
 
   public static final String FLOWS_URL = "/psps/%s/fdrs/%s";
@@ -32,4 +35,44 @@ public class AppConstantTestHelper {
   public static final String EC_CODE_NOT_ENABLED = "PAtestDOFF";
 
   public static final Header HEADER = new Header("Content-Type", "application/json");
+
+  public static final String APP_NAME = "pagopafdr";
+
+//  json template paths
+  public static final String JSON_TEST_TEMPLATES_PATH = "json-test-templates";
+
+//  Internal operations template paths
+  public static final String INTERNAL_OPERATION_PATH =
+        Paths.get(JSON_TEST_TEMPLATES_PATH, "internal-operation").toString();
+
+  public static final String FLOW_TEMPLATE_WRONG_INSTANT_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"flow-wrong-instant.json").toString();
+  public static final String PAYMENTS_DELETE_TEMPLATE_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"payments-delete.json").toString();
+  public static final String FLOW_TEMPLATE_WRONG_FIELDS_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"flow-wrong-fields.json").toString();
+  public static final String PAYMENTS_ADD_INVALID_FIELD_VALUE_TEMPLATE_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"payments-add-invalid-value.json").toString();
+  public static final String PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"payments-add-invalid-format.json").toString();
+  public static final String MALFORMED_JSON_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"malformed.json").toString();
+  public static final String PAYMENTS_DELETE_WRONG_TEMPLATE_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"payments-delete-wrong-format.json").toString();
+  public static final String PAYMENTS_SAME_INDEX_ADD_TEMPLATE_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"payments-add-same-index.json").toString();
+  public static final String PAYMENTS_2_ADD_TEMPLATE_PATH =
+          Paths.get(INTERNAL_OPERATION_PATH
+                  ,"payments-add.json").toString();
+
+
+
 }

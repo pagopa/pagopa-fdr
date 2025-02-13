@@ -21,6 +21,11 @@ public class FileUtil {
     this.log = log;
   }
 
+    public String getStringFromResourceAsString(String fileName) {
+        InputStream inputStream = getFileFromResourceAsStream(fileName);
+        return convertToString(inputStream);
+    }
+
   public InputStream getFileFromResourceAsStream(String fileName) {
     // The class loader that loaded the class
     ClassLoader classLoader = getClass().getClassLoader();
