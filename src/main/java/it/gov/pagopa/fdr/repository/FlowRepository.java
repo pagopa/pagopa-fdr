@@ -112,7 +112,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     String queryString = String.join(" and ", queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(SortField.of("id", Direction.Ascending));
+    Sort sort = getSort(SortField.of("name", Direction.Ascending));
 
     PanacheQuery<FlowEntity> resultPage =
         FlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
@@ -160,7 +160,10 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     String queryString = String.join(" and ", queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(SortField.of("id", Direction.Ascending));
+    Sort sort =
+        getSort(
+            SortField.of("name", Direction.Ascending),
+            SortField.of("revision", Direction.Ascending));
 
     PanacheQuery<FlowEntity> resultPage =
         FlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
@@ -241,7 +244,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     String queryString = String.join(" and ", queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(SortField.of("id", Direction.Ascending));
+    Sort sort = getSort(SortField.of("name", Direction.Ascending));
 
     PanacheQuery<FlowEntity> resultPage =
         FlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
