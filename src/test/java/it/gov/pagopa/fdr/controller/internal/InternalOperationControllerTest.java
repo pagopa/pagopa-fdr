@@ -34,11 +34,10 @@ import static org.mockito.Mockito.mock;
 public class InternalOperationControllerTest {
 
     private FileUtil fileUtil;
-    private Logger logger;
 
     @BeforeEach
     void setUp() {
-        logger = mock(Logger.class);
+        Logger logger = mock(Logger.class);
         fileUtil = new FileUtil(logger);
     }
 
@@ -340,7 +339,7 @@ public class InternalOperationControllerTest {
 
         GenericResponse resDelPays =
                 given()
-                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
+                        .body(fileUtil.getStringFromResourceAsString(INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -352,7 +351,7 @@ public class InternalOperationControllerTest {
 
         ErrorResponse resDelError =
                 given()
-                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
+                        .body(fileUtil.getStringFromResourceAsString(INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -418,7 +417,7 @@ public class InternalOperationControllerTest {
 
         GenericResponse resDelPays =
                 given()
-                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
+                        .body(fileUtil.getStringFromResourceAsString(INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -568,7 +567,7 @@ public class InternalOperationControllerTest {
         String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowNameUnknown);
         ErrorResponse resDelError =
                 given()
-                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
+                        .body(fileUtil.getStringFromResourceAsString(INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)
@@ -711,7 +710,7 @@ public class InternalOperationControllerTest {
         String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
         ErrorResponse resDelError =
                 given()
-                        .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_TEMPLATE_PATH))
+                        .body(fileUtil.getStringFromResourceAsString(INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
                         .header(HEADER)
                         .when()
                         .put(urlDelPays)

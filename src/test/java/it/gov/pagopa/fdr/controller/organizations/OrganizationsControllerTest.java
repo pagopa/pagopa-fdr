@@ -1,22 +1,5 @@
 package it.gov.pagopa.fdr.controller.organizations;
 
-import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum.PSP_UNKNOWN;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
-
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,11 +13,21 @@ import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResp
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
-import it.gov.pagopa.fdr.util.constant.ControllerConstants;
+import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
-import java.util.List;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static io.restassured.RestAssured.given;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
+import static it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum.PSP_UNKNOWN;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.mock;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
@@ -42,12 +35,6 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
 
-  private static final String GET_ALL_PUBLISHED_FLOW_URL =
-      "/organizations/%s/fdrs?" + ControllerConstants.PARAMETER_PSP + "=%s";
-  private static final String GET_REPORTING_FLOW_URL =
-      "/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
-  private static final String GET_REPORTING_FLOW_PAYMENTS_URL =
-      "/organizations/%s/fdrs/%s/revisions/%s/psps/%s/payments";
 
   /** ############### getAllPublishedFlow ################ */
   @Test
@@ -55,7 +42,7 @@ class OrganizationsControllerTest {
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
     PaginatedFlowsResponse res =
         given()
             .header(HEADER)
@@ -78,7 +65,7 @@ class OrganizationsControllerTest {
   void testOrganization_getAllPublishedFlow_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
     PaginatedFlowsResponse res =
         given()
             .header(HEADER)
@@ -95,7 +82,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, pspUnknown, 10, 10);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, pspUnknown, 10, 10);
     ErrorResponse res =
         given()
             .header(HEADER)
@@ -116,7 +103,7 @@ class OrganizationsControllerTest {
   @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_NOT_ENABLED, 10, 10);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_NOT_ENABLED, 10, 10);
 
     ErrorResponse res =
         given()
@@ -139,7 +126,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - KO FDR-0716 - creditor institution unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(ecUnknown, PSP_CODE, 10, 10);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(ecUnknown, PSP_CODE, 10, 10);
 
     ErrorResponse res =
         given()
@@ -161,7 +148,7 @@ class OrganizationsControllerTest {
   @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0717 - creditor institution not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0717() {
-    String url = GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE_NOT_ENABLED, PSP_CODE, 10, 10);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE_NOT_ENABLED, PSP_CODE, 10, 10);
 
     ErrorResponse res =
         given()
@@ -183,11 +170,11 @@ class OrganizationsControllerTest {
 
   /** ################# getReportingFlow ############### */
   @Test
-  @DisplayName("ORGANIZATIONS - OK - recupero di un reporting flow")
+  @DisplayName("ORGANIZATIONS - OK - reporting flow retrieval")
   void testOrganization_getReportingFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
+    String url = ORGANIZATIONS_GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
     SingleFlowResponse res =
         given()
             .header(HEADER)
@@ -205,13 +192,13 @@ class OrganizationsControllerTest {
   }
 
   @Test
-  @DisplayName("ORGANIZATIONS - OK - recupero di un reporting flow pubblicato alla revision 2")
+  @DisplayName("ORGANIZATIONS - OK -  retrieval of a published revision 2 reporting flow")
   void testOrganization_getReportingFlow_revision_2_OK() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     TestUtil.pspSunnyDay(flowName);
 
-    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2L, PSP_CODE);
+    String url = ORGANIZATIONS_GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2L, PSP_CODE);
     SingleFlowResponse res =
         given()
             .header(HEADER)
@@ -233,7 +220,7 @@ class OrganizationsControllerTest {
     TestUtil.pspSunnyDay(flowName);
 
     String flowNameWrong = TestUtil.getDynamicFlowName();
-    String url = GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, 1L, PSP_CODE);
+    String url = ORGANIZATIONS_GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, 1L, PSP_CODE);
 
     ErrorResponse res =
         given()
@@ -255,12 +242,12 @@ class OrganizationsControllerTest {
 
   /** ################# getReportingFlowPayments ############### */
   @Test
-  @DisplayName("ORGANIZATIONS - OK - recupero dei payments di un flow pubblicato")
+  @DisplayName("ORGANIZATIONS - OK -  payments retrieval from a published flow")
   void testOrganization_getReportingFlowPayments_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
 
-    String url = GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
+    String url = ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
 
     PaginatedPaymentsResponse res =
         given()
@@ -288,13 +275,13 @@ class OrganizationsControllerTest {
 
   @Test
   @DisplayName(
-      "ORGANIZATIONS - OK - recupero dei payments di un flow pubblicato con paginazione custom")
+      "ORGANIZATIONS - OK - payments retrieval from a published flow using custom pagination")
   void testOrganization_getReportingFlowPayments_pagination_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
 
     String url =
-        (GET_REPORTING_FLOW_PAYMENTS_URL + "?page=2&size=1")
+        (ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL + "?page=2&size=1")
             .formatted(EC_CODE, flowName, 1L, PSP_CODE);
     PaginatedPaymentsResponse res =
         given()
