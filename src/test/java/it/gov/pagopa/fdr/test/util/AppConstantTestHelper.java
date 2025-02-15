@@ -2,8 +2,6 @@ package it.gov.pagopa.fdr.test.util;
 
 import io.restassured.http.Header;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
-
-import java.nio.file.FileSystems;
 import java.nio.file.Paths;
 
 public class AppConstantTestHelper {
