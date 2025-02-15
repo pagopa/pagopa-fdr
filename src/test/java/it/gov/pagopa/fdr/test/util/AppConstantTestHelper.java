@@ -30,7 +30,6 @@ public class AppConstantTestHelper {
           "/organizations/%s/fdrs/%s/revisions/%s/psps/%s/payments";
 
   //PSP Controller Paths
-  public static final String PSP_GET_FDR_CREATED_URL = "/psps/%s/created/fdrs/%s/organizations/%s";
   public static final String PSP_GET_PAYMENTS_FDR_PUBLISHED_URL =
           "/psps/%s/published/fdrs/%s/revisions/%s/organizations/%s/payments";
   public static final String PSP_GET_FDR_PUBLISHED_URL =
@@ -38,6 +37,10 @@ public class AppConstantTestHelper {
   public static final String PSP_GET_ALL_FDR_CREATED_URL = "/psps/%s/created";
   public static final String PSP_GET_PAYMENTS_FDR_CREATED_URL =
           "/psps/%s/created/fdrs/%s/organizations/%s/payments";
+
+  //TechnicalSupportController Paths
+  public static final String GET_ALL_FDR_BY_PSP_ID_IUV = "/internal/psps/" + "%s" + "/iuv/" + "%s";
+  public static final String GET_ALL_FDR_BY_PSP_ID_IUR = "/internal/psps/" + "%s" + "/iur/" + "%s";
 
 
   public static final String REPORTING_FLOW_NAME_PSP_WRONG_FORMAT = "2016-08-16-psp-1176";
@@ -58,13 +61,13 @@ public class AppConstantTestHelper {
 
   public static final String APP_NAME = "pagopafdr";
 
-//  json template paths
+  //  json template paths section
   public static final String JSON_TEST_TEMPLATES_PATH = "json-test-templates";
 
   public static final String GENERAL_TEMPLATE_PATH =
           Paths.get(JSON_TEST_TEMPLATES_PATH, "general").toString();
 
- //General template paths
+  //General template paths
   public static final String FLOW_TEMPLATE_WRONG_INSTANT_PATH =
           Paths.get(GENERAL_TEMPLATE_PATH
                   ,"flow-wrong-instant.json").toString();
@@ -96,15 +99,15 @@ public class AppConstantTestHelper {
           Paths.get(GENERAL_TEMPLATE_PATH
                   ,"payments-add-invalid-format.json").toString();
 
-//  Internal operations template paths
+  //  Internal operations template paths
   public static final String INTERNAL_OPERATION_TEMPLATE_PATH =
-        Paths.get(JSON_TEST_TEMPLATES_PATH, "internal-operation").toString();
+          Paths.get(JSON_TEST_TEMPLATES_PATH, "internal-operation").toString();
 
   public static final String INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH =
           Paths.get(INTERNAL_OPERATION_TEMPLATE_PATH
                   ,"payments-delete.json").toString();
 
-//   Psp template paths
+  //  Psp template paths
   public static final String PSP_TEMPLATE_PATH =
           Paths.get(JSON_TEST_TEMPLATES_PATH, "psp").toString();
 

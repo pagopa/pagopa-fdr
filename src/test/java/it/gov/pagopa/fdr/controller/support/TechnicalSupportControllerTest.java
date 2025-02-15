@@ -1,8 +1,7 @@
 package it.gov.pagopa.fdr.controller.support;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -25,9 +24,6 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class TechnicalSupportControllerTest {
-
-  private static final String GET_ALL_FDR_BY_PSP_ID_IUV = "/internal/psps/" + "%s" + "/iuv/" + "%s";
-  private static final String GET_ALL_FDR_BY_PSP_ID_IUR = "/internal/psps/" + "%s" + "/iur/" + "%s";
 
   private static String flowName;
 
