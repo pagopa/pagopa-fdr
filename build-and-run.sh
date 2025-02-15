@@ -102,10 +102,10 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
     generate_openapi openapi_internal internal 'Info,Internal Operations,Support'
 
     build openapi_psp
-    generate_openapi openapi_psp psp 'PSP'
+    generate_openapi openapi_psp psp 'Info,PSP'
 
     build openapi_organization
-    generate_openapi openapi_organization org 'Organizations'
+    generate_openapi openapi_organization org 'Info,Organizations'
 
     build openapi
     generate_openapi openapi all
