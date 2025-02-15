@@ -43,7 +43,7 @@ public class ClientGZIPDecodingInterceptorTest {
     @DisplayName("Test aroundReadFrom method with gzip encoding")
     public void testWithGzipEncoding() throws IOException, WebApplicationException {
 
-        InputStream inputStream = fileUtil.getFileFromResourceAsStream("test.json");
+        InputStream inputStream = fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
         InputStream compressedGzipInputStream =new ByteArrayInputStream(fileUtil.compressInputStreamtoGzip(inputStream));
 
         MultivaluedMap<String, String> headerMap= new MultivaluedHashMap<>();
@@ -61,7 +61,7 @@ public class ClientGZIPDecodingInterceptorTest {
     @Test
     @DisplayName("Test aroundReadFrom method without gzip encoding")
     public void testWithoutGzipEncoding() throws IOException, WebApplicationException {
-        InputStream inputStream = fileUtil.getFileFromResourceAsStream("test.json");
+        InputStream inputStream = fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
         MultivaluedMap<String, String> headerMap= new MultivaluedHashMap<>();
         headerMap.put("Content-Encoding", Collections.singletonList("identity"));
         when(context.getHeaders()).thenReturn(headerMap);

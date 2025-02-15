@@ -69,6 +69,9 @@ public class AppConstantTestHelper {
   public static final String FLOW_TEMPLATE_WRONG_INSTANT_PATH =
           Paths.get(GENERAL_TEMPLATE_PATH
                   ,"flow-wrong-instant.json").toString();
+  public static final String TEST_TEMPLATE_PATH =
+          Paths.get(GENERAL_TEMPLATE_PATH
+                  ,"test.json").toString();
   public static final String FLOW_TEMPLATE_WRONG_FIELDS_PATH =
           Paths.get(GENERAL_TEMPLATE_PATH
                   ,"flow-wrong-fields.json").toString();

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.TEST_TEMPLATE_PATH;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -28,7 +30,7 @@ class FileUtilTest {
     @Test
     @DisplayName("FileUtil getFileFromResourceAsStream test with existent file")
     void testGetFileFromResourceAsStream_FileExists() {
-        InputStream result = fileUtil.getFileFromResourceAsStream("test.json");
+        InputStream result = fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
         assertNotNull(result);
     }
 
@@ -56,5 +58,17 @@ class FileUtilTest {
 
         assertEquals(content, result);
     }
+
+    @Test
+    @DisplayName("FileUtil getStringFromResourceAsString test with existent content")
+    void getStringFromResource_Success() {
+
+        String content = "{  \"test\": \"test\",  \"test2\": \"test2\"}";
+
+        String result = fileUtil.getStringFromResourceAsString(TEST_TEMPLATE_PATH);
+
+        assertEquals(content, result);
+    }
+
 
 }
