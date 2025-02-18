@@ -34,7 +34,6 @@ import it.gov.pagopa.fdr.test.util.TestUtil;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import java.util.List;
-
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,16 +1,16 @@
 package it.gov.pagopa.fdr.service.middleware.mapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import it.gov.pagopa.fdr.controller.model.flow.FlowBySenderAndReceiver;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TechnicalSupportMapperTest {
 

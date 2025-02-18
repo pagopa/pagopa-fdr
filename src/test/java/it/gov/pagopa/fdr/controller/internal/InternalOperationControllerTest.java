@@ -1,5 +1,12 @@
 package it.gov.pagopa.fdr.controller.internal;
 
+import static io.restassured.RestAssured.given;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
+import static it.gov.pagopa.fdr.test.util.TestUtil.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.mock;
+
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -13,18 +20,9 @@ import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.logging.Logger;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
-import static it.gov.pagopa.fdr.test.util.TestUtil.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.mock;
-
 
 @Slf4j
 @QuarkusTest

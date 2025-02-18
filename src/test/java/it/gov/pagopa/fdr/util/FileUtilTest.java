@@ -1,19 +1,19 @@
 package it.gov.pagopa.fdr.util;
 
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.TEST_TEMPLATE_PATH;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.TEST_TEMPLATE_PATH;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @QuarkusTest
 class FileUtilTest {

@@ -1,5 +1,11 @@
 package it.gov.pagopa.fdr.controller.organizations;
 
+import static io.restassured.RestAssured.given;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
+import static it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum.PSP_UNKNOWN;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -13,21 +19,10 @@ import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResp
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
-import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
-import static it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum.PSP_UNKNOWN;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.mock;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)

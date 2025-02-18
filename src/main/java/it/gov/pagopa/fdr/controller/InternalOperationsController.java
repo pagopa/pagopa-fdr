@@ -29,7 +29,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   @Override
   @Re(action = FdrActionEnum.INTERNAL_CREATE_FLOW)
   public RestResponse<GenericResponse> createEmptyFlowForInternalUse(
-      String pspId, String flowName, CreateFlowRequest request) {
+          String pspId, String flowName, CreateFlowRequest request) {
 
     GenericResponse response = this.flowService.createEmptyFlow(pspId, flowName, request);
     return RestResponse.status(Status.CREATED, response);
@@ -38,7 +38,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   @Override
   @Re(action = FdrActionEnum.INTERNAL_ADD_PAYMENT)
   public GenericResponse addPaymentToExistingFlowForInternalUse(
-      String pspId, String flowName, AddPaymentRequest request) {
+          String pspId, String flowName, AddPaymentRequest request) {
 
     return this.paymentService.addPaymentToExistingFlow(pspId, flowName, request);
   }
@@ -46,7 +46,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   @Override
   @Re(action = FdrActionEnum.INTERNAL_DELETE_PAYMENT)
   public GenericResponse deletePaymentFromExistingFlowForInternalUse(
-      String pspId, String flowName, DeletePaymentRequest request) {
+          String pspId, String flowName, DeletePaymentRequest request) {
 
     return this.paymentService.deletePaymentFromExistingFlow(pspId, flowName, request);
   }
@@ -68,13 +68,13 @@ public class InternalOperationsController implements IInternalOperationsControll
   @Override
   @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR)
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
-      String pspId, String flowName, String organizationId) {
+          String pspId, String flowName, String organizationId) {
 
     return this.flowService.getSingleFlowNotInPublishedStatus(
-        FindFlowsByFiltersArgs.builder()
-            .pspId(pspId)
-            .flowName(flowName)
-            .organizationId(organizationId)
-            .build());
+            FindFlowsByFiltersArgs.builder()
+                    .pspId(pspId)
+                    .flowName(flowName)
+                    .organizationId(organizationId)
+                    .build());
   }
 }

@@ -8,7 +8,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
-
 import org.jboss.logging.Logger;
 
 @ApplicationScoped

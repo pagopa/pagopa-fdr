@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.controller.middleware;
 
+import static org.mockito.Mockito.*;
+
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.controller.middleware.interceptor.ClientGZIPDecodingInterceptor;
 import it.gov.pagopa.fdr.util.common.FileUtil;
@@ -7,6 +9,11 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.ReaderInterceptorContext;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.zip.GZIPInputStream;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,13 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.zip.GZIPInputStream;
-
-import static org.mockito.Mockito.*;
 @QuarkusTest
 public class ClientGZIPDecodingInterceptorTest {
 

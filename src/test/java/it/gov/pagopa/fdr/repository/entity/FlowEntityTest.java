@@ -1,12 +1,11 @@
 package it.gov.pagopa.fdr.repository.entity;
 
 import io.quarkus.test.junit.QuarkusTest;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import java.math.BigDecimal;
-
 
 @QuarkusTest
 public class FlowEntityTest {

@@ -1,12 +1,11 @@
 package it.gov.pagopa.fdr.test.util;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import java.util.HashMap;
+import java.util.Map;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class PostgresResource implements QuarkusTestResourceLifecycleManager {
 

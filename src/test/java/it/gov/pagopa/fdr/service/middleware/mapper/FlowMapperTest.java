@@ -1,5 +1,10 @@
 package it.gov.pagopa.fdr.service.middleware.mapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.controller.model.flow.*;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
@@ -7,17 +12,12 @@ import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.flow.response.*;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 @QuarkusTest
 public class FlowMapperTest {

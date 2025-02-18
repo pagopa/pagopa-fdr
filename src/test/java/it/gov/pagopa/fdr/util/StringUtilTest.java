@@ -1,12 +1,11 @@
 package it.gov.pagopa.fdr.util;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.util.common.StringUtil;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 public class StringUtilTest {
