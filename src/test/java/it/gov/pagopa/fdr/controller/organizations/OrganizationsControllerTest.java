@@ -77,7 +77,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - KO FDR-0708 - psp unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0708() {
     String pspUnknown = "PSP_UNKNOWN";
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, pspUnknown, 10, 10);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, pspUnknown);
     ErrorResponse res =
         given()
             .header(HEADER)
@@ -98,7 +98,7 @@ class OrganizationsControllerTest {
   @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0709 - psp not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0709() {
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_NOT_ENABLED, 10, 10);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_NOT_ENABLED);
 
     ErrorResponse res =
         given()
@@ -121,7 +121,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - KO FDR-0716 - creditor institution unknown")
   void testOrganization_getAllPublishedFlow_KO_FDR0716() {
     String ecUnknown = "EC_UNKNOWN";
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(ecUnknown, PSP_CODE, 10, 10);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(ecUnknown, PSP_CODE);
 
     ErrorResponse res =
         given()
@@ -143,7 +143,7 @@ class OrganizationsControllerTest {
   @Test
   @DisplayName("ORGANIZATIONS - KO FDR-0717 - creditor institution not enabled")
   void testOrganization_getAllPublishedFlow_KO_FDR0717() {
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE_NOT_ENABLED, PSP_CODE, 10, 10);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE_NOT_ENABLED, PSP_CODE);
 
     ErrorResponse res =
         given()
@@ -254,7 +254,7 @@ class OrganizationsControllerTest {
             .extract()
             .as(PaginatedPaymentsResponse.class);
     assertThat(res.getCount(), equalTo(5L));
-    List expectedList =
+    List<String> expectedList =
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.REVOKED.name(),

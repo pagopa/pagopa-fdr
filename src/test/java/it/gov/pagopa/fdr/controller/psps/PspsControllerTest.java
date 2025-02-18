@@ -805,15 +805,8 @@ class PspsControllerTest {
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    bodyFmt =
-        """
-        {
-          "indexList": [
-              1,
-              1
-          ]
-        }
-        """;
+    bodyFmt =fileUtil.getStringFromResourceAsString(PSP_PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH);
+
     ErrorResponse resDelError =
         given()
             .body(bodyFmt)
@@ -1408,21 +1401,6 @@ class PspsControllerTest {
     String bodyFmt = fileUtil
             .getStringFromResourceAsString(PAYMENTS_ADD_INVALID_FORMAT_VALUE_TEMPLATE_PATH)
             .formatted(wrongFormatDecimal);
-//    String bodyFmt =  """
-//      {
-//        "payments": [{
-//            "index": 100,
-//            "iuv": "a",
-//            "iur": "abcdefg",
-//            "idTransfer": 1,
-//            "pay": "%s",
-//            "payStatus": "EXECUTED",
-//            "payDate": "2023-02-03T12:00:30.900000Z"
-//          }
-//        ]
-//      }
-//      """
-//            .formatted(wrongFormatDecimal);
 
     ErrorResponse res =
         given()
@@ -1821,7 +1799,7 @@ class PspsControllerTest {
             .extract()
             .as(PaginatedPaymentsResponse.class);
     assertThat(res.getCount(), equalTo(5L));
-    List expectedList =
+    List<String> expectedList =
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.REVOKED.name(),

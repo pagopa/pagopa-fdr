@@ -116,4 +116,8 @@ public class AppConstantTestHelper {
           Paths.get(PSP_TEMPLATE_PATH
                   ,"payments-delete.json").toString();
 
+  public static final String PSP_PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH =
+          Paths.get(PSP_TEMPLATE_PATH
+                  ,"payments-delete-same-index.json").toString();
+
 }
