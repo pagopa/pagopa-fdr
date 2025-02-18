@@ -887,7 +887,6 @@
     "/info": {
       "get": {
         "summary": "Health-check",
-        "description": "## Description:\nGet health check and deployment-related information",
         "operationId": "IInfoController.healthCheck",
         "tags": [
           "Info"
@@ -930,7 +929,6 @@
     "/internal/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
       "get": {
         "summary": "Get created fdr",
-        "description": "## Description:\nGet created fdr",
         "operationId": "IInternalOperationsController.getSingleFlowNotInPublishedStatusForInternalUse",
         "tags": [
           "Internal Operations"
@@ -1040,7 +1038,6 @@
     "/internal/psps/{pspId}/fdrs/{fdr}": {
       "delete": {
         "summary": "Delete fdr",
-        "description": "## Description:\nDelete fdr",
         "operationId": "IInternalOperationsController.deleteExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
@@ -1140,7 +1137,6 @@
       },
       "post": {
         "summary": "Create fdr",
-        "description": "## Description:\nCreate fdr",
         "operationId": "IInternalOperationsController.createEmptyFlowForInternalUse",
         "tags": [
           "Internal Operations"
@@ -1252,7 +1248,6 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/payments/add": {
       "put": {
         "summary": "Add payments to fdr",
-        "description": "## Description:\nAdd payments to fdr",
         "operationId": "IInternalOperationsController.addPaymentToExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
@@ -1363,7 +1358,6 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/payments/del": {
       "put": {
         "summary": "Delete payments to fdr",
-        "description": "## Description:\nDelete payments to fdr",
         "operationId": "IInternalOperationsController.deletePaymentFromExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
@@ -1474,7 +1468,6 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/publish": {
       "post": {
         "summary": "Publish fdr",
-        "description": "## Description:\nPublish fdr",
         "operationId": "IInternalOperationsController.publishFlowForInternalUse",
         "tags": [
           "Internal Operations"
@@ -1576,7 +1569,6 @@
     "/internal/psps/{pspId}/iur/{iur}": {
       "get": {
         "summary": "Get all payments by psp id and iur",
-        "description": "## Description:\nGet all payments by psp id and iur",
         "operationId": "ISupportController.getByIur",
         "tags": [
           "Support"
@@ -1714,7 +1706,6 @@
     "/internal/psps/{pspId}/iuv/{iuv}": {
       "get": {
         "summary": "Get all payments by psp id and iuv",
-        "description": "## Description:\nGet all payments by psp id and iuv",
         "operationId": "ISupportController.getByIuv",
         "tags": [
           "Support"

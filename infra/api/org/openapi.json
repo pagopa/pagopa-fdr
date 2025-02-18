@@ -887,7 +887,6 @@
     "/info": {
       "get": {
         "summary": "Health-check",
-        "description": "## Description:\nGet health check and deployment-related information",
         "operationId": "IInfoController.healthCheck",
         "tags": [
           "Info"
@@ -930,7 +929,6 @@
     "/organizations/{organizationId}/fdrs": {
       "get": {
         "summary": "Get all published flow by creditor institution",
-        "description": "## Description:\nThis API permits to search all published flows for a specific creditor institution,\nformatted in a paginated view. The search can be enhanced including the PSP identifier\nin order to filter only the flows for certain PSP. The only flows retrieved are the latest\nrevision, as same as \"nodoChiediElencoFlussiRendicontazione\" primitive does.<br>\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP (if that search filter is defined).<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [{0}] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [{0}] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [{0}] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [{0}] is not enabled.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IOrganizationsController.getAllPublishedFlows",
         "tags": [
           "Organizations"
@@ -1070,7 +1068,6 @@
     "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}": {
       "get": {
         "summary": "Get single flow by creditor institution, searching by name and revision",
-        "description": "## Description:\nThis API permits to search a single flows for a specific creditor institution.\nIn order to do so, it is required to add the following search filters:\n - Creditor institution identifier: for filtering by specific organization\n - PSP identifier: for filtering by flow-related PSP\n - Flow name: for filtering by specific instance of the flow\n - Revision: for filtering by flow revision\n\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [{0}] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [{0}] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [{0}] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [{0}] is not enabled.\n**FDR-3008** | 400 | Flows ID [{0}] contains a date that is not compliant.\n**FDR-3009** | 400 | Flows ID [{0}] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [{0}] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IOrganizationsController.getSinglePublishedFlow",
         "tags": [
           "Organizations"
@@ -1198,7 +1195,6 @@
     "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}/payments": {
       "get": {
         "summary": "Get all payments of single flow by creditor institution, searching by name and revision",
-        "description": "## Description:\nThis API permits to search all the payments of single flows for a specific creditor institution,\nformatted in a paginated view. In order to do so, it is required to add the following search filters:\n - Creditor institution identifier: for filtering by specific organization\n - PSP identifier: for filtering by flow-related PSP\n - Flow name: for filtering by specific instance of the flow\n - Revision: for filtering by flow revision\n\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [{0}] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [{0}] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [{0}] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [{0}] is not enabled.\n**FDR-3008** | 400 | Flows ID [{0}] contains a date that is not compliant.\n**FDR-3009** | 400 | Flows ID [{0}] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [{0}] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IOrganizationsController.getPaymentsFromPublishedFlow",
         "tags": [
           "Organizations"
