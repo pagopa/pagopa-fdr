@@ -48,9 +48,9 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   public static final String QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME =
       "pspDomainId = ?1 and name = ?2 and status = ?3 and isLatest = ?4";
 
-  private EntityManager entityManager;
+  private final EntityManager entityManager;
 
-  private Logger log;
+  private final Logger log;
 
   public FlowRepository(Logger log, EntityManager em) {
     this.log = log;

@@ -24,9 +24,9 @@ import org.jboss.logging.Logger;
 @ApplicationScoped
 public class PaymentRepository extends Repository implements PanacheRepository<PaymentEntity> {
 
-  private EntityManager entityManager;
+  private final EntityManager entityManager;
 
-  private Logger log;
+  private final Logger log;
 
   public static final String QUERY_GET_BY_FLOW_ID = "flowId = ?1";
 

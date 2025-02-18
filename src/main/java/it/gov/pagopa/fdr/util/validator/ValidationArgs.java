@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class ValidationArgs {
 
-  private Map<String, Object> data;
+  private final Map<String, Object> data;
 
   private ValidationArgs() {
     this.data = new HashMap<>();

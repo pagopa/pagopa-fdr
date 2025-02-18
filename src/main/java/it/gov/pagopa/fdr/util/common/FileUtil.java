@@ -4,7 +4,11 @@ import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -19,16 +23,15 @@ public class FileUtil {
     this.log = log;
   }
 
-    public String getStringFromResourceAsString(String fileName) {
-        InputStream inputStream = getFileFromResourceAsStream(fileName);
-        return convertToString(inputStream);
-    }
+  public String getStringFromResourceAsString(String fileName) {
+    InputStream inputStream = getFileFromResourceAsStream(fileName);
+    return convertToString(inputStream);
+  }
 
   public InputStream getFileFromResourceAsStream(String fileName) {
     // The class loader that loaded the class
     ClassLoader classLoader = getClass().getClassLoader();
     InputStream inputStream = classLoader.getResourceAsStream(fileName);
-    // the stream holding the file content
     if (inputStream == null) {
       log.errorf("Error reading file: [%s]", fileName);
       throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_FILE_NOT_FOUND);
@@ -52,17 +55,17 @@ public class FileUtil {
     try {
       ByteArrayOutputStream bytesOutput = new ByteArrayOutputStream();
 
-        try (inputStream; GZIPOutputStream gzipOutput = new GZIPOutputStream(bytesOutput)) {
-            byte[] buffer = new byte[10240];
-            for (int length = 0; (length = inputStream.read(buffer)) != -1; ) {
-                gzipOutput.write(buffer, 0, length);
-            }
+      try (inputStream;
+          GZIPOutputStream gzipOutput = new GZIPOutputStream(bytesOutput)) {
+        byte[] buffer = new byte[10240];
+        for (int length = 0; (length = inputStream.read(buffer)) != -1; ) {
+          gzipOutput.write(buffer, 0, length);
         }
+      }
       return bytesOutput.toByteArray();
     } catch (IOException e) {
       log.error("Error compressing InputStream to Gzip", e);
       throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
     }
   }
-
 }

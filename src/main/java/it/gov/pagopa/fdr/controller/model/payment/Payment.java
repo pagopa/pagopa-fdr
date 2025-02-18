@@ -1,7 +1,12 @@
 package it.gov.pagopa.fdr.controller.model.payment;
 
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
