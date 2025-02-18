@@ -46,7 +46,7 @@ generate_openapi () {
       walk(
         if type == "object" then
           with_entries(if .key == "examples" then .key = "example" else . end)
-          | del(.requestBody.required, .exclusiveMinimum, .get.description, .post.description, .put.description, .delete.description)
+          | del(.info.description, .requestBody.required, .exclusiveMinimum, .get.description, .post.description, .put.description, .delete.description)
         else . end
       )
     ' openapi/$conf.json > infra/api/$folder_name/openapi_temp.json
