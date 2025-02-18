@@ -887,7 +887,6 @@
     "/info": {
       "get": {
         "summary": "Health-check",
-        "description": "## Description:\nGet health check and deployment-related information",
         "operationId": "IInfoController.healthCheck",
         "tags": [
           "Info"
@@ -930,7 +929,6 @@
     "/psps/{pspId}/created": {
       "get": {
         "summary": "Get all fdr created",
-        "description": "## Description:\nGet all fdr created\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IPspsController.getAllFlowsNotInPublishedStatus",
         "tags": [
           "PSP"
@@ -1051,7 +1049,6 @@
     "/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
       "get": {
         "summary": "Get created fdr",
-        "description": "## Description:\nGet created fdr\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IPspsController.getSingleFlowNotInPublishedStatus",
         "tags": [
           "PSP"
@@ -1161,7 +1158,6 @@
     "/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}/payments": {
       "get": {
         "summary": "Get created payments of fdr",
-        "description": "## Description:\nGet created payments of fdr\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IPspsController.getPaymentsForFlowNotInPublishedStatus",
         "tags": [
           "PSP"
@@ -1291,7 +1287,6 @@
     "/psps/{pspId}/fdrs/{fdr}": {
       "delete": {
         "summary": "Delete fdr",
-        "description": "## Description:\nDelete fdr\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Read and Write\n***Cacheable*** | N\n",
         "operationId": "IPspsController.deleteExistingFlow",
         "tags": [
           "PSP"
@@ -1391,7 +1386,6 @@
       },
       "post": {
         "summary": "Create fdr",
-        "description": "## Description:\nCreate fdr\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | Psp [{0}] unknown\n**FDR-2001** | 400 | Psp [{0}] not enabled\n**FDR-3002** | 400 | Fdr [{0}] already exist in [{1}] status\n**FDR-2002** | 400 | Broker [{0}] unknown\n**FDR-2003** | 400 | Broker [{0}] not enabled\n**FDR-2004** | 400 | Channel [{0}] unknown\n**FDR-2005** | 400 | channelId.notEnabled\n**FDR-2006** | 400 | Channel [{0}] with broker [{1}] not authorized\n**FDR-2007** | 400 | Channel [{0}] with psp [{1}] not authorized\n**FDR-2008** | 400 | Creditor institution [{0}] unknown\n**FDR-2009** | 400 | Creditor institution [{0}] not enabled\n**FDR-3008** | 400 | Fdr [{0}] has wrong date\n**FDR-3009** | 400 | Fdr [{0}] has wrong psp\n**FDR-3004** | 400 | Fdr [{0}] have sender.pspId [{1}] but not match with query param [{2}]\n**FDR-3010** | 400 | Field fdr [{0}] not match with query param [{1}]\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
         "operationId": "IPspsController.createEmptyFlow",
         "tags": [
           "PSP"
@@ -1503,7 +1497,6 @@
     "/psps/{pspId}/fdrs/{fdr}/payments/add": {
       "put": {
         "summary": "Add payments to fdr",
-        "description": "## Description:\nAdd payments to fdr\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
         "operationId": "IPspsController.addPaymentToExistingFlow",
         "tags": [
           "PSP"
@@ -1614,7 +1607,6 @@
     "/psps/{pspId}/fdrs/{fdr}/payments/del": {
       "put": {
         "summary": "Delete payments to fdr",
-        "description": "## Description:\nDelete payments to fdr\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
         "operationId": "IPspsController.deletePaymentFromExistingFlow",
         "tags": [
           "PSP"
@@ -1725,7 +1717,6 @@
     "/psps/{pspId}/fdrs/{fdr}/publish": {
       "post": {
         "summary": "Publish fdr",
-        "description": "## Description:\nPublish fdr\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
         "operationId": "IPspsController.publishFlow",
         "tags": [
           "PSP"
@@ -1827,7 +1818,6 @@
     "/psps/{pspId}/published": {
       "get": {
         "summary": "Get all fdr published",
-        "description": "## Description:\nGet all fdr published\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IPspsController.getAllFlowsInPublishedStatus",
         "tags": [
           "PSP"
@@ -1956,7 +1946,6 @@
     "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}": {
       "get": {
         "summary": "Get fdr Published",
-        "description": "## Description:\nGet fdr Published\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IPspsController.getSingleFlowInPublishedStatus",
         "tags": [
           "PSP"
@@ -2075,7 +2064,6 @@
     "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}/payments": {
       "get": {
         "summary": "Get payments of fdr Published",
-        "description": "## Description:\nGet payments of fdr Published\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
         "operationId": "IPspsController.getPaymentsForFlowInPublishedStatus",
         "tags": [
           "PSP"
