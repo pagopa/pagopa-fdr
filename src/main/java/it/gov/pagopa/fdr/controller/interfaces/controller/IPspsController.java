@@ -150,9 +150,10 @@ by adjusting the ‘computed values’: these fields will include the updated co
 payments and the total amount of payments added together.<br>
 Please note that in order to add a new payment, the flow must exist and be in draft, i.e.
 not be in PUBLISHED status. In order to add a payment to an already published flow, it is necessary
-to create a new revision of the same flow through the "new flow creation" API.<br>
+to create a new revision of the same flow through the 'new flow creation' API.<br>
 Before executing the operation, the request fields are validated against entities configured for
-<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP. Also, the name of the flow is validated
+against a specific standard format.<br>
 """)
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
   @APIResponses(
@@ -227,7 +228,7 @@ by adjusting the ‘computed fields’: these fields will include the updated co
 payments and the total amount of payments reduced by the amounts of the removed payments.<br>
 Please note that in order to remove an existing payment, the flow must exist and be in draft,
 i.e. not be in PUBLISHED status. In order to remove a payment from a flow that has already been
-published, it is necessary to create a new revision of the same flow through the "new flow creation" API
+published, it is necessary to create a new revision of the same flow through the 'new flow creation' API
 not including the affected payments.<br>
 Before executing the operation, the request fields are validated against entities configured for
 <i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
@@ -297,7 +298,14 @@ Before executing the operation, the request fields are validated against entitie
       summary = "Publish an existing flow in draft status",
       description =
           """
-This API permits to
+This API permits to publish a flow in draft, completed and ready to be retrieved by
+the creditor institution related to the flow. The publication release a new revision of
+certain flow, permitting to generate a new version if required. After publication,
+specific metadata are saved in order to perform an asynchronous historicization of this
+flow, including all the payments related to it.<br>
+In addition, during the flow publication process a final validation of the "computed fields" is performed,
+checking that their values are equal to the values pre-defined in the creation phase of the empty flow.
+Please note that, in order to publish a flow, it must be in draft, so it must not be already in PUBLISHED status.<br>
 Before executing the operation, the request fields are validated against entities configured for
 <i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
 """)
@@ -361,8 +369,20 @@ Before executing the operation, the request fields are validated against entitie
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
   @Operation(
       operationId = "IPspsController.deleteExistingFlow",
-      summary = "Delete fdr",
-      description = "Delete fdr")
+      summary = "Delete an existing draft flow and all related payments",
+      description =
+          """
+This API permits to delete a draft flow and all the payments associated to it. The deletion process
+irreversibly removes the flow and all related payments, making it impossible to recover any data afterwards.
+This procedure frees the draft for the flow with a specific identifier, enabling the generation of
+a new revision from scratch.<br>
+Please note that in order to remove an existing flow and all the related payments, the flow must
+exist and be in draft, i.e. not be in PUBLISHED status. A published flow cannot be removed at all and
+can only be 'replaced' by the creation of a new revision of the same flow through the 'new flow creation'
+API, although the old revision will be present anyway.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -420,8 +440,15 @@ Before executing the operation, the request fields are validated against entitie
   @Path(ControllerConstants.URL_API_GET_ALL_NOT_PUBLISHED_FLOWS)
   @Operation(
       operationId = "IPspsController.getAllFlowsNotInPublishedStatus",
-      summary = "Get all fdr created",
-      description = "Get all fdr created")
+      summary = "Get all draft flows related to the PSP",
+      description =
+          """
+This API permits to search all draft flows for a specific PSP, formatted in a paginated view.
+The only flows retrieved are the single draft revision, one for each flow identifier.<br>
+Before executing the query, the search filters are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -484,8 +511,21 @@ Before executing the operation, the request fields are validated against entitie
   @Path(ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW)
   @Operation(
       operationId = "IPspsController.getSingleFlowNotInPublishedStatus",
-      summary = "Get created fdr",
-      description = "Get created fdr")
+      summary = "Get single draft flow related to the PSP, searching by name",
+      description =
+          """
+This API permits to search a single draft flow for a specific PSP.
+In order to do so, it is required to add the following search filters:
+- Creditor institution identifier: for filtering by specific organization
+- PSP identifier: for filtering by flow-related PSP
+- Flow name: for filtering by specific instance of the flow
+
+The result will contains a single element because there can be only one draft flow for each
+unique identifier.<br>
+Before executing the query, the search filters are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
+the name of the flow is validated against a specific standard format.<br>
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -546,8 +586,20 @@ Before executing the operation, the request fields are validated against entitie
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_NOT_PUBLISHED_FLOW)
   @Operation(
       operationId = "IPspsController.getPaymentsForFlowNotInPublishedStatus",
-      summary = "Get created payments of fdr",
-      description = "Get created payments of fdr")
+      summary = "Get payments of draft flow related to the PSP, searching by name",
+      description =
+          """
+This API permits to search all the payments of a single draft flow for a specific PSP,
+formatted in a paginated view. In order to do so, it is required to add the following search filters:
+- Creditor institution identifier: for filtering by specific organization
+- PSP identifier: for filtering by flow-related PSP
+- Flow name: for filtering by specific instance of the flow
+
+Before executing the query, the search filters are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
+the name of the flow is validated against a specific standard format.<br>
+The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -616,8 +668,18 @@ Before executing the operation, the request fields are validated against entitie
   @Path(ControllerConstants.URL_API_GET_ALL_PUBLISHED_FLOWS)
   @Operation(
       operationId = "IPspsController.getAllFlowsInPublishedStatus",
-      summary = "Get all fdr published",
-      description = "Get all fdr published")
+      summary = "Get all published flow related to the PSP",
+      description =
+          """
+This API permits to search all published flows for a specific PSP, formatted in a paginated view.
+The search can be enhanced including the creditor institution identifier in order to filter only the flows
+for certain receiver. The only flows retrieved are the latest revision, as same as "nodoChiediElencoFlussiRendicontazione"
+primitive does.<br>
+Before executing the query, the search filters are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP and creditor institution (if that
+search filter is defined).<br>
+The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -684,8 +746,22 @@ Before executing the operation, the request fields are validated against entitie
   @Path(ControllerConstants.URL_API_GET_SINGLE_PUBLISHED_FLOW)
   @Operation(
       operationId = "IPspsController.getSingleFlowInPublishedStatus",
-      summary = "Get fdr Published",
-      description = "Get fdr Published")
+      summary = "Get single published flow related to the PSP, searching by name and revision",
+      description =
+          """
+This API permits to search a single published flow for a specific PSP.
+In order to do so, it is required to add the following search filters:
+- Creditor institution identifier: for filtering by specific organization
+- PSP identifier: for filtering by flow-related PSP
+- Flow name: for filtering by specific instance of the flow
+- Revision: for filtering by flow revision
+
+The result will contains a single element because there can be only one flow for each
+unique identifier and revision.<br>
+Before executing the query, the search filters are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
+the name of the flow is validated against a specific standard format.<br>
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -747,8 +823,21 @@ Before executing the operation, the request fields are validated against entitie
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_PUBLISHED_FLOW)
   @Operation(
       operationId = "IPspsController.getPaymentsForFlowInPublishedStatus",
-      summary = "Get payments of fdr Published",
-      description = "Get payments of fdr Published")
+      summary = "Get payments of published flow related to the PSP, searching by name and revision",
+      description =
+          """
+This API permits to search all the payments of a single published flow for a specific PSP,
+formatted in a paginated view. In order to do so, it is required to add the following search filters:
+- Creditor institution identifier: for filtering by specific organization
+- PSP identifier: for filtering by flow-related PSP
+- Flow name: for filtering by specific instance of the flow
+- Revision: for filtering by flow revision
+
+Before executing the query, the search filters are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
+the name of the flow is validated against a specific standard format.<br>
+The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+""")
   @APIResponses(
       value = {
         @APIResponse(
