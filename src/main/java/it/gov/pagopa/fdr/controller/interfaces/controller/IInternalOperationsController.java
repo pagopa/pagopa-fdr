@@ -37,7 +37,9 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Path(ControllerConstants.URL_CONTROLLER_INTERNAL_PSPS)
 @Consumes("application/json")
 @Produces("application/json")
-@Tag(name = "Internal Operations", description = "APIs for internal operations")
+@Tag(
+    name = "Internal Operations",
+    description = "APIs for internal operations, used for hidden processes in FdR ecosystem")
 public interface IInternalOperationsController {
 
   @POST

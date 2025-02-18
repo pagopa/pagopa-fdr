@@ -54,8 +54,20 @@ public interface IPspsController {
   @Path(ControllerConstants.URL_API_CREATE_EMPTY_FLOW)
   @Operation(
       operationId = "IPspsController.createEmptyFlow",
-      summary = "Create fdr",
-      description = "Create fdr")
+      summary = "Create a new flow structure",
+      description =
+          """
+This API permits to generate a new flow for a specific creditor institution. The generated flow
+is only a structure that define the main fields and the guidelines related to the payments that
+must be added in the next operations.<br>
+The flow can only be created if no other flow exists in the CREATED or INSERTED state with the
+same identifier. If it is necessary to define a new version but you have a flow in the listed statuses,
+you must first publish the flow in draft status, or delete the flow completely via the API if you want
+to change it in its entirety.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular (but not limited) on creditor institution
+and PSP. Also, the name of the flow is validated against a specific standard format.<br>
+""")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
       value = {
@@ -126,8 +138,22 @@ public interface IPspsController {
   @Path(ControllerConstants.URL_API_ADD_PAYMENT_IN_FLOW)
   @Operation(
       operationId = "IPspsController.addPaymentToExistingFlow",
-      summary = "Add payments to fdr",
-      description = "Add payments to fdr")
+      summary = "Add one or more payments to an existing flow",
+      description =
+          """
+This API permits to add one or more payments to a given flow, previously created through
+the dedicated API. Newly added payments will be validated according to the indexes defined
+during the insertion process and according to the totality of the indexes of the payments
+already inserted in the same flow.<br>
+In addition, during the process of adding payments the relevant flow is updated, in particular
+by adjusting the ‘computed values’: these fields will include the updated count of the inserted
+payments and the total amount of payments added together.<br>
+Please note that in order to add a new payment, the flow must exist and be in draft, i.e.
+not be in PUBLISHED status. In order to add a payment to an already published flow, it is necessary
+to create a new revision of the same flow through the "new flow creation" API.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+""")
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
   @APIResponses(
       value = {
@@ -189,8 +215,23 @@ public interface IPspsController {
   @Path(ControllerConstants.URL_API_DELETE_PAYMENT_IN_FLOW)
   @Operation(
       operationId = "IPspsController.deletePaymentFromExistingFlow",
-      summary = "Delete payments to fdr",
-      description = "Delete payments to fdr")
+      summary = "Delete one or more payments from an existing flow",
+      description =
+          """
+This API permits to remove one or more payments from a particular flow, which were
+previously added via the dedicated API. The payments to be removed are indicated in the request
+via the index with which they were previously defined when they were added to the flow,
+and must all be present within the flow at the time of deletion.<br>
+In addition, during the process of removing payments the relevant flow is updated, in particular
+by adjusting the ‘computed fields’: these fields will include the updated count of the removed
+payments and the total amount of payments reduced by the amounts of the removed payments.<br>
+Please note that in order to remove an existing payment, the flow must exist and be in draft,
+i.e. not be in PUBLISHED status. In order to remove a payment from a flow that has already been
+published, it is necessary to create a new revision of the same flow through the "new flow creation" API
+not including the affected payments.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+""")
   @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
   @APIResponses(
       value = {
@@ -253,8 +294,13 @@ public interface IPspsController {
   @Path(ControllerConstants.URL_API_PUBLISH_FLOW)
   @Operation(
       operationId = "IPspsController.publishFlow",
-      summary = "Publish fdr",
-      description = "Publish fdr")
+      summary = "Publish an existing flow in draft status",
+      description =
+          """
+This API permits to
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+""")
   @APIResponses(
       value = {
         @APIResponse(
