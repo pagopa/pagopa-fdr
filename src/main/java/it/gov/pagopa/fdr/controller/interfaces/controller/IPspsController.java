@@ -45,7 +45,9 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Path(ControllerConstants.URL_CONTROLLER_PSPS)
 @Consumes("application/json")
 @Produces("application/json")
-@Tag(name = "PSP", description = "PSP operations")
+@Tag(
+    name = "PSP",
+    description = "APIs for payment service providers, used for creation and inspection of flows")
 public interface IPspsController {
 
   @POST
@@ -168,6 +170,16 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       idempotency = false,
       readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+      })
   GenericResponse addPaymentToExistingFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -221,6 +233,17 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       idempotency = false,
       readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX
+      })
   GenericResponse deletePaymentFromExistingFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -273,6 +296,17 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       idempotency = false,
       readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_TOT_PAYMENT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_SUM_PAYMENT
+      })
   GenericResponse publishFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
@@ -324,6 +358,14 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       idempotency = false,
       readWriteIntense = ReadWrite.BOTH)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
+      })
   GenericResponse deleteExistingFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
@@ -375,6 +417,11 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       readWriteIntense = ReadWrite.READ,
       cacheable = true)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+      })
   PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @QueryParam(ControllerConstants.PARAMETER_CREATED_GREATER_THAN) Instant createdGt,
@@ -434,6 +481,16 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       readWriteIntense = ReadWrite.READ,
       cacheable = true)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+      })
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -486,6 +543,16 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       readWriteIntense = ReadWrite.READ,
       cacheable = true)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+      })
   PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -546,6 +613,13 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       readWriteIntense = ReadWrite.READ,
       cacheable = true)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED
+      })
   PaginatedFlowsPublishedResponse getAllFlowsInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @QueryParam(ControllerConstants.PARAMETER_ORGANIZATION) @Pattern(regexp = "^(.{1,35})$")
@@ -607,6 +681,16 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       readWriteIntense = ReadWrite.READ,
       cacheable = true)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
+      })
   SingleFlowResponse getSingleFlowInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -660,6 +744,16 @@ public interface IPspsController {
       authentication = APISecurityMode.APIKEY,
       readWriteIntense = ReadWrite.READ,
       cacheable = true)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
+      })
   PaginatedPaymentsResponse getPaymentsForFlowInPublishedStatus(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,

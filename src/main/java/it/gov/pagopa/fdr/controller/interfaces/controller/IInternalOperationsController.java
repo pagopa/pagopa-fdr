@@ -7,6 +7,12 @@ import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedRespons
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
+import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.util.openapi.APIAppErrorMetadata;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISecurityMode;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISynchronism;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.ReadWrite;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -75,6 +81,30 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
+        AppErrorCodeMessageEnum.BROKER_UNKNOWN,
+        AppErrorCodeMessageEnum.BROKER_NOT_ENABLED,
+        AppErrorCodeMessageEnum.CHANNEL_UNKNOWN,
+        AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED,
+        AppErrorCodeMessageEnum.CHANNEL_BROKER_WRONG_CONFIG,
+        AppErrorCodeMessageEnum.CHANNEL_PSP_WRONG_CONFIG,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH
+      })
   RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
@@ -122,6 +152,22 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+      })
   GenericResponse addPaymentToExistingFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -168,6 +214,23 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX
+      })
   GenericResponse deletePaymentFromExistingFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
@@ -213,6 +276,23 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_TOT_PAYMENT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_SUM_PAYMENT
+      })
   GenericResponse publishFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
@@ -257,6 +337,20 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.BOTH)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
+      })
   GenericResponse deleteExistingFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
       @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
@@ -300,6 +394,22 @@ public interface IInternalOperationsController {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
+      })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      readWriteIntense = ReadWrite.READ,
+      cacheable = true)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
       })
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
