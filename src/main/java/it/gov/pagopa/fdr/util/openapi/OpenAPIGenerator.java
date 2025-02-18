@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.util.openapi;
 
 import io.quarkus.smallrye.openapi.OpenApiFilter;
+import it.gov.pagopa.fdr.util.common.StringUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -64,9 +65,13 @@ public class OpenAPIGenerator implements OASFilter {
         .append(TABLE_SEPARATOR)
         .append("CODE")
         .append(TABLE_SEPARATOR)
+        .append("ERROR MESSAGE TEMPLATE")
+        .append(TABLE_SEPARATOR)
         .append("DESCRIPTION")
         .append("\n");
     builder
+        .append("-")
+        .append(TABLE_SEPARATOR)
         .append("-")
         .append(TABLE_SEPARATOR)
         .append("-")
@@ -76,17 +81,20 @@ public class OpenAPIGenerator implements OASFilter {
 
     for (AppErrorCodeMessageEnum appError : AppErrorCodeMessageEnum.values()) {
 
-      String detail = appError.openAPIDescription();
       builder
           .append("**")
           .append(appError.errorCode())
           .append("**")
           .append(TABLE_SEPARATOR)
           .append("*")
-          .append(appError.name())
+          .append(StringUtil.insertCharacterAfter(appError.name(), "<br>", 30, '_'))
           .append("*")
           .append(TABLE_SEPARATOR)
-          .append(detail)
+          .append(
+              StringUtil.insertCharacterAfter(
+                  appError.message('%', '%', '%', '%'), "<br>", 50, ' '))
+          .append(TABLE_SEPARATOR)
+          .append(StringUtil.insertCharacterAfter(appError.openAPIDescription(), "<br>", 50, ' '))
           .append("\n");
     }
 

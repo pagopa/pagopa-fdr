@@ -27,7 +27,7 @@ public class FileUtil {
     // the stream holding the file content
     if (inputStream == null) {
       log.errorf("Error reading file: [%s]", fileName);
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_FILE_NOT_FOUND);
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
     } else {
       return inputStream;
     }
@@ -39,7 +39,7 @@ public class FileUtil {
       return reader.lines().collect(Collectors.joining());
     } catch (IOException e) {
       log.error("Error converting InputStream to String", e);
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
     }
   }
 }
