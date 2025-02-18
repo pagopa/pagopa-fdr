@@ -16,7 +16,7 @@ public class PostgresResource implements QuarkusTestResourceLifecycleManager {
   @Override
   public Map<String, String> start() {
 
-    postgres = (PostgreSQLContainer) new PostgreSQLContainer(DockerImageName.parse("postgres:latest")).withCopyFileToContainer(
+    postgres = (PostgreSQLContainer) new PostgreSQLContainer(DockerImageName.parse("postgres:15.8")).withCopyFileToContainer(
             MountableFile.forClasspathResource("/db-init.sql"),
             "/docker-entrypoint-initdb.d/");
     postgres.start();
