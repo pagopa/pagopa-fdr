@@ -28,6 +28,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
@@ -121,8 +122,16 @@ This API is used only by internal processes in FdR ecosystem.
         AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH
       })
   RestResponse<GenericResponse> createEmptyFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
           String flowName,
       @NotNull @Valid CreateFlowRequest request);
 
@@ -200,8 +209,16 @@ This API is used only by internal processes in FdR ecosystem.
         AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
       })
   GenericResponse addPaymentToExistingFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
       @NotNull @Valid AddPaymentRequest request);
 
   @PUT
@@ -279,8 +296,16 @@ This API is used only by internal processes in FdR ecosystem.
         AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX
       })
   GenericResponse deletePaymentFromExistingFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
       @NotNull @Valid DeletePaymentRequest request);
 
   @POST
@@ -353,8 +378,16 @@ provide a historicization procedure: that task is demanded uniquely to external 
         AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_SUM_PAYMENT
       })
   GenericResponse publishFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName);
 
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
@@ -424,8 +457,16 @@ This API is used only by internal processes in FdR ecosystem.
         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
       })
   GenericResponse deleteExistingFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW)
@@ -499,7 +540,19 @@ This API is used only by internal processes in FdR ecosystem.
         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
       })
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
-      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
+      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION)
+          @Parameter(
+              description = "The creditor institution identifier, used as a search filter",
+              example = "15376371009")
+          String organizationId);
 }

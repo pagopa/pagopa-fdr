@@ -36,6 +36,7 @@ import java.time.Instant;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
@@ -129,8 +130,16 @@ and PSP. Also, the name of the flow is validated against a specific standard for
         AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH
       })
   RestResponse<GenericResponse> createEmptyFlow(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
           String flowName,
       @NotNull @Valid CreateFlowRequest request);
 
@@ -208,8 +217,16 @@ against a specific standard format.<br>
         AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
       })
   GenericResponse addPaymentToExistingFlow(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
       @NotNull @Valid AddPaymentRequest request);
 
   @PUT
@@ -287,8 +304,16 @@ Before executing the operation, the request fields are validated against entitie
         AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX
       })
   GenericResponse deletePaymentFromExistingFlow(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
       @NotNull @Valid DeletePaymentRequest request);
 
   @POST
@@ -362,8 +387,16 @@ Before executing the operation, the request fields are validated against entitie
         AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_SUM_PAYMENT
       })
   GenericResponse publishFlow(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName);
 
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
@@ -433,8 +466,16 @@ Before executing the operation, the request fields are validated against entitie
         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
       })
   GenericResponse deleteExistingFlow(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_NOT_PUBLISHED_FLOWS)
@@ -496,15 +537,29 @@ The result of the query is paginated and contains all the metadata needed for pa
         AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
       })
   PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatus(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @QueryParam(ControllerConstants.PARAMETER_CREATED_GREATER_THAN) Instant createdGt,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @QueryParam(ControllerConstants.PARAMETER_CREATED_GREATER_THAN)
+          @Parameter(
+              description =
+                  "A date to be used as a lower limit search on creation date. In format ISO-8601"
+                      + " (yyyy-MM-dd'T'HH:mm:ss)",
+              example = "2025-01-01T12:00:00Z")
+          Instant createdGt,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
+          @Parameter(description = "The index of the page to be shown in the result", example = "1")
           long pageNumber,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_SIZE)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_SIZE_DEFAULT)
           @Min(value = 1)
+          @Parameter(
+              description = "The number of the elements of the page to be shown in the result",
+              example = "50")
           long pageSize);
 
   @GET
@@ -578,9 +633,21 @@ the name of the flow is validated against a specific standard format.<br>
         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
       })
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
-      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
+      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION)
+          @Parameter(
+              description = "The creditor institution identifier, used as a search filter",
+              example = "15376371009")
+          String organizationId);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_NOT_PUBLISHED_FLOW)
@@ -652,16 +719,32 @@ The result of the query is paginated and contains all the metadata needed for pa
         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
       })
   PaginatedPaymentsResponse getPaymentsForFlowNotInPublishedStatus(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
-      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
+      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION)
+          @Parameter(
+              description = "The creditor institution identifier, used as a search filter",
+              example = "15376371009")
+          String organizationId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
+          @Parameter(description = "The index of the page to be shown in the result", example = "1")
           long pageNumber,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_SIZE)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_SIZE_DEFAULT)
           @Min(value = 1)
+          @Parameter(
+              description = "The number of the elements of the page to be shown in the result",
+              example = "50")
           long pageSize);
 
   @GET
@@ -729,17 +812,35 @@ The result of the query is paginated and contains all the metadata needed for pa
         AppErrorCodeMessageEnum.EC_NOT_ENABLED
       })
   PaginatedFlowsPublishedResponse getAllFlowsInPublishedStatus(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @QueryParam(ControllerConstants.PARAMETER_ORGANIZATION) @Pattern(regexp = "^(.{1,35})$")
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @QueryParam(ControllerConstants.PARAMETER_ORGANIZATION)
+          @Pattern(regexp = "^(.{1,35})$")
+          @Parameter(
+              description = "The creditor institution identifier, used as a search filter",
+              example = "15376371009")
           String organizationId,
-      @QueryParam(ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN) Instant publishedGt,
+      @QueryParam(ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN)
+          @Parameter(
+              description =
+                  "A date to be used as a lower limit search on publication date. In format"
+                      + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+              example = "2025-01-01T12:00:00Z")
+          Instant publishedGt,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
+          @Parameter(description = "The index of the page to be shown in the result", example = "1")
           long pageNumber,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_SIZE)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_SIZE_DEFAULT)
           @Min(value = 1)
+          @Parameter(
+              description = "The number of the elements of the page to be shown in the result",
+              example = "50")
           long pageSize);
 
   @GET
@@ -814,10 +915,24 @@ the name of the flow is validated against a specific standard format.<br>
         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
       })
   SingleFlowResponse getSingleFlowInPublishedStatus(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
-      @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
-      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
+      @PathParam(ControllerConstants.PARAMETER_REVISION)
+          @Parameter(description = "The specific revision of the flow needed", example = "1")
+          Long revision,
+      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION)
+          @Parameter(
+              description = "The creditor institution identifier, used as a search filter",
+              example = "15376371009")
+          String organizationId);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_PUBLISHED_FLOW)
@@ -890,16 +1005,34 @@ The result of the query is paginated and contains all the metadata needed for pa
         AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
       })
   PaginatedPaymentsResponse getPaymentsForFlowInPublishedStatus(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
-      @PathParam(ControllerConstants.PARAMETER_REVISION) Long revision,
-      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
+      @PathParam(ControllerConstants.PARAMETER_REVISION)
+          @Parameter(description = "The specific revision of the flow needed", example = "1")
+          Long revision,
+      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION)
+          @Parameter(
+              description = "The creditor institution identifier, used as a search filter",
+              example = "15376371009")
+          String organizationId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
+          @Parameter(description = "The index of the page to be shown in the result", example = "1")
           long pageNumber,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_SIZE)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_SIZE_DEFAULT)
           @Min(value = 1)
+          @Parameter(
+              description = "The number of the elements of the page to be shown in the result",
+              example = "50")
           long pageSize);
 }
