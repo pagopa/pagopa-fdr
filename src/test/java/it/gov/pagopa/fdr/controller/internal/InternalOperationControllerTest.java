@@ -1,10 +1,41 @@
 package it.gov.pagopa.fdr.controller.internal;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
-import static it.gov.pagopa.fdr.test.util.TestUtil.*;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_2;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOW_TEMPLATE_WRONG_FIELDS_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOW_TEMPLATE_WRONG_INSTANT_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.INTERNAL_FLOWS_DELETE_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.INTERNAL_FLOWS_PUBLISH_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.INTERNAL_FLOWS_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.INTERNAL_PAYMENTS_ADD_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.INTERNAL_PAYMENTS_DELETE_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.MALFORMED_JSON_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_2_ADD_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_INVALID_FIELD_VALUE_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_WRONG_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_SAME_INDEX_ADD_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.test.util.TestUtil.FLOW_TEMPLATE;
+import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE;
+import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE_2;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.mockito.Mockito.mock;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
@@ -74,7 +105,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Fdr [%s] have sender.pspId [%s] but not match with query param" + " [%s]",
+                        "Flow with ID [%s] have field sender.pspId [%s] that does not match with"
+                            + " query param [PSP_NOT_MATCH].",
                         flowName, PSP_CODE, pspNotMatch)))));
   }
 
@@ -222,7 +254,9 @@ public class InternalOperationControllerTest {
         equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
     assertThat(
         resDelError.getErrors(),
-        hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowName)))));
+        hasItem(
+            hasProperty(
+                "message", equalTo(String.format("Flow with ID [%s] not found.", flowName)))));
   }
 
   @Test
@@ -372,7 +406,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Index of payment not match with index loaded on fdr [%s]", flowName)))));
+                        "Index of payment not match with index loaded on flow with ID [%s].",
+                        flowName)))));
   }
 
   @Test
@@ -492,7 +527,8 @@ public class InternalOperationControllerTest {
     assertThat(
         resDelError.getErrors(),
         hasItem(
-            hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowNameWrong)))));
+            hasProperty(
+                "message", equalTo(String.format("Flow with ID [%s] not found.", flowNameWrong)))));
   }
 
   @Test
@@ -539,7 +575,9 @@ public class InternalOperationControllerTest {
         equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
     assertThat(
         resDelError.getErrors(),
-        hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowName2)))));
+        hasItem(
+            hasProperty(
+                "message", equalTo(String.format("Flow with ID [%s] not found.", flowName2)))));
   }
 
   @Test
@@ -588,7 +626,9 @@ public class InternalOperationControllerTest {
     assertThat(
         resDelError.getErrors(),
         hasItem(
-            hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowNameUnknown)))));
+            hasProperty(
+                "message",
+                equalTo(String.format("Flow with ID [%s] not found.", flowNameUnknown)))));
   }
 
   @Test
@@ -636,7 +676,9 @@ public class InternalOperationControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Fdr [%s] already exist in [CREATED] status", flowName)))));
+                equalTo(
+                    String.format(
+                        "Flow with ID [%s] already exists with [CREATED] status.", flowName)))));
   }
 
   @Test
@@ -684,7 +726,8 @@ public class InternalOperationControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Fdr [%s] exist but in [CREATED] status", flowName)))));
+                equalTo(
+                    String.format("Flow with ID [%s] exists with [CREATED] status.", flowName)))));
   }
 
   @Test
@@ -735,7 +778,8 @@ public class InternalOperationControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Fdr [%s] exist but in [CREATED] status", flowName)))));
+                equalTo(
+                    String.format("Flow with ID [%s] exists with [CREATED] status.", flowName)))));
   }
 
   @Test
@@ -788,7 +832,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Exist one or more payment index in same request on fdr [%s]",
+                        "There are one or more identical payment indexes in same request for flow"
+                            + " with ID [%s].",
                         flowName)))));
   }
 
@@ -857,7 +902,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Exist one or more payment index in same request on fdr [%s]",
+                        "There are one or more identical payment indexes in same request for flow"
+                            + " with ID [%s].",
                         flowName)))));
   }
 
@@ -922,7 +968,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "One or more payment index already added on fdr [%s]", flowName)))));
+                        "One or more payment index already added on flow with ID [%s].",
+                        flowName)))));
   }
 
   @Test
@@ -987,7 +1034,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Index of payment not match with index loaded on fdr [%s]", flowName)))));
+                        "Index of payment not match with index loaded on flow with ID [%s].",
+                        flowName)))));
   }
 
   @Test
@@ -1018,7 +1066,10 @@ public class InternalOperationControllerTest {
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.PSP_UNKNOWN.errorCode()));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo(String.format("Psp [%s] unknown", pspUnknown)))));
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(String.format("PSP with ID [%s] is invalid or unknown.", pspUnknown)))));
   }
 
   @Test
@@ -1049,7 +1100,8 @@ public class InternalOperationControllerTest {
         res.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo(String.format("Psp [%s] not enabled", PSP_CODE_NOT_ENABLED)))));
+                "message",
+                equalTo(String.format("PSP with ID [%s] is not enabled.", PSP_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -1083,7 +1135,10 @@ public class InternalOperationControllerTest {
         resDelError.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo(String.format("Broker [%s] unknown", brokerPspUnknown)))));
+                "message",
+                equalTo(
+                    String.format(
+                        "PSP Broker with ID [%s] is invalid or unknown.", brokerPspUnknown)))));
   }
 
   @Test
@@ -1117,7 +1172,9 @@ public class InternalOperationControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Broker [%s] not enabled", BROKER_CODE_NOT_ENABLED)))));
+                equalTo(
+                    String.format(
+                        "PSP Broker with ID [%s] is not enabled.", BROKER_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -1150,7 +1207,10 @@ public class InternalOperationControllerTest {
         res.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo(String.format("Channel [%s] unknown", channelUnknown)))));
+                "message",
+                equalTo(
+                    String.format(
+                        "Channel with ID [%s] is invalid or unknown.", channelUnknown)))));
   }
 
   @Test
@@ -1179,7 +1239,11 @@ public class InternalOperationControllerTest {
             .as(ErrorResponse.class);
     assertThat(
         res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED.errorCode()));
-    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("channelId.notEnabled"))));
+    assertThat(
+        res.getErrors(),
+        hasItem(
+            hasProperty(
+                "message", equalTo("Channel with ID [CANALE_NOT_ENABLED] is not enabled."))));
   }
 
   @Test
@@ -1216,7 +1280,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Channel [%s] with broker [%s] not authorized",
+                        "Channel with ID [%s] is not authorized to be used with PSP Broker with ID"
+                            + " [%s].",
                         CHANNEL_CODE, BROKER_CODE_2)))));
   }
 
@@ -1254,7 +1319,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Channel [%s] with psp [%s] not authorized", CHANNEL_CODE, PSP_CODE_2)))));
+                        "Channel with ID [%s] is not authorized to be used with PSP with ID [%s].",
+                        CHANNEL_CODE, PSP_CODE_2)))));
   }
 
   @Test
@@ -1288,7 +1354,9 @@ public class InternalOperationControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Creditor institution [%s] unknown", ecUnknown)))));
+                equalTo(
+                    String.format(
+                        "Creditor institution with ID [%s] is invalid or unknown.", ecUnknown)))));
   }
 
   @Test
@@ -1322,7 +1390,9 @@ public class InternalOperationControllerTest {
             hasProperty(
                 "message",
                 equalTo(
-                    String.format("Creditor institution [%s] not enabled", EC_CODE_NOT_ENABLED)))));
+                    String.format(
+                        "Creditor institution with ID [%s] is not enabled.",
+                        EC_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -1356,7 +1426,11 @@ public class InternalOperationControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Fdr [2016-aa-16%s-1176] has wrong date", PSP_CODE)))));
+                equalTo(
+                    String.format(
+                        "Flow identifier [2016-aa-16%s-1176] contains a date that is not"
+                            + " compliant.",
+                        PSP_CODE)))));
   }
 
   @Test
@@ -1387,7 +1461,12 @@ public class InternalOperationControllerTest {
         equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT.errorCode()));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo("Fdr [2016-08-16-psp-1176] has wrong psp"))));
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(
+                    "Flow identifier [2016-08-16-psp-1176] contains a PSP ID that is not"
+                        + " compliant."))));
   }
 
   @Test
@@ -1420,7 +1499,8 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Bad request. Field [payments.pay] is [%s]. Not match a correct value",
+                        "Bad request. Field [payments.pay] is equals to [%s] but this is not a"
+                            + " valid value.",
                         wrongFormatDecimal)))));
   }
 
@@ -1462,8 +1542,9 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Bad request. Field [fdrDate] is [%s]. Expected ISO-8601"
-                            + " [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]",
+                        "Bad request. Field [fdrDate] is equals to [%s] but it is expected to be in"
+                            + " ISO-8601 format [yyyy-MM-ddTHH:mm:ssZ] (example:"
+                            + " [2025-01-01T12:00:00.123000Z].",
                         wrongFormatDate)))));
   }
 
@@ -1496,8 +1577,9 @@ public class InternalOperationControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Bad request. Field [sender.type] is [%s]. Expected value one of"
-                            + " [LEGAL_PERSON, ABI_CODE, BIC_CODE]",
+                        "Bad request. Field [sender.type] is equals to [%s] but it is expected to"
+                            + " be one of the following values: [[LEGAL_PERSON, ABI_CODE,"
+                            + " BIC_CODE]].",
                         wrongEnum)))));
   }
 
@@ -1526,8 +1608,8 @@ public class InternalOperationControllerTest {
             hasProperty(
                 "message",
                 equalTo(
-                    "Bad request. Field [payments] generate an deserialize error. Set correct"
-                        + " value"))));
+                    "Bad request. Field [payments] generate a deserialization error. Please, set"
+                        + " the correct value."))));
   }
 
   @Test
@@ -1551,6 +1633,8 @@ public class InternalOperationControllerTest {
         equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT.errorCode()));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo("Bad request. Json format not valid"))));
+        hasItem(
+            hasProperty(
+                "message", equalTo("Bad request. The format of JSON request is not valid."))));
   }
 }
