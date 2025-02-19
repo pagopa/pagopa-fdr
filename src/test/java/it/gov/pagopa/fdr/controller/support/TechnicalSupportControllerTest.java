@@ -1,8 +1,7 @@
 package it.gov.pagopa.fdr.controller.support;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -15,19 +14,16 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsBySenderAndReceiverResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
-import it.gov.pagopa.fdr.test.util.MongoResource;
+import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
-@QuarkusTestResource(MongoResource.class)
+@QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
-class SupportTest {
-
-  private static final String GET_ALL_FDR_BY_PSP_ID_IUV = "/internal/psps/" + "%s" + "/iuv/" + "%s";
-  private static final String GET_ALL_FDR_BY_PSP_ID_IUR = "/internal/psps/" + "%s" + "/iur/" + "%s";
+class TechnicalSupportControllerTest {
 
   private static String flowName;
 
@@ -37,7 +33,7 @@ class SupportTest {
   void testSupport_getFdrByPspIdIuv_Ok() {
     flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_ALL_FDR_BY_PSP_ID_IUV.formatted(PSP_CODE, "a");
+    String url = GET_ALL_FDR_BY_PSP_ID_IUV.formatted(PSP_CODE, IUV_CODE_A);
     PaginatedFlowsBySenderAndReceiverResponse res =
         given()
             .header(HEADER)
@@ -77,7 +73,7 @@ class SupportTest {
   void testSupport_getFdrByPspIdIur_Ok() {
     flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = GET_ALL_FDR_BY_PSP_ID_IUR.formatted(PSP_CODE, "abcdefg");
+    String url = GET_ALL_FDR_BY_PSP_ID_IUR.formatted(PSP_CODE, IUR_CODE);
     PaginatedFlowsBySenderAndReceiverResponse res =
         given()
             .header(HEADER)

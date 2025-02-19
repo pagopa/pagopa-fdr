@@ -1,26 +1,11 @@
-package it.gov.pagopa.fdr.controller.psps;
+package it.gov.pagopa.fdr.controller.internal;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_2;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
-import static it.gov.pagopa.fdr.test.util.TestUtil.FLOW_TEMPLATE;
-import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE;
-import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE_2;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
+import static it.gov.pagopa.fdr.test.util.TestUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.mock;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -29,189 +14,115 @@ import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
-import it.gov.pagopa.fdr.test.util.MongoResource;
+import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
+import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@Slf4j
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
-@QuarkusTestResource(MongoResource.class)
+@QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
-class InternalPspResourceTest {
+public class InternalOperationControllerTest {
 
-  private static final String FLOWS_URL = "/internal/psps/%s/fdrs/%s";
-  private static final String FLOWS_PUBLISH_URL = "/internal/psps/%s/fdrs/%s/publish";
-  private static final String FLOWS_DELETE_URL = "/internal/psps/%s/fdrs/%s";
-  private static final String PAYMENTS_ADD_URL = "/internal/psps/%s/fdrs/%s/payments/add";
-  private static final String PAYMENTS_DELETE_URL = "/internal/psps/%s/fdrs/%s/payments/del";
+  private FileUtil fileUtil;
 
-  protected static String PAYMENTS_SAME_INDEX_ADD_TEMPLATE =
-      """
-      {
-        "payments": [{
-            "index": 100,
-            "iuv": "a",
-            "iur": "abcdefg",
-            "idTransfer": 1,
-            "pay": 0.01,
-            "payStatus": "EXECUTED",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          },{
-            "index": 100,
-            "iuv": "b",
-            "iur": "abcdefg",
-            "idTransfer": 2,
-            "pay": 0.01,
-            "payStatus": "REVOKED",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          }
-        ]
-      }
-      """;
-
-  protected static String PAYMENTS_2_ADD_TEMPLATE =
-      """
-      {
-        "payments": [{
-          "index": 100,
-          "iuv": "a",
-          "iur": "abcdefg",
-          "idTransfer": 1,
-          "pay": 0.01,
-          "payStatus": "EXECUTED",
-          "payDate": "2023-02-03T12:00:30.900000Z"
-        }]
-      }
-      """;
-
-  protected static String PAYMENTS_DELETE_WRONG_TEMPLATE =
-      """
-      {
-        "indexList": [
-            5
-        ]
-      }
-      """;
-
-  protected static String MALFORMED_JSON =
-      """
-      {
-        12345
-      }
-      """;
-
-  protected static String PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE =
-      """
-      {
-        "payments": {
-            "index": 100,
-            "iuv": "a",
-            "iur": "abcdefg",
-            "idTransfer": 1,
-            "pay": "%s",
-            "payStatus": "EXECUTED",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          }
-      }
-      """;
-
-  protected static String FLOW_TEMPLATE_WRONG_INSTANT =
-      """
-      {
-        "fdr": "%s",
-        "fdrDate": "%s",
-        "sender": {
-          "type": "%s",
-          "id": "SELBIT2B",
-          "pspId": "%s",
-          "pspName": "Bank",
-          "pspBrokerId": "%s",
-          "channelId": "%s",
-          "password": "1234567890"
-        },
-        "receiver": {
-          "id": "APPBIT2B",
-          "organizationId": "%s",
-          "organizationName": "Comune di xyz"
-        },
-        "regulation": "SEPA - Bonifico xzy",
-        "regulationDate": "2023-04-03T12:00:30.900000Z",
-        "bicCodePouringBank": "UNCRITMMXXX",
-        "totPayments": 3,
-        "sumPayments": 0.03
-      }
-      """;
-
-  protected static String PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE =
-      """
-      {
-        "payments": [{
-            "index": 100,
-            "iuv": "a",
-            "iur": "abcdefg",
-            "idTransfer": 1,
-            "pay": "%s",
-            "payStatus": "EXECUTED",
-            "payDate": "2023-02-03T12:00:30.900000Z"
-          }
-        ]
-      }
-      """;
-
-  protected static String FLOW_TEMPLATE_WRONG_FIELDS =
-      """
-      {
-        "fdrFake": "%s",
-        "fdrDate": "2023-04-05T09:21:37.810000Z",
-        "sender": {
-          "type": "%s",
-          "id": "SELBIT2B",
-          "pspId": "%s",
-          "pspName": "Bank",
-          "pspBrokerId": "%s",
-          "channelId": "%s",
-          "password": "1234567890"
-        },
-        "receiver": {
-          "id": "APPBIT2B",
-          "organizationId": "%s",
-          "organizationName": "Comune di xyz"
-        },
-        "regulation": "SEPA - Bonifico xzy",
-        "regulationDate": "2023-04-03T12:00:30.900000Z",
-        "bicCodePouringBank": "UNCRITMMXXX",
-        "totPayments": 3,
-        "sumPayments": 0.03
-      }
-      """;
-
-  protected static String PAYMENTS_DELETE_TEMPLATE =
-      """
-      {
-        "indexList": [
-            100,
-            101,
-            102,
-            103,
-            104
-        ]
-      }
-      """;
+  @BeforeEach
+  void setUp() {
+    Logger logger = mock(Logger.class);
+    fileUtil = new FileUtil(logger);
+  }
 
   @Test
-  @DisplayName("PSPS - OK - inserimento completo e pubblicazione di un flusso")
+  @DisplayName("PSPS - KO FDR-0704 - psp param and psp body not match")
+  void test_psp_KO_FDR0704() {
+    String flowName = TestUtil.getDynamicFlowName();
+    String pspNotMatch = "PSP_NOT_MATCH";
+
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
+    String bodyFmt =
+        FLOW_TEMPLATE.formatted(
+            flowName,
+            SenderTypeEnum.LEGAL_PERSON.name(),
+            pspNotMatch,
+            BROKER_CODE,
+            CHANNEL_CODE,
+            EC_CODE);
+    ErrorResponse resDelError =
+        given()
+            .header(HEADER)
+            .body(bodyFmt)
+            .when()
+            .post(url)
+            .then()
+            .statusCode(400)
+            .extract()
+            .as(ErrorResponse.class);
+    assertThat(
+        resDelError.getAppErrorCode(),
+        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH.errorCode()));
+    assertThat(
+        resDelError.getErrors(),
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(
+                    String.format(
+                        "Fdr [%s] have sender.pspId [%s] but not match with query param" + " [%s]",
+                        flowName, PSP_CODE, pspNotMatch)))));
+  }
+
+  @Test
+  @DisplayName("PSPS - KO FDR-0400 - JSON input wrong fields")
+  void test_psp_KO_FDR0400() {
+    String flowName = TestUtil.getDynamicFlowName();
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
+    String bodyFmt =
+        fileUtil
+            .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_FIELDS_PATH)
+            .formatted(
+                flowName,
+                SenderTypeEnum.LEGAL_PERSON.name(),
+                PSP_CODE,
+                BROKER_CODE,
+                CHANNEL_CODE,
+                EC_CODE);
+
+    ErrorResponse res =
+        given()
+            .body(bodyFmt)
+            .header(HEADER)
+            .when()
+            .post(url)
+            .then()
+            .statusCode(400)
+            .extract()
+            .as(ErrorResponse.class);
+    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST.errorCode()));
+    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("non deve essere null"))));
+    assertThat(
+        res.getErrors(),
+        hasItem(hasProperty("path", equalTo("createEmptyFlowForInternalUse.request.fdr"))));
+  }
+
+  @Test
+  @DisplayName("PSPS - OK - flow and payments creation with subsequent publish ")
   void test_psp_OK() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
   }
 
   @Test
-  @DisplayName("PSPS - OK - inserimento di un flusso per tipo ABI_CODE")
+  @DisplayName("PSPS - OK - flow insert - Type ABI_CODE")
   void test_psp_ABICODE_createFlow_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         TestUtil.FLOW_TEMPLATE.formatted(
@@ -231,10 +142,10 @@ class InternalPspResourceTest {
   }
 
   @Test
-  @DisplayName("PSPS - OK - inserimento di un flusso per tipo BIC_CODE")
+  @DisplayName("PSPS - OK - - flow insert - Type BIC_CODE")
   void test_psp_BIC_CODE_createFlow_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -254,10 +165,10 @@ class InternalPspResourceTest {
   }
 
   @Test
-  @DisplayName("PSPS - OK - inserimento e cancellazione di un flusso")
+  @DisplayName("PSPS - OK - flow insert and subsequent delete")
   void test_psp_deleteFlow_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -280,7 +191,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlDel = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
+    String urlDel = INTERNAL_FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resDel =
         given()
@@ -294,7 +205,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resDel.getMessage(), equalTo("Fdr [%s] deleted".formatted(flowName)));
 
-    String urlDel2 = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
+    String urlDel2 = INTERNAL_FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
 
     ErrorResponse resDelError =
         given()
@@ -315,10 +226,10 @@ class InternalPspResourceTest {
   }
 
   @Test
-  @DisplayName("PSPS - OK - inserimento completo e cancellazione del flusso con payments")
+  @DisplayName("PSPS - OK - flow with payments insert and subsequent delete")
   void test_psp_deleteFlowWithPayment_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -341,7 +252,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resSavePays =
         given()
@@ -355,7 +266,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
-    String urlDeleteFlow = FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
+    String urlDeleteFlow = INTERNAL_FLOWS_DELETE_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resDelFlow =
         given()
@@ -371,10 +282,10 @@ class InternalPspResourceTest {
   }
 
   @Test
-  @DisplayName("PSPS - OK - inserimento completo e cancellazione dei payments")
+  @DisplayName("PSPS - OK - payments insert and delete")
   void test_psp_deletePayments_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -397,7 +308,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resSavePays =
         given()
@@ -423,11 +334,13 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
-    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resDelPays =
         given()
-            .body(PAYMENTS_DELETE_TEMPLATE)
+            .body(
+                fileUtil.getStringFromResourceAsString(
+                    INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(urlDelPays)
@@ -439,7 +352,9 @@ class InternalPspResourceTest {
 
     ErrorResponse resDelError =
         given()
-            .body(PAYMENTS_DELETE_TEMPLATE)
+            .body(
+                fileUtil.getStringFromResourceAsString(
+                    INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(urlDelPays)
@@ -461,10 +376,10 @@ class InternalPspResourceTest {
   }
 
   @Test
-  @DisplayName("PSPS - OK - inserimento completo e cancellazione parziale dei payments")
+  @DisplayName("PSPS - OK - payments insert with partial delete")
   void test_psp_deletePayments_partial_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -487,7 +402,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resSavePays =
         given()
@@ -501,11 +416,13 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
-    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resDelPays =
         given()
-            .body(PAYMENTS_DELETE_TEMPLATE)
+            .body(
+                fileUtil.getStringFromResourceAsString(
+                    INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(urlDelPays)
@@ -520,7 +437,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0701 - flow not found in publish")
   void test_psp_publish_KO_FDR0701() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -543,7 +460,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resSavePays =
         given()
@@ -558,7 +475,7 @@ class InternalPspResourceTest {
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String flowNameWrong = TestUtil.getDynamicFlowName();
-    String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowNameWrong);
+    String urlPublishFlow = INTERNAL_FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowNameWrong);
 
     ErrorResponse resDelError =
         given()
@@ -582,7 +499,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0701 - flow not found in add payments new flowName")
   void test_psp_payments_add_KO_FDR0701() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -606,7 +523,7 @@ class InternalPspResourceTest {
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String flowName2 = TestUtil.getDynamicFlowName();
-    String urlAddPayments = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName2);
+    String urlAddPayments = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName2);
     ErrorResponse resDelError =
         given()
             .body(PAYMENTS_ADD_TEMPLATE)
@@ -629,7 +546,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0701 - flow not found in delete payments new flowName")
   void test_psp_payments_delete_KO_FDR0701() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -652,10 +569,12 @@ class InternalPspResourceTest {
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
     String flowNameUnknown = TestUtil.getDynamicFlowName();
-    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowNameUnknown);
+    String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowNameUnknown);
     ErrorResponse resDelError =
         given()
-            .body(PAYMENTS_DELETE_TEMPLATE)
+            .body(
+                fileUtil.getStringFromResourceAsString(
+                    INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(urlDelPays)
@@ -676,7 +595,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0702 - flow already exists")
   void test_psp_KO_FDR0702() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -724,7 +643,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0703 - flow not found in publish flow CREATED")
   void test_psp_CREATED_publish_KO_FDR0703() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -747,7 +666,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+    String urlPublishFlow = INTERNAL_FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
     ErrorResponse resPublish =
         given()
             .header(HEADER)
@@ -772,7 +691,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0703 - fdr wrong action delete payments")
   void test_psp_payments_delete_KO_FDR0703() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -795,10 +714,12 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
     ErrorResponse resDelError =
         given()
-            .body(PAYMENTS_DELETE_TEMPLATE)
+            .body(
+                fileUtil.getStringFromResourceAsString(
+                    INTERNAL_OPERATION_PAYMENTS_DELETE_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(urlDelPays)
@@ -818,49 +739,10 @@ class InternalPspResourceTest {
   }
 
   @Test
-  @DisplayName("PSPS - KO FDR-0704 - psp param and psp body not match")
-  void test_psp_KO_FDR0704() {
-    String flowName = TestUtil.getDynamicFlowName();
-    String pspNotMatch = "PSP_NOT_MATCH";
-
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
-    String bodyFmt =
-        FLOW_TEMPLATE.formatted(
-            flowName,
-            SenderTypeEnum.LEGAL_PERSON.name(),
-            pspNotMatch,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
-    ErrorResponse resDelError =
-        given()
-            .header(HEADER)
-            .body(bodyFmt)
-            .when()
-            .post(url)
-            .then()
-            .statusCode(400)
-            .extract()
-            .as(ErrorResponse.class);
-    assertThat(
-        resDelError.getAppErrorCode(),
-        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH.errorCode()));
-    assertThat(
-        resDelError.getErrors(),
-        hasItem(
-            hasProperty(
-                "message",
-                equalTo(
-                    String.format(
-                        "Fdr [%s] have sender.pspId [%s] but not match with query param" + " [%s]",
-                        flowName, pspNotMatch, PSP_CODE)))));
-  }
-
-  @Test
   @DisplayName("PSPS - KO FDR-0705 - add payments with same index in same request")
   void test_psp_payments_add_KO_FDR0705() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -883,8 +765,8 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlAddPays = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
-    bodyFmt = PAYMENTS_SAME_INDEX_ADD_TEMPLATE;
+    String urlAddPays = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    bodyFmt = fileUtil.getStringFromResourceAsString(PAYMENTS_SAME_INDEX_ADD_TEMPLATE_PATH);
     ErrorResponse resDelError =
         given()
             .header(HEADER)
@@ -914,7 +796,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0705 - delete payments with same index in same request")
   void test_psp_payments_delete_KO_FDR0705() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -937,7 +819,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resSavePays =
         given()
@@ -951,16 +833,9 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
-    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    bodyFmt =
-        """
-        {
-          "indexList": [
-              1,
-              1
-          ]
-        }
-        """;
+    String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    bodyFmt = fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH);
+
     ErrorResponse resDelError =
         given()
             .body(bodyFmt)
@@ -990,7 +865,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0706 - payments with same index")
   void test_psp_KO_FDR0706() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -1013,7 +888,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resSavePays =
         given()
@@ -1029,7 +904,7 @@ class InternalPspResourceTest {
 
     ErrorResponse resSavePays2 =
         given()
-            .body(PAYMENTS_2_ADD_TEMPLATE)
+            .body(fileUtil.getStringFromResourceAsString(PAYMENTS_2_ADD_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(urlSavePayment)
@@ -1054,7 +929,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0707 - payments unknown index delete")
   void test_psp_KO_FDR0707() {
     String flowName = TestUtil.getDynamicFlowName();
-    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSave = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -1077,7 +952,7 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
     GenericResponse resSavePays =
         given()
@@ -1091,10 +966,10 @@ class InternalPspResourceTest {
             .as(GenericResponse.class);
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
-    String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
+    String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
     ErrorResponse resDelError =
         given()
-            .body(PAYMENTS_DELETE_WRONG_TEMPLATE)
+            .body(fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_WRONG_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(urlDelPays)
@@ -1121,7 +996,7 @@ class InternalPspResourceTest {
     String flowName = TestUtil.getDynamicFlowName();
     String pspUnknown = "PSP_UNKNOWN";
 
-    String url = FLOWS_URL.formatted(pspUnknown, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(pspUnknown, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1150,7 +1025,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0709 - psp not enabled")
   void test_psp_KO_FDR0709() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE_NOT_ENABLED, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE_NOT_ENABLED, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1182,7 +1057,7 @@ class InternalPspResourceTest {
   void test_brokerpsp_KO_FDR0710() {
     String flowName = TestUtil.getDynamicFlowName();
     String brokerPspUnknown = "BROKERPSP_UNKNOWN";
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1215,7 +1090,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0711 - brokerPsp not enabled")
   void test_brokerpsp_KO_FDR0711() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1250,7 +1125,7 @@ class InternalPspResourceTest {
   void test_channel_KO_FDR0712() {
     String flowName = TestUtil.getDynamicFlowName();
     String channelUnknown = "CHANNEL_UNKNOWN";
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1282,7 +1157,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0713 - channel not enabled")
   void test_channel_KO_FDR0713() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1311,7 +1186,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0714 - channel with brokerPsp not authorized")
   void test_channelBroker_KO_FDR0714() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1349,7 +1224,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0715 - channel with psp not authorized")
   void test_channelPsp_KO_FDR0715() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE_2, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE_2, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1387,7 +1262,7 @@ class InternalPspResourceTest {
   void test_organizationId_KO_FDR0716() {
     String flowName = TestUtil.getDynamicFlowName();
     String ecUnknown = "EC_UNKNOWN";
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1420,7 +1295,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0717 - ec not enabled")
   void test_organizationId_KO_FDR0717() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
@@ -1453,7 +1328,7 @@ class InternalPspResourceTest {
   @Test
   @DisplayName("PSPS - KO FDR-0718 - flow format wrong date")
   void test_flowName_KO_FDR0718() {
-    String url = FLOWS_URL.formatted(PSP_CODE, REPORTING_FLOW_NAME_DATE_WRONG_FORMAT);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, REPORTING_FLOW_NAME_DATE_WRONG_FORMAT);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
@@ -1487,7 +1362,7 @@ class InternalPspResourceTest {
   @Test
   @DisplayName("PSPS - KO FDR-0719 - flow format wrong psp")
   void test_flowName_KO_FDR0719() {
-    String url = FLOWS_URL.formatted(PSP_CODE, REPORTING_FLOW_NAME_PSP_WRONG_FORMAT);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, REPORTING_FLOW_NAME_PSP_WRONG_FORMAT);
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
@@ -1516,42 +1391,15 @@ class InternalPspResourceTest {
   }
 
   @Test
-  @DisplayName("PSPS - KO FDR-0400 - JSON input wrong fields")
-  void test_psp_KO_FDR0400() {
-    String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
-    String bodyFmt =
-        FLOW_TEMPLATE_WRONG_FIELDS.formatted(
-            flowName,
-            SenderTypeEnum.LEGAL_PERSON.name(),
-            PSP_CODE,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
-
-    ErrorResponse res =
-        given()
-            .body(bodyFmt)
-            .header(HEADER)
-            .when()
-            .post(url)
-            .then()
-            .statusCode(400)
-            .extract()
-            .as(ErrorResponse.class);
-    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST.errorCode()));
-    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("non deve essere null"))));
-    assertThat(
-        res.getErrors(), hasItem(hasProperty("path", equalTo("internalCreate.createRequest.fdr"))));
-  }
-
-  @Test
   @DisplayName("PSPS - KO FDR-0401 - JSON incorrect value")
   void test_psp_KO_FDR0401() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
     String wrongFormatDecimal = "0,01";
-    String bodyFmt = PAYMENTS_ADD_INVALID_FIELD_VALUE_FORMAT_TEMPLATE.formatted(wrongFormatDecimal);
+    String bodyFmt =
+        fileUtil
+            .getStringFromResourceAsString(PAYMENTS_ADD_INVALID_FIELD_VALUE_TEMPLATE_PATH)
+            .formatted(wrongFormatDecimal);
 
     ErrorResponse res =
         given()
@@ -1580,17 +1428,19 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0402 - JSON invalid input instant")
   void test_psp_KO_FDR0402() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String wrongFormatDate = "2023-04-05";
     String bodyFmt =
-        FLOW_TEMPLATE_WRONG_INSTANT.formatted(
-            flowName,
-            wrongFormatDate,
-            SenderTypeEnum.LEGAL_PERSON.name(),
-            PSP_CODE,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
+        fileUtil
+            .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_INSTANT_PATH)
+            .formatted(
+                flowName,
+                wrongFormatDate,
+                SenderTypeEnum.LEGAL_PERSON.name(),
+                PSP_CODE,
+                BROKER_CODE,
+                CHANNEL_CODE,
+                EC_CODE);
 
     ErrorResponse res =
         given()
@@ -1621,7 +1471,7 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0403 - JSON invalid input enum")
   void test_psp_KO_FDR0403() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String wrongEnum = "WRONG_ENUM";
     String bodyFmt =
         FLOW_TEMPLATE.formatted(flowName, wrongEnum, PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
@@ -1655,11 +1505,11 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0404 - JSON deserialization error")
   void test_psp_KO_FDR0404() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
 
     ErrorResponse resDelError =
         given()
-            .body(PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE)
+            .body(fileUtil.getStringFromResourceAsString(PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(url)
@@ -1684,11 +1534,11 @@ class InternalPspResourceTest {
   @DisplayName("PSPS - KO FDR-0405 - JSON malformed")
   void test_psp_KO_FDR0405() {
     String flowName = TestUtil.getDynamicFlowName();
-    String url = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
 
     ErrorResponse res =
         given()
-            .body(MALFORMED_JSON)
+            .body(fileUtil.getStringFromResourceAsString(MALFORMED_JSON_PATH))
             .header(HEADER)
             .when()
             .post(url)

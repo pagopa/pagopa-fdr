@@ -24,7 +24,7 @@ public class OpenAPIGenerator implements OASFilter {
   @ConfigProperty(name = "app.version", defaultValue = "0.0.0")
   String version;
 
-  private IndexView view;
+  private final IndexView view;
 
   public OpenAPIGenerator(IndexView view) {
     this.view = view;
@@ -49,12 +49,12 @@ public class OpenAPIGenerator implements OASFilter {
 
   private static String getMainDescription() {
 
-    StringBuilder builder = new StringBuilder();
-    builder.append("Manage FDR (aka \"Flussi di Rendicontazione\") exchanged between PSP and EC");
-    builder.append("\n\n## OPERATIONAL ERROR CODES\n");
-    builder.append("\n<details><summary>Details</summary>\n");
-    builder.append(generateOperationalErrorCodeSection());
-    return builder.toString();
+    String builder =
+        "Manage FDR (aka \"Flussi di Rendicontazione\") exchanged between PSP and EC"
+            + "\n\n## OPERATIONAL ERROR CODES\n"
+            + "\n<details><summary>Details</summary>\n"
+            + generateOperationalErrorCodeSection();
+    return builder;
   }
 
   private static String generateOperationalErrorCodeSection() {

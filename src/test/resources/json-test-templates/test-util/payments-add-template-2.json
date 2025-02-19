@@ -1,0 +1,44 @@
+{
+  "payments": [{
+    "index": 105,
+    "iuv": "f",
+    "iur": "abcdefg",
+    "idTransfer": 5,
+    "pay": 0.01,
+    "payStatus": "EXECUTED",
+    "payDate": "2023-02-03T12:00:30.900000Z"
+  },{
+    "index": 106,
+    "iuv": "g",
+    "iur": "abcdefg",
+    "idTransfer": 5,
+    "pay": 0.01,
+    "payStatus": "REVOKED",
+    "payDate": "2023-02-03T12:00:30.900000Z"
+  },{
+    "index": 107,
+    "iuv": "h",
+    "iur": "abcdefg",
+    "idTransfer": 5,
+    "pay": 0.01,
+    "payStatus": "NO_RPT",
+    "payDate": "2023-02-03T12:00:30.900000Z"
+  },{
+    "index": 108,
+    "iuv": "i",
+    "iur": "abcdefg",
+    "idTransfer": 5,
+    "pay": 0.01,
+    "payStatus": "STAND_IN",
+    "payDate": "2023-02-03T12:00:30.900000Z"
+  },{
+    "index": 109,
+    "iuv": "l",
+    "iur": "abcdefg",
+    "idTransfer": 5,
+    "pay": 0.01,
+    "payStatus": "STAND_IN_NO_RPT",
+    "payDate": "2023-02-03T12:00:30.900000Z"
+  }
+  ]
+}

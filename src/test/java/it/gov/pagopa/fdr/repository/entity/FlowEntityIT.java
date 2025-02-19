@@ -1,9 +1,9 @@
-package it.gov.pagopa.fdr.controller.psps;
+package it.gov.pagopa.fdr.repository.entity;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 @QuarkusIntegrationTest
-class InternalPspResourceIT extends PspResourceTest {
+public class FlowEntityIT extends FlowEntityTest {
   // Execute the same tests but in packaged mode.
 
 }
