@@ -28,7 +28,7 @@ public class FileUtil {
     InputStream inputStream = classLoader.getResourceAsStream(fileName);
     String result = null;
     if (inputStream == null) {
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_FILE_NOT_FOUND);
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
     }
 
     try (InputStreamReader streamReader =
@@ -36,7 +36,7 @@ public class FileUtil {
         BufferedReader reader = new BufferedReader(streamReader)) {
       result = reader.lines().collect(Collectors.joining());
     } catch (IOException e) {
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
     }
 
     return result;
@@ -82,7 +82,7 @@ public class FileUtil {
       return bytesOutput.toByteArray();
     } catch (IOException e) {
       log.error("Error compressing InputStream to Gzip", e);
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
     }
   }
 }

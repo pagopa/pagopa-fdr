@@ -1,8 +1,11 @@
 package it.gov.pagopa.fdr.util;
 
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.TEST_TEMPLATE_PATH;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.util.common.FileUtil;
@@ -47,7 +50,7 @@ class FileUtilTest {
               fileUtil.getFileFromResourceAsStream(fileName);
             });
 
-    assertEquals(AppErrorCodeMessageEnum.FILE_UTILS_FILE_NOT_FOUND, exception.getCodeMessage());
+    assertEquals(AppErrorCodeMessageEnum.ERROR, exception.getCodeMessage());
     verify(logger).errorf("Error reading file: [%s]", fileName);
   }
 
