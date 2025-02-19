@@ -17,6 +17,7 @@ import java.time.Instant;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -77,17 +78,39 @@ This API is used for internal purpose in order to perform a deep-search for dedi
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   PaginatedFlowsBySenderAndReceiverResponse getByIuv(
-      @PathParam(ControllerConstants.PARAMETER_PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
-      @PathParam(ControllerConstants.PARAMETER_IUV) @Pattern(regexp = "^(.{1,35})$") String iuv,
-      @QueryParam(ControllerConstants.PARAMETER_CREATED_FROM) Instant createdFrom,
-      @QueryParam(ControllerConstants.PARAMETER_CREATED_TO) Instant createdTo,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Pattern(regexp = "^(.{1,35})$")
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_IUV)
+          @Pattern(regexp = "^(.{1,35})$")
+          @Parameter(
+              description = "The payment's IUV code, used as a search filter",
+              example = "17854456582215")
+          String iuv,
+      @QueryParam(ControllerConstants.PARAMETER_CREATED_FROM)
+          @Parameter(
+              description = "The lower limit of the date related to the flow creation date",
+              example = "2025-01-01T12:00:00.00000Z")
+          Instant createdFrom,
+      @QueryParam(ControllerConstants.PARAMETER_CREATED_TO)
+          @Parameter(
+              description = "The upper limit of the date related to the flow creation date",
+              example = "2025-01-31T12:00:00.00000Z")
+          Instant createdTo,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
+          @Parameter(description = "The index of the page to be shown in the result", example = "1")
           long pageNumber,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_SIZE)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_SIZE_DEFAULT)
           @Min(value = 1)
+          @Parameter(
+              description = "The number of the elements of the page to be shown in the result",
+              example = "50")
           long pageSize);
 
   @GET
@@ -138,16 +161,38 @@ This API is used for internal purpose in order to perform a deep-search for dedi
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
   PaginatedFlowsBySenderAndReceiverResponse getByIur(
-      @PathParam(ControllerConstants.PARAMETER_PSP) @Pattern(regexp = "^(.{1,35})$") String pspId,
-      @PathParam(ControllerConstants.PARAMETER_IUR) @Pattern(regexp = "^(.{1,35})$") String iur,
-      @QueryParam(ControllerConstants.PARAMETER_CREATED_FROM) Instant createdFrom,
-      @QueryParam(ControllerConstants.PARAMETER_CREATED_TO) Instant createdTo,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Pattern(regexp = "^(.{1,35})$")
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_IUR)
+          @Pattern(regexp = "^(.{1,35})$")
+          @Parameter(
+              description = "The payment's IUR code, used as a search filter",
+              example = "17854456582215")
+          String iur,
+      @QueryParam(ControllerConstants.PARAMETER_CREATED_FROM)
+          @Parameter(
+              description = "The lower limit of the date related to the flow creation date",
+              example = "2025-01-01T12:00:00.00000Z")
+          Instant createdFrom,
+      @QueryParam(ControllerConstants.PARAMETER_CREATED_TO)
+          @Parameter(
+              description = "The upper limit of the date related to the flow creation date",
+              example = "2025-01-31T12:00:00.00000Z")
+          Instant createdTo,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
+          @Parameter(description = "The index of the page to be shown in the result", example = "1")
           long pageNumber,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_SIZE)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_SIZE_DEFAULT)
           @Min(value = 1)
+          @Parameter(
+              description = "The number of the elements of the page to be shown in the result",
+              example = "50")
           long pageSize);
 }
