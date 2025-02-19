@@ -247,7 +247,11 @@
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
             <maven.home>${maven.home}</maven.home>
-            <quarkus.jacoco.excludes>org/openapi/quarkus/**,org/openapi/**</quarkus.jacoco.excludes>
+            <quarkus.jacoco.excludes>
+              org/openapi/quarkus/**,org/openapi/**,
+              it/gov/pagopa/fdr/util/openapi/**,
+              it/gov/pagopa/fdr/util/constant/**
+            </quarkus.jacoco.excludes>
           </systemPropertyVariables>
         </configuration>
       </plugin>
