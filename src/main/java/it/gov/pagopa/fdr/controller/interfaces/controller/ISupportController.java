@@ -24,15 +24,23 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Path("/internal/psps/{" + ControllerConstants.PARAMETER_PSP + "}/")
 @Consumes("application/json")
 @Produces("application/json")
-@Tag(name = "Support", description = "Support operations")
+@Tag(
+    name = "Support",
+    description = "APIs for technical support, used for troubleshooting operations")
 public interface ISupportController {
 
   @GET
   @Path("iuv/{" + ControllerConstants.PARAMETER_IUV + "}/")
   @Operation(
       operationId = "ISupportController.getByIuv",
-      summary = "Get all payments by psp id and iuv",
-      description = "Get all payments by psp id and iuv")
+      summary = "Get all flows related to PSP, only if contains a payment with specific IUV code",
+      description =
+          """
+This API permits to search all the flows that contains a payment with specific IUV code
+(Identificativo Univoco Versamento) in relation to a PSP.<br>
+The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+This API is used for internal purpose in order to perform a deep-search for dedicated troubleshooting.
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -86,8 +94,14 @@ public interface ISupportController {
   @Path("iur/{" + ControllerConstants.PARAMETER_IUR + "}/")
   @Operation(
       operationId = "ISupportController.getByIur",
-      summary = "Get all payments by psp id and iur",
-      description = "Get all payments by psp id and iur")
+      summary = "Get all flows related to PSP, only if contains a payment with specific IUR code",
+      description =
+          """
+This API permits to search all the flows that contains a payment with specific IUR code
+(Identificativo Univoco Riscossione) in relation to a PSP.<br>
+The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+This API is used for internal purpose in order to perform a deep-search for dedicated troubleshooting.
+""")
   @APIResponses(
       value = {
         @APIResponse(
