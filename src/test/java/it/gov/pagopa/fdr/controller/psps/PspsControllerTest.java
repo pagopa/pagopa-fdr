@@ -1882,7 +1882,7 @@ class PspsControllerTest {
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(103L)));
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(104L)));
 
-    assertTrue(data.stream().allMatch(item -> item.getIur().equals("abcdefg")));
+    assertTrue(data.stream().allMatch(item -> item.getIur().equals(IUR_CODE)));
     assertTrue(data.stream().allMatch(item -> item.getPay().equals(0.01)));
 
   }

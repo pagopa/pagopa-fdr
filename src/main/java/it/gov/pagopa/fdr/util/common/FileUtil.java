@@ -23,13 +23,30 @@ public class FileUtil {
     this.log = log;
   }
 
+  public static String getStringFromJsonFile(String fileName) {
+    ClassLoader classLoader = FileUtil.class.getClassLoader();
+    InputStream inputStream = classLoader.getResourceAsStream(fileName);
+    String result=null;
+    if (inputStream == null) {
+      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_FILE_NOT_FOUND);
+      }
+
+      try (InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+           BufferedReader reader = new BufferedReader(streamReader)) {
+         result= reader.lines().collect(Collectors.joining());
+      } catch (IOException e) {
+        throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
+      }
+
+    return result;
+  }
+
   public String getStringFromResourceAsString(String fileName) {
     InputStream inputStream = getFileFromResourceAsStream(fileName);
     return convertToString(inputStream);
   }
 
   public InputStream getFileFromResourceAsStream(String fileName) {
-    // The class loader that loaded the class
     ClassLoader classLoader = getClass().getClassLoader();
     InputStream inputStream = classLoader.getResourceAsStream(fileName);
     if (inputStream == null) {
@@ -51,7 +68,6 @@ public class FileUtil {
   }
 
   public byte[] compressInputStreamtoGzip(@Nonnull final InputStream inputStream) {
-    final InputStream zipInputStream;
     try {
       ByteArrayOutputStream bytesOutput = new ByteArrayOutputStream();
 

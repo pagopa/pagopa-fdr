@@ -54,6 +54,12 @@ public class AppConstantTestHelper {
   public static final String CHANNEL_CODE_NOT_ENABLED = "CANALE_NOT_ENABLED";
   public static final String EC_CODE = "15376371009";
   public static final String EC_CODE_NOT_ENABLED = "PAtestDOFF";
+  public static final String IUR_CODE="abcdefg";
+  public static final String IUV_CODE_A ="a";
+  public static final String IUV_CODE_B ="b";
+  public static final String IUV_CODE_C ="c";
+  public static final String IUV_CODE_D ="d";
+  public static final String IUV_CODE_E ="e";
 
   public static final Header HEADER = new Header("Content-Type", "application/json");
 
@@ -64,6 +70,22 @@ public class AppConstantTestHelper {
 
   public static final String GENERAL_TEMPLATE_PATH =
           Paths.get(JSON_TEST_TEMPLATES_PATH, "general").toString();
+
+  public static final String TEST_UTIL_PATH =
+          Paths.get(JSON_TEST_TEMPLATES_PATH, "test-util").toString();
+
+  //Test Util Path
+  public static final String FLOW_TEMPLATE_PATH =
+          Paths.get(TEST_UTIL_PATH
+                  ,"flow-template.json").toString();
+
+  public static String PAYMENTS_ADD_TEMPLATE_PATH =
+          Paths.get(TEST_UTIL_PATH
+                  ,"payments-add-template.json").toString();
+
+  public static String PAYMENTS_ADD_TEMPLATE_2_PATH =
+          Paths.get(TEST_UTIL_PATH
+                  ,"payments-add-template-2.json").toString();
 
   //General template paths
   public static final String FLOW_TEMPLATE_WRONG_INSTANT_PATH =
