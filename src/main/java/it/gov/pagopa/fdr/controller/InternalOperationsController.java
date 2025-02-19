@@ -16,9 +16,9 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 public class InternalOperationsController implements IInternalOperationsController {
 
-  private FlowService flowService;
+  private final FlowService flowService;
 
-  private PaymentService paymentService;
+  private final PaymentService paymentService;
 
   protected InternalOperationsController(FlowService flowService, PaymentService paymentService) {
 

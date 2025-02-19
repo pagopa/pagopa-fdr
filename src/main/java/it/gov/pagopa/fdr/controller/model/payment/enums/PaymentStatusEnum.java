@@ -5,5 +5,5 @@ public enum PaymentStatusEnum {
   REVOKED,
   NO_RPT,
   STAND_IN,
-  STAND_IN_NO_RPT;
+  STAND_IN_NO_RPT
 }

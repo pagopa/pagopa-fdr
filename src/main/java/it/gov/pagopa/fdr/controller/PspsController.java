@@ -21,9 +21,9 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 public class PspsController implements IPspsController {
 
-  private FlowService flowService;
+  private final FlowService flowService;
 
-  private PaymentService paymentService;
+  private final PaymentService paymentService;
 
   protected PspsController(FlowService flowService, PaymentService paymentService) {
 

@@ -24,9 +24,9 @@ import org.jboss.logging.Logger;
 @ApplicationScoped
 public class PaymentRepository extends Repository implements PanacheRepository<PaymentEntity> {
 
-  private EntityManager entityManager;
+  private final EntityManager entityManager;
 
-  private Logger log;
+  private final Logger log;
 
   public static final String QUERY_GET_BY_FLOW_ID = "flowId = ?1";
 
@@ -65,11 +65,11 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
       params.and("iur", iur);
     }
     if (createdFrom != null) {
-      query.append(" and created >= :createdFrom");
+      query.append(" and p.created >= :createdFrom");
       params.and("createdFrom", createdFrom);
     }
     if (createdTo != null) {
-      query.append(" and created <= :createdTo");
+      query.append(" and p.created <= :createdTo");
       params.and("createdTo", createdTo);
     }
 

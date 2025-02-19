@@ -1,0 +1,23 @@
+{
+  "fdr": "%s",
+  "fdrDate": "2023-04-05T09:21:37.810000Z",
+  "sender": {
+    "type": "%s",
+    "id": "SELBIT2B",
+    "pspId": "%s",
+    "pspName": "Bank",
+    "pspBrokerId": "%s",
+    "channelId": "%s",
+    "password": "1234567890"
+  },
+  "receiver": {
+    "id": "APPBIT2B",
+    "organizationId": "%s",
+    "organizationName": "Comune di xyz"
+  },
+  "regulation": "SEPA - Bonifico xzy",
+  "regulationDate": "2023-04-03T12:00:30.900000Z",
+  "bicCodePouringBank": "UNCRITMMXXX",
+  "totPayments": 5,
+  "sumPayments": 0.05
+}
