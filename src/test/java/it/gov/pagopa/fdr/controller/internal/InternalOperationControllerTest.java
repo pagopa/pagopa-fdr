@@ -825,15 +825,8 @@ public class InternalOperationControllerTest {
         assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
         String urlDelPays = INTERNAL_PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-        bodyFmt =
-                """
-                {
-                  "indexList": [
-                      1,
-                      1
-                  ]
-                }
-                """;
+        bodyFmt =fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH);
+
         ErrorResponse resDelError =
                 given()
                         .body(bodyFmt)

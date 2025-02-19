@@ -805,7 +805,7 @@ class PspsControllerTest {
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    bodyFmt =fileUtil.getStringFromResourceAsString(PSP_PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH);
+    bodyFmt =fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH);
 
     ErrorResponse resDelError =
         given()

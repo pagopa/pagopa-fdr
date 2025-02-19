@@ -122,6 +122,10 @@ public class AppConstantTestHelper {
           Paths.get(GENERAL_TEMPLATE_PATH
                   ,"payments-add-invalid-format.json").toString();
 
+  public static final String PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH =
+          Paths.get(GENERAL_TEMPLATE_PATH
+                  ,"payments-delete-same-index.json").toString();
+
   //  Internal operations template paths
   public static final String INTERNAL_OPERATION_TEMPLATE_PATH =
           Paths.get(JSON_TEST_TEMPLATES_PATH, "internal-operation").toString();
@@ -137,9 +141,5 @@ public class AppConstantTestHelper {
   public static final String PSP_PAYMENTS_DELETE_TEMPLATE_PATH =
           Paths.get(PSP_TEMPLATE_PATH
                   ,"payments-delete.json").toString();
-
-  public static final String PSP_PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH =
-          Paths.get(PSP_TEMPLATE_PATH
-                  ,"payments-delete-same-index.json").toString();
 
 }
