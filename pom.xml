@@ -250,7 +250,8 @@
             <quarkus.jacoco.excludes>
               org/openapi/quarkus/**,org/openapi/**,
               it/gov/pagopa/fdr/util/openapi/**,
-              it/gov/pagopa/fdr/util/constant/**
+              it/gov/pagopa/fdr/util/constant/**,
+              it/gov/pagopa/fdr/repository/enums/**
             </quarkus.jacoco.excludes>
           </systemPropertyVariables>
         </configuration>
