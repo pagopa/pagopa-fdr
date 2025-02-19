@@ -19,12 +19,11 @@ public class Sender {
   @NotNull
   @Schema(
       example = "LEGAL_PERSON",
+      enumeration = {"LEGAL_PERSON (G)", "ABI_CODE (A)", "BIC_CODE (B)"},
       description =
-          "[XML FlussoRiversamento]=[istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco]"
-              + " \n"
-              + "G -> LEGAL_PERSON\n"
-              + "A -> ABI_CODE\n"
-              + "B -> BIC_CODE")
+          "The type of the PSP sender entity.<br>In the XML request for SOAP primitives, this field"
+              + " is mappable with the tag"
+              + " <b>[FlussoRiversamento.istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco]</b>.")
   private SenderTypeEnum type;
 
   @NotNull
@@ -32,43 +31,60 @@ public class Sender {
   @Schema(
       example = "SELBIT2B",
       description =
-          "[XML FlussoRiversamento]=[istitutoMittente.identificativoUnivocoMittente.codiceIdentificativoUnivoco]")
+          "The identifier of the PSP sender entity.<br>In the XML request for SOAP primitives, this"
+              + " field is mappable with the tag"
+              + " <b>[FlussoRiversamento.istitutoMittente.identificativoUnivocoMittente.codiceIdentificativoUnivoco]</b>.")
   private String id;
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
   @Schema(
       example = "60000000001",
-      description = "[XML NodoInviaFlussoRendicontazione]=[identificativoPSP]")
+      description =
+          "The domain identifier of the PSP sender entity.<br>In the XML request for SOAP"
+              + " primitives, this field is mappable with the tag"
+              + " <b>[NodoInviaFlussoRendicontazione.identificativoPSP]</b>.")
   @JsonProperty(ControllerConstants.PARAMETER_PSP)
   private String pspId;
 
   @NotNull
   @Pattern(regexp = "^(.{3,70})$")
   @Schema(
-      example = "Bank",
-      description = "[XML FlussoRiversamento]=[istitutoMittente.denominazioneMittente]")
+      example = "PSP Name",
+      description =
+          "The fiscal name of the PSP sender entity.<br>In the XML request for SOAP primitives,"
+              + " this field is mappable with the tag"
+              + " <b>[FlussoRiversamento.istitutoMittente.denominazioneMittente]</b>.")
   private String pspName;
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
   @Schema(
       example = "70000000001",
-      description = "[XML NodoInviaFlussoRendicontazione]=[identificativoIntermediarioPSP]")
+      description =
+          "The domain identifier of the PSP sender entity's Broker.<br>In the XML request for SOAP"
+              + " primitives, this field is mappable with the tag"
+              + " <b>[NodoInviaFlussoRendicontazione.identificativoIntermediarioPSP]</b>.")
   private String pspBrokerId;
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
   @Schema(
       example = "80000000001",
-      description = "[XML NodoInviaFlussoRendicontazione]=[identificativoCanale]")
+      description =
+          "The identifier of the PSP sender entity's Channel.<br>In the XML request for SOAP"
+              + " primitives, this field is mappable with the tag"
+              + " <b>[NodoInviaFlussoRendicontazione.identificativoCanale]</b>.")
   private String channelId;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   @Pattern(regexp = "^(\\w{8,15})$")
   @Schema(
-      example = "1234567890",
+      example = "password",
       deprecated = true,
-      description = "[XML NodoInviaFlussoRendicontazione]=[password]")
+      description =
+          "The password of the PSP sender entity's Channel.<br>In the XML request for SOAP"
+              + " primitives, this field is mappable with the tag"
+              + " <b>[NodoInviaFlussoRendicontazione.password]</b>.")
   private String password;
 }

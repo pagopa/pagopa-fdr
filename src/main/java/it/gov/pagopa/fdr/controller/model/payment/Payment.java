@@ -1,7 +1,12 @@
 package it.gov.pagopa.fdr.controller.model.payment;
 
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,23 +20,27 @@ public class Payment {
 
   @NotNull
   @Min(value = 1)
-  @Schema(example = "1", description = "Identificativo del pagamento univoco nel flusso")
+  @Schema(example = "1", description = "Unique index of the payment in the flow")
   private Long index;
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
   @Schema(
-      example = "abcdefg",
+      example = "17854456582215",
       description =
-          "[XML FlussoRiversamento]=[datiSingoliPagamenti.identificativoUnivocoVersamento]")
+          "The value of the 'Identificativo Univoco Versamento' code related to the payment.<br>In"
+              + " the XML request for SOAP primitives, this field is mappable with the tag"
+              + " <b>[FlussoRiversamento.datiSingoliPagamenti.identificativoUnivocoVersamento]</b>.")
   private String iuv;
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
   @Schema(
-      example = "abcdefg",
+      example = "3354426511008",
       description =
-          "[XML FlussoRiversamento]=[datiSingoliPagamenti.identificativoUnivocoRiscossione]")
+          "The value of the 'Identificativo Univoco Riscossione' code related to the payment in the"
+              + " flow.<br>In the XML request for SOAP primitives, this field is mappable with the"
+              + " tag <b>[FlussoRiversamento.datiSingoliPagamenti.identificativoUnivocoRiscossione]</b>.")
   private String iur;
 
   @NotNull
@@ -39,7 +48,11 @@ public class Payment {
   @Max(value = 5)
   @Schema(
       example = "1",
-      description = "[XML FlussoRiversamento]=[datiSingoliPagamenti.indiceDatiSingoloPagamento]")
+      description =
+          "The value of the transfer identifier related to the payment during the payment"
+              + " process.<br>In the XML request for SOAP primitives, this field is mappable with"
+              + " the tag"
+              + " <b>[FlussoRiversamento.datiSingoliPagamenti.indiceDatiSingoloPagamento]</b>.")
   private Long idTransfer;
 
   @NotNull
@@ -47,24 +60,34 @@ public class Payment {
   @Digits(integer = Integer.MAX_VALUE, fraction = 2)
   @Schema(
       example = "0.01",
-      description = "[XML FlussoRiversamento]=[datiSingoliPagamenti.singoloImportoPagato]")
+      description =
+          "The value of the payment amount in decimal euro.<br>In the XML request for SOAP"
+              + " primitives, this field is mappable with the tag"
+              + " <b>[FlussoRiversamento.datiSingoliPagamenti.singoloImportoPagato]</b>.")
   private Double pay;
 
   @NotNull
   @Schema(
       example = "EXECUTED",
+      enumeration = {
+        "EXECUTED (0)",
+        "REVOKED (3)",
+        "STAND_IN (4)",
+        "STAND_IN_NO_RPT (8)",
+        "NO_RPT (9)"
+      },
       description =
-          "[XML FlussoRiversamento]=[datiSingoliPagamenti.codiceEsitoSingoloPagamento] \n"
-              + "0 -> EXECUTED\n"
-              + "3 -> REVOKED\n"
-              + "9 -> NO_RPT\n"
-              + "4 -> STAND_IN\n"
-              + "8 -> STAND_IN_NO_RPT")
+          "The value of the status of the payment in relation to ist completion.<br>In the XML"
+              + " request for SOAP primitives, this field is mappable with the tag"
+              + " <b>[FlussoRiversamento.datiSingoliPagamenti.codiceEsitoSingoloPagamento]</b>.")
   private PaymentStatusEnum payStatus;
 
   @NotNull
   @Schema(
-      example = "2023-02-03T12:00:30.900000Z",
-      description = "[XML FlussoRiversamento]=[datiSingoliPagamenti.dataEsitoSingoloPagamento]")
+      example = "2025-01-01T12:30:50.900000Z",
+      description =
+          "The value of the date of the payment in relation to its completion.<br>In the XML"
+              + " request for SOAP primitives, this field is mappable with the tag"
+              + " <b>[FlussoRiversamento.datiSingoliPagamenti.dataEsitoSingoloPagamento]</b>.")
   private Instant payDate;
 }

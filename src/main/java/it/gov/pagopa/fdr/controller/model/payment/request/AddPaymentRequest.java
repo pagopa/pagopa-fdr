@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Getter
 @Builder
@@ -18,5 +19,6 @@ public class AddPaymentRequest {
   @NotNull
   @Size(min = 1, max = AppConstant.MAX_PAYMENT)
   @Valid
+  @Schema(description = "The list of payments to be added on the draft flow")
   private List<Payment> payments;
 }

@@ -9,18 +9,24 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
-@JsonPropertyOrder({"name", "version", "environment", "description", "errorCodes"})
+@JsonPropertyOrder({"name", "version", "environment", "description"})
 public class InfoResponse {
 
-  @Schema(example = "pagopa-fdr")
+  @Schema(
+      example = "pagopa-fdr",
+      description = "The identificative name of the deployed application")
   private String name;
 
-  @Schema(example = "1.2.3")
+  @Schema(example = "1.2.3", description = "The current version of the deployed application")
   private String version;
 
-  @Schema(example = "dev")
+  @Schema(
+      example = "dev",
+      description = "The current environment where the application is deployed")
   private String environment;
 
-  @Schema(example = "FDR - Flussi di rendicontazione")
+  @Schema(
+      example = "FDR - Flussi di rendicontazione",
+      description = "The descriptive information related to the info response")
   private String description;
 }

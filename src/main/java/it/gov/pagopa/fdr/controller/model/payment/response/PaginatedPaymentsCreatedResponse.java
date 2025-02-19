@@ -12,13 +12,15 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Getter
 @Builder
 @Jacksonized
-@JsonPropertyOrder({"metadata", "count", "sum", "data"})
+@JsonPropertyOrder({"metadata", "count", "data"})
 public class PaginatedPaymentsCreatedResponse {
 
+  @Schema(description = "The metadata related to the paginated response.")
   private Metadata metadata;
 
-  @Schema(example = "100")
+  @Schema(example = "100", description = "The number of elements that can be found in this page.")
   private Long count;
 
+  @Schema(description = "The list of payments that are included in this page.")
   private List<Payment> data;
 }
