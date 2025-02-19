@@ -158,7 +158,7 @@ public class OpenAPIGenerator implements OASFilter {
     for (AppErrorCodeMessageEnum error : annotation.errors()) {
       builder.append("**").append(error.errorCode()).append("**").append(TABLE_SEPARATOR);
       builder.append(error.httpStatus().getStatusCode()).append(TABLE_SEPARATOR);
-      builder.append(error.message()).append("\n");
+      builder.append(error.message('%', '%', '%', '%', '%')).append("\n");
     }
     return builder.toString();
   }

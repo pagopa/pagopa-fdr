@@ -7,6 +7,12 @@ import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedRespons
 import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
+import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
+import it.gov.pagopa.fdr.util.openapi.APIAppErrorMetadata;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISecurityMode;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISynchronism;
+import it.gov.pagopa.fdr.util.openapi.APITableMetadata.ReadWrite;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -22,6 +28,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
@@ -31,15 +38,30 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Path(ControllerConstants.URL_CONTROLLER_INTERNAL_PSPS)
 @Consumes("application/json")
 @Produces("application/json")
-@Tag(name = "Internal Operations", description = "APIs for internal operations")
+@Tag(
+    name = "Internal Operations",
+    description = "APIs for internal operations, used for hidden processes in FdR ecosystem")
 public interface IInternalOperationsController {
 
   @POST
   @Path(ControllerConstants.URL_API_CREATE_EMPTY_FLOW)
   @Operation(
       operationId = "IInternalOperationsController.createEmptyFlowForInternalUse",
-      summary = "Create fdr",
-      description = "Create fdr")
+      summary = "Create a new flow structure (for internal process)",
+      description =
+          """
+This API permits to generate a new flow for a specific creditor institution. The generated flow
+is only a structure that define the main fields and the guidelines related to the payments that
+must be added in the next operations.<br>
+The flow can only be created if no other flow exists in the CREATED or INSERTED state with the
+same identifier. If it is necessary to define a new version but you have a flow in the listed statuses,
+you must first publish the flow in draft status, or delete the flow completely via the API if you want
+to change it in its entirety.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular (but not limited) on creditor institution
+and PSP. Also, the name of the flow is validated against a specific standard format.<br>
+This API is used only by internal processes in FdR ecosystem.
+""")
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
       value = {
@@ -75,9 +97,41 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
+        AppErrorCodeMessageEnum.BROKER_UNKNOWN,
+        AppErrorCodeMessageEnum.BROKER_NOT_ENABLED,
+        AppErrorCodeMessageEnum.CHANNEL_UNKNOWN,
+        AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED,
+        AppErrorCodeMessageEnum.CHANNEL_BROKER_WRONG_CONFIG,
+        AppErrorCodeMessageEnum.CHANNEL_PSP_WRONG_CONFIG,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH
+      })
   RestResponse<GenericResponse> createEmptyFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Pattern(regexp = "[a-zA-Z0-9\\-_]{1,35}")
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
           String flowName,
       @NotNull @Valid CreateFlowRequest request);
 
@@ -85,8 +139,24 @@ public interface IInternalOperationsController {
   @Path(ControllerConstants.URL_API_ADD_PAYMENT_IN_FLOW)
   @Operation(
       operationId = "IInternalOperationsController.addPaymentToExistingFlowForInternalUse",
-      summary = "Add payments to fdr",
-      description = "Add payments to fdr")
+      summary = "Add one or more payments to an existing flow (for internal process)",
+      description =
+          """
+This API permits to add one or more payments to a given flow, previously created through
+the dedicated API. Newly added payments will be validated according to the indexes defined
+during the insertion process and according to the totality of the indexes of the payments
+already inserted in the same flow.<br>
+In addition, during the process of adding payments the relevant flow is updated, in particular
+by adjusting the ‘computed values’: these fields will include the updated count of the inserted
+payments and the total amount of payments added together.<br>
+Please note that in order to add a new payment, the flow must exist and be in draft, i.e.
+not be in PUBLISHED status. In order to add a payment to an already published flow, it is necessary
+to create a new revision of the same flow through the 'new flow creation' API.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP. Also, the name of the flow is validated
+against a specific standard format.<br>
+This API is used only by internal processes in FdR ecosystem.
+""")
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
   @APIResponses(
       value = {
@@ -122,17 +192,57 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+      })
   GenericResponse addPaymentToExistingFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
       @NotNull @Valid AddPaymentRequest request);
 
   @PUT
   @Path(ControllerConstants.URL_API_DELETE_PAYMENT_IN_FLOW)
   @Operation(
       operationId = "IInternalOperationsController.deletePaymentFromExistingFlowForInternalUse",
-      summary = "Delete payments to fdr",
-      description = "Delete payments to fdr")
+      summary = "Delete one or more payments from an existing flow (for internal process)",
+      description =
+          """
+This API permits to remove one or more payments from a particular flow, which were
+previously added via the dedicated API. The payments to be removed are indicated in the request
+via the index with which they were previously defined when they were added to the flow,
+and must all be present within the flow at the time of deletion.<br>
+In addition, during the process of removing payments the relevant flow is updated, in particular
+by adjusting the ‘computed fields’: these fields will include the updated count of the removed
+payments and the total amount of payments reduced by the amounts of the removed payments.<br>
+Please note that in order to remove an existing payment, the flow must exist and be in draft,
+i.e. not be in PUBLISHED status. In order to remove a payment from a flow that has already been
+published, it is necessary to create a new revision of the same flow through the 'new flow creation' API
+not including the affected payments.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+This API is used only by internal processes in FdR ecosystem.
+""")
   @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
   @APIResponses(
       value = {
@@ -168,17 +278,54 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_SAME_INDEX_IN_SAME_REQUEST,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_NO_MATCH_INDEX
+      })
   GenericResponse deletePaymentFromExistingFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
       @NotNull @Valid DeletePaymentRequest request);
 
   @POST
   @Path(ControllerConstants.URL_API_PUBLISH_FLOW)
   @Operation(
       operationId = "IInternalOperationsController.publishFlowForInternalUse",
-      summary = "Publish fdr",
-      description = "Publish fdr")
+      summary = "Publish an existing flow in draft status (for internal process)",
+      description =
+          """
+This API permits to publish a flow in draft, completed and ready to be retrieved by
+the creditor institution related to the flow. The publication release a new revision of
+certain flow, permitting to generate a new version if required.<br>
+In addition, during the flow publication process a final validation of the "computed fields" is performed,
+checking that their values are equal to the values pre-defined in the creation phase of the empty flow.
+Please note that, in order to publish a flow, it must be in draft, so it must not be already in PUBLISHED status.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+This API is used only by internal processes in FdR ecosystem and, because of this, does not
+provide a historicization procedure: that task is demanded uniquely to external publish API.
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -213,16 +360,54 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.WRITE)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_TOT_PAYMENT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_SUM_PAYMENT
+      })
   GenericResponse publishFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName);
 
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
   @Operation(
       operationId = "IInternalOperationsController.deleteExistingFlowForInternalUse",
-      summary = "Delete fdr",
-      description = "Delete fdr")
+      summary = "Delete an existing draft flow and all related payments (for internal process)",
+      description =
+          """
+This API permits to delete a draft flow and all the payments associated to it. The deletion process
+irreversibly removes the flow and all related payments, making it impossible to recover any data afterwards.
+This procedure frees the draft for the flow with a specific identifier, enabling the generation of
+a new revision from scratch.<br>
+Please note that in order to remove an existing flow and all the related payments, the flow must
+exist and be in draft, i.e. not be in PUBLISHED status. A published flow cannot be removed at all and
+can only be 'replaced' by the creation of a new revision of the same flow through the 'new flow creation'
+API, although the old revision will be present anyway.<br>
+Before executing the operation, the request fields are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
+This API is used only by internal processes in FdR ecosystem.
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -257,16 +442,53 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      idempotency = false,
+      readWriteIntense = ReadWrite.BOTH)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND
+      })
   GenericResponse deleteExistingFlowForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName);
 
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW)
   @Operation(
       operationId = "IInternalOperationsController.getSingleFlowNotInPublishedStatusForInternalUse",
-      summary = "Get created fdr",
-      description = "Get created fdr")
+      summary =
+          "Get single draft flow related to the PSP, searching by name (for internal process)",
+      description =
+          """
+This API permits to search a single draft flow for a specific PSP.
+In order to do so, it is required to add the following search filters:
+- Creditor institution identifier: for filtering by specific organization
+- PSP identifier: for filtering by flow-related PSP
+- Flow name: for filtering by specific instance of the flow
+
+The result will contains a single element because there can be only one draft flow for each
+unique identifier.<br>
+Before executing the query, the search filters are validated against entities configured for
+<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
+the name of the flow is validated against a specific standard format.<br>
+This API is used only by internal processes in FdR ecosystem.
+""")
   @APIResponses(
       value = {
         @APIResponse(
@@ -301,8 +523,36 @@ public interface IInternalOperationsController {
                     schema = @Schema(implementation = ErrorResponse.class),
                     example = ControllerConstants.OPENAPI_INTERNALSERVERERROR_EXAMPLE))
       })
+  @APITableMetadata(
+      synchronism = APISynchronism.SYNC,
+      authorization = APISecurityMode.NONE,
+      authentication = APISecurityMode.APIKEY,
+      readWriteIntense = ReadWrite.READ,
+      cacheable = true)
+  @APIAppErrorMetadata(
+      errors = {
+        AppErrorCodeMessageEnum.PSP_UNKNOWN,
+        AppErrorCodeMessageEnum.PSP_NOT_ENABLED,
+        AppErrorCodeMessageEnum.EC_UNKNOWN,
+        AppErrorCodeMessageEnum.EC_NOT_ENABLED,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+      })
   SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
-      @PathParam(ControllerConstants.PARAMETER_PSP) String pspId,
-      @PathParam(ControllerConstants.PARAMETER_FDR) String flowName,
-      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION) String organizationId);
+      @PathParam(ControllerConstants.PARAMETER_PSP)
+          @Parameter(
+              description = "The PSP identifier, used as a search filter",
+              example = "88888888888")
+          String pspId,
+      @PathParam(ControllerConstants.PARAMETER_FDR)
+          @Parameter(
+              description = "The flow name, used as a search filter",
+              example = "2025-01-0188888888888-0001")
+          String flowName,
+      @PathParam(ControllerConstants.PARAMETER_ORGANIZATION)
+          @Parameter(
+              description = "The creditor institution identifier, used as a search filter",
+              example = "15376371009")
+          String organizationId);
 }

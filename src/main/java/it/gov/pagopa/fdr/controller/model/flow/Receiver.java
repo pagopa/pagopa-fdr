@@ -19,21 +19,29 @@ public class Receiver {
   @Schema(
       example = "APPBIT2B",
       description =
-          "[XML FlussoRiversamento]=[istitutoRicevente.identificativoUnivocoRicevente.codiceIdentificativoUnivoco]")
+          "The identifier of the Creditor Institution receiver entity.<br>In the XML request for"
+              + " SOAP primitives, this field is mappable with the tag"
+              + " <b>[FlussoRiversamento.istitutoRicevente.identificativoUnivocoRicevente.codiceIdentificativoUnivoco]</b>.")
   private String id;
 
   @NotNull
   @Pattern(regexp = "^(.{1,35})$")
   @Schema(
       example = "20000000001",
-      description = "[XML NodoInviaFlussoRendicontazione]=[identificativoDominio]")
+      description =
+          "The domain identifier of the Creditor Institution receiver entity.<br>In the XML request"
+              + " for SOAP primitives, this field is mappable with the tag"
+              + " <b>[NodoInviaFlussoRendicontazione.identificativoDominio]</b>.")
   @JsonProperty(ControllerConstants.PARAMETER_ORGANIZATION)
   private String organizationId;
 
   @NotNull
   @Pattern(regexp = "^(.{1,140})$")
   @Schema(
-      example = "Comune di xyz",
-      description = "[XML FlussoRiversamento]=[istitutoRicevente.denominazioneRicevente]")
+      example = "Comune di Roma",
+      description =
+          "The fiscal name of the Creditor Institution receiver entity.<br>In the XML request for"
+              + " SOAP primitives, this field is mappable with the tag"
+              + " <b>[FlussoRiversamento.istitutoRicevente.denominazioneRicevente]</b>.")
   private String organizationName;
 }
