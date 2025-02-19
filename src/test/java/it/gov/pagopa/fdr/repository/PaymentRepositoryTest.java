@@ -4,6 +4,7 @@ import static io.smallrye.common.constraint.Assert.assertTrue;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
@@ -19,44 +20,40 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(PostgresResource.class)
 public class PaymentRepositoryTest {
 
-    @Inject
-    PaymentRepository paymentRepository;
+  @Inject PaymentRepository paymentRepository;
 
-    @Test
-    @DisplayName("PaymentRepositoryTest OK - findByPspAndIuvAndIur")
-    public void testFindByPspAndIuvAndIur() {
-        String flowName = TestUtil.getDynamicFlowName();
-        TestUtil.pspSunnyDay(flowName);
+  @Test
+  @DisplayName("PaymentRepositoryTest OK - findByPspAndIuvAndIur")
+  public void testFindByPspAndIuvAndIur() {
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
 
-        RepositoryPagedResult<PaymentEntity> result = paymentRepository.findByPspAndIuvAndIur(
-                PSP_CODE, IUV_CODE_A, IUR_CODE, null, null, 1, 10);
+    RepositoryPagedResult<PaymentEntity> result =
+        paymentRepository.findByPspAndIuvAndIur(PSP_CODE, IUV_CODE_A, IUR_CODE, null, null, 1, 10);
 
-        assertNotNull(result);
-        List<PaymentEntity> payments = result.getData();
-        assertNotNull(payments);
-        PaymentEntity payment = payments.get(0);
-        assertNotNull(payment);
-        assertEquals(PSP_CODE, payment.getFlow().getPspDomainId());
-        assertEquals(IUV_CODE_A, payment.getIuv());
-        assertEquals(IUR_CODE, payment.getIur());
-    }
+    assertNotNull(result);
+    List<PaymentEntity> payments = result.getData();
+    assertNotNull(payments);
+    PaymentEntity payment = payments.get(0);
+    assertNotNull(payment);
+    assertEquals(PSP_CODE, payment.getFlow().getPspDomainId());
+    assertEquals(IUV_CODE_A, payment.getIuv());
+    assertEquals(IUR_CODE, payment.getIur());
+  }
 
-    @Test
-    @DisplayName("PaymentRepositoryTest OK - findByFlowId")
-    public void findByFlowId() {
+  @Test
+  @DisplayName("PaymentRepositoryTest OK - findByFlowId")
+  public void findByFlowId() {
 
-        String flowName = TestUtil.getDynamicFlowName();
-        TestUtil.pspSunnyDay(flowName);
+    String flowName = TestUtil.getDynamicFlowName();
+    TestUtil.pspSunnyDay(flowName);
 
-        RepositoryPagedResult<PaymentEntity> result = paymentRepository.findByFlowId(
-                1L, 1, 10);
+    RepositoryPagedResult<PaymentEntity> result = paymentRepository.findByFlowId(1L, 1, 10);
 
-        assertNotNull(result);
-        List<PaymentEntity> payments = result.getData();
-        assertNotNull(payments);
+    assertNotNull(result);
+    List<PaymentEntity> payments = result.getData();
+    assertNotNull(payments);
 
-        assertTrue(payments.stream().allMatch(item ->
-                                            item.getFlow().getId().equals(1L)));
-    }
-
+    assertTrue(payments.stream().allMatch(item -> item.getFlow().getId().equals(1L)));
+  }
 }

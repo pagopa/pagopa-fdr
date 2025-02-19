@@ -8,12 +8,15 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Builder
 public class Metadata {
 
-  @Schema(example = "25")
+  @Schema(example = "25", description = "The size of the current page shown in response")
   private int pageSize;
 
-  @Schema(example = "1")
+  @Schema(example = "1", description = "The index of the current page shown in response")
   private int pageNumber;
 
-  @Schema(example = "3")
+  @Schema(
+      example = "3",
+      description =
+          "The total number of the pages that can be retrieved in order to show all elements.")
   private int totPage;
 }

@@ -1,10 +1,24 @@
 package it.gov.pagopa.fdr.controller.organizations;
 
 import static io.restassured.RestAssured.given;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.ORGANIZATIONS_GET_REPORTING_FLOW_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
 import static it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum.PSP_UNKNOWN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -29,7 +43,6 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
-
 
   /** ############### getAllPublishedFlow ################ */
   @Test
@@ -92,7 +105,10 @@ class OrganizationsControllerTest {
     assertThat(res.getErrors(), hasSize(1));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo(String.format("Psp [%s] unknown", pspUnknown)))));
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(String.format("PSP with ID [%s] is invalid or unknown.", pspUnknown)))));
   }
 
   @Test
@@ -114,7 +130,8 @@ class OrganizationsControllerTest {
         res.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo("Psp [%s] not enabled".formatted(PSP_CODE_NOT_ENABLED)))));
+                "message",
+                equalTo("PSP with ID [%s] is not enabled.".formatted(PSP_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -137,7 +154,10 @@ class OrganizationsControllerTest {
         res.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo("Creditor institution [%s] unknown".formatted(ecUnknown)))));
+                "message",
+                equalTo(
+                    "Creditor institution with ID [%s] is invalid or unknown."
+                        .formatted(ecUnknown)))));
   }
 
   @Test
@@ -160,7 +180,9 @@ class OrganizationsControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo("Creditor institution [%s] not enabled".formatted(EC_CODE_NOT_ENABLED)))));
+                equalTo(
+                    "Creditor institution with ID [%s] is not enabled."
+                        .formatted(EC_CODE_NOT_ENABLED)))));
   }
 
   /** ################# getReportingFlow ############### */
@@ -215,7 +237,8 @@ class OrganizationsControllerTest {
     TestUtil.pspSunnyDay(flowName);
 
     String flowNameWrong = TestUtil.getDynamicFlowName();
-    String url = ORGANIZATIONS_GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, 1L, PSP_CODE);
+    String url =
+        ORGANIZATIONS_GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowNameWrong, 1L, PSP_CODE);
 
     ErrorResponse res =
         given()
@@ -232,7 +255,8 @@ class OrganizationsControllerTest {
     assertThat(
         res.getErrors(),
         hasItem(
-            hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowNameWrong)))));
+            hasProperty(
+                "message", equalTo(String.format("Flow with ID [%s] not found.", flowNameWrong)))));
   }
 
   /** ################# getReportingFlowPayments ############### */
@@ -242,7 +266,8 @@ class OrganizationsControllerTest {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
 
-    String url = ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
+    String url =
+        ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
 
     PaginatedPaymentsResponse res =
         given()

@@ -41,7 +41,7 @@ public interface IOrganizationsController {
   @GET
   @Operation(
       operationId = "IOrganizationsController.getAllPublishedFlows",
-      summary = "Get all published flow by creditor institution",
+      summary = "Get all published flow related to creditor institution",
       description =
           """
 This API permits to search all published flows for a specific creditor institution,
@@ -137,10 +137,12 @@ The result of the query is paginated and contains all the metadata needed for pa
   @Path(ControllerConstants.URL_API_GET_SINGLE_FLOW)
   @Operation(
       operationId = "IOrganizationsController.getSinglePublishedFlow",
-      summary = "Get single flow by creditor institution, searching by name and revision",
+      summary =
+          "Get single published flow related to creditor institution, searching by name and"
+              + " revision",
       description =
           """
-This API permits to search a single flows for a specific creditor institution.
+This API permits to search a single published flows for a specific creditor institution.
 In order to do so, it is required to add the following search filters:
  - Creditor institution identifier: for filtering by specific organization
  - PSP identifier: for filtering by flow-related PSP
@@ -228,10 +230,11 @@ the name of the flow is validated against a specific standard format.<br>
   @Operation(
       operationId = "IOrganizationsController.getPaymentsFromPublishedFlow",
       summary =
-          "Get all payments of single flow by creditor institution, searching by name and revision",
+          "Get all payments of single published flow related to creditor institution, searching by"
+              + " name and revision",
       description =
           """
-This API permits to search all the payments of single flows for a specific creditor institution,
+This API permits to search all the payments of a single published flow for a specific creditor institution,
 formatted in a paginated view. In order to do so, it is required to add the following search filters:
  - Creditor institution identifier: for filtering by specific organization
  - PSP identifier: for filtering by flow-related PSP

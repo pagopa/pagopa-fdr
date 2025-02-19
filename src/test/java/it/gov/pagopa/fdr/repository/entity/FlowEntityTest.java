@@ -10,46 +10,44 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 public class FlowEntityTest {
 
-    private FlowEntity flowEntity;
+  private FlowEntity flowEntity;
 
-    @BeforeEach
-    void setUp() {
-        flowEntity = new FlowEntity();
-        flowEntity.setComputedTotAmount(BigDecimal.ZERO);
-        flowEntity.setComputedTotPayments(0L);
-    }
+  @BeforeEach
+  void setUp() {
+    flowEntity = new FlowEntity();
+    flowEntity.setComputedTotAmount(BigDecimal.ZERO);
+    flowEntity.setComputedTotPayments(0L);
+  }
 
-    @Test
-    @DisplayName("FlowEntityTest addOnComputedTotAmount")
-    public void addOnComputedTotAmountTest()  {
+  @Test
+  @DisplayName("FlowEntityTest addOnComputedTotAmount")
+  public void addOnComputedTotAmountTest() {
 
-        Assertions.assertEquals(BigDecimal.ZERO, flowEntity.getComputedTotAmount());
+    Assertions.assertEquals(BigDecimal.ZERO, flowEntity.getComputedTotAmount());
 
-        flowEntity.addOnComputedTotAmount(1.0);
-        Assertions.assertEquals(BigDecimal.valueOf(1.0), flowEntity.getComputedTotAmount());
+    flowEntity.addOnComputedTotAmount(1.0);
+    Assertions.assertEquals(BigDecimal.valueOf(1.0), flowEntity.getComputedTotAmount());
 
-        flowEntity.addOnComputedTotAmount(9.0);
-        Assertions.assertEquals(BigDecimal.valueOf(10.0), flowEntity.getComputedTotAmount());
+    flowEntity.addOnComputedTotAmount(9.0);
+    Assertions.assertEquals(BigDecimal.valueOf(10.0), flowEntity.getComputedTotAmount());
 
-        flowEntity.addOnComputedTotAmount(0.0);
-        Assertions.assertEquals(BigDecimal.valueOf(10.0), flowEntity.getComputedTotAmount());
+    flowEntity.addOnComputedTotAmount(0.0);
+    Assertions.assertEquals(BigDecimal.valueOf(10.0), flowEntity.getComputedTotAmount());
+  }
 
-    }
+  @Test
+  @DisplayName("FlowEntityTest addOnComputedTotAmount")
+  public void computedTotPaymentsTest() {
 
-    @Test
-    @DisplayName("FlowEntityTest addOnComputedTotAmount")
-    public void computedTotPaymentsTest()  {
+    Assertions.assertEquals(0L, flowEntity.getComputedTotPayments());
 
-        Assertions.assertEquals(0L, flowEntity.getComputedTotPayments());
+    flowEntity.addOnComputedTotPayments(1);
+    Assertions.assertEquals(1L, flowEntity.getComputedTotPayments());
 
-        flowEntity.addOnComputedTotPayments(1);
-        Assertions.assertEquals(1L, flowEntity.getComputedTotPayments());
+    flowEntity.addOnComputedTotPayments(9);
+    Assertions.assertEquals(10L, flowEntity.getComputedTotPayments());
 
-        flowEntity.addOnComputedTotPayments(9);
-        Assertions.assertEquals(10L, flowEntity.getComputedTotPayments());
-
-        flowEntity.addOnComputedTotPayments(0);
-        Assertions.assertEquals(10L, flowEntity.getComputedTotPayments());
-
-    }
+    flowEntity.addOnComputedTotPayments(0);
+    Assertions.assertEquals(10L, flowEntity.getComputedTotPayments());
+  }
 }

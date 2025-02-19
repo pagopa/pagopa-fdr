@@ -10,6 +10,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Jacksonized
 public class GenericResponse {
 
-  @Schema(example = "Success")
+  @Schema(
+      example = "Success",
+      description =
+          "The descriptive information that shows a message related to the executed operation.")
   private String message;
 }

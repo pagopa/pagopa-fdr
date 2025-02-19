@@ -14,42 +14,43 @@ import org.mapstruct.factory.Mappers;
 
 public class TechnicalSupportMapperTest {
 
-    private final TechnicalSupportMapper mapper = Mappers.getMapper(TechnicalSupportMapper.class);
-    private final PaymentEntity paymentEntity = new PaymentEntity();
+  private final TechnicalSupportMapper mapper = Mappers.getMapper(TechnicalSupportMapper.class);
+  private final PaymentEntity paymentEntity = new PaymentEntity();
 
-    @BeforeEach
-    public void setUp() {
-        paymentEntity.setFlow(new FlowEntity());
-        paymentEntity.getFlow().setPspDomainId("psp123");
-        paymentEntity.getFlow().setOrgDomainId("org123");
-        paymentEntity.getFlow().setName("flowName");
-        paymentEntity.getFlow().setRevision(1L);
-    }
+  @BeforeEach
+  public void setUp() {
+    paymentEntity.setFlow(new FlowEntity());
+    paymentEntity.getFlow().setPspDomainId("psp123");
+    paymentEntity.getFlow().setOrgDomainId("org123");
+    paymentEntity.getFlow().setName("flowName");
+    paymentEntity.getFlow().setRevision(1L);
+  }
 
-    @Test
-    void testToFlowBySenderAndReceiverList() {
+  @Test
+  void testToFlowBySenderAndReceiverList() {
 
-        List<FlowBySenderAndReceiver> result = mapper.toFlowBySenderAndReceiver(Collections.singletonList(paymentEntity));
+    List<FlowBySenderAndReceiver> result =
+        mapper.toFlowBySenderAndReceiver(Collections.singletonList(paymentEntity));
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        FlowBySenderAndReceiver elem= result.get(0);
-        assertNotNull(elem);
-        assertEquals("psp123", elem.getPspId());
-        assertEquals("org123", elem.getOrganizationId());
-        assertEquals("flowName", elem.getFdr());
-        assertEquals(1, elem.getRevision());
-    }
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    FlowBySenderAndReceiver elem = result.get(0);
+    assertNotNull(elem);
+    assertEquals("psp123", elem.getPspId());
+    assertEquals("org123", elem.getOrganizationId());
+    assertEquals("flowName", elem.getFdr());
+    assertEquals(1, elem.getRevision());
+  }
 
-    @Test
-    void testToFlowBySenderAndReceiver() {
+  @Test
+  void testToFlowBySenderAndReceiver() {
 
-        FlowBySenderAndReceiver result = mapper.toFlowBySenderAndReceiver(paymentEntity);
+    FlowBySenderAndReceiver result = mapper.toFlowBySenderAndReceiver(paymentEntity);
 
-        assertNotNull(result);
-        assertEquals("psp123", result.getPspId());
-        assertEquals("org123", result.getOrganizationId());
-        assertEquals("flowName", result.getFdr());
-        assertEquals(1, result.getRevision());
-    }
+    assertNotNull(result);
+    assertEquals("psp123", result.getPspId());
+    assertEquals("org123", result.getOrganizationId());
+    assertEquals("flowName", result.getFdr());
+    assertEquals(1, result.getRevision());
+  }
 }

@@ -26,17 +26,18 @@ public class FileUtil {
   public static String getStringFromJsonFile(String fileName) {
     ClassLoader classLoader = FileUtil.class.getClassLoader();
     InputStream inputStream = classLoader.getResourceAsStream(fileName);
-    String result=null;
+    String result = null;
     if (inputStream == null) {
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_FILE_NOT_FOUND);
-      }
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
+    }
 
-      try (InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-           BufferedReader reader = new BufferedReader(streamReader)) {
-         result= reader.lines().collect(Collectors.joining());
-      } catch (IOException e) {
-        throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
-      }
+    try (InputStreamReader streamReader =
+            new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        BufferedReader reader = new BufferedReader(streamReader)) {
+      result = reader.lines().collect(Collectors.joining());
+    } catch (IOException e) {
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
+    }
 
     return result;
   }
@@ -51,7 +52,7 @@ public class FileUtil {
     InputStream inputStream = classLoader.getResourceAsStream(fileName);
     if (inputStream == null) {
       log.errorf("Error reading file: [%s]", fileName);
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_FILE_NOT_FOUND);
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
     } else {
       return inputStream;
     }
@@ -63,7 +64,7 @@ public class FileUtil {
       return reader.lines().collect(Collectors.joining());
     } catch (IOException e) {
       log.error("Error converting InputStream to String", e);
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
     }
   }
 
@@ -81,7 +82,7 @@ public class FileUtil {
       return bytesOutput.toByteArray();
     } catch (IOException e) {
       log.error("Error compressing InputStream to Gzip", e);
-      throw new AppException(AppErrorCodeMessageEnum.FILE_UTILS_CONVERSION_ERROR);
+      throw new AppException(AppErrorCodeMessageEnum.ERROR);
     }
   }
 }

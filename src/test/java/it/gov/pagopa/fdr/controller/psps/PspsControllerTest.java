@@ -2,7 +2,40 @@ package it.gov.pagopa.fdr.controller.psps;
 
 import static io.restassured.RestAssured.given;
 import static io.smallrye.common.constraint.Assert.assertTrue;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_2;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_DELETE_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOW_TEMPLATE_WRONG_FIELDS_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOW_TEMPLATE_WRONG_INSTANT_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.IUR_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.MALFORMED_JSON_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_2_ADD_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_INVALID_FORMAT_VALUE_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_WRONG_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_SAME_INDEX_ADD_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_3;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_GET_ALL_FDR_CREATED_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_GET_FDR_PUBLISHED_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_GET_PAYMENTS_FDR_CREATED_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_GET_PAYMENTS_FDR_PUBLISHED_URL;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_PAYMENTS_DELETE_TEMPLATE_PATH;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
 import static it.gov.pagopa.fdr.test.util.TestUtil.FLOW_TEMPLATE;
 import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE;
 import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE_2;
@@ -164,7 +197,9 @@ class PspsControllerTest {
         equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
     assertThat(
         resDelError.getErrors(),
-        hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowName)))));
+        hasItem(
+            hasProperty(
+                "message", equalTo(String.format("Flow with ID [%s] not found.", flowName)))));
   }
 
   @Test
@@ -310,7 +345,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Index of payment not match with index loaded on fdr [%s]", flowName)))));
+                        "Index of payment not match with index loaded on flow with ID [%s].",
+                        flowName)))));
   }
 
   @Test
@@ -428,7 +464,8 @@ class PspsControllerTest {
     assertThat(
         resDelError.getErrors(),
         hasItem(
-            hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowNameWrong)))));
+            hasProperty(
+                "message", equalTo(String.format("Flow with ID [%s] not found.", flowNameWrong)))));
   }
 
   @Test
@@ -475,7 +512,9 @@ class PspsControllerTest {
         equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
     assertThat(
         resDelError.getErrors(),
-        hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowName2)))));
+        hasItem(
+            hasProperty(
+                "message", equalTo(String.format("Flow with ID [%s] not found.", flowName2)))));
   }
 
   @Test
@@ -522,7 +561,9 @@ class PspsControllerTest {
     assertThat(
         resDelError.getErrors(),
         hasItem(
-            hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowNameUnknown)))));
+            hasProperty(
+                "message",
+                equalTo(String.format("Flow with ID [%s] not found.", flowNameUnknown)))));
   }
 
   @Test
@@ -570,7 +611,9 @@ class PspsControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Fdr [%s] already exist in [CREATED] status", flowName)))));
+                equalTo(
+                    String.format(
+                        "Flow with ID [%s] already exists with [CREATED] status.", flowName)))));
   }
 
   @Test
@@ -618,7 +661,8 @@ class PspsControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Fdr [%s] exist but in [CREATED] status", flowName)))));
+                equalTo(
+                    String.format("Flow with ID [%s] exists with [CREATED] status.", flowName)))));
   }
 
   @Test
@@ -667,7 +711,8 @@ class PspsControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Fdr [%s] exist but in [CREATED] status", flowName)))));
+                equalTo(
+                    String.format("Flow with ID [%s] exists with [CREATED] status.", flowName)))));
   }
 
   @Test
@@ -705,7 +750,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Fdr [%s] have sender.pspId [%s] but not match with query param [%s]",
+                        "Flow with ID [%s] have field sender.pspId [%s] that does not match with"
+                            + " query param [%s].",
                         flowName, PSP_CODE, pspNotMatch)))));
   }
 
@@ -759,7 +805,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Exist one or more payment index in same request on fdr [%s]",
+                        "There are one or more identical payment indexes in same request for flow"
+                            + " with ID [%s].",
                         flowName)))));
   }
 
@@ -805,7 +852,7 @@ class PspsControllerTest {
     assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
 
     String urlDelPays = PAYMENTS_DELETE_URL.formatted(PSP_CODE, flowName);
-    bodyFmt =fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH);
+    bodyFmt = fileUtil.getStringFromResourceAsString(PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH);
 
     ErrorResponse resDelError =
         given()
@@ -828,7 +875,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Exist one or more payment index in same request on fdr [%s]",
+                        "There are one or more identical payment indexes in same request for flow"
+                            + " with ID [%s].",
                         flowName)))));
   }
 
@@ -893,7 +941,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "One or more payment index already added on fdr [%s]", flowName)))));
+                        "One or more payment index already added on flow with ID [%s].",
+                        flowName)))));
   }
 
   @Test
@@ -958,7 +1007,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Index of payment not match with index loaded on fdr [%s]", flowName)))));
+                        "Index of payment not match with index loaded on flow with ID [%s].",
+                        flowName)))));
   }
 
   @Test
@@ -989,7 +1039,10 @@ class PspsControllerTest {
     assertThat(res.getAppErrorCode(), equalTo(PSP_UNKNOWN.errorCode()));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo(String.format("Psp [%s] unknown", pspUnknown)))));
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(String.format("PSP with ID [%s] is invalid or unknown.", pspUnknown)))));
   }
 
   @Test
@@ -1020,7 +1073,8 @@ class PspsControllerTest {
         res.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo(String.format("Psp [%s] not enabled", PSP_CODE_NOT_ENABLED)))));
+                "message",
+                equalTo(String.format("PSP with ID [%s] is not enabled.", PSP_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -1054,7 +1108,10 @@ class PspsControllerTest {
         resDelError.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo(String.format("Broker [%s] unknown", brokerPspUnknown)))));
+                "message",
+                equalTo(
+                    String.format(
+                        "PSP Broker with ID [%s] is invalid or unknown.", brokerPspUnknown)))));
   }
 
   @Test
@@ -1088,7 +1145,9 @@ class PspsControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Broker [%s] not enabled", BROKER_CODE_NOT_ENABLED)))));
+                equalTo(
+                    String.format(
+                        "PSP Broker with ID [%s] is not enabled.", BROKER_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -1121,7 +1180,10 @@ class PspsControllerTest {
         res.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo(String.format("Channel [%s] unknown", channelUnknown)))));
+                "message",
+                equalTo(
+                    String.format(
+                        "Channel with ID [%s] is invalid or unknown.", channelUnknown)))));
   }
 
   @Test
@@ -1150,7 +1212,11 @@ class PspsControllerTest {
             .as(ErrorResponse.class);
     assertThat(
         res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.CHANNEL_NOT_ENABLED.errorCode()));
-    assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("channelId.notEnabled"))));
+    assertThat(
+        res.getErrors(),
+        hasItem(
+            hasProperty(
+                "message", equalTo("Channel with ID [CANALE_NOT_ENABLED] is not enabled."))));
   }
 
   @Test
@@ -1187,7 +1253,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Channel [%s] with broker [%s] not authorized",
+                        "Channel with ID [%s] is not authorized to be used with PSP Broker with ID"
+                            + " [%s].",
                         CHANNEL_CODE, BROKER_CODE_2)))));
   }
 
@@ -1225,7 +1292,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Channel [%s] with psp [%s] not authorized", CHANNEL_CODE, PSP_CODE_2)))));
+                        "Channel with ID [%s] is not authorized to be used with PSP with ID [%s].",
+                        CHANNEL_CODE, PSP_CODE_2)))));
   }
 
   @Test
@@ -1259,7 +1327,9 @@ class PspsControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Creditor institution [%s] unknown", ecUnknown)))));
+                equalTo(
+                    String.format(
+                        "Creditor institution with ID [%s] is invalid or unknown.", ecUnknown)))));
   }
 
   @Test
@@ -1293,7 +1363,9 @@ class PspsControllerTest {
             hasProperty(
                 "message",
                 equalTo(
-                    String.format("Creditor institution [%s] not enabled", EC_CODE_NOT_ENABLED)))));
+                    String.format(
+                        "Creditor institution with ID [%s] is not enabled.",
+                        EC_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -1327,7 +1399,11 @@ class PspsControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo(String.format("Fdr [2016-aa-16%s-1176] has wrong date", PSP_CODE)))));
+                equalTo(
+                    String.format(
+                        "Flow identifier [2016-aa-16%s-1176] contains a date that is not"
+                            + " compliant.",
+                        PSP_CODE)))));
   }
 
   @Test
@@ -1358,7 +1434,12 @@ class PspsControllerTest {
         equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT.errorCode()));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo("Fdr [2016-08-16-psp-1176] has wrong psp"))));
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(
+                    "Flow identifier [2016-08-16-psp-1176] contains a PSP ID that is not"
+                        + " compliant."))));
   }
 
   @Test
@@ -1367,15 +1448,15 @@ class PspsControllerTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmt =
-            fileUtil
-                    .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_FIELDS_PATH)
-                    .formatted(
-                                flowName,
-                                SenderTypeEnum.LEGAL_PERSON.name(),
-                                PSP_CODE,
-                                BROKER_CODE,
-                                CHANNEL_CODE,
-                                EC_CODE);
+        fileUtil
+            .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_FIELDS_PATH)
+            .formatted(
+                flowName,
+                SenderTypeEnum.LEGAL_PERSON.name(),
+                PSP_CODE,
+                BROKER_CODE,
+                CHANNEL_CODE,
+                EC_CODE);
 
     ErrorResponse res =
         given()
@@ -1389,7 +1470,8 @@ class PspsControllerTest {
             .as(ErrorResponse.class);
     assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.BAD_REQUEST.errorCode()));
     assertThat(res.getErrors(), hasItem(hasProperty("message", equalTo("non deve essere null"))));
-    assertThat(res.getErrors(), hasItem(hasProperty("path", equalTo("createEmptyFlow.request.fdr"))));
+    assertThat(
+        res.getErrors(), hasItem(hasProperty("path", equalTo("createEmptyFlow.request.fdr"))));
   }
 
   @Test
@@ -1398,7 +1480,8 @@ class PspsControllerTest {
     String flowName = TestUtil.getDynamicFlowName();
     String url = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
     String wrongFormatDecimal = "0,01";
-    String bodyFmt = fileUtil
+    String bodyFmt =
+        fileUtil
             .getStringFromResourceAsString(PAYMENTS_ADD_INVALID_FORMAT_VALUE_TEMPLATE_PATH)
             .formatted(wrongFormatDecimal);
 
@@ -1421,7 +1504,8 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Bad request. Field [payments.pay] is [%s]. Not match a correct value",
+                        "Bad request. Field [payments.pay] is equals to [%s] but this is not a"
+                            + " valid value.",
                         wrongFormatDecimal)))));
   }
 
@@ -1432,16 +1516,16 @@ class PspsControllerTest {
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String wrongFormatDate = "2023-04-05";
     String bodyFmt =
-            fileUtil
-                    .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_INSTANT_PATH)
-                    .formatted(
-                                flowName,
-                                wrongFormatDate,
-                                SenderTypeEnum.LEGAL_PERSON.name(),
-                                PSP_CODE,
-                                BROKER_CODE,
-                                CHANNEL_CODE,
-                                EC_CODE);
+        fileUtil
+            .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_INSTANT_PATH)
+            .formatted(
+                flowName,
+                wrongFormatDate,
+                SenderTypeEnum.LEGAL_PERSON.name(),
+                PSP_CODE,
+                BROKER_CODE,
+                CHANNEL_CODE,
+                EC_CODE);
 
     ErrorResponse res =
         given()
@@ -1463,8 +1547,9 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Bad request. Field [fdrDate] is [%s]. Expected ISO-8601"
-                            + " [2011-12-03T10:15:30Z] [2023-04-05T09:21:37.810000Z]",
+                        "Bad request. Field [fdrDate] is equals to [%s] but it is expected to be in"
+                            + " ISO-8601 format [yyyy-MM-ddTHH:mm:ssZ] (example:"
+                            + " [2025-01-01T12:00:00.123000Z].",
                         wrongFormatDate)))));
   }
 
@@ -1497,8 +1582,9 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Bad request. Field [sender.type] is [%s]. Expected value one of"
-                            + " [LEGAL_PERSON, ABI_CODE, BIC_CODE]",
+                        "Bad request. Field [sender.type] is equals to [%s] but it is expected to"
+                            + " be one of the following values: [[LEGAL_PERSON, ABI_CODE,"
+                            + " BIC_CODE]].",
                         wrongEnum)))));
   }
 
@@ -1510,8 +1596,7 @@ class PspsControllerTest {
 
     ErrorResponse resDelError =
         given()
-            .body(fileUtil
-                    .getStringFromResourceAsString(PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE_PATH))
+            .body(fileUtil.getStringFromResourceAsString(PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE_PATH))
             .header(HEADER)
             .when()
             .put(url)
@@ -1528,8 +1613,8 @@ class PspsControllerTest {
             hasProperty(
                 "message",
                 equalTo(
-                    "Bad request. Field [payments] generate an deserialize error. Set correct"
-                        + " value"))));
+                    "Bad request. Field [payments] generate a deserialization error. Please, set"
+                        + " the correct value."))));
   }
 
   @Test
@@ -1540,8 +1625,7 @@ class PspsControllerTest {
 
     ErrorResponse res =
         given()
-            .body(fileUtil
-                    .getStringFromResourceAsString(MALFORMED_JSON_PATH))
+            .body(fileUtil.getStringFromResourceAsString(MALFORMED_JSON_PATH))
             .header(HEADER)
             .when()
             .post(url)
@@ -1554,7 +1638,9 @@ class PspsControllerTest {
         equalTo(AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_NON_VALID_FORMAT.errorCode()));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo("Bad request. Json format not valid"))));
+        hasItem(
+            hasProperty(
+                "message", equalTo("Bad request. The format of JSON request is not valid."))));
   }
 
   /** ############### getAllPublishedFlow ################ */
@@ -1641,7 +1727,10 @@ class PspsControllerTest {
     assertThat(res.getErrors(), hasSize(1));
     assertThat(
         res.getErrors(),
-        hasItem(hasProperty("message", equalTo(String.format("Psp [%s] unknown", pspUnknown)))));
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(String.format("PSP with ID [%s] is invalid or unknown.", pspUnknown)))));
   }
 
   @Test
@@ -1665,7 +1754,8 @@ class PspsControllerTest {
         res.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo("Psp [%s] not enabled".formatted(PSP_CODE_NOT_ENABLED)))));
+                "message",
+                equalTo("PSP with ID [%s] is not enabled.".formatted(PSP_CODE_NOT_ENABLED)))));
   }
 
   @Test
@@ -1690,7 +1780,10 @@ class PspsControllerTest {
         res.getErrors(),
         hasItem(
             hasProperty(
-                "message", equalTo("Creditor institution [%s] unknown".formatted(ecUnknown)))));
+                "message",
+                equalTo(
+                    "Creditor institution with ID [%s] is invalid or unknown."
+                        .formatted(ecUnknown)))));
   }
 
   @Test
@@ -1715,7 +1808,9 @@ class PspsControllerTest {
         hasItem(
             hasProperty(
                 "message",
-                equalTo("Creditor institution [%s] not enabled".formatted(EC_CODE_NOT_ENABLED)))));
+                equalTo(
+                    "Creditor institution with ID [%s] is not enabled."
+                        .formatted(EC_CODE_NOT_ENABLED)))));
   }
 
   /** ################# getReportingFlow ############### */
@@ -1884,7 +1979,6 @@ class PspsControllerTest {
 
     assertTrue(data.stream().allMatch(item -> item.getIur().equals(IUR_CODE)));
     assertTrue(data.stream().allMatch(item -> item.getPay().equals(0.01)));
-
   }
 
   @Test
@@ -1894,18 +1988,22 @@ class PspsControllerTest {
     TestUtil.pspSunnyDay(flowName);
     String url = (PSP_GET_PAYMENTS_FDR_CREATED_URL).formatted(PSP_CODE, flowName, EC_CODE);
     ErrorResponse res =
-            given()
-                    .header(HEADER)
-                    .when()
-                    .get(url)
-                    .then()
-                    .statusCode(404)
-                    .extract()
-                    .as(ErrorResponse.class);
-    assertThat(res.getAppErrorCode(), equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
+        given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(404)
+            .extract()
+            .as(ErrorResponse.class);
+    assertThat(
+        res.getAppErrorCode(),
+        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND.errorCode()));
 
     assertThat(
-            res.getErrors(),
-            hasItem(hasProperty("message", equalTo(String.format("Fdr [%s] not found", flowName)))));
+        res.getErrors(),
+        hasItem(
+            hasProperty(
+                "message", equalTo(String.format("Flow with ID [%s] not found.", flowName)))));
   }
 }

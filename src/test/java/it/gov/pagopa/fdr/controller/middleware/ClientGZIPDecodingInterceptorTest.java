@@ -24,53 +24,52 @@ import org.mockito.MockitoAnnotations;
 @QuarkusTest
 public class ClientGZIPDecodingInterceptorTest {
 
-    private ClientGZIPDecodingInterceptor interceptor;
+  private ClientGZIPDecodingInterceptor interceptor;
 
-    @Mock
-    private ReaderInterceptorContext context;
-    private FileUtil fileUtil;
-    @Mock
-    private Logger logger;
+  @Mock private ReaderInterceptorContext context;
+  private FileUtil fileUtil;
+  @Mock private Logger logger;
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        interceptor = new ClientGZIPDecodingInterceptor();
-        fileUtil = new FileUtil(logger);
-    }
+  @BeforeEach
+  public void setUp() {
+    MockitoAnnotations.openMocks(this);
+    interceptor = new ClientGZIPDecodingInterceptor();
+    fileUtil = new FileUtil(logger);
+  }
 
-    @Test
-    @DisplayName("Test aroundReadFrom method with gzip encoding")
-    public void testWithGzipEncoding() throws IOException, WebApplicationException {
+  @Test
+  @DisplayName("Test aroundReadFrom method with gzip encoding")
+  public void testWithGzipEncoding() throws IOException, WebApplicationException {
 
-        InputStream inputStream = fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
-        InputStream compressedGzipInputStream =new ByteArrayInputStream(fileUtil.compressInputStreamtoGzip(inputStream));
+    InputStream inputStream =
+        fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
+    InputStream compressedGzipInputStream =
+        new ByteArrayInputStream(fileUtil.compressInputStreamtoGzip(inputStream));
 
-        MultivaluedMap<String, String> headerMap= new MultivaluedHashMap<>();
-        headerMap.put("Content-Encoding", Collections.singletonList("gzip"));
-        when(context.getHeaders()).thenReturn(headerMap);
-        when(context.getInputStream()).thenReturn(compressedGzipInputStream);
+    MultivaluedMap<String, String> headerMap = new MultivaluedHashMap<>();
+    headerMap.put("Content-Encoding", Collections.singletonList("gzip"));
+    when(context.getHeaders()).thenReturn(headerMap);
+    when(context.getInputStream()).thenReturn(compressedGzipInputStream);
 
-        interceptor.aroundReadFrom(context);
+    interceptor.aroundReadFrom(context);
 
-        verify(context).setInputStream(any(GZIPInputStream.class));
-        verify(context).proceed();
-    }
+    verify(context).setInputStream(any(GZIPInputStream.class));
+    verify(context).proceed();
+  }
 
+  @Test
+  @DisplayName("Test aroundReadFrom method without gzip encoding")
+  public void testWithoutGzipEncoding() throws IOException, WebApplicationException {
+    InputStream inputStream =
+        fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
+    MultivaluedMap<String, String> headerMap = new MultivaluedHashMap<>();
+    headerMap.put("Content-Encoding", Collections.singletonList("identity"));
+    when(context.getHeaders()).thenReturn(headerMap);
+    when(context.getInputStream()).thenReturn(inputStream);
 
-    @Test
-    @DisplayName("Test aroundReadFrom method without gzip encoding")
-    public void testWithoutGzipEncoding() throws IOException, WebApplicationException {
-        InputStream inputStream = fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
-        MultivaluedMap<String, String> headerMap= new MultivaluedHashMap<>();
-        headerMap.put("Content-Encoding", Collections.singletonList("identity"));
-        when(context.getHeaders()).thenReturn(headerMap);
-        when(context.getInputStream()).thenReturn(inputStream);
+    interceptor.aroundReadFrom(context);
 
-        interceptor.aroundReadFrom(context);
-
-        verify(context, never()).setInputStream(any(GZIPInputStream.class));
-        verify(context).proceed();
-    }
-
+    verify(context, never()).setInputStream(any(GZIPInputStream.class));
+    verify(context).proceed();
+  }
 }

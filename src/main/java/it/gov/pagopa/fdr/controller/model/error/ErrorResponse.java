@@ -17,17 +17,25 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 public class ErrorResponse {
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  @Schema(example = "50905466-1881-457b-b42f-fb7b2bfb1610")
+  @Schema(
+      example = "50905466-1881-457b-b42f-fb7b2bfb1610",
+      description =
+          "The unique identifier that can be used for tracking request and error response.")
   private String errorId;
 
-  @Schema(example = "500")
+  @Schema(example = "500", description = "The HTTP status code related to the error message.")
   private int httpStatusCode;
 
-  @Schema(example = "Internal Server Error")
+  @Schema(
+      example = "Internal Server Error",
+      description = "The descriptive name of the HTTP status code.")
   private String httpStatusDescription;
 
-  @Schema(example = "FDR-500")
+  @Schema(
+      example = "FDR-0500",
+      description = "The operational error code related to the error response")
   private String appErrorCode;
 
+  @Schema(description = "The list of specific errors to show for the error response.")
   private List<ErrorMessage> errors;
 }

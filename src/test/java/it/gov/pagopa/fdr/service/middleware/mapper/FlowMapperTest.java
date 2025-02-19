@@ -22,195 +22,201 @@ import org.mapstruct.factory.Mappers;
 @QuarkusTest
 public class FlowMapperTest {
 
-    private final FlowMapper flowMapper= Mappers.getMapper(FlowMapper.class);
-    private final FlowEntity flowEntity = new FlowEntity();
-    @BeforeEach
-    public void setUp() {
-        flowEntity.setName("testName");
-        flowEntity.setPspDomainId("testPspId");
-        flowEntity.setRevision(1L);
-        flowEntity.setPublished(Instant.now());
-        flowEntity.setOrgDomainId("testOrgId");
-        flowEntity.setCreated(Instant.now());
-        flowEntity.setDate(Instant.now());
-        flowEntity.setTotAmount(BigDecimal.TEN);
-        flowEntity.setComputedTotAmount(BigDecimal.ONE);
-        flowEntity.setSenderType(SenderTypeEnum.LEGAL_PERSON.name());
-        flowEntity.setSenderId("testId");
-        flowEntity.setSenderPspName("testPspName");
-        flowEntity.setSenderPspBrokerId("testPspBrokerId");
-        flowEntity.setSenderChannelId("testChannelId");
-        flowEntity.setSenderPassword("testPassword");
-        flowEntity.setReceiverId("testId");
-        flowEntity.setReceiverOrganizationName("testOrgName");
-    }
+  private final FlowMapper flowMapper = Mappers.getMapper(FlowMapper.class);
+  private final FlowEntity flowEntity = new FlowEntity();
 
-    @Test
-    public void testToFlowByPSP() {
+  @BeforeEach
+  public void setUp() {
+    flowEntity.setName("testName");
+    flowEntity.setPspDomainId("testPspId");
+    flowEntity.setRevision(1L);
+    flowEntity.setPublished(Instant.now());
+    flowEntity.setOrgDomainId("testOrgId");
+    flowEntity.setCreated(Instant.now());
+    flowEntity.setDate(Instant.now());
+    flowEntity.setTotAmount(BigDecimal.TEN);
+    flowEntity.setComputedTotAmount(BigDecimal.ONE);
+    flowEntity.setSenderType(SenderTypeEnum.LEGAL_PERSON.name());
+    flowEntity.setSenderId("testId");
+    flowEntity.setSenderPspName("testPspName");
+    flowEntity.setSenderPspBrokerId("testPspBrokerId");
+    flowEntity.setSenderChannelId("testChannelId");
+    flowEntity.setSenderPassword("testPassword");
+    flowEntity.setReceiverId("testId");
+    flowEntity.setReceiverOrganizationName("testOrgName");
+  }
 
-        List<FlowByPSP> result = flowMapper.toFlowByPSP(List.of(flowEntity));
+  @Test
+  public void testToFlowByPSP() {
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("testName", result.get(0).getFdr());
-        assertEquals("testPspId", result.get(0).getPspId());
-        assertEquals(1L, result.get(0).getRevision());
-    }
+    List<FlowByPSP> result = flowMapper.toFlowByPSP(List.of(flowEntity));
 
-    @Test
-    public void testToFlowByCICreated() {
-        
-        List<FlowByCICreated> result = flowMapper.toFlowByCICreated(List.of(flowEntity));
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    assertEquals("testName", result.get(0).getFdr());
+    assertEquals("testPspId", result.get(0).getPspId());
+    assertEquals(1L, result.get(0).getRevision());
+  }
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("testName", result.get(0).getFdr());
-        assertEquals("testOrgId", result.get(0).getOrganizationId());
-        assertEquals(1L, result.get(0).getRevision());
-    }
+  @Test
+  public void testToFlowByCICreated() {
 
-    @Test
-    public void testToFlowByCIPublished() {
+    List<FlowByCICreated> result = flowMapper.toFlowByCICreated(List.of(flowEntity));
 
-        List<FlowByCIPublished> result = flowMapper.toFlowByCIPublished(List.of(flowEntity));
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    assertEquals("testName", result.get(0).getFdr());
+    assertEquals("testOrgId", result.get(0).getOrganizationId());
+    assertEquals(1L, result.get(0).getRevision());
+  }
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("testName", result.get(0).getFdr());
-        assertEquals("testOrgId", result.get(0).getOrganizationId());
-        assertEquals(1L, result.get(0).getRevision());
-    }
+  @Test
+  public void testToFlowByCIPublished() {
 
-    @Test
-    public void testToPaginatedFlowResponse() {
+    List<FlowByCIPublished> result = flowMapper.toFlowByCIPublished(List.of(flowEntity));
 
-        RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
-        when(paginatedResult.getTotalPages()).thenReturn(1);
-        when(paginatedResult.getTotalElements()).thenReturn(1L);
-        when(paginatedResult.getData()).thenReturn(List.of(flowEntity));
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    assertEquals("testName", result.get(0).getFdr());
+    assertEquals("testOrgId", result.get(0).getOrganizationId());
+    assertEquals(1L, result.get(0).getRevision());
+  }
 
-        PaginatedFlowsResponse result = flowMapper.toPaginatedFlowResponse(paginatedResult, 10, 1);
+  @Test
+  public void testToPaginatedFlowResponse() {
 
-        assertNotNull(result);
-        assertEquals(1, result.getMetadata().getTotPage());
-        assertEquals(1, result.getCount());
-        assertEquals(1, result.getData().size());
-    }
+    RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
+    when(paginatedResult.getTotalPages()).thenReturn(1);
+    when(paginatedResult.getTotalElements()).thenReturn(1L);
+    when(paginatedResult.getData()).thenReturn(List.of(flowEntity));
 
-    @Test
-    public void testToPaginatedFlowCreatedResponse() {
+    PaginatedFlowsResponse result = flowMapper.toPaginatedFlowResponse(paginatedResult, 10, 1);
 
-        RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
-        when(paginatedResult.getTotalPages()).thenReturn(1);
-        when(paginatedResult.getTotalElements()).thenReturn(1L);
-        when(paginatedResult.getData()).thenReturn(List.of(flowEntity));
+    assertNotNull(result);
+    assertEquals(1, result.getMetadata().getTotPage());
+    assertEquals(1, result.getCount());
+    assertEquals(1, result.getData().size());
+  }
 
-        PaginatedFlowsCreatedResponse result = flowMapper.toPaginatedFlowCreatedResponse(paginatedResult, 10, 1);
+  @Test
+  public void testToPaginatedFlowCreatedResponse() {
 
-        assertNotNull(result);
-        assertEquals(1, result.getMetadata().getTotPage());
-        assertEquals(1, result.getCount());
-        assertEquals(1, result.getData().size());
-    }
+    RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
+    when(paginatedResult.getTotalPages()).thenReturn(1);
+    when(paginatedResult.getTotalElements()).thenReturn(1L);
+    when(paginatedResult.getData()).thenReturn(List.of(flowEntity));
 
-    @Test
-    public void testToPaginatedFlowPublishedResponse() {
+    PaginatedFlowsCreatedResponse result =
+        flowMapper.toPaginatedFlowCreatedResponse(paginatedResult, 10, 1);
 
-        RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
-        when(paginatedResult.getTotalPages()).thenReturn(1);
-        when(paginatedResult.getTotalElements()).thenReturn(1L);
-        when(paginatedResult.getData()).thenReturn(List.of(flowEntity));
+    assertNotNull(result);
+    assertEquals(1, result.getMetadata().getTotPage());
+    assertEquals(1, result.getCount());
+    assertEquals(1, result.getData().size());
+  }
 
-        PaginatedFlowsPublishedResponse result = flowMapper.toPaginatedFlowPublishedResponse(paginatedResult, 10, 1);
+  @Test
+  public void testToPaginatedFlowPublishedResponse() {
 
-        assertNotNull(result);
-        assertEquals(1, result.getMetadata().getTotPage());
-        assertEquals(1, result.getCount());
-        assertEquals(1, result.getData().size());
-    }
+    RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
+    when(paginatedResult.getTotalPages()).thenReturn(1);
+    when(paginatedResult.getTotalElements()).thenReturn(1L);
+    when(paginatedResult.getData()).thenReturn(List.of(flowEntity));
 
-    @Test
-    public void testToSingleFlowResponse() {
+    PaginatedFlowsPublishedResponse result =
+        flowMapper.toPaginatedFlowPublishedResponse(paginatedResult, 10, 1);
 
-        SingleFlowResponse result = flowMapper.toSingleFlowResponse(flowEntity);
+    assertNotNull(result);
+    assertEquals(1, result.getMetadata().getTotPage());
+    assertEquals(1, result.getCount());
+    assertEquals(1, result.getData().size());
+  }
 
-        assertNotNull(result);
-        assertEquals("testName", result.getFdr());
-        assertEquals(10.0, result.getSumPayments());
-        assertEquals(1.0, result.getComputedSumPayments());
-    }
+  @Test
+  public void testToSingleFlowResponse() {
 
-    @Test
-    public void testToSingleFlowCreatedResponse() {
+    SingleFlowResponse result = flowMapper.toSingleFlowResponse(flowEntity);
 
-        SingleFlowCreatedResponse result = flowMapper.toSingleFlowCreatedResponse(flowEntity);
+    assertNotNull(result);
+    assertEquals("testName", result.getFdr());
+    assertEquals(10.0, result.getSumPayments());
+    assertEquals(1.0, result.getComputedSumPayments());
+  }
 
-        assertNotNull(result);
-        assertEquals("testName", result.getFdr());
-        assertEquals(10.0, result.getSumPayments());
-        assertEquals(1.0, result.getComputedSumPayments());
-    }
+  @Test
+  public void testToSingleFlowCreatedResponse() {
 
-    @Test
-    public void testToSender() {
+    SingleFlowCreatedResponse result = flowMapper.toSingleFlowCreatedResponse(flowEntity);
 
-        Sender result = flowMapper.toSender(flowEntity);
+    assertNotNull(result);
+    assertEquals("testName", result.getFdr());
+    assertEquals(10.0, result.getSumPayments());
+    assertEquals(1.0, result.getComputedSumPayments());
+  }
 
-        assertNotNull(result);
-        assertEquals(SenderTypeEnum.LEGAL_PERSON.name(), result.getType().name());
-        assertEquals("testId", result.getId());
-        assertEquals("testPspId", result.getPspId());
-        assertEquals("testPspName", result.getPspName());
-        assertEquals("testPspBrokerId", result.getPspBrokerId());
-        assertEquals("testChannelId", result.getChannelId());
-        assertEquals("testPassword", result.getPassword());
-    }
+  @Test
+  public void testToSender() {
 
-    @Test
-    public void testToReceiver() {
-       
-        Receiver result = flowMapper.toReceiver(flowEntity);
+    Sender result = flowMapper.toSender(flowEntity);
 
-        assertNotNull(result);
-        assertEquals("testId", result.getId());
-        assertEquals("testOrgId", result.getOrganizationId());
-        assertEquals("testOrgName", result.getOrganizationName());
-    }
+    assertNotNull(result);
+    assertEquals(SenderTypeEnum.LEGAL_PERSON.name(), result.getType().name());
+    assertEquals("testId", result.getId());
+    assertEquals("testPspId", result.getPspId());
+    assertEquals("testPspName", result.getPspName());
+    assertEquals("testPspBrokerId", result.getPspBrokerId());
+    assertEquals("testChannelId", result.getChannelId());
+    assertEquals("testPassword", result.getPassword());
+  }
 
-    @Test
-    public void testToEntity() {
-        Sender sender = Sender.builder()
-                .id("testSenderId")
-                .type(SenderTypeEnum.LEGAL_PERSON)
-                .pspId("testPspId")
-                .pspBrokerId("testPspBrokerId")
-                .channelId("testChannelId")
-                .pspName("testPspName")
-                .password("testPassword")
-                .build();
-        Receiver receiver = Receiver.builder()
-                .id("testReceiverId")
-                .organizationId("testOrgId")
-                .organizationName("testOrgName")
-                .build();
-        CreateFlowRequest request = CreateFlowRequest.builder()
-                .fdr("testFdr")
-                .fdrDate(Instant.now())
-                .sumPayments(100.0)
-                .totPayments(10L)
-                .regulation("testRegulation")
-                .regulationDate(Instant.now())
-                .bicCodePouringBank("testBicCode")
-                .sender(sender)
-                .receiver(receiver)
-                .build();
+  @Test
+  public void testToReceiver() {
 
-        FlowEntity result = flowMapper.toEntity(request, 1L);
+    Receiver result = flowMapper.toReceiver(flowEntity);
 
-        assertNotNull(result);
-        assertEquals("testFdr", result.getName());
-        assertEquals(1L, result.getRevision());
-        assertEquals("testSenderId", result.getSenderId());
-        assertEquals("testReceiverId", result.getReceiverId());
-    }
+    assertNotNull(result);
+    assertEquals("testId", result.getId());
+    assertEquals("testOrgId", result.getOrganizationId());
+    assertEquals("testOrgName", result.getOrganizationName());
+  }
+
+  @Test
+  public void testToEntity() {
+    Sender sender =
+        Sender.builder()
+            .id("testSenderId")
+            .type(SenderTypeEnum.LEGAL_PERSON)
+            .pspId("testPspId")
+            .pspBrokerId("testPspBrokerId")
+            .channelId("testChannelId")
+            .pspName("testPspName")
+            .password("testPassword")
+            .build();
+    Receiver receiver =
+        Receiver.builder()
+            .id("testReceiverId")
+            .organizationId("testOrgId")
+            .organizationName("testOrgName")
+            .build();
+    CreateFlowRequest request =
+        CreateFlowRequest.builder()
+            .fdr("testFdr")
+            .fdrDate(Instant.now())
+            .sumPayments(100.0)
+            .totPayments(10L)
+            .regulation("testRegulation")
+            .regulationDate(Instant.now())
+            .bicCodePouringBank("testBicCode")
+            .sender(sender)
+            .receiver(receiver)
+            .build();
+
+    FlowEntity result = flowMapper.toEntity(request, 1L);
+
+    assertNotNull(result);
+    assertEquals("testFdr", result.getName());
+    assertEquals(1L, result.getRevision());
+    assertEquals("testSenderId", result.getSenderId());
+    assertEquals("testReceiverId", result.getReceiverId());
+  }
 }
