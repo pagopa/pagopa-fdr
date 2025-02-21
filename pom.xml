@@ -17,19 +17,6 @@
     <quarkus.platform.version>3.17.7</quarkus.platform.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
-    <sonar.junit.reportsPath>target/jacoco-report</sonar.junit.reportsPath>
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.binaries>target/classes</sonar.binaries>
-    <sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-    <sonar.sources>src/main</sonar.sources>
-    <sonar.coverage.exclusions>
-          **/enums/**,**/constant/**,
-          org/openapi/quarkus/**,org/openapi/**,
-          **/enums/**,**/constant/**,
-          **/util/openapi/**,
-          **/util/error/exception/persistence/**,
-          **/**Enum.java
-    </sonar.coverage.exclusions>
   </properties>
   <dependencyManagement>
     <dependencies>
