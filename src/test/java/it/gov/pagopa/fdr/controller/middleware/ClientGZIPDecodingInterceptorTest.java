@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 @QuarkusTest
- class ClientGZIPDecodingInterceptorTest {
+class ClientGZIPDecodingInterceptorTest {
 
   private ClientGZIPDecodingInterceptor interceptor;
 
@@ -31,7 +31,7 @@ import org.mockito.MockitoAnnotations;
   @Mock private Logger logger;
 
   @BeforeEach
-   void setUp() {
+  void setUp() {
     MockitoAnnotations.openMocks(this);
     interceptor = new ClientGZIPDecodingInterceptor();
     fileUtil = new FileUtil(logger);
@@ -39,7 +39,7 @@ import org.mockito.MockitoAnnotations;
 
   @Test
   @DisplayName("Test aroundReadFrom method with gzip encoding")
-   void testWithGzipEncoding() throws IOException, WebApplicationException {
+  void testWithGzipEncoding() throws IOException, WebApplicationException {
 
     InputStream inputStream =
         fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
@@ -59,7 +59,7 @@ import org.mockito.MockitoAnnotations;
 
   @Test
   @DisplayName("Test aroundReadFrom method without gzip encoding")
-   void testWithoutGzipEncoding() throws IOException, WebApplicationException {
+  void testWithoutGzipEncoding() throws IOException, WebApplicationException {
     InputStream inputStream =
         fileUtil.getFileFromResourceAsStream("json-test-templates/general/test.json");
     MultivaluedMap<String, String> headerMap = new MultivaluedHashMap<>();

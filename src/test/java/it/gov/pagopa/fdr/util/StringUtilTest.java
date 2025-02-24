@@ -9,11 +9,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
- class StringUtilTest {
+class StringUtilTest {
 
   @Test
   @DisplayName("StringUtil - Test zip")
-   void testZip() throws IOException {
+  void testZip() throws IOException {
     String input = "Hello, World!";
     byte[] compressed = StringUtil.zip(input);
     assertNotNull(compressed);
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
   @Test
   @DisplayName("StringUtil - Test sanitize")
-   void testSanitize() {
+  void testSanitize() {
     String input = "Hello\nWorld\rTest\t'\"\\";
     String expected = "Hello_World_Test____";
     String sanitized = StringUtil.sanitize(input);

@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 @QuarkusTest
- class FlowMapperTest {
+class FlowMapperTest {
 
   private final FlowMapper flowMapper = Mappers.getMapper(FlowMapper.class);
   private final FlowEntity flowEntity = new FlowEntity();
 
   @BeforeEach
-   void setUp() {
+  void setUp() {
     flowEntity.setName("testName");
     flowEntity.setPspDomainId("testPspId");
     flowEntity.setRevision(1L);
@@ -47,7 +47,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToFlowByPSP() {
+  void testToFlowByPSP() {
 
     List<FlowByPSP> result = flowMapper.toFlowByPSP(List.of(flowEntity));
 
@@ -59,7 +59,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToFlowByCICreated() {
+  void testToFlowByCICreated() {
 
     List<FlowByCICreated> result = flowMapper.toFlowByCICreated(List.of(flowEntity));
 
@@ -71,7 +71,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToFlowByCIPublished() {
+  void testToFlowByCIPublished() {
 
     List<FlowByCIPublished> result = flowMapper.toFlowByCIPublished(List.of(flowEntity));
 
@@ -83,7 +83,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToPaginatedFlowResponse() {
+  void testToPaginatedFlowResponse() {
 
     RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
     when(paginatedResult.getTotalPages()).thenReturn(1);
@@ -155,7 +155,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToSender() {
+  void testToSender() {
 
     Sender result = flowMapper.toSender(flowEntity);
 
@@ -170,7 +170,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToReceiver() {
+  void testToReceiver() {
 
     Receiver result = flowMapper.toReceiver(flowEntity);
 
@@ -181,7 +181,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToEntity() {
+  void testToEntity() {
     Sender sender =
         Sender.builder()
             .id("testSenderId")
