@@ -42,6 +42,6 @@ jobs:
           project_key: ${{env.PROJECT_KEY}}
           coverage_exclusions: "**/config/*,**/*Mock*,**/models/**,**/model/**,**/entities/*,org/openapi/**,**/enums/**,**/constant/**,**/util/openapi/**,**/util/error/exception/persistence/**,**/**Enum.java,**/**Constants.java"
           coverage_report_path: "target/jacoco-report/jacoco.xml"
-          cpd_exclusions: "**/models/**,**/entities/*"
+          cpd_exclusions: "**/model/**,**/models/**,**/entities/*"
           java_distribution: "graalvm"
           java_version: "17.0.7"
