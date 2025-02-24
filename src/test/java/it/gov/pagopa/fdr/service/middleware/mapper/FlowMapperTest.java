@@ -116,7 +116,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToPaginatedFlowPublishedResponse() {
+  void testToPaginatedFlowPublishedResponse() {
 
     RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
     when(paginatedResult.getTotalPages()).thenReturn(1);
