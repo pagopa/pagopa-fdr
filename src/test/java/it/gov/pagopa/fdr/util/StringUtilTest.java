@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.util.common.StringUtil;
 import java.io.IOException;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
