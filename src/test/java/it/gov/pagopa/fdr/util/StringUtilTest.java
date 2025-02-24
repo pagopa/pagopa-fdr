@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 
   @Test
   @DisplayName("StringUtil - Test isNullOrBlank")
-   void testIsNullOrBlank() {
+  void testIsNullOrBlank() {
     assertTrue(StringUtil.isNullOrBlank(null));
     assertTrue(StringUtil.isNullOrBlank(""));
     assertTrue(StringUtil.isNullOrBlank("   "));
