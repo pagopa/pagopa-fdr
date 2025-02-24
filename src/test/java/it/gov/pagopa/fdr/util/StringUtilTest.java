@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Test;
 
   @Test
   @DisplayName("StringUtil - Test insertCharacterAfter")
-   void testInsertCharacterAfter() {
+  void testInsertCharacterAfter() {
     String input = "a,b,c,d,e,f,g,h";
     String expected = "a,b,|c,d,|e,f,|g,h";
     String result = StringUtil.insertCharacterAfter(input, "|", 2, ',');
