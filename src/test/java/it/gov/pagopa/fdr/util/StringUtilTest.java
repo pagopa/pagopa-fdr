@@ -9,11 +9,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class StringUtilTest {
+ class StringUtilTest {
 
   @Test
   @DisplayName("StringUtil - Test zip")
-  public void testZip() throws IOException {
+   void testZip() throws IOException {
     String input = "Hello, World!";
     byte[] compressed = StringUtil.zip(input);
     assertNotNull(compressed);
@@ -22,7 +22,7 @@ public class StringUtilTest {
 
   @Test
   @DisplayName("StringUtil - Test sanitize")
-  public void testSanitize() {
+   void testSanitize() {
     String input = "Hello\nWorld\rTest\t'\"\\";
     String expected = "Hello_World_Test____";
     String sanitized = StringUtil.sanitize(input);
@@ -31,14 +31,14 @@ public class StringUtilTest {
 
   @Test
   @DisplayName("StringUtil - Test sanitize with null input")
-  public void testSanitize_NullInput() {
+   void testSanitize_NullInput() {
     String sanitized = StringUtil.sanitize(null);
     assertNull(sanitized);
   }
 
   @Test
   @DisplayName("StringUtil - Test isNullOrBlank")
-  public void testIsNullOrBlank() {
+   void testIsNullOrBlank() {
     assertTrue(StringUtil.isNullOrBlank(null));
     assertTrue(StringUtil.isNullOrBlank(""));
     assertTrue(StringUtil.isNullOrBlank("   "));
@@ -47,7 +47,7 @@ public class StringUtilTest {
 
   @Test
   @DisplayName("StringUtil - Test insertCharacterAfter")
-  public void testInsertCharacterAfter() {
+   void testInsertCharacterAfter() {
     String input = "a,b,c,d,e,f,g,h";
     String expected = "a,b,|c,d,|e,f,|g,h";
     String result = StringUtil.insertCharacterAfter(input, "|", 2, ',');

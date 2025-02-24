@@ -12,13 +12,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-public class TechnicalSupportMapperTest {
+ class TechnicalSupportMapperTest {
 
   private final TechnicalSupportMapper mapper = Mappers.getMapper(TechnicalSupportMapper.class);
   private final PaymentEntity paymentEntity = new PaymentEntity();
 
   @BeforeEach
-  public void setUp() {
+   void setUp() {
     paymentEntity.setFlow(new FlowEntity());
     paymentEntity.getFlow().setPspDomainId("psp123");
     paymentEntity.getFlow().setOrgDomainId("org123");

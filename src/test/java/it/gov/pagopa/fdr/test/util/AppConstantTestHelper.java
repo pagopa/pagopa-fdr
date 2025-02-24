@@ -63,6 +63,7 @@ public class AppConstantTestHelper {
   public static final Header HEADER = new Header("Content-Type", "application/json");
 
   public static final String APP_NAME = "pagopafdr";
+  public static final String TEST_STRING = "test";
 
   //  json template paths section
   public static final String JSON_TEST_TEMPLATES_PATH = "json-test-templates";

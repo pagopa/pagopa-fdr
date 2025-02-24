@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(PostgresResource.class)
-public class FlowRepositoryTest {
+ class FlowRepositoryTest {
 
   @Inject FlowRepository flowRepository;
 
   @Test
   @DisplayName("FlowRepositoryTest OK - findPublishedByPspIdAndOptionalOrganizationId")
-  public void testFindPublishedByPspIdAndOptionalOrganizationId() {
+   void testFindPublishedByPspIdAndOptionalOrganizationId() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
 
@@ -55,7 +55,7 @@ public class FlowRepositoryTest {
 
   @Test
   @DisplayName("FlowRepositoryTest OK - findUnpublishedByOrganizationIdAndPspIdAndName")
-  public void testFindUnpublishedByOrganizationIdAndPspIdAndName() {
+   void testFindUnpublishedByOrganizationIdAndPspIdAndName() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspCreateUnpublishedFlow(flowName);
 

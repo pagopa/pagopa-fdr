@@ -60,7 +60,7 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(MockServerTestResource.class)
 @QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
-public class InternalOperationControllerTest {
+ class InternalOperationControllerTest {
 
   private FileUtil fileUtil;
 

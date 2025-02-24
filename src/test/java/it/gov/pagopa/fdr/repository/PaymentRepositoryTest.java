@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(PostgresResource.class)
-public class PaymentRepositoryTest {
+ class PaymentRepositoryTest {
 
   @Inject PaymentRepository paymentRepository;
 
   @Test
   @DisplayName("PaymentRepositoryTest OK - findByPspAndIuvAndIur")
-  public void testFindByPspAndIuvAndIur() {
+   void testFindByPspAndIuvAndIur() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
 
@@ -43,7 +43,7 @@ public class PaymentRepositoryTest {
 
   @Test
   @DisplayName("PaymentRepositoryTest OK - findByFlowId")
-  public void findByFlowId() {
+   void findByFlowId() {
 
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
