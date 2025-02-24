@@ -8,7 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class FlowEntityTest {
+class FlowEntityTest {
 
   private FlowEntity flowEntity;
 
@@ -21,7 +21,7 @@ public class FlowEntityTest {
 
   @Test
   @DisplayName("FlowEntityTest addOnComputedTotAmount")
-  public void addOnComputedTotAmountTest() {
+  void addOnComputedTotAmountTest() {
 
     Assertions.assertEquals(BigDecimal.ZERO, flowEntity.getComputedTotAmount());
 
@@ -37,7 +37,7 @@ public class FlowEntityTest {
 
   @Test
   @DisplayName("FlowEntityTest addOnComputedTotAmount")
-  public void computedTotPaymentsTest() {
+  void computedTotPaymentsTest() {
 
     Assertions.assertEquals(0L, flowEntity.getComputedTotPayments());
 

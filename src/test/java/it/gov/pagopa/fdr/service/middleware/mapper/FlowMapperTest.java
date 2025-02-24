@@ -20,13 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 @QuarkusTest
-public class FlowMapperTest {
+class FlowMapperTest {
 
   private final FlowMapper flowMapper = Mappers.getMapper(FlowMapper.class);
   private final FlowEntity flowEntity = new FlowEntity();
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     flowEntity.setName("testName");
     flowEntity.setPspDomainId("testPspId");
     flowEntity.setRevision(1L);
@@ -47,7 +47,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToFlowByPSP() {
+  void testToFlowByPSP() {
 
     List<FlowByPSP> result = flowMapper.toFlowByPSP(List.of(flowEntity));
 
@@ -59,7 +59,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToFlowByCICreated() {
+  void testToFlowByCICreated() {
 
     List<FlowByCICreated> result = flowMapper.toFlowByCICreated(List.of(flowEntity));
 
@@ -71,7 +71,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToFlowByCIPublished() {
+  void testToFlowByCIPublished() {
 
     List<FlowByCIPublished> result = flowMapper.toFlowByCIPublished(List.of(flowEntity));
 
@@ -83,7 +83,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToPaginatedFlowResponse() {
+  void testToPaginatedFlowResponse() {
 
     RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
     when(paginatedResult.getTotalPages()).thenReturn(1);
@@ -99,7 +99,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToPaginatedFlowCreatedResponse() {
+  void testToPaginatedFlowCreatedResponse() {
 
     RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
     when(paginatedResult.getTotalPages()).thenReturn(1);
@@ -116,7 +116,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToPaginatedFlowPublishedResponse() {
+  void testToPaginatedFlowPublishedResponse() {
 
     RepositoryPagedResult<FlowEntity> paginatedResult = mock(RepositoryPagedResult.class);
     when(paginatedResult.getTotalPages()).thenReturn(1);
@@ -133,7 +133,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToSingleFlowResponse() {
+  void testToSingleFlowResponse() {
 
     SingleFlowResponse result = flowMapper.toSingleFlowResponse(flowEntity);
 
@@ -144,7 +144,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToSingleFlowCreatedResponse() {
+  void testToSingleFlowCreatedResponse() {
 
     SingleFlowCreatedResponse result = flowMapper.toSingleFlowCreatedResponse(flowEntity);
 
@@ -155,7 +155,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToSender() {
+  void testToSender() {
 
     Sender result = flowMapper.toSender(flowEntity);
 
@@ -170,7 +170,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToReceiver() {
+  void testToReceiver() {
 
     Receiver result = flowMapper.toReceiver(flowEntity);
 
@@ -181,7 +181,7 @@ public class FlowMapperTest {
   }
 
   @Test
-  public void testToEntity() {
+  void testToEntity() {
     Sender sender =
         Sender.builder()
             .id("testSenderId")

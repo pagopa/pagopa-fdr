@@ -19,13 +19,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-class ExceptionMappersTest {
-
-  private ExceptionMappers exceptionMappers;
+class ExceptionMapperTest {
 
   private final String errorMessage = AppMessageUtil.getMessage("system.error");
   private final String invalidJsonErrorMessage =
       AppMessageUtil.getMessage("bad.request.inputJson.notValidJsonFormat");
+  private ExceptionMappers exceptionMappers;
 
   @BeforeEach
   void setUp() {
