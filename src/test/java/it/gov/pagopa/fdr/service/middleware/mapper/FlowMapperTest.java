@@ -144,7 +144,7 @@ import org.mapstruct.factory.Mappers;
   }
 
   @Test
-   void testToSingleFlowCreatedResponse() {
+  void testToSingleFlowCreatedResponse() {
 
     SingleFlowCreatedResponse result = flowMapper.toSingleFlowCreatedResponse(flowEntity);
 
