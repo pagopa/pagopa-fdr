@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
   @Test
   @DisplayName("StringUtil - Test sanitize with null input")
-   void testSanitize_NullInput() {
+  void testSanitize_NullInput() {
     String sanitized = StringUtil.sanitize(null);
     assertNull(sanitized);
   }
