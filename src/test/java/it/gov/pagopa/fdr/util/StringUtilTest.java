@@ -5,12 +5,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.util.common.StringUtil;
 import java.io.IOException;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 public class StringUtilTest {
 
   @Test
+  @DisplayName("StringUtil - Test zip")
   public void testZip() throws IOException {
     String input = "Hello, World!";
     byte[] compressed = StringUtil.zip(input);
@@ -19,6 +22,7 @@ public class StringUtilTest {
   }
 
   @Test
+  @DisplayName("StringUtil - Test sanitize")
   public void testSanitize() {
     String input = "Hello\nWorld\rTest\t'\"\\";
     String expected = "Hello_World_Test____";
@@ -27,16 +31,37 @@ public class StringUtilTest {
   }
 
   @Test
+  @DisplayName("StringUtil - Test sanitize with null input")
   public void testSanitize_NullInput() {
     String sanitized = StringUtil.sanitize(null);
     assertNull(sanitized);
   }
 
   @Test
+  @DisplayName("StringUtil - Test isNullOrBlank")
   public void testIsNullOrBlank() {
     assertTrue(StringUtil.isNullOrBlank(null));
     assertTrue(StringUtil.isNullOrBlank(""));
     assertTrue(StringUtil.isNullOrBlank("   "));
     assertFalse(StringUtil.isNullOrBlank("Hello"));
+  }
+
+  @Test
+  @DisplayName("StringUtil - Test insertCharacterAfter")
+  public void testInsertCharacterAfter() {
+    String input = "a,b,c,d,e,f,g,h";
+    String expected = "a,b,|c,d,|e,f,|g,h";
+    String result = StringUtil.insertCharacterAfter(input, "|", 2, ',');
+    assertEquals(expected, result);
+
+    input = "a,b,c,d,e,f,g,h";
+    expected = "a,|b,|c,|d,|e,|f,|g,|h";
+    result = StringUtil.insertCharacterAfter(input, "|", 1, ',');
+    assertEquals(expected, result);
+
+    input = "a,b,c,d,e,f,g,h";
+    expected = "a,b,c,d,e,f,|g,h";
+    result = StringUtil.insertCharacterAfter(input, "|", 10, ',');
+    assertEquals(expected, result);
   }
 }
