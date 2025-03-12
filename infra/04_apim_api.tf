@@ -152,7 +152,7 @@ module "apim_api_fdr_api_v1_internal" {
 #####################################
 
 resource "azurerm_api_management_api_operation_policy" "fdr3_add_payments_rate_limit" { # aka addUserReceipt
-  api_name            = "${local.project}-add-payments"
+  api_name            = "${local.project}-fdr-service-api-psp-v1"
   resource_group_name = local.apim.rg
   api_management_name = local.apim.name
   operation_id        = "IPspsController_addPaymentToExistingFlow"
@@ -162,7 +162,7 @@ resource "azurerm_api_management_api_operation_policy" "fdr3_add_payments_rate_l
 }
 
 resource "azurerm_api_management_api_operation_policy" "fdr3_delete_payments_rate_limit" { # aka addUserReceipt
-  api_name            = "${local.project}-delete-payments"
+  api_name            = "${local.project}-fdr-service-api-psp-v1"
   resource_group_name = local.apim.rg
   api_management_name = local.apim.name
   operation_id        = "IPspsController_deletePaymentFromExistingFlow"
