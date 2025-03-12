@@ -54,7 +54,7 @@ public interface IPspsController {
   @POST
   @Path(ControllerConstants.URL_API_CREATE_EMPTY_FLOW)
   @Operation(
-      operationId = "IPspsController.createEmptyFlow",
+      operationId = "IPspsController_createEmptyFlow",
       summary = "Create a new flow structure",
       description =
           """
@@ -146,7 +146,7 @@ and PSP. Also, the name of the flow is validated against a specific standard for
   @PUT
   @Path(ControllerConstants.URL_API_ADD_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "IPspsController.addPaymentToExistingFlow",
+      operationId = "IPspsController_addPaymentToExistingFlow",
       summary = "Add one or more payments to an existing flow",
       description =
           """
@@ -232,7 +232,7 @@ against a specific standard format.<br>
   @PUT
   @Path(ControllerConstants.URL_API_DELETE_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "IPspsController.deletePaymentFromExistingFlow",
+      operationId = "IPspsController_deletePaymentFromExistingFlow",
       summary = "Delete one or more payments from an existing flow",
       description =
           """
