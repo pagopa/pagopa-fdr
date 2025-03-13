@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -52,13 +53,19 @@ public class ExceptionMappers {
     AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
     RestResponse.Status status = codeMessage.httpStatus();
     String message = codeMessage.message(appEx.getArgs());
+    Object path = appEx.getPath();
+
+    ErrorMessage errorMessage = ErrorMessage.builder()
+              .path(Objects.nonNull(path) ? path.toString() : null)
+              .message(message)
+              .build();
 
     ErrorResponse errorResponse =
         ErrorResponse.builder()
             .httpStatusCode(status.getStatusCode())
             .httpStatusDescription(status.getReasonPhrase())
             .appErrorCode(codeMessage.errorCode())
-            .errors(List.of(ErrorMessage.builder().message(message).build()))
+            .errors(List.of(errorMessage))
             .build();
 
     return RestResponse.status(codeMessage.httpStatus(), errorResponse);

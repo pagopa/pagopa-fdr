@@ -13,7 +13,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder({"path", "message"})
+@JsonPropertyOrder({"path", "message", "data"})
 @RegisterForReflection
 public class ErrorMessage {
 
