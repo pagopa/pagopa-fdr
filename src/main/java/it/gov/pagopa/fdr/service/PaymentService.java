@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
 
@@ -170,8 +171,13 @@ public class PaymentService {
     long numberOfAlreadyUsedIndexes =
         paymentRepository.countByFlowIdAndIndexes(publishingFlow.getId(), indexes);
     if (numberOfAlreadyUsedIndexes > 0) {
+      List<PaymentEntity> indexesAlreadyAdded = paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+      List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX, flowName);
+              AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+              flowName,
+              StringUtils.join(conflictingIndexes, ',')
+      );
     }
 
     // create all entities in batch, from each payment to be added, in transactional way
