@@ -54,10 +54,11 @@ public class ExceptionMappers {
     String message = codeMessage.message(appEx.getArgs());
     Object path = appEx.getPath();
 
-    ErrorMessage errorMessage = ErrorMessage.builder()
-              .path(Objects.nonNull(path) ? path.toString() : null)
-              .message(message)
-              .build();
+    ErrorMessage errorMessage =
+        ErrorMessage.builder()
+            .path(Objects.nonNull(path) ? path.toString() : null)
+            .message(message)
+            .build();
 
     ErrorResponse errorResponse =
         ErrorResponse.builder()
