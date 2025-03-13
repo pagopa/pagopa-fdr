@@ -40,7 +40,7 @@ public interface IOrganizationsController {
 
   @GET
   @Operation(
-      operationId = "IOrganizationsController.getAllPublishedFlows",
+      operationId = "IOrganizationsController_getAllPublishedFlows",
       summary = "Get all published flow related to creditor institution",
       description =
           """
@@ -136,7 +136,7 @@ The result of the query is paginated and contains all the metadata needed for pa
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_FLOW)
   @Operation(
-      operationId = "IOrganizationsController.getSinglePublishedFlow",
+      operationId = "IOrganizationsController_getSinglePublishedFlow",
       summary =
           "Get single published flow related to creditor institution, searching by name and"
               + " revision",
@@ -228,7 +228,7 @@ the name of the flow is validated against a specific standard format.<br>
   @GET
   @Path(ControllerConstants.URL_API_GET_FLOW_PAYMENTS)
   @Operation(
-      operationId = "IOrganizationsController.getPaymentsFromPublishedFlow",
+      operationId = "IOrganizationsController_getPaymentsFromPublishedFlow",
       summary =
           "Get all payments of single published flow related to creditor institution, searching by"
               + " name and revision",
