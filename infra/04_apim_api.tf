@@ -151,7 +151,7 @@ module "apim_api_fdr_api_v1_internal" {
 ##  Policies for specific APIs     ##
 #####################################
 
-resource "azurerm_api_management_api_operation_policy" "fdr3_add_payments_rate_limit" { # aka addUserReceipt
+resource "azurerm_api_management_api_operation_policy" "fdr3_add_payments_rate_limit" {
   api_name            = "${local.project}-fdr-service-api-psp-v1"
   resource_group_name = local.apim.rg
   api_management_name = local.apim.name
@@ -161,7 +161,7 @@ resource "azurerm_api_management_api_operation_policy" "fdr3_add_payments_rate_l
   })
 }
 
-resource "azurerm_api_management_api_operation_policy" "fdr3_delete_payments_rate_limit" { # aka addUserReceipt
+resource "azurerm_api_management_api_operation_policy" "fdr3_delete_payments_rate_limit" {
   api_name            = "${local.project}-fdr-service-api-psp-v1"
   resource_group_name = local.apim.rg
   api_management_name = local.apim.name
