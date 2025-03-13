@@ -175,10 +175,9 @@ public class PaymentService {
       List<Long> conflictingIndexes =
           indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
       throw new AppException(
-              AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
-              conflictingIndexes,
-              flowName
-      );
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+          conflictingIndexes,
+          flowName);
     }
 
     // create all entities in batch, from each payment to be added, in transactional way
