@@ -33,20 +33,20 @@ const paymentsInFlow = `${__ENV.PAYMENTS_IN_FLOW}`;
 const totalAmount = paymentsInFlow * 100.00;
 const numberOfPartitions = 1 + (paymentsInFlow / 1000);
 
-const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
-
-var params = {
-  tags: { 'api_name': '' },
-  headers: {
-    'Content-Type': 'application/json',
-    'Ocp-Apim-Subscription-Key': subscriptionKey
-  },
-};
+const subscriptionKeyPSP = `${__ENV.API_SUBSCRIPTION_KEY_PSP}`;
+const subscriptionKeyOrg = `${__ENV.API_SUBSCRIPTION_KEY_ORG}`;
 
 // Predefined organizations ID
 const predefinedOrgIds = ["77777777777", "88888888888", "15376371009"];
 
 export function setup() {
+  var params = {
+    tags: { 'api_name': '' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Ocp-Apim-Subscription-Key': subscriptionKeyPSP
+    },
+  };
   // Before All
   for (let i = 0; i < 3; i++) {
     requestValues.creditorInstitutionDomainId = predefinedOrgIds[i];
@@ -59,6 +59,14 @@ export function setup() {
 }
 
 export default function () {
+  var params = {
+    tags: { 'api_name': '' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Ocp-Apim-Subscription-Key': subscriptionKeyOrg
+    },
+  };
+
   const selectedId = randomItem(predefinedOrgIds);
   requestValues.creditorInstitutionDomainId = selectedId;
   requestValues.creditorInstitutionName = selectedId;
