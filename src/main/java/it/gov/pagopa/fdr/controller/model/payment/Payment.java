@@ -20,6 +20,7 @@ public class Payment {
 
   @NotNull
   @Min(value = 1)
+  @Max(value = 19)
   @Schema(example = "1", description = "Unique index of the payment in the flow")
   private Long index;
 

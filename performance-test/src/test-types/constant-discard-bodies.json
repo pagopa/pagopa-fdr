@@ -1,5 +1,5 @@
 {
-  "discardResponseBodies": false,
+  "discardResponseBodies": true,
   "scenarios": {
     "contacts": {
       "executor": "constant-arrival-rate",

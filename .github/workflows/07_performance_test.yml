@@ -20,6 +20,7 @@ on:
         description: Select the Test Type
         options:
           - constant
+          - constant-discard-bodies
           - load
           - ramping
           - smoke
@@ -33,6 +34,7 @@ on:
         options:
           - create_flow_sequential
           - create_flow_parallel
+          - get_flow
       flow-size:
         required: true
         type: number
