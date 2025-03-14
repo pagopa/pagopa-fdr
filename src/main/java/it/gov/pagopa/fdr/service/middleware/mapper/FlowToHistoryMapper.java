@@ -19,7 +19,7 @@ public interface FlowToHistoryMapper {
     entity.setPspId(flow.pspDomainId);
     entity.setName(flow.getName());
     entity.setRevision(flow.getRevision());
-    entity.setIsExternal(isInternal);
+    entity.setIsExternal(!isInternal);
     entity.setCreated(now);
     entity.setLastExecution(now);
     entity.setRetries(0);
