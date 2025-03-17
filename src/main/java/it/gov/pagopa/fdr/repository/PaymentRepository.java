@@ -93,14 +93,27 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     try (PreparedStatement preparedStatement =
         session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
 
+      int chunkSize = 100;  // Define the batch size
+      int chunkCount = 0;   // Counter to track the batch size
+
       for (PaymentEntity payment : entityBatch) {
         payment.exportInPreparedStatement(preparedStatement);
         preparedStatement.addBatch();
+        chunkCount++;
+
+        // If we've added 100 entities, execute the batch and reset the counter
+        if (chunkCount % chunkSize == 0) {
+          preparedStatement.executeBatch();
+          chunkCount = 0;  // Reset the batch counter
+        }
       }
-      preparedStatement.executeBatch();
+
+      // Execute any remaining chunk if the list size isn't a multiple of chunkSize
+      if (chunkCount > 0) {
+        preparedStatement.executeBatch();
+      }
 
     } catch (SQLException e) {
-
       log.error("An error occurred while executing payments bulk insert", e);
       throw e;
     }

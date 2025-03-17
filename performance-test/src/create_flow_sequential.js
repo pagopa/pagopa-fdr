@@ -31,7 +31,7 @@ const paymentsInFlow = `${__ENV.PAYMENTS_IN_FLOW}`;
 const totalAmount = paymentsInFlow * 100.00;
 const numberOfPartitions = 1 + (paymentsInFlow / 1000);
 
-const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
+const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY_PSP}`;
 
 
 var params = {};
