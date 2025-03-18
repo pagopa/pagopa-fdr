@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr.repository.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import it.gov.pagopa.fdr.repository.enums.FlowToHistoryStatusEnum;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.Data;
@@ -23,41 +22,41 @@ public class FlowToHistoryEntity extends PanacheEntityBase {
   private Long id;
 
   @Column(name = "psp_id")
-  public String pspId;
+  private String pspId;
 
   @Column(name = "name")
-  public String name;
+  private String name;
 
   @Column(name = "revision")
-  public Long revision;
+  private Long revision;
 
   @Column(name = "is_external")
-  public Boolean isExternal;
+  private Boolean isExternal;
 
   @Column(name = "created")
-  public Instant created;
+  private Instant created;
 
   @Column(name = "last_execution")
-  public Instant lastExecution;
+  private Instant lastExecution;
 
   @Column(name = "retries")
-  public Integer retries;
+  private Integer retries;
 
   @Column(name = "generation_process")
-  public FlowToHistoryStatusEnum generationProcess;
+  private String generationProcess;
 
   @Column(name = "flow_metadata_persistence")
-  public FlowToHistoryStatusEnum flowMetadataPersistence;
+  private String flowMetadataPersistence;
 
   @Column(name = "payment_metadata_persistence")
-  public FlowToHistoryStatusEnum paymentMetadataPersistence;
+  private String paymentMetadataPersistence;
 
   @Column(name = "last_partition")
-  public Integer lastPartition;
+  private Integer lastPartition;
 
   @Column(name = "qi_notification")
-  public FlowToHistoryStatusEnum qiNotification;
+  private String qiNotification;
 
   @Column(name = "fase1_notification")
-  public FlowToHistoryStatusEnum fase1Notification;
+  private String fase1Notification;
 }

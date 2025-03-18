@@ -24,6 +24,7 @@ import org.jboss.logging.Logger;
 @ApplicationScoped
 public class PaymentRepository extends Repository implements PanacheRepository<PaymentEntity> {
 
+  public static final String INDEX = "index";
   private final EntityManager entityManager;
 
   private final Logger log;
@@ -74,7 +75,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     }
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(SortField.of("index", Direction.Ascending));
+    Sort sort = getSort(SortField.of(INDEX, Direction.Ascending));
 
     PanacheQuery<PaymentEntity> resultPage =
         PaymentEntity.findPageByQuery(query.toString(), sort, params).page(page);
@@ -106,11 +107,19 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     }
   }
 
+  public PanacheQuery<PaymentEntity> findPageByFlowId(Long flowId, int pageNumber, int pageSize) {
+
+    Page page = Page.of(pageNumber, pageSize);
+    Sort sort = getSort(SortField.of(INDEX, Direction.Ascending));
+
+    return find(QUERY_GET_BY_FLOW_ID, sort, flowId).page(page);
+  }
+
   public RepositoryPagedResult<PaymentEntity> findByFlowId(
       Long flowId, int pageNumber, int pageSize) {
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(SortField.of("index", Direction.Ascending));
+    Sort sort = getSort(SortField.of(INDEX, Direction.Ascending));
 
     PanacheQuery<PaymentEntity> resultPage = find(QUERY_GET_BY_FLOW_ID, sort, flowId).page(page);
     return getPagedResult(resultPage);

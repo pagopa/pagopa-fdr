@@ -23,12 +23,12 @@ public interface FlowToHistoryMapper {
     entity.setCreated(now);
     entity.setLastExecution(now);
     entity.setRetries(0);
-    entity.setGenerationProcess(FlowToHistoryStatusEnum.NEVER_STARTED);
-    entity.setFlowMetadataPersistence(FlowToHistoryStatusEnum.NEVER_STARTED);
-    entity.setPaymentMetadataPersistence(FlowToHistoryStatusEnum.NEVER_STARTED);
+    entity.setGenerationProcess(FlowToHistoryStatusEnum.NEVER_STARTED.name());
+    entity.setFlowMetadataPersistence(FlowToHistoryStatusEnum.NEVER_STARTED.name());
+    entity.setPaymentMetadataPersistence(FlowToHistoryStatusEnum.NEVER_STARTED.name());
     entity.setLastPartition(0);
-    entity.setQiNotification(FlowToHistoryStatusEnum.NEVER_STARTED);
-    entity.setFase1Notification(FlowToHistoryStatusEnum.NEVER_STARTED);
+    entity.setQiNotification(FlowToHistoryStatusEnum.NEVER_STARTED.name());
+    entity.setFase1Notification(FlowToHistoryStatusEnum.NEVER_STARTED.name());
 
     return entity;
   }
