@@ -46,11 +46,6 @@ CREATE TABLE flow_to_history (
                                       last_execution timestamp(6) NULL,
                                       retries numeric(19) DEFAULT 0 NOT NULL,
                                       generation_process varchar(50) DEFAULT 'NEVER_STARTED'::character varying NOT NULL,
-                                      flow_metadata_persistence varchar(50) DEFAULT 'NEVER_STARTED'::character varying NOT NULL,
-                                      payment_metadata_persistence varchar(50) DEFAULT 'NEVER_STARTED'::character varying NOT NULL,
-                                      last_partition numeric(19) DEFAULT 0 NOT NULL,
-                                      qi_notification varchar(50) DEFAULT 'NEVER_STARTED'::character varying NOT NULL,
-                                      fase1_notification varchar(50) DEFAULT 'NEVER_STARTED'::character varying NOT NULL,
                                       CONSTRAINT flow_to_history_pk PRIMARY KEY (id)
 );
 CREATE UNIQUE INDEX flow_to_historicization_idx ON flow_to_history USING btree (psp_id, name, revision);
