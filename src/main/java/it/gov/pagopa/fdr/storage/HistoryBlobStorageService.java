@@ -15,23 +15,14 @@ import com.networknt.schema.ValidationMessage;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.common.StringUtil;
-import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
-import it.gov.pagopa.fdr.util.error.exception.common.AppException;
+import it.gov.pagopa.fdr.util.error.exception.common.ScheduleException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.Set;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class HistoryBlobStorageService {
-
-  @ConfigProperty(name = "blob.history.connect-str")
-  String blobConnectionsStr;
-
-  @ConfigProperty(name = "blob.history.containername")
-  String blobContainerName;
-
   private final BlobContainerClient blobContainerClient;
   private final FileUtil fileUtil;
 
@@ -68,14 +59,14 @@ public class HistoryBlobStorageService {
     blobClient.upload(jsonFile, true);
   }
 
-  public void isJsonValid(String jsonString, String jsonSchema) throws JsonProcessingException {
+  private void isJsonValid(String jsonString, String jsonSchema) throws JsonProcessingException {
     JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
     JsonSchema schema = factory.getSchema(jsonSchema);
     ObjectMapper objMapper = new ObjectMapper();
     JsonNode jsonNode = objMapper.readTree(jsonString);
     Set<ValidationMessage> errors = schema.validate(jsonNode);
     if (!errors.isEmpty()) {
-      throw new AppException(AppErrorCodeMessageEnum.ERROR);
+      throw new ScheduleException(errors.toString());
     }
   }
 }

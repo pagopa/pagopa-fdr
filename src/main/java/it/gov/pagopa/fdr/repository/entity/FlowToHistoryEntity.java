@@ -3,11 +3,13 @@ package it.gov.pagopa.fdr.repository.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.time.Instant;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "flow_to_history")
 public class FlowToHistoryEntity extends PanacheEntityBase {

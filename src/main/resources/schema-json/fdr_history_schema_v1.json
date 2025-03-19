@@ -4,7 +4,7 @@
     "title": "FDR",
     "description": "Flusso di rendicontazione",
     "type": "object",
-    "required": ["fdr", "fdrDate", "sender", "receiver", "regulation", "regulationDate", "totPayments", "sumPayments"],
+    "required": ["fdr", "fdrDate", "sender", "receiver", "regulation", "regulationDate", "computedTotPayments", "computedSumPayments"],
     "properties": {
         "revision": {
             "description": "Revisione FDR",
@@ -12,11 +12,11 @@
         },
         "created": {
             "description": "Data creazione FDR",
-            "type": "string"
+            "type": "number"
         },
         "updated": {
             "description": "Data aggiornamento FDR",
-            "type": "string"
+            "type": "number"
         },
         "fdr": {
             "description": "Identificativo flusso",
@@ -26,7 +26,7 @@
         },
         "fdrDate": {
             "description": "Data flusso",
-            "type": "string",
+            "type": "number",
             "example": "2023-04-05T09:21:37.810000Z"
         },
         "sender": {
@@ -124,12 +124,12 @@
             "example": "CREATED",
             "enum": ["CREATED", "INSERTED", "PUBLISHED"]
         },
-        "totPayments": {
+        "computedTotPayments": {
             "description": "Numero pagamenti del flusso",
             "type": "integer",
             "example": 100
         },
-        "sumPayments": {
+        "computedSumPayments": {
             "description": "Importo totale dei pagamenti",
             "type": "number",
             "pattern": "^\\d{1,2147483647}([.]\\d{1,2})?$",
