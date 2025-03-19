@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr;
 
 import io.quarkus.runtime.Startup;
-import it.gov.pagopa.fdr.service.HistoryService;
 import it.gov.pagopa.fdr.service.ReService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,13 +19,11 @@ public class AppStartup {
   private final Config config;
 
   private final ReService reService;
-  private final HistoryService historyService;
 
-  public AppStartup(Logger log, Config config, ReService reService, HistoryService historyService) {
+  public AppStartup(Logger log, Config config, ReService reService) {
     this.log = log;
     this.config = config;
     this.reService = reService;
-    this.historyService = historyService;
   }
 
   @PostConstruct

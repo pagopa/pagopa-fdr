@@ -42,6 +42,7 @@ microservice-chart:
       ADAPTER_API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
       OTEL_AUTH_BEARER: "otel-auth-bearer"
       DATASOURCE_PASSWORD: "db-fdr3-password"
+      BLOB_FDR_CONNECTION_STRING: "fdr-sa-connection-string"
       #BLOB_RE_CONNECTION_STRING: "fdr-re-sa-connection-string"
     keyvault:
       name: "pagopa-u-fdr-kv"

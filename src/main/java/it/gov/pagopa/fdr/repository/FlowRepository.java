@@ -47,6 +47,10 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
   public static final String QUERY_GET_LAST_PUBLISHED_BY_PSP_AND_NAME =
       "pspDomainId = ?1 and name = ?2 and status = ?3 and isLatest = ?4";
+  public static final String PSP_ID = "pspId";
+  public static final String STATUS = "status";
+  public static final String AND = " and ";
+  public static final String PSP_DOMAIN_ID_PSP_ID = "pspDomainId = :pspId";
 
   private final EntityManager entityManager;
 
@@ -96,12 +100,12 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     List<String> queryBuilder = new ArrayList<>();
 
     // setting mandatory field: organization id
-    queryBuilder.add("pspDomainId = :pspId");
-    parameters.and("pspId", pspId);
+    queryBuilder.add(PSP_DOMAIN_ID_PSP_ID);
+    parameters.and(PSP_ID, pspId);
 
     // setting mandatory field: flow status
     queryBuilder.add("status != :status");
-    parameters.and("status", FlowStatusEnum.PUBLISHED.name());
+    parameters.and(STATUS, FlowStatusEnum.PUBLISHED.name());
 
     // setting optional field: created date
     if (createdGt != null) {
@@ -109,7 +113,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
       parameters.and("createdGt", createdGt);
     }
 
-    String queryString = String.join(" and ", queryBuilder);
+    String queryString = String.join(AND, queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
     Sort sort = getSort(SortField.of("name", Direction.Ascending));
@@ -139,8 +143,8 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     List<String> queryBuilder = new ArrayList<>();
 
     // setting mandatory field: PSP id
-    queryBuilder.add("pspDomainId = :pspId");
-    parameters.and("pspId", pspId);
+    queryBuilder.add(PSP_DOMAIN_ID_PSP_ID);
+    parameters.and(PSP_ID, pspId);
 
     // setting optional field: organization id
     if (!StringUtil.isNullOrBlank(organizationId)) {
@@ -156,8 +160,8 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
     // setting mandatory field: flow status
     queryBuilder.add("status = :status");
-    parameters.and("status", FlowStatusEnum.PUBLISHED.name());
-    String queryString = String.join(" and ", queryBuilder);
+    parameters.and(STATUS, FlowStatusEnum.PUBLISHED.name());
+    String queryString = String.join(AND, queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
     Sort sort =
@@ -224,8 +228,8 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
     // setting optional field: PSP id
     if (!StringUtil.isNullOrBlank(pspId)) {
-      queryBuilder.add("pspDomainId = :pspId");
-      parameters.and("pspId", pspId);
+      queryBuilder.add(PSP_DOMAIN_ID_PSP_ID);
+      parameters.and(PSP_ID, pspId);
     }
 
     // setting optional field: publish date
@@ -236,12 +240,12 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
     // setting mandatory field: flow status
     queryBuilder.add("status = :status");
-    parameters.and("status", FlowStatusEnum.PUBLISHED.name());
+    parameters.and(STATUS, FlowStatusEnum.PUBLISHED.name());
 
     // setting mandatory field: is_latest flag as true
     queryBuilder.add("isLatest = :isLatest");
     parameters.and("isLatest", true);
-    String queryString = String.join(" and ", queryBuilder);
+    String queryString = String.join(AND, queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
     Sort sort = getSort(SortField.of("name", Direction.Ascending));
@@ -305,5 +309,10 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
 
   public void deleteEntity(FlowEntity entity) {
     entity.delete();
+  }
+
+  public PanacheQuery<FlowEntity> findByPspIdAndNameAndRevision(
+      String pspId, String name, Long revision) {
+    return find("pspDomainId = ?1 and name = ?2 and revision = ?3", pspId, name, revision);
   }
 }
