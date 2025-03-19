@@ -41,22 +41,4 @@ public class FlowToHistoryEntity extends PanacheEntityBase {
 
   @Column(name = "retries")
   private Integer retries;
-
-  @Column(name = "generation_process")
-  private String generationProcess;
-
-  @Column(name = "flow_metadata_persistence")
-  private String flowMetadataPersistence;
-
-  @Column(name = "payment_metadata_persistence")
-  private String paymentMetadataPersistence;
-
-  @Column(name = "last_partition")
-  private Integer lastPartition;
-
-  @Column(name = "qi_notification")
-  private String qiNotification;
-
-  @Column(name = "fase1_notification")
-  private String fase1Notification;
 }

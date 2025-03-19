@@ -11,7 +11,6 @@ import it.gov.pagopa.fdr.repository.PaymentRepository;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.entity.FlowToHistoryEntity;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
-import it.gov.pagopa.fdr.repository.enums.FlowToHistoryStatusEnum;
 import it.gov.pagopa.fdr.storage.HistoryBlobStorageService;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.storage.model.PaymentBlob;
@@ -54,14 +53,14 @@ public class HistoryCron {
    * <p>Each flow retrieved is intended to be marked for historicization and further handled as per
    * the logic defined in {@link #handleFlow(FlowToHistoryEntity)}.
    */
-  @Scheduled(every = "10s")
+  @Scheduled(every = "1h")
   @Transactional
   void execute() {
 
     // retrieve the first 10 flows to historicize
     try {
       PanacheQuery<FlowToHistoryEntity> flows =
-          flowToHistoryRepository.findTopNNeverStartedOrderByCreated(10);
+          flowToHistoryRepository.findTopNEntitiesOrderByCreated(1000);
       for (var flow : flows.list()) {
         handleFlow(flow);
       }
@@ -74,8 +73,8 @@ public class HistoryCron {
    * Process a flow and related payments for history cron.
    *
    * <p>This method retrieves the payments associated with the given flow and processes them. If an
-   * exception is thrown during the processing, the flow status is set to {@link
-   * FlowToHistoryStatusEnum#FAILED} and the exception is re-thrown.
+   * exception is thrown during the processing, the flow retry count is add by 1 and the exception
+   * is re-thrown.
    *
    * @param flowToHistory the flow to process
    */
@@ -139,7 +138,6 @@ public class HistoryCron {
   }
 
   private void updateFlowToHistory(FlowToHistoryEntity flowToHistory) {
-    flowToHistory.setGenerationProcess(FlowToHistoryStatusEnum.FAILED.name());
     flowToHistory.setLastExecution(Instant.now());
     flowToHistory.setRetries(flowToHistory.getRetries() + 1);
     flowToHistoryRepository.persist(flowToHistory);
