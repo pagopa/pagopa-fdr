@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr.repository;
 
-import static io.smallrye.common.constraint.Assert.assertTrue;
+import static io.smallrye.common.constraint.Assert.assertFalse;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -20,12 +20,12 @@ class FlowToHistoryRepositoryTest {
 
   @Test
   @DisplayName("FlowToHistoryRepository OK - findTopNEntitiesOrderByCreated")
-  void testFindPublishedByPspIdAndOptionalOrganizationId() {
+  void findTopNEntitiesOrderByCreated() {
 
     PanacheQuery<FlowToHistoryEntity> result =
         flowToHistoryRepository.findTopNEntitiesOrderByCreated(1);
 
     List<FlowToHistoryEntity> entities = result.list();
-    assertTrue(entities.isEmpty());
+    assertFalse(entities.isEmpty());
   }
 }
