@@ -147,6 +147,29 @@ module "apim_api_fdr_api_v1_internal" {
   })
 }
 
+#####################################
+##  Policies for specific APIs     ##
+#####################################
+
+resource "azurerm_api_management_api_operation_policy" "fdr3_add_payments_rate_limit" {
+  api_name            = "${local.project}-fdr-service-api-psp-v1"
+  resource_group_name = local.apim.rg
+  api_management_name = local.apim.name
+  operation_id        = "IPspsController_addPaymentToExistingFlow"
+  xml_content = templatefile("./policy/psp/v1/_base_policy_payments_add.xml.tpl", {
+    hostname = local.hostname
+  })
+}
+
+resource "azurerm_api_management_api_operation_policy" "fdr3_delete_payments_rate_limit" {
+  api_name            = "${local.project}-fdr-service-api-psp-v1"
+  resource_group_name = local.apim.rg
+  api_management_name = local.apim.name
+  operation_id        = "IPspsController_deletePaymentFromExistingFlow"
+  xml_content = templatefile("./policy/psp/v1/_base_policy_payments_delete.xml.tpl", {
+    hostname = local.hostname
+  })
+}
 
 #######################
 ##  Policies SHA     ##
@@ -169,6 +192,18 @@ resource "terraform_data" "sha256_fdr3_policy_orgs_v1" {
 
 resource "terraform_data" "sha256_fdr3_policy_base" {
   input = sha256(templatefile("./policy/_base_policy.xml.tpl", {
+    hostname = local.hostname
+  }))
+}
+
+resource "terraform_data" "sha256_fdr3_add_payments_policy_base" {
+  input = sha256(templatefile("./policy/psp/v1/_base_policy_payments_add.xml.tpl", {
+    hostname = local.hostname
+  }))
+}
+
+resource "terraform_data" "sha256_fdr3_delete_payments_policy_base" {
+  input = sha256(templatefile("./policy/psp/v1/_base_policy_payments_delete.xml.tpl", {
     hostname = local.hostname
   }))
 }

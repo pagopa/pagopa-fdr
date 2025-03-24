@@ -46,7 +46,7 @@ public interface IInternalOperationsController {
   @POST
   @Path(ControllerConstants.URL_API_CREATE_EMPTY_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController.createEmptyFlowForInternalUse",
+      operationId = "IInternalOperationsController_createEmptyFlowForInternalUse",
       summary = "Create a new flow structure (for internal process)",
       description =
           """
@@ -138,7 +138,7 @@ This API is used only by internal processes in FdR ecosystem.
   @PUT
   @Path(ControllerConstants.URL_API_ADD_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController.addPaymentToExistingFlowForInternalUse",
+      operationId = "IInternalOperationsController_addPaymentToExistingFlowForInternalUse",
       summary = "Add one or more payments to an existing flow (for internal process)",
       description =
           """
@@ -224,7 +224,7 @@ This API is used only by internal processes in FdR ecosystem.
   @PUT
   @Path(ControllerConstants.URL_API_DELETE_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController.deletePaymentFromExistingFlowForInternalUse",
+      operationId = "IInternalOperationsController_deletePaymentFromExistingFlowForInternalUse",
       summary = "Delete one or more payments from an existing flow (for internal process)",
       description =
           """
@@ -311,7 +311,7 @@ This API is used only by internal processes in FdR ecosystem.
   @POST
   @Path(ControllerConstants.URL_API_PUBLISH_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController.publishFlowForInternalUse",
+      operationId = "IInternalOperationsController_publishFlowForInternalUse",
       summary = "Publish an existing flow in draft status (for internal process)",
       description =
           """
@@ -392,7 +392,7 @@ provide a historicization procedure: that task is demanded uniquely to external 
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController.deleteExistingFlowForInternalUse",
+      operationId = "IInternalOperationsController_deleteExistingFlowForInternalUse",
       summary = "Delete an existing draft flow and all related payments (for internal process)",
       description =
           """
@@ -471,7 +471,7 @@ This API is used only by internal processes in FdR ecosystem.
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController.getSingleFlowNotInPublishedStatusForInternalUse",
+      operationId = "IInternalOperationsController_getSingleFlowNotInPublishedStatusForInternalUse",
       summary =
           "Get single draft flow related to the PSP, searching by name (for internal process)",
       description =

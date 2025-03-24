@@ -54,7 +54,7 @@ public interface IPspsController {
   @POST
   @Path(ControllerConstants.URL_API_CREATE_EMPTY_FLOW)
   @Operation(
-      operationId = "IPspsController.createEmptyFlow",
+      operationId = "IPspsController_createEmptyFlow",
       summary = "Create a new flow structure",
       description =
           """
@@ -146,7 +146,7 @@ and PSP. Also, the name of the flow is validated against a specific standard for
   @PUT
   @Path(ControllerConstants.URL_API_ADD_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "IPspsController.addPaymentToExistingFlow",
+      operationId = "IPspsController_addPaymentToExistingFlow",
       summary = "Add one or more payments to an existing flow",
       description =
           """
@@ -232,7 +232,7 @@ against a specific standard format.<br>
   @PUT
   @Path(ControllerConstants.URL_API_DELETE_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "IPspsController.deletePaymentFromExistingFlow",
+      operationId = "IPspsController_deletePaymentFromExistingFlow",
       summary = "Delete one or more payments from an existing flow",
       description =
           """
@@ -319,7 +319,7 @@ Before executing the operation, the request fields are validated against entitie
   @POST
   @Path(ControllerConstants.URL_API_PUBLISH_FLOW)
   @Operation(
-      operationId = "IPspsController.publishFlow",
+      operationId = "IPspsController_publishFlow",
       summary = "Publish an existing flow in draft status",
       description =
           """
@@ -401,7 +401,7 @@ Before executing the operation, the request fields are validated against entitie
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
   @Operation(
-      operationId = "IPspsController.deleteExistingFlow",
+      operationId = "IPspsController_deleteExistingFlow",
       summary = "Delete an existing draft flow and all related payments",
       description =
           """
@@ -480,7 +480,7 @@ Before executing the operation, the request fields are validated against entitie
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_NOT_PUBLISHED_FLOWS)
   @Operation(
-      operationId = "IPspsController.getAllFlowsNotInPublishedStatus",
+      operationId = "IPspsController_getAllFlowsNotInPublishedStatus",
       summary = "Get all draft flows related to the PSP",
       description =
           """
@@ -565,7 +565,7 @@ The result of the query is paginated and contains all the metadata needed for pa
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW)
   @Operation(
-      operationId = "IPspsController.getSingleFlowNotInPublishedStatus",
+      operationId = "IPspsController_getSingleFlowNotInPublishedStatus",
       summary = "Get single draft flow related to the PSP, searching by name",
       description =
           """
@@ -652,7 +652,7 @@ the name of the flow is validated against a specific standard format.<br>
   @GET
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_NOT_PUBLISHED_FLOW)
   @Operation(
-      operationId = "IPspsController.getPaymentsForFlowNotInPublishedStatus",
+      operationId = "IPspsController_getPaymentsForFlowNotInPublishedStatus",
       summary = "Get payments of draft flow related to the PSP, searching by name",
       description =
           """
@@ -750,7 +750,7 @@ The result of the query is paginated and contains all the metadata needed for pa
   @GET
   @Path(ControllerConstants.URL_API_GET_ALL_PUBLISHED_FLOWS)
   @Operation(
-      operationId = "IPspsController.getAllFlowsInPublishedStatus",
+      operationId = "IPspsController_getAllFlowsInPublishedStatus",
       summary = "Get all published flow related to the PSP",
       description =
           """
@@ -846,7 +846,7 @@ The result of the query is paginated and contains all the metadata needed for pa
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_PUBLISHED_FLOW)
   @Operation(
-      operationId = "IPspsController.getSingleFlowInPublishedStatus",
+      operationId = "IPspsController_getSingleFlowInPublishedStatus",
       summary = "Get single published flow related to the PSP, searching by name and revision",
       description =
           """
@@ -937,7 +937,7 @@ the name of the flow is validated against a specific standard format.<br>
   @GET
   @Path(ControllerConstants.URL_API_GET_PAYMENTS_FOR_PUBLISHED_FLOW)
   @Operation(
-      operationId = "IPspsController.getPaymentsForFlowInPublishedStatus",
+      operationId = "IPspsController_getPaymentsForFlowInPublishedStatus",
       summary = "Get payments of published flow related to the PSP, searching by name and revision",
       description =
           """
