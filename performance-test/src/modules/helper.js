@@ -34,7 +34,6 @@ export function createInsertAndPublishFlowSetup(requestValues, paymentsInFlow, t
     const createFlowUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}`
     params.tags.api_name = "create_empty_flow";
     var createFlowResponse = http.post(createFlowUrl, createFlowRequest, params);
-    console.log(`Response for ${createFlowUrl}: ${createFlowResponse.status}`);
     if (createFlowResponse.status !== 201) {
       console.log(`Create flow in error: ${createFlowUrl} => response: ${createFlowResponse.status} - ${createFlowResponse.body}`);
       return;
@@ -47,7 +46,6 @@ export function createInsertAndPublishFlowSetup(requestValues, paymentsInFlow, t
       // Add new payments
       let addPaymentsRequest = buildAddPaymentsRequest(partition, 100.00, flowDate);
       var addPaymentsResponse = http.put(addPaymentsUrl, addPaymentsRequest, params);
-      console.log(`Response for ${addPaymentsUrl}: ${addPaymentsResponse.status}`);
       if (addPaymentsResponse.status !== 200) {
         console.log(`Add Payments in error: ${addPaymentsUrl} =>  response: ${addPaymentsResponse.status} - ${addPaymentsResponse.body}`);
         return;
@@ -58,7 +56,6 @@ export function createInsertAndPublishFlowSetup(requestValues, paymentsInFlow, t
     const publishFlowUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}/publish`
     params.tags.api_name = "publish_flow";
     var publishFlowResponse = http.post(publishFlowUrl, {}, params);
-    console.log(`Response for ${publishFlowUrl}: ${publishFlowResponse.status}`);
     if (publishFlowResponse.status !== 200) {
       console.log(`Publish flow in error: ${publishFlowUrl} =>  response: ${publishFlowResponse.status} - ${publishFlowResponse.body}`);
     }
