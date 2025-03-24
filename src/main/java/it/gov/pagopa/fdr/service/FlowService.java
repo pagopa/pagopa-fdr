@@ -6,17 +6,15 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
-import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
-import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsPublishedResponse;
-import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
-import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
-import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.*;
 import it.gov.pagopa.fdr.repository.FlowRepository;
-import it.gov.pagopa.fdr.repository.PaymentRepository;
+import it.gov.pagopa.fdr.repository.FlowToHistoryRepository;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
+import it.gov.pagopa.fdr.repository.entity.FlowToHistoryEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.service.middleware.mapper.FlowMapper;
+import it.gov.pagopa.fdr.service.middleware.mapper.FlowToHistoryMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
@@ -36,36 +34,29 @@ public class FlowService {
   private final Config cachedConfig;
 
   private final FlowRepository flowRepository;
-
-  private final PaymentRepository paymentRepository;
+  private final FlowToHistoryRepository flowToHistoryRepository;
 
   private final FlowMapper flowMapper;
+  private final FlowToHistoryMapper flowToHistoryMapper;
 
   public FlowService(
       Logger log,
       Config cachedConfig,
       FlowRepository flowRepository,
-      PaymentRepository paymentRepository,
-      FlowMapper flowMapper) {
+      FlowToHistoryRepository flowToHistoryRepository,
+      FlowMapper flowMapper,
+      FlowToHistoryMapper flowToHistoryMapper) {
 
     this.log = log;
     this.cachedConfig = cachedConfig;
     this.flowRepository = flowRepository;
-    this.paymentRepository = paymentRepository;
+    this.flowToHistoryRepository = flowToHistoryRepository;
     this.flowMapper = flowMapper;
+    this.flowToHistoryMapper = flowToHistoryMapper;
   }
 
   @WithSpan(kind = SERVER)
   public PaginatedFlowsResponse getPaginatedPublishedFlowsForCI(FindFlowsByFiltersArgs args) {
-
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    MDC.put(ORGANIZATION_ID, organizationId);
-    if (null != idPsp && !idPsp.isBlank()) {
-      MDC.put(PSP_ID, idPsp);
-    }
-     */
 
     String organizationId = args.getOrganizationId();
     String pspId = args.getPspId();
@@ -123,14 +114,6 @@ public class FlowService {
   public PaginatedFlowsCreatedResponse getAllFlowsNotInPublishedStatus(
       FindFlowsByFiltersArgs args) {
 
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    if (null != idPsp && !idPsp.isBlank()) {
-      MDC.put(PSP_ID, idPsp);
-    }
-     */
-
     String pspId = args.getPspId();
     Instant createdGt = args.getCreatedGt();
     long pageSize = args.getPageSize();
@@ -150,14 +133,6 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   public SingleFlowResponse getSinglePublishedFlow(FindFlowsByFiltersArgs args) {
-
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    MDC.put(ORGANIZATION_ID, organizationId);
-    MDC.put(FDR, fdr);
-    MDC.put(PSP_ID, psp);
-     */
 
     String organizationId = args.getOrganizationId();
     String pspId = args.getPspId();
@@ -186,14 +161,6 @@ public class FlowService {
   @WithSpan(kind = SERVER)
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatus(FindFlowsByFiltersArgs args) {
 
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    MDC.put(FDR, fdr);
-    MDC.put(PSP_ID, psp);
-    MDC.put(ORGANIZATION_ID, organizationId);
-     */
-
     String organizationId = args.getOrganizationId();
     String pspId = args.getPspId();
     String flowName = args.getFlowName();
@@ -219,14 +186,6 @@ public class FlowService {
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
   public GenericResponse createEmptyFlow(String pspId, String flowName, CreateFlowRequest request) {
-
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    MDC.put(PSP_ID, pspId);
-    MDC.put(ORGANIZATION_ID, request.getReceiver().getOrganizationId());
-    MDC.put(FDR, fdr);
-     */
 
     log.debugf(
         "Saving new flows by organizationId [%s], pspId [%s], flowName [%s]",
@@ -254,29 +213,12 @@ public class FlowService {
     FlowEntity entity = flowMapper.toEntity(request, revision);
     this.flowRepository.createEntity(entity);
 
-    /*
-    reService.sendEvent(
-        ReInternal.builder()
-            .serviceIdentifier(AppVersionEnum.FDR003).created(Instant.now())
-            .sessionId(sessionId).eventType(EventTypeEnum.INTERNAL).fdrPhysicalDelete(false)
-            .fdrStatus(it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.CREATED)
-            .flowRead(false).fdr(fdr).pspId(pspId).organizationId(ecId)
-            .revision(revision).fdrAction(FdrActionEnum.CREATE_FLOW).build());
-     */
-
     return GenericResponse.builder().message(String.format("Fdr [%s] saved", flowName)).build();
   }
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
   public GenericResponse publishFlow(String pspId, String flowName, boolean isInternalCall) {
-
-    /*
-     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-     String action = (String) MDC.get(ACTION);
-     MDC.put(FDR, fdr);
-     MDC.put(PSP_ID, pspId);
-    */
 
     log.debugf("Publishing existing flows by pspId [%s], flowName [%s]", pspId, flowName);
 
@@ -301,10 +243,9 @@ public class FlowService {
     SemanticValidator.validatePublishingFlow(publishingFlow);
     publishNewRevision(pspId, flowName, publishingFlow);
 
-    // TODO do this in transactional way
-    // FdrFlowToHistoryEntity flowToHistoryEntity = flowMapper.toEntity(publishingFlow,
-    // isInternalCall);
-    // this.flowToHistoryRepository.createEntity(flowToHistoryEntity);
+    FlowToHistoryEntity flowToHistoryEntity =
+        flowToHistoryMapper.toEntity(publishingFlow, isInternalCall);
+    this.flowToHistoryRepository.createEntity(flowToHistoryEntity);
 
     return GenericResponse.builder().message(String.format("Fdr [%s] published", flowName)).build();
   }
@@ -312,13 +253,6 @@ public class FlowService {
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
   public GenericResponse deleteExistingFlow(String pspId, String flowName) {
-
-    /*
-     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-     String action = (String) MDC.get(ACTION);
-     MDC.put(FDR, fdr);
-     MDC.put(PSP_ID, pspId);
-    */
 
     log.debugf("Deleting existing flows by pspId [%s], flowName [%s]", pspId, flowName);
 

@@ -48,3 +48,4 @@ nb-configuration.xml
 # Helm
 /helm/charts/*
 **/.terraform/
+/.run/
