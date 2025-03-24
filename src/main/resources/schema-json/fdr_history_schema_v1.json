@@ -142,6 +142,11 @@
             "items": {
                 "type": "object",
                 "properties": {
+                    "idTransfer": {
+                        "description": "id transfer",
+                        "type": "number",
+                        "example": 1
+                    },
                     "iuv": {
                         "description": "IUV",
                         "type": "string",
