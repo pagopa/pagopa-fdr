@@ -57,7 +57,7 @@ public class HistoryCron {
   @Transactional
   void execute() {
 
-    // retrieve the first 10 flows to historicize
+    // retrieve the first 1000 flows to historicize
     try {
       PanacheQuery<FlowToHistoryEntity> flows =
           flowToHistoryRepository.findTopNEntitiesOrderByCreated(1000);
