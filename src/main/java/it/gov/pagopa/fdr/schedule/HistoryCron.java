@@ -54,7 +54,6 @@ public class HistoryCron {
    * the logic defined in {@link #handleFlow(FlowToHistoryEntity)}.
    */
   @Scheduled(every = "1h")
-  @Transactional
   void execute() {
 
     // retrieve the first 1000 flows to historicize
