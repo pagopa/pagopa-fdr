@@ -170,8 +170,14 @@ public class PaymentService {
     long numberOfAlreadyUsedIndexes =
         paymentRepository.countByFlowIdAndIndexes(publishingFlow.getId(), indexes);
     if (numberOfAlreadyUsedIndexes > 0) {
+      List<PaymentEntity> indexesAlreadyAdded =
+          paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+      List<Long> conflictingIndexes =
+          indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
       throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX, flowName);
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+          conflictingIndexes,
+          flowName);
     }
 
     // create all entities in batch, from each payment to be added, in transactional way
