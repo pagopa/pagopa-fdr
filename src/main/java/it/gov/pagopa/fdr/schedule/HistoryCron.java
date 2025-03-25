@@ -19,7 +19,6 @@ import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import it.gov.pagopa.fdr.util.error.exception.common.ScheduleException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.xml.bind.ValidationException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
