@@ -2,6 +2,8 @@ package it.gov.pagopa.fdr.schedule;
 
 import static it.gov.pagopa.fdr.test.util.TestUtil.validFlowToHistory;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
@@ -33,9 +35,11 @@ class HistoryCronTest {
 
     TestUtil.pspSunnyDay(dynamicFlowName);
 
-    when(flowToHistoryRepository.findTopNEntitiesOrderByCreated(anyInt(), 3))
+    when(flowToHistoryRepository.findTopNEntitiesOrderByCreated(anyInt(), anyInt()))
         .thenReturn(flowToHistory);
 
     historyCron.execute();
+
+    verify(flowToHistoryRepository).deleteByIdTransactional(anyLong());
   }
 }
