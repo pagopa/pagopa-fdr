@@ -1,7 +1,5 @@
-microservice-chart:
+microservice-chart: &microservice-chart
   namespace: "fdr"
-  nameOverride: ""
-  fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
     tag: 1.1.23-1-PAGOPA-2718
@@ -20,7 +18,7 @@ microservice-chart:
     initialDelaySeconds: 10
     failureThreshold: 10
     periodSeconds: 5
-  envConfig:
+  envConfig: &envConfig
     APP_ENVIRONMENT: "uat"
     TZ: "Europe/Rome"
     OTEL_ENDPOINT: "http://otel-collector.elastic-system.svc.cluster.local:4317"
@@ -33,14 +31,12 @@ microservice-chart:
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.u.internal.postgresql.pagopa.it:6432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
     DATASOURCE_POOL_SIZE: "50"
-    SCHEDULE_HISTORY_SIZE: "100"
-    SCHEDULE_HISTORY_RETRIES: "3"
-  envFieldRef:
+  envFieldRef: &envFieldRef
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
   secretProvider:
     create: true
-    envSecrets:
+    envSecrets: &envSecret
       ADAPTER_API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
       OTEL_AUTH_BEARER: "otel-auth-bearer"
       DATASOURCE_PASSWORD: "db-fdr3-password"
@@ -51,14 +47,14 @@ microservice-chart:
       tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   tmpVolumeMount:
     create: true
-  resources:
+  resources: &resources
     requests:
       memory: "2Gi"
       cpu: "400m"
     limits:
       memory: "3Gi"
       cpu: "800m"
-  autoscaling:
+  autoscaling: &autoscaling
     enable: true
     minReplica: 1
     maxReplica: 5
@@ -90,7 +86,7 @@ microservice-chart:
         path: /q/metrics
   service:
     create: true
-  ingress:
+  ingress: &ingress
     create: true
     host: "weuuat.fdr.internal.uat.platform.pagopa.it"
     path: /pagopa-fdr-service(/|$)(.*)
@@ -102,3 +98,46 @@ microservice-chart:
       nginx.ingress.kubernetes.io/send_timeout: "3000"
   canaryDelivery:
     create: false
+# Configuration for standard application
+app:
+  !!merge <<: *microservice-chart
+  ingress:
+    !!merge <<: *ingress
+  resources:
+    !!merge <<: *resources
+  autoscaling:
+    !!merge <<: *autoscaling
+  envConfig:
+    !!merge <<: *envConfig
+    SCHEDULE_HISTORY_CRON: "off"
+  envFieldRef:
+    !!merge <<: *envFieldRef
+  envSecret:
+    !!merge <<: *envSecret
+# Configuration for CronJob scheduler
+scheduler:
+  !!merge <<: *microservice-chart
+  ingress:
+    !!merge <<: *ingress
+    path: /pagopa-fdr-service-scheduler-unused(/|$)(.*)
+  resources:
+    !!merge <<: *resources
+    requests:
+      memory: "1Gi"
+      cpu: "200m"
+    limits:
+      memory: "2Gi"
+      cpu: "800m"
+  autoscaling:
+    !!merge <<: *autoscaling
+    minReplica: 1
+    maxReplica: 1
+  envConfig:
+    !!merge <<: *envConfig
+    SCHEDULE_HISTORY_CRON: "0 0 */1 * * ?"
+    SCHEDULE_HISTORY_SIZE: "100"
+    SCHEDULE_HISTORY_RETRIES: "3"
+  envFieldRef:
+    !!merge <<: *envFieldRef
+  envSecret:
+    !!merge <<: *envSecret
