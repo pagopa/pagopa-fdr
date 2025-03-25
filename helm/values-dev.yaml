@@ -117,7 +117,7 @@ scheduler:
   resources:
     !!merge <<: *resources
     requests:
-      memory: "256Gi"
+      memory: "256Mi"
       cpu: "200m"
     limits:
       memory: "1Gi"
