@@ -28,6 +28,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class HistoryCron {
+
   private final FlowToHistoryRepository flowToHistoryRepository;
   private final FlowRepository flowRepository;
   private final PaymentRepository paymentRepository;
@@ -61,7 +62,8 @@ public class HistoryCron {
    * <p>Each flow retrieved is intended to be marked for historicization and further handled as per
    * the logic defined in {@link #handleFlow(FlowToHistoryEntity)}.
    */
-  @Scheduled(every = "1h")
+  @Scheduled(cron = "${schedule.history.cron}")
+  // every = "1h")
   void execute() {
 
     // retrieve the first n flows to historicize
