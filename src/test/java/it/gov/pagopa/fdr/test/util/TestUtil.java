@@ -100,6 +100,7 @@ public class TestUtil {
         .revision(1L)
         .created(Instant.now())
         .updated(Instant.now())
+        .published(Instant.now())
         .status("PUBLISHED")
         .sender(
             Sender.builder()
