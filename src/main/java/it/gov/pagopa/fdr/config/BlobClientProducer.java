@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr.config;
 
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
@@ -18,10 +17,10 @@ public class BlobClientProducer {
 
   @Produces
   @ApplicationScoped
-  public BlobContainerClient createBlobContainerClient() {
-    BlobServiceClient blobServiceClient =
-        new BlobServiceClientBuilder().connectionString(blobConnectionsStr).buildClient();
+  public BlobContainerAsyncClient createBlobContainerClient() {
+    var blobServiceClient =
+        new BlobServiceClientBuilder().connectionString(blobConnectionsStr).buildAsyncClient();
 
-    return blobServiceClient.getBlobContainerClient(blobContainerName);
+    return blobServiceClient.getBlobContainerAsyncClient(blobContainerName);
   }
 }

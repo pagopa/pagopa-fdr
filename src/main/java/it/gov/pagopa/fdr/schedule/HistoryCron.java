@@ -16,13 +16,15 @@ import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.storage.model.PaymentBlob;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
+import it.gov.pagopa.fdr.util.error.exception.common.ScheduleException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
+import jakarta.xml.bind.ValidationException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class HistoryCron {
@@ -30,6 +32,12 @@ public class HistoryCron {
   private final FlowRepository flowRepository;
   private final PaymentRepository paymentRepository;
   private final HistoryBlobStorageService historyBlobStorageService;
+
+  @ConfigProperty(name = "schedule.history.size")
+  Integer size;
+
+  @ConfigProperty(name = "schedule.history.retries")
+  Integer maxRetries;
 
   @Inject
   public HistoryCron(
@@ -46,7 +54,7 @@ public class HistoryCron {
   /**
    * Scheduled task to process flows for historicization every hour.
    *
-   * <p>This method retrieves the top 10 flows that have never been started, ordered by their
+   * <p>This method retrieves the top n flows that have never been started, ordered by their
    * creation date, and processes each flow by invoking the {@link #handleFlow(FlowToHistoryEntity)}
    * method.
    *
@@ -56,10 +64,10 @@ public class HistoryCron {
   @Scheduled(every = "1h")
   void execute() {
 
-    // retrieve the first 1000 flows to historicize
+    // retrieve the first n flows to historicize
     try {
       PanacheQuery<FlowToHistoryEntity> flows =
-          flowToHistoryRepository.findTopNEntitiesOrderByCreated(1000);
+          flowToHistoryRepository.findTopNEntitiesOrderByCreated(size, maxRetries);
       for (var flow : flows.list()) {
         handleFlow(flow);
       }
@@ -77,7 +85,8 @@ public class HistoryCron {
    *
    * @param flowToHistory the flow to process
    */
-  private void handleFlow(FlowToHistoryEntity flowToHistory) throws IOException {
+  private void handleFlow(FlowToHistoryEntity flowToHistory)
+      throws ValidationException, IOException {
     try {
       var flow =
           flowRepository
@@ -95,10 +104,13 @@ public class HistoryCron {
       var flowBlob = mapToFlowBlob(flow, payments);
       historyBlobStorageService.saveJsonFile(flowBlob);
 
-      flowToHistoryRepository.deleteById(flowToHistory.getId());
+      flowToHistoryRepository.deleteByIdTransactional(flowToHistory.getId());
 
     } catch (Exception e) {
       updateFlowToHistory(flowToHistory);
+      if (flowToHistory.getRetries() >= maxRetries) {
+        throw new ScheduleException("MAX RETRIES REACHED: " + maxRetries, e);
+      }
       throw e;
     }
   }
@@ -109,6 +121,7 @@ public class HistoryCron {
         .fdrDate(flow.date)
         .revision(flow.revision)
         .created(flow.created)
+        .published(flow.published)
         .updated(flow.updated)
         .status(flow.status)
         .sender(

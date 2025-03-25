@@ -33,7 +33,7 @@ class HistoryCronTest {
 
     TestUtil.pspSunnyDay(dynamicFlowName);
 
-    when(flowToHistoryRepository.findTopNEntitiesOrderByCreated(anyInt()))
+    when(flowToHistoryRepository.findTopNEntitiesOrderByCreated(anyInt(), 3))
         .thenReturn(flowToHistory);
 
     historyCron.execute();

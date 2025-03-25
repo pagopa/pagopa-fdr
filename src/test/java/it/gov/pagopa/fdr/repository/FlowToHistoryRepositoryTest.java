@@ -23,7 +23,7 @@ class FlowToHistoryRepositoryTest {
   void findTopNEntitiesOrderByCreated() {
 
     PanacheQuery<FlowToHistoryEntity> result =
-        flowToHistoryRepository.findTopNEntitiesOrderByCreated(1);
+        flowToHistoryRepository.findTopNEntitiesOrderByCreated(1, 3);
 
     List<FlowToHistoryEntity> entities = result.list();
     assertFalse(entities.isEmpty());
