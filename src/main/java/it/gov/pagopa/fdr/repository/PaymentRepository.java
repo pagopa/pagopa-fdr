@@ -98,9 +98,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
         preparedStatement.addBatch();
       }
       preparedStatement.executeBatch();
-
     } catch (SQLException e) {
-
       log.error("An error occurred while executing payments bulk insert", e);
       throw e;
     }

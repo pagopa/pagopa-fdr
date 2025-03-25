@@ -33,7 +33,7 @@ const maxPaymentsInCall = 1000;
 const totalAmount = paymentsInFlow * 100.00;
 const numberOfPartitions = 1 + (paymentsInFlow / maxPaymentsInCall);
 
-const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
+const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY_PSP}`;
 console.log(`Defining max [${maxParallelCalls}] parallel calls with max [${paymentsInFlow}] payments.`);
 
 
