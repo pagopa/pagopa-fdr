@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.storage;
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class HistoryBlobStorageService {
+
   public static final String FDR_03 = "FDR03";
   private final BlobContainerAsyncClient blobContainerClient;
   private final FileUtil fileUtil;
@@ -45,7 +47,11 @@ public class HistoryBlobStorageService {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
     objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    String fdrHistoryEntityJson = objectMapper.writeValueAsString(fdrEntity);
+    String fdrHistoryEntityJson =
+        objectMapper
+            .writer()
+            .with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+            .writeValueAsString(fdrEntity);
 
     String jsonSchema =
         fileUtil.convertToString(
