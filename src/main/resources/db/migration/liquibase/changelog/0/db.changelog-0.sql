@@ -82,7 +82,7 @@ CREATE TABLE fdr3.flow_to_history (
 	created timestamp(6) NULL,
 	last_execution timestamp(6) NULL,
 	retries numeric(19) DEFAULT 0 NOT NULL,
-	generation_process varchar(50) DEFAULT "NEVER_STARTED" NOT NULL,
+	lock_until timestamp,
 	CONSTRAINT flow_to_history_pk PRIMARY KEY (id)
 );
 
