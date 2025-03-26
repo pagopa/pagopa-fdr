@@ -143,6 +143,24 @@
             <column name="retries" type="NUMBER(19, 0)" defaultValueNumeric="0">
                 <constraints nullable="false"/>
             </column>
+            <column name="generation_process" type="VARCHAR2(50)" defaultValue="NEVER_STARTED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="flow_metadata_persistence" type="VARCHAR2(50)" defaultValue="NEVER_STARTED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_metadata_persistence" type="VARCHAR2(50)" defaultValue="NEVER_STARTED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_partition" type="NUMBER(19, 0)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="qi_notification" type="VARCHAR2(50)" defaultValue="NEVER_STARTED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fase1_notification" type="VARCHAR2(50)" defaultValue="NEVER_STARTED">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -192,11 +210,5 @@
             <column name="name"/>
             <column name="revision"/>
         </createIndex>
-    </changeSet>
-    <changeSet author="liquibase" id="1738839600000-13">
-        <createIndex indexName="psp_flow_index" tableName="flow">
-            <column name="name"/>
-            <column name="status"/>
-        </createIndex>
-    </changeSet>
+      </changeSet>
 </databaseChangeLog>
