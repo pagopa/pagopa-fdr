@@ -104,7 +104,7 @@ public class HistoryCron {
       List<PaymentBlob> payments = handlePage(flow.getId());
 
       FlowBlob flowBlob = flowBlobMapper.toFlowBlob(flow, payments);
-      historyBlobStorageService.saveJsonFile(flowBlob);
+      historyBlobStorageService.saveJsonFile(flowBlob, flowToHistory);
 
       flowToHistoryRepository.deleteByIdTransactional(flowToHistory.getId());
 

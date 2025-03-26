@@ -13,6 +13,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import it.gov.pagopa.fdr.repository.entity.FlowToHistoryEntity;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.common.StringUtil;
@@ -39,7 +40,8 @@ public class HistoryBlobStorageService {
     this.fileUtil = fileUtil;
   }
 
-  public void saveJsonFile(FlowBlob fdrEntity) throws IOException, ValidationException {
+  public void saveJsonFile(FlowBlob fdrEntity, FlowToHistoryEntity flowToHistoryEntity)
+      throws IOException, ValidationException {
     String fileName =
         String.format(
             "%s_%s_%s.json.zip",
@@ -62,14 +64,16 @@ public class HistoryBlobStorageService {
     byte[] compressedFdrHistoryEntityJson = StringUtil.zip(fdrHistoryEntityJson);
     BinaryData jsonFile = BinaryData.fromBytes(compressedFdrHistoryEntityJson);
 
-    uploadBlob(fdrEntity, fileName, jsonFile);
+    boolean permitsElaborationForQI = flowToHistoryEntity.getIsExternal();
+    uploadBlob(fdrEntity, fileName, permitsElaborationForQI, jsonFile);
   }
 
-  private void uploadBlob(FlowBlob fdrEntity, String fileName, BinaryData jsonFile) {
+  private void uploadBlob(
+      FlowBlob fdrEntity, String fileName, boolean permitsElaborationForQI, BinaryData jsonFile) {
     BlobAsyncClient blobClient = blobContainerClient.getBlobAsyncClient(fileName);
     // Set metadata
     Map<String, String> metadata = new HashMap<>();
-    metadata.put("elaborate", "true");
+    metadata.put("elaborate", Boolean.toString(permitsElaborationForQI));
     metadata.put("sessionId", UUID.randomUUID().toString());
     metadata.put("insertedTimestamp", fdrEntity.getPublished().toString());
     metadata.put("serviceIdentifier", AppConstant.SERVICE_IDENTIFIER);
