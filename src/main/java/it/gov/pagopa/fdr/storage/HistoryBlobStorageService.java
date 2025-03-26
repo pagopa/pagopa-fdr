@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.storage;
 
 import com.azure.core.util.BinaryData;
+import com.azure.storage.blob.BlobAsyncClient;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -15,6 +16,7 @@ import com.networknt.schema.ValidationMessage;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.common.StringUtil;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.ValidationException;
@@ -27,7 +29,6 @@ import java.util.UUID;
 @ApplicationScoped
 public class HistoryBlobStorageService {
 
-  public static final String FDR_03 = "FDR03";
   private final BlobContainerAsyncClient blobContainerClient;
   private final FileUtil fileUtil;
 
@@ -65,13 +66,13 @@ public class HistoryBlobStorageService {
   }
 
   private void uploadBlob(FlowBlob fdrEntity, String fileName, BinaryData jsonFile) {
-    var blobClient = blobContainerClient.getBlobAsyncClient(fileName);
+    BlobAsyncClient blobClient = blobContainerClient.getBlobAsyncClient(fileName);
     // Set metadata
     Map<String, String> metadata = new HashMap<>();
     metadata.put("elaborate", "true");
     metadata.put("sessionId", UUID.randomUUID().toString());
     metadata.put("insertedTimestamp", fdrEntity.getPublished().toString());
-    metadata.put("serviceIdentifier", FDR_03);
+    metadata.put("serviceIdentifier", AppConstant.SERVICE_IDENTIFIER);
     blobClient
         .upload(jsonFile, true)
         .flatMap(ignored -> blobClient.setMetadata(metadata))
