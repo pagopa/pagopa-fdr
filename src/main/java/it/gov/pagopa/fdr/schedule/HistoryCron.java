@@ -23,10 +23,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class HistoryCron {
 
+  private final Logger log;
   private final HistoryBlobStorageService historyBlobStorageService;
   private final FlowToHistoryRepository flowToHistoryRepository;
   private final FlowRepository flowRepository;
@@ -41,11 +43,14 @@ public class HistoryCron {
 
   @Inject
   public HistoryCron(
+      Logger log,
       FlowToHistoryRepository flowToHistoryRepository,
       FlowRepository flowRepository,
       PaymentRepository paymentRepository,
       HistoryBlobStorageService historyBlobStorageService,
       FlowBlobMapper flowBlobMapper) {
+
+    this.log = log;
     this.flowToHistoryRepository = flowToHistoryRepository;
     this.flowRepository = flowRepository;
     this.paymentRepository = paymentRepository;
@@ -66,15 +71,22 @@ public class HistoryCron {
   @Scheduled(cron = "${schedule.history.cron}")
   void execute() {
 
+    long startTime = System.currentTimeMillis();
     // retrieve the first n flows to historicize
     try {
+      log.infof("Starting execution of historicization job. Analyzing [%s] elements.", size);
       PanacheQuery<FlowToHistoryEntity> flows =
           flowToHistoryRepository.findTopNEntitiesOrderByCreated(size, maxRetries);
+      log.debugf("Found execution of historicization job. Analyzing [%s] elements.", size);
       for (FlowToHistoryEntity flow : flows.list()) {
         handleFlow(flow);
       }
     } catch (Exception e) {
       throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
+    } finally {
+      log.infof(
+          "Ended execution of historicization job. Elapsed time [%d] ms.",
+          System.currentTimeMillis() - startTime);
     }
   }
 
