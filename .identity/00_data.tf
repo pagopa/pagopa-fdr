@@ -117,3 +117,8 @@ data "azurerm_user_assigned_identity" "identity_ci" {
   name                = "${local.product}-${local.domain}-01-github-ci-identity"
   resource_group_name = "${local.product}-identity-rg"
 }
+
+data "azurerm_key_vault_secret" "postgres_db_password" {
+  name         = "db-fdr3-password"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
