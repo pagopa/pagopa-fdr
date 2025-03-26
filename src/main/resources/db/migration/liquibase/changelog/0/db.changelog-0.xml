@@ -192,5 +192,11 @@
             <column name="name"/>
             <column name="revision"/>
         </createIndex>
-      </changeSet>
+    </changeSet>
+    <changeSet author="liquibase" id="1738839600000-13">
+        <createIndex indexName="psp_flow_index" tableName="flow">
+            <column name="name"/>
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
