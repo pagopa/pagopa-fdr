@@ -61,6 +61,7 @@ jobs:
             SCHEMA=$1
             USER=$2
             PASS=$3
+            az config set extension.use_dynamic_install_allow_preview=true
             az config set extension.use_dynamic_install=yes_without_prompt
             az postgres flexible-server execute --name ${{ vars.POSTGRES_DB_HOST }} --admin-user ${{ vars.POSTGRES_DB_ADMIN_USERNAME }} \
             --admin-password '${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}' --database-name "${{ vars.POSTGRES_DB_NAME }}" \
