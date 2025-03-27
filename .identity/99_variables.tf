@@ -28,10 +28,10 @@ locals {
   }
 
   postgres_db = {
-    host = "pagopa-${var.env_short}-weu-nodo-flexible-postgresql.postgres.database.azure.com"
+    host = "fdr-db.${var.env_short}.internal.postgresql.pagopa.it"
     port = 5432
-    name = "postgres"
-    schema = "fd3"
+    name = "fdr3"
+    schema = "fdr3"
     username = "fdr3"
     admin_username = "azureuser"
   }
