@@ -8,6 +8,7 @@ import it.gov.pagopa.fdr.repository.common.Repository;
 import it.gov.pagopa.fdr.repository.entity.FlowToHistoryEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import java.time.Instant;
 
 @ApplicationScoped
 public class FlowToHistoryRepository extends Repository
@@ -25,6 +26,11 @@ public class FlowToHistoryRepository extends Repository
 
   public PanacheQuery<FlowToHistoryEntity> findTopNEntitiesOrderByCreated(
       Integer limit, Integer maxRetries) {
-    return find("retries < ?1", by("created").descending(), maxRetries).page(0, limit);
+    return find(
+            "retries < ?1 and (lockUntil IS NULL OR lockUntil < ?2)",
+            by("created").descending(),
+            maxRetries,
+            Instant.now())
+        .page(0, limit);
   }
 }
