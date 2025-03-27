@@ -81,11 +81,11 @@ public class HistoryCron {
   }
 
   /**
-   * Finds and locks the first n flows that have never been started, ordered by their creation date.
+   * Finds and locks the first n flows to be processed, ordered by their creation date.
    *
    * <p>This method retrieves the top n flows that have never been started, ordered by their
-   * creation date, and locks them with a lock until date set to the current time plus the duration
-   * defined by the {@code every} property.
+   * creation date, and locks them with a lock until date set to the duration defined by the {@code
+   * every} property plus some padding.
    *
    * @return the PanacheQuery containing the locked flows
    */
