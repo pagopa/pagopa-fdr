@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.schedule;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.runtime.configuration.DurationConverter;
 import io.quarkus.scheduler.Scheduled;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
@@ -19,6 +20,7 @@ import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import it.gov.pagopa.fdr.util.error.exception.common.ScheduleException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import java.io.IOException;
 import java.time.Instant;
@@ -38,6 +40,9 @@ public class HistoryCron {
 
   @ConfigProperty(name = "schedule.history.retries")
   Integer maxRetries;
+
+  @ConfigProperty(name = "schedule.history.every")
+  String every;
 
   @Inject
   public HistoryCron(
@@ -61,19 +66,47 @@ public class HistoryCron {
    * <p>Each flow retrieved is intended to be marked for historicization and further handled as per
    * the logic defined in {@link #handleFlow(FlowToHistoryEntity)}.
    */
-  @Scheduled(every = "1h")
+  @Scheduled(every = "${schedule.history.every}")
   void execute() {
 
     // retrieve the first n flows to historicize
     try {
-      PanacheQuery<FlowToHistoryEntity> flows =
-          flowToHistoryRepository.findTopNEntitiesOrderByCreated(size, maxRetries);
+      PanacheQuery<FlowToHistoryEntity> flows = findAndLockFlowToHistory();
       for (var flow : flows.list()) {
         handleFlow(flow);
       }
     } catch (Exception e) {
       throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
     }
+  }
+
+  /**
+   * Finds and locks the first n flows that have never been started, ordered by their creation date.
+   *
+   * <p>This method retrieves the top n flows that have never been started, ordered by their
+   * creation date, and locks them with a lock until date set to the current time plus the duration
+   * defined by the {@code every} property.
+   *
+   * @return the PanacheQuery containing the locked flows
+   */
+  @Transactional
+  public PanacheQuery<FlowToHistoryEntity> findAndLockFlowToHistory() {
+    // retrieve the first n flows to historicize
+    PanacheQuery<FlowToHistoryEntity> flows =
+        flowToHistoryRepository.findTopNEntitiesOrderByCreated(size, maxRetries);
+
+    // lock the flows with a lock until date set to the current time plus the duration defined
+    // by the every property
+    flows.stream()
+        .forEach(
+            flowToHistory -> {
+              var duration = DurationConverter.parseDuration(every);
+              long secondsToAdd = 30L * flows.list().size(); // add padding of 30 seconds per flow
+              duration = duration.plusSeconds(secondsToAdd);
+              flowToHistory.setLockUntil(Instant.now().plus(duration));
+            });
+
+    return flows;
   }
 
   /**
@@ -152,6 +185,7 @@ public class HistoryCron {
   private void updateFlowToHistory(FlowToHistoryEntity flowToHistory) {
     flowToHistory.setLastExecution(Instant.now());
     flowToHistory.setRetries(flowToHistory.getRetries() + 1);
+    flowToHistory.setLockUntil(null);
     flowToHistoryRepository.persist(flowToHistory);
   }
 

@@ -43,4 +43,7 @@ public class FlowToHistoryEntity extends PanacheEntityBase {
 
   @Column(name = "retries")
   private Integer retries;
+
+  @Column(name = "lock_until")
+  private Instant lockUntil;
 }

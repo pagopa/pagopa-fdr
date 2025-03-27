@@ -45,6 +45,7 @@ CREATE TABLE flow_to_history (
                                       created timestamp(6) NULL,
                                       last_execution timestamp(6) NULL,
                                       retries numeric(19) DEFAULT 0 NOT NULL,
+                                      lockUntil timestamp(6) NULL,
                                       CONSTRAINT flow_to_history_pk PRIMARY KEY (id)
 );
 CREATE UNIQUE INDEX flow_to_historicization_idx ON flow_to_history USING btree (psp_id, name, revision);
