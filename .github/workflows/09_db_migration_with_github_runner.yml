@@ -18,7 +18,11 @@ on:
           - dev
           - uat
           - prod
-
+      db_version:
+        required: true
+        description: Db version (👀 src/main/resources/db/migration/liquibase )
+        type: string
+        
 permissions:
   id-token: write
   contents: read
@@ -63,11 +67,15 @@ jobs:
           tar -xzf liquibase-4.17.1.tar.gz -C liquibase-app
           rm -rf liquibase-4.17.1.tar.gz
           ls -la liquibase-app
-          echo "##vso[task.prependpath]./liquibase-app"
 
       - name: Run liquibase::migrate
         shell: bash
         run: |
+          echo $pwd
+          ls
+          tree -L 2
+          export CLASSPATH="$CLASSPATH:./liquibase-app"
+
           echo "
           classpath: ./src/main/resources/db/migration/liquibase/changelog
           liquibase.headless: true
@@ -83,8 +91,9 @@ jobs:
 
           #liquibase --defaultsFile=fdr.properties drop-all
           #liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-1.0.0.xml"
-          liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-0.xml"
           #liquibase --defaultsFile=fdr.properties clear-checksums #--changelogFile="db.changelog-master-1.0.0.xml"
+
+          liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
 
           rm fdr.properties
 
