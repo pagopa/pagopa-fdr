@@ -77,7 +77,7 @@ jobs:
           echo "
           classpath: ./src/main/resources/db/migration/liquibase/changelog
           liquibase.headless: true
-          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/${{ vars.POSTGRES_DB_NAME }}?prepareThreshold=0&currentSchema=fdr
+          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/${{ vars.POSTGRES_DB_NAME }}?prepareThreshold=0&currentSchema=${{ vars.POSTGRES_DB_SCHEMA }}
           contexts: ${{ inputs.environment }}
           username: ${{ vars.POSTGRES_DB_USERNAME }}
           password: ${{ secrets.POSTGRES_DB_PASSWORD }}
