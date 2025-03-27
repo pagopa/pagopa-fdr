@@ -27,10 +27,9 @@ public class FlowToHistoryRepository extends Repository
   public PanacheQuery<FlowToHistoryEntity> findTopNEntitiesOrderByCreated(
       Integer limit, Integer maxRetries) {
     return find(
-            "retries < ?1 and isExternal = ?2 and (lockUntil IS NULL OR lockUntil < ?3)",
+            "retries < ?1 and (lockUntil IS NULL OR lockUntil < ?2)",
             by("created").descending(),
             maxRetries,
-            true,
             Instant.now())
         .page(0, limit);
   }

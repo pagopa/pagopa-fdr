@@ -1,8 +1,10 @@
 package it.gov.pagopa.fdr.storage;
 
 import com.azure.core.util.BinaryData;
+import com.azure.storage.blob.BlobAsyncClient;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,9 +13,11 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import it.gov.pagopa.fdr.repository.entity.FlowToHistoryEntity;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.common.StringUtil;
+import it.gov.pagopa.fdr.util.constant.AppConstant;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.ValidationException;
@@ -25,7 +29,7 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class HistoryBlobStorageService {
-  public static final String FDR_03 = "FDR03";
+
   private final BlobContainerAsyncClient blobContainerClient;
   private final FileUtil fileUtil;
 
@@ -36,7 +40,8 @@ public class HistoryBlobStorageService {
     this.fileUtil = fileUtil;
   }
 
-  public void saveJsonFile(FlowBlob fdrEntity) throws IOException, ValidationException {
+  public void saveJsonFile(FlowBlob fdrEntity, FlowToHistoryEntity flowToHistoryEntity)
+      throws IOException, ValidationException {
     String fileName =
         String.format(
             "%s_%s_%s.json.zip",
@@ -45,7 +50,11 @@ public class HistoryBlobStorageService {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
     objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    String fdrHistoryEntityJson = objectMapper.writeValueAsString(fdrEntity);
+    String fdrHistoryEntityJson =
+        objectMapper
+            .writer()
+            .with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+            .writeValueAsString(fdrEntity);
 
     String jsonSchema =
         fileUtil.convertToString(
@@ -55,17 +64,19 @@ public class HistoryBlobStorageService {
     byte[] compressedFdrHistoryEntityJson = StringUtil.zip(fdrHistoryEntityJson);
     BinaryData jsonFile = BinaryData.fromBytes(compressedFdrHistoryEntityJson);
 
-    uploadBlob(fdrEntity, fileName, jsonFile);
+    boolean permitsElaborationForQI = flowToHistoryEntity.getIsExternal();
+    uploadBlob(fdrEntity, fileName, permitsElaborationForQI, jsonFile);
   }
 
-  private void uploadBlob(FlowBlob fdrEntity, String fileName, BinaryData jsonFile) {
-    var blobClient = blobContainerClient.getBlobAsyncClient(fileName);
+  private void uploadBlob(
+      FlowBlob fdrEntity, String fileName, boolean permitsElaborationForQI, BinaryData jsonFile) {
+    BlobAsyncClient blobClient = blobContainerClient.getBlobAsyncClient(fileName);
     // Set metadata
     Map<String, String> metadata = new HashMap<>();
-    metadata.put("elaborate", "true");
+    metadata.put("elaborate", Boolean.toString(permitsElaborationForQI));
     metadata.put("sessionId", UUID.randomUUID().toString());
     metadata.put("insertedTimestamp", fdrEntity.getPublished().toString());
-    metadata.put("serviceIdentifier", FDR_03);
+    metadata.put("serviceIdentifier", AppConstant.SERVICE_IDENTIFIER);
     blobClient
         .upload(jsonFile, true)
         .flatMap(ignored -> blobClient.setMetadata(metadata))
