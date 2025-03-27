@@ -122,3 +122,9 @@ data "azurerm_user_assigned_identity" "workload_identity_clientid" {
   name                = "fdr-workload-identity"
   resource_group_name = "pagopa-${var.env_short}-weu-${var.env}-aks-rg"
 }
+
+data "azurerm_key_vault_secret" "postgres_db_password" {
+  name         = "db-fdr3-password"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
