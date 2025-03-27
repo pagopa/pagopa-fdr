@@ -106,9 +106,9 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_slack_webhook" {
 #  resource_group_name = local.integration_test.storage_account_rg
 #}
 
-data "azurerm_user_assigned_identity" "identity_cd" {
-  name                = "${local.product}-${local.domain}-01-github-cd-identity"
+data "azurerm_user_assigned_identity" "identity_cd_01" {
   resource_group_name = "${local.product}-identity-rg"
+  name                = "${local.product}-${local.domain}-job-01-github-cd-identity"
 }
 
 data "azurerm_user_assigned_identity" "identity_ci" {
@@ -116,4 +116,9 @@ data "azurerm_user_assigned_identity" "identity_ci" {
   
   name                = "${local.product}-${local.domain}-01-github-ci-identity"
   resource_group_name = "${local.product}-identity-rg"
+}
+
+data "azurerm_user_assigned_identity" "workload_identity_clientid" {
+  name                = "fdr-workload-identity"
+  resource_group_name = "pagopa-${var.env_short}-weu-${var.env}-aks-rg"
 }

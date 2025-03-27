@@ -82,6 +82,10 @@ microservice-chart:
                 operator: In
                 values:
                   - user
+  serviceAccount:
+    name: "fdr-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>  
   serviceMonitor:
     create: true
     endpoints:
