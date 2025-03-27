@@ -48,7 +48,7 @@ jobs:
   db_schema:
     needs: [ create_runner ]
     runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
-    name: DB migration
+    name: DB schema
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
