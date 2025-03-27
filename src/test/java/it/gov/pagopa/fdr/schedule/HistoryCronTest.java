@@ -1,10 +1,8 @@
 package it.gov.pagopa.fdr.schedule;
 
 import static it.gov.pagopa.fdr.test.util.TestUtil.validFlowToHistory;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.test.InjectMock;
@@ -15,6 +13,7 @@ import it.gov.pagopa.fdr.storage.HistoryBlobStorageService;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import jakarta.inject.Inject;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -31,12 +30,14 @@ class HistoryCronTest {
   void execute() {
     String dynamicFlowName = TestUtil.getDynamicFlowName();
     PanacheQuery<FlowToHistoryEntity> flowToHistory = Mockito.mock(PanacheQuery.class);
+    when(flowToHistory.stream()).thenReturn(Stream.of(validFlowToHistory(dynamicFlowName)));
     when(flowToHistory.list()).thenReturn(List.of(validFlowToHistory(dynamicFlowName)));
 
     TestUtil.pspSunnyDay(dynamicFlowName);
 
     when(flowToHistoryRepository.findTopNEntitiesOrderByCreated(anyInt(), anyInt()))
         .thenReturn(flowToHistory);
+    doNothing().when(flowToHistoryRepository).persist(any(FlowToHistoryEntity.class));
 
     historyCron.execute();
 
