@@ -21,6 +21,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +44,8 @@ public class HistoryCron {
   @ConfigProperty(name = "schedule.history.retries")
   Integer maxRetries;
 
-  @ConfigProperty(name = "schedule.history.every")
-  String every;
+  @ConfigProperty(name = "schedule.history.lock-duration")
+  String lockDuration;
 
   @Inject
   public HistoryCron(
@@ -114,7 +115,7 @@ public class HistoryCron {
     flows.stream()
         .forEach(
             flowToHistory -> {
-              var duration = DurationConverter.parseDuration(every);
+              Duration duration = DurationConverter.parseDuration(lockDuration);
               long secondsToAdd = 30L * flows.list().size(); // add padding of 30 seconds per flow
               duration = duration.plusSeconds(secondsToAdd);
               flowToHistory.setLockUntil(Instant.now().plus(duration));
