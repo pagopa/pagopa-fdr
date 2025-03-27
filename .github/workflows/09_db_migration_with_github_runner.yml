@@ -54,6 +54,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
+      - name: Install Liquibase
+        shell: bash
+        run: |
+          cd ./
+          mkdir liquibase-app
+          wget -c https://github.com/liquibase/liquibase/releases/download/v4.17.1/liquibase-4.17.1.tar.gz
+          tar -xzf liquibase-4.17.1.tar.gz -C liquibase-app
+          rm -rf liquibase-4.17.1.tar.gz
+          ls -la liquibase-app
+          echo "##vso[task.prependpath]./liquibase-app"
+
       - name: Run liquibase::migrate
         shell: bash
         run: |
