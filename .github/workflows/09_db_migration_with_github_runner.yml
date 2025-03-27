@@ -71,9 +71,8 @@ jobs:
       - name: Run liquibase::migrate
         shell: bash
         run: |
-          echo $pwd
-          ls
-          export CLASSPATH="$CLASSPATH:./liquibase-app"
+          echo $pwd && ls && cd liquibase-app
+          export PATH="$PATH:./liquibase-app"
 
           echo "
           classpath: ./src/main/resources/db/migration/liquibase/changelog
