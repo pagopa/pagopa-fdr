@@ -9,6 +9,6 @@ dependencies:
     version: 7.1.1
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
   - name: microservice-chart
-    version: 3.0.0
+    version: 7.1.1
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
     alias: scheduler
