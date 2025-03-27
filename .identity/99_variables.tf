@@ -26,6 +26,13 @@ locals {
     name           = "${local.prefix}-${var.env_short}-${local.location_short}-github-runner-cae",
     resource_group = "${local.prefix}-${var.env_short}-${local.location_short}-github-runner-rg",
   }
+
+  postgres_db = {
+    host = "pagopa-${var.env_short}-weu-nodo-flexible-postgresql.postgres.database.azure.com"
+    port = var.env_short == "d" ? 5432 : 6432
+    name = "postgres",
+    username = "fdr"
+  }
 }
 
 variable "env" {
