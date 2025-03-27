@@ -73,7 +73,6 @@ jobs:
         run: |
           echo $pwd
           ls
-          tree -L 2
           export CLASSPATH="$CLASSPATH:./liquibase-app"
 
           echo "
