@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.23
+    tag: 1.1.24
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -82,6 +82,10 @@ microservice-chart:
                 operator: In
                 values:
                   - user
+  serviceAccount:
+    name: "fdr-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   serviceMonitor:
     create: true
     endpoints:
