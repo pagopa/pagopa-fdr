@@ -28,7 +28,7 @@ locals {
   }
 
   postgres_db = {
-    host = "pagopa-${var.env_short}-weu-nodo-flexible-postgresql.postgres.database.azure.com"
+    host = "pagopa-${var.env_short}-weu-fdr-flexible-postgresql.postgres.database.azure.com"
     port = 5432
     name = "postgres"
     schema = "fdr3"
