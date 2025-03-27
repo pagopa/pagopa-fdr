@@ -1,5 +1,5 @@
 
-name: DB migration
+name: DB schema
 
 on:
   workflow_call:
@@ -18,12 +18,7 @@ on:
           - dev
           - uat
           - prod
-      db_version:
-        required: true
-        description: Db version (👀 src/main/resources/db/migration/liquibase )
-        type: string
-        default: "1.0.0"
-        
+
 permissions:
   id-token: write
   contents: read
@@ -50,7 +45,7 @@ jobs:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
           self_hosted_runner_image_tag: "latest"
 
-  db_migration:
+  db_schema:
     needs: [ create_runner ]
     runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
     name: DB migration
@@ -59,45 +54,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
-      - name: Install Liquibase
+      - name: Run DB schema
         shell: bash
         run: |
-          cd ./
-          mkdir liquibase-app
-          wget -c https://github.com/liquibase/liquibase/releases/download/v4.17.1/liquibase-4.17.1.tar.gz
-          tar -xzf liquibase-4.17.1.tar.gz -C liquibase-app
-          rm -rf liquibase-4.17.1.tar.gz
-          ls -la liquibase-app
+          create_schema () {
+            SCHEMA=$1
+            USER=$2
+            PASS=$3
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az postgres flexible-server execute --name ${{ vars.POSTGRES_DB_HOST }} --admin-user ${{ vars.POSTGRES_DB_ADMIN_USERNAME }} \
+            --admin-password '${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}' --database-name "${{ vars.POSTGRES_DB_NAME }}" \
+            --querytext "
+            do \$\$
+            BEGIN
+            IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$USER') THEN
+            CREATE ROLE $USER LOGIN PASSWORD '$PASS';
+            END IF;
 
-      - name: Run liquibase::migrate
-        shell: bash
-        run: |
-          export PATH="$PATH:./liquibase-app"
+            GRANT ALL PRIVILEGES ON DATABASE \"$DATABASE_NAME\" TO \"$USER\";
+            GRANT \"$USER\" to $ADMIN_USERNAME;
+            CREATE SCHEMA IF NOT EXISTS \"$SCHEMA\" AUTHORIZATION \"$USER\";
+            END
+            \$\$;
+            "
+          }
 
-          echo "
-          classpath: ./src/main/resources/db/migration/liquibase/changelog
-          liquibase.headless: true
-          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/${{ vars.POSTGRES_DB_NAME }}?prepareThreshold=0&currentSchema=fdr
-          contexts: ${{ inputs.environment }}
-          username: ${{ vars.POSTGRES_DB_USERNAME }}
-          password: ${{ secrets.POSTGRES_DB_PASSWORD }}
-          defaultSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
-          liquibaseSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
-          liquibase.hub.mode: OFF
-          log-level: INFO
-          " > fdr.properties
-
-          #liquibase --defaultsFile=fdr.properties drop-all
-          #liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-1.0.0.xml"
-          #liquibase --defaultsFile=fdr.properties clear-checksums #--changelogFile="db.changelog-master-1.0.0.xml"
-
-          liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
-
-          rm fdr.properties
+          create_schema "${{ vars.POSTGRES_DB_SCHEMA }}"     "${{ vars.POSTGRES_DB_USERNAME }}"     "${{ vars.POSTGRES_DB_PASSWORD }}"
 
   cleanup_runner:
     name: Cleanup Runner
-    needs: [ create_runner, db_migration ]
+    needs: [ create_runner, db_schema ]
     if: ${{ success() || failure() }}
     runs-on: ubuntu-22.04
     environment: ${{ inputs.environment }}

@@ -31,7 +31,9 @@ locals {
     host = "pagopa-${var.env_short}-weu-nodo-flexible-postgresql.postgres.database.azure.com"
     port = var.env_short == "d" ? 5432 : 6432
     name = "postgres",
-    username = "fdr"
+    schema = "fd3",
+    username = "fdr3",
+    admin_username = "azureuser"
   }
 }
 

@@ -30,7 +30,8 @@ locals {
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
     "PSP_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value : ""
     "ORG_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value : "",
-    "POSTGRES_DB_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_password.value
+    "POSTGRES_DB_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_password.value,
+    "POSTGRES_DB_ADMIN_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_admin_password.value
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -43,8 +44,10 @@ locals {
     "INTEGRATION_TEST_REPORTS_FOLDER" : local.integration_test.reports_folder,
     "POSTGRES_DB_HOST" : local.postgres_db.host,
     "POSTGRES_DB_PORT" : local.postgres_db.port,
+    "POSTGRES_DB_SCHEMA" : local.postgres_db.schema,
     "POSTGRES_DB_NAME" : local.postgres_db.name,
-    "POSTGRES_DB_USERNAME" : local.postgres_db.username
+    "POSTGRES_DB_USERNAME" : local.postgres_db.username,
+    "POSTGRES_DB_ADMIN_USERNAME" : local.postgres_db.admin_username,
     "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
   }
 }
