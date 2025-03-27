@@ -72,7 +72,7 @@ jobs:
       - name: Run liquibase::migrate
         shell: bash
         run: |
-          echo $pwd && ls && cd liquibase-app
+          echo $pwd && ls ./liquibase-app"
           export PATH="$PATH:./liquibase-app"
 
           echo "
