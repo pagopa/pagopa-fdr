@@ -78,14 +78,15 @@ stages:
                   END IF;
 
                   GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $USER;
-                  GRANT ALL ON SCHEMA $SCHEMA TO $USER;
-                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on tables to $USER;
-                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on sequences to $USER;
-                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on functions to $USER;
 
                   GRANT $USER to $ADMIN_USERNAME;
                   
                   CREATE SCHEMA IF NOT EXISTS $SCHEMA AUTHORIZATION $USER;
+                  
+                  GRANT ALL ON SCHEMA $SCHEMA TO $USER;
+                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on tables to $USER;
+                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on sequences to $USER;
+                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on functions to $USER;
                   END
                   \$\$;
                   "
