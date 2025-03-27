@@ -41,6 +41,12 @@ microservice-chart:
     host: "weudev.fdr.internal.dev.platform.pagopa.it"
     path: /pagopa-fdr-service(/|$)(.*)
     servicePort: 8080
+    # currently set ingress timeout to 50m, until async handling will be introduced
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "3000"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3000"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3000"
+      nginx.ingress.kubernetes.io/send_timeout: "3000"    
   serviceAccount:
     name: "fdr-workload-identity"
   azure:
@@ -61,7 +67,7 @@ microservice-chart:
   autoscaling:
     enable: true
     minReplica: 1
-    maxReplica: 2
+    maxReplica: 1
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     triggers:
