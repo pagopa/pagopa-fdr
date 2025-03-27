@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-fdr-chart
 description: Flussi di rendicontazioni
 type: application
-version: "1.88.0"
-appVersion: "1.1.29"
+version: "1.89.0"
+appVersion: "1.1.29-1-fix-helm-nodeselector"
 dependencies:
   - name: microservice-chart
     version: 7.1.1
