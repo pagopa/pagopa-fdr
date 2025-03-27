@@ -79,7 +79,7 @@ jobs:
             "
           }
 
-          create_schema "${{ vars.POSTGRES_DB_SCHEMA }}"     "${{ vars.POSTGRES_DB_USERNAME }}"     "${{ vars.POSTGRES_DB_PASSWORD }}"
+          create_schema "${{ vars.POSTGRES_DB_SCHEMA }}"     "${{ vars.POSTGRES_DB_USERNAME }}"     "${{ secrets.POSTGRES_DB_PASSWORD }}"
 
   cleanup_runner:
     name: Cleanup Runner
