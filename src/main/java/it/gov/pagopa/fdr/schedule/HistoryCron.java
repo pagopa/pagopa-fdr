@@ -104,6 +104,7 @@ public class HistoryCron {
               long secondsToAdd = 30L * flows.list().size(); // add padding of 30 seconds per flow
               duration = duration.plusSeconds(secondsToAdd);
               flowToHistory.setLockUntil(Instant.now().plus(duration));
+              flowToHistoryRepository.persist(flowToHistory);
             });
 
     return flows;
