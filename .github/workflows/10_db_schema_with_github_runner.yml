@@ -71,8 +71,8 @@ jobs:
             CREATE ROLE $USER LOGIN PASSWORD '$PASS';
             END IF;
 
-            GRANT ALL PRIVILEGES ON DATABASE \"$DATABASE_NAME\" TO \"$USER\";
-            GRANT \"$USER\" to $ADMIN_USERNAME;
+            GRANT ALL PRIVILEGES ON DATABASE \"${{ vars.POSTGRES_DB_NAME }}\" TO \"$USER\";
+            GRANT \"$USER\" to ${{ vars.POSTGRES_DB_ADMIN_USERNAME }};
             CREATE SCHEMA IF NOT EXISTS \"$SCHEMA\" AUTHORIZATION \"$USER\";
             END
             \$\$;
