@@ -55,7 +55,7 @@ generate_openapi () {
           # Converte la stringa separata da virgola in un array
           ($tags | split(",")) as $tagsArray |
 
-          # Elimina tutte le API che non appartengono ai tag specificati
+          # Elimina tutte le API che non appartengono ai tag specificati (necessario per APIM)
           walk(
             if type == "object" then
               if has("paths") then
@@ -69,6 +69,13 @@ generate_openapi () {
                   )
                 )
               else . end
+            else . end
+          ) |
+
+          # Sostituisce il tag "openapi" dalla versione "3.1.0" alla versione "3.0.1" (necessario per le OpEx)
+          walk(
+            if type == "object" and has("openapi") and .openapi == "3.1.0" then
+              .openapi = "3.0.1"
             else . end
           )
         ' infra/api/$folder_name/openapi_temp.json  > infra/api/$folder_name/openapi.json
