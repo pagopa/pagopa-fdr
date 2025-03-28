@@ -62,34 +62,26 @@ stages:
               scriptLocation: inlineScript
               scriptType: bash
               inlineScript: |
+                az config set extension.use_dynamic_install=yes_without_prompt
+                az postgres flexible-server execute --name $(DB_HOST) --admin-user $(ADMIN_USERNAME) \
+                --admin-password '$(db-administrator-login-password)' --database-name "$(DATABASE_NAME)" \
+                --querytext "
+                do \$\$
+                BEGIN
+                IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$FDR3_USERNAME') THEN
+                CREATE ROLE $FDR3_USERNAME LOGIN PASSWORD '$(db-fdr3-password)';
+                END IF;
 
-                create_schema () {
-                  SCHEMA=$1
-                  USER=$2
-                  PASS=$3
-                  az config set extension.use_dynamic_install=yes_without_prompt
-                  az postgres flexible-server execute --name $(DB_HOST) --admin-user $(ADMIN_USERNAME) \
-                  --admin-password '$(db-administrator-login-password)' --database-name "$(DATABASE_NAME)" \
-                  --querytext "
-                  do \$\$
-                  BEGIN
-                  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$USER') THEN
-                  CREATE ROLE $USER LOGIN PASSWORD '$PASS';
-                  END IF;
+                GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $FDR3_USERNAME;
 
-                  GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $USER;
-
-                  GRANT $USER to $ADMIN_USERNAME;
+                GRANT $FDR3_USERNAME to $ADMIN_USERNAME;
                   
-                  CREATE SCHEMA IF NOT EXISTS $SCHEMA AUTHORIZATION $USER;
-                  
-                  GRANT ALL ON SCHEMA $SCHEMA TO $USER;
-                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on tables to $USER;
-                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on sequences to $USER;
-                  ALTER DEFAULT PRIVILEGES IN SCHEMA $SCHEMA grant all on functions to $USER;
-                  END
-                  \$\$;
-                  "
-                }
+                CREATE SCHEMA IF NOT EXISTS $FDR3_SCHEMA AUTHORIZATION $FDR3_USERNAME;
 
-                create_schema "$FDR3_SCHEMA"     "$FDR3_USERNAME"     "$(db-fdr3-password)"
+                GRANT ALL ON SCHEMA $FDR3_SCHEMA TO $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on tables to $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on sequences to $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on functions to $FDR3_USERNAME;
+                END
+                \$\$;
+                "
