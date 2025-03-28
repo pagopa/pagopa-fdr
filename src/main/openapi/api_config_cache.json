@@ -8,7 +8,7 @@
   },
   "servers" : [ {
     "url" : "https://api.dev.platform.pagopa.it/api-config-cache/p/v1",
-    "description" : "Api config cache oracle"
+    "description" : "Api config cache - PostgreSQL instance"
   }],
   "paths": {
     "/stakeholders/fdr/cache/schemas/v1": {
