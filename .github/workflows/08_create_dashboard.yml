@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        environment: [prod]
+        environment: [ prod ]
     environment:
       name: ${{ matrix.environment }}
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -37,9 +37,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Terraform
+        # from https://github.com/hashicorp/setup-terraform/commits/main
+        uses: hashicorp/setup-terraform@8feba2b913ea459066180f9cb177f58a881cf146
+        with:
+          terraform_version: ${{ vars.TERRAFORM_VERSION }}
+
+      - name: Login
+        id: login
+        # from https://github.com/Azure/login/commits/master
+        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # Internal APIs
-      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
+      - name: Create OpEx dashboard for Internal APIs
+        uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
@@ -52,7 +68,8 @@ jobs:
 
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # Organizations APIs
-      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
+      - name: Create OpEx dashboard for Organizations APIs
+        uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
@@ -65,7 +82,8 @@ jobs:
 
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # PSPs APIs
-      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
+      - name: Create OpEx dashboard for PSPs APIs
+        uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
