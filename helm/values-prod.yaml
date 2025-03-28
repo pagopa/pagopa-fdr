@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.32-1-fix-cache-openapi-url
+    tag: 1.1.32-2-fix-cache-openapi-url
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -51,7 +51,7 @@ microservice-chart:
     name: "fdr-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: { }
+  podAnnotations: {}
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
