@@ -37,13 +37,13 @@ microservice-chart: &microservice-chart
   ingress: &ingress
     create: true
     host: "weuuat.fdr.internal.uat.platform.pagopa.it"
-    path: /pagopa-fdr-service(/|$)(.*)
+    path: /pagopa-fdr-service/(.*)
     servicePort: 8080
   serviceAccount:
     name: "fdr-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: {}
+  podAnnotations: { }
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -96,7 +96,7 @@ microservice-chart: &microservice-chart
   keyvault:
     name: "pagopa-u-fdr-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: {}
+  nodeSelector: { }
   tmpVolumeMount:
     create: true
   affinity:
@@ -131,7 +131,7 @@ scheduler:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service-scheduler-unused(/|$)(.*)
+    path: /pagopa-fdr-service-scheduler-unused/(.*)
   resources:
     !!merge <<: *resources
     requests:

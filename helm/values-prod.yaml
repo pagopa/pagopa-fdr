@@ -39,7 +39,7 @@ microservice-chart:
   ingress:
     create: true
     host: "weuprod.fdr.internal.platform.pagopa.it"
-    path: /pagopa-fdr-service(/|$)(.*)
+    path: /pagopa-fdr-service/(.*)
     servicePort: 8080
     # currently set ingress timeout to 50m, until async handling will be introduced
   # annotations:
@@ -51,7 +51,7 @@ microservice-chart:
     name: "fdr-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: {}
+  podAnnotations: { }
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
