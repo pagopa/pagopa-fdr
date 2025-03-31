@@ -64,4 +64,4 @@ jobs:
       - name: Run k6 script
         run: |
           cd ./performance-test
-          sub_key_psp="${{ secrets.PSP_SUBSCRIPTION_KEY }}" sub_key_org="${{ secrets.ORG_SUBSCRIPTION_KEY }}" payments_in_flow="${{ inputs.flow-size }}" max_parallel_calls="${{ inputs.max-parallel-calls }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" db_name=fdr3_k6 docker compose -f docker-compose.yaml up
+          sub_key_psp="${{ secrets.PSP_SUBSCRIPTION_KEY }}" sub_key_org="${{ secrets.ORG_SUBSCRIPTION_KEY }}" payments_in_flow="${{ inputs.flow-size }}" max_parallel_calls="${{ inputs.max-parallel-calls }}" env="${{ inputs.environment }}" type="${{ inputs.test-type }}" script="${{ inputs.script-name }}" db_name=fdr3_k6 docker compose -f docker-compose.yaml up --exit-code-from k6
