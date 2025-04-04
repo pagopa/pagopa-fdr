@@ -135,15 +135,16 @@ scheduler:
   resources:
     !!merge <<: *resources
     requests:
-      memory: "256Mi"
+      memory: "1Gi"
       cpu: "200m"
     limits:
-      memory: "1Gi"
-      cpu: "400m"
+      memory: "2Gi"
+      cpu: "800m"
   autoscaling:
     !!merge <<: *autoscaling
   envConfig:
     !!merge <<: *envConfig
+    CUSTOM_JAVA_OPTS: "-DXmx=1024m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
     SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
     SCHEDULE_HISTORY_SIZE: "300"
     SCHEDULE_HISTORY_RETRIES: "3"

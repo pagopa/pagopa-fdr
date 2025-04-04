@@ -17,6 +17,7 @@
     <quarkus.platform.version>3.17.7</quarkus.platform.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0</surefire-plugin.version>
+    <jvm.args>${env.CUSTOM_JAVA_OPTS}</jvm.args>
   </properties>
   <dependencyManagement>
     <dependencies>

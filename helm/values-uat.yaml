@@ -146,6 +146,7 @@ scheduler:
     maxReplica: 1
   envConfig:
     !!merge <<: *envConfig
+    CUSTOM_JAVA_OPTS: "-DXmx=1024m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
     SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
     SCHEDULE_HISTORY_SIZE: "300"
     SCHEDULE_HISTORY_RETRIES: "3"
