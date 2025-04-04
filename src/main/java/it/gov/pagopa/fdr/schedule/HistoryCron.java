@@ -48,6 +48,9 @@ public class HistoryCron {
   @ConfigProperty(name = "schedule.history.lock-duration")
   String lockDuration;
 
+  @ConfigProperty(name = "schedule.history.payment-page-size")
+  Integer paymentPageSize;
+
   @Inject
   public HistoryCron(
       Logger log,
@@ -183,7 +186,7 @@ public class HistoryCron {
     List<PaymentBlob> result = new ArrayList<>();
     PanacheQuery<PaymentEntity> payments;
     do {
-      payments = paymentRepository.findPageByFlowId(flowId, page, 100);
+      payments = paymentRepository.findPageByFlowId(flowId, page, paymentPageSize);
       List<PaymentBlob> paymentsBlob =
           payments.stream().map(flowBlobMapper::toPaymentBlob).toList();
       result.addAll(paymentsBlob);
