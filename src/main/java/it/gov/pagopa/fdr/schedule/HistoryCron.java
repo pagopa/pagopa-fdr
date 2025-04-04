@@ -83,9 +83,9 @@ public class HistoryCron {
     try {
       log.infof("Starting execution of historicization job. Analyzing [%s] elements.", size);
       List<FlowToHistoryEntity> flows = findAndLockFlowToHistory();
-      log.infof("Found execution of historicization job. Analyzing [%s] elements.", flows.size());
+      log.debugf("Found execution of historicization job. Analyzing [%s] elements.", flows.size());
       for (FlowToHistoryEntity flow : flows) {
-        log.infof("Starting handleFlow. Name [%s].", flow.getName());
+        log.debugf("Starting handleFlow. Name [%s].", flow.getName());
         handleFlow(flow);
       }
     } catch (Exception e) {
@@ -157,7 +157,7 @@ public class HistoryCron {
       historyBlobStorageService.saveJsonFile(flowBlob, flowToHistory);
 
       flowToHistoryRepository.deleteById(flowToHistory.getId());
-      log.infof(
+      log.debugf(
               "Ended execution of handleFlow. Flow name [%s] Elapsed time [%d] ms.",
               flow.name,
               System.currentTimeMillis() - startTime);
