@@ -144,8 +144,8 @@ scheduler:
     !!merge <<: *autoscaling
   envConfig:
     !!merge <<: *envConfig
-    SCHEDULE_HISTORY_CRON: "0 0 */1 * * ?"
-    SCHEDULE_HISTORY_SIZE: "100"
+    SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
+    SCHEDULE_HISTORY_SIZE: "300"
     SCHEDULE_HISTORY_RETRIES: "3"
     SCHEDULE_HISTORY_LOCK_DURATION: "1h"
     SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
