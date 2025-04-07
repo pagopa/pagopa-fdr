@@ -13,7 +13,6 @@ import it.gov.pagopa.fdr.storage.HistoryBlobStorageService;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
