@@ -30,7 +30,6 @@ class HistoryCronTest {
   void execute() {
     String dynamicFlowName = TestUtil.getDynamicFlowName();
     PanacheQuery<FlowToHistoryEntity> flowToHistory = Mockito.mock(PanacheQuery.class);
-    when(flowToHistory.stream()).thenReturn(Stream.of(validFlowToHistory(dynamicFlowName)));
     when(flowToHistory.list()).thenReturn(List.of(validFlowToHistory(dynamicFlowName)));
 
     TestUtil.pspSunnyDay(dynamicFlowName);
@@ -41,6 +40,6 @@ class HistoryCronTest {
 
     historyCron.execute();
 
-    verify(flowToHistoryRepository).deleteByIdTransactional(anyLong());
+    verify(flowToHistoryRepository).deleteById(anyLong());
   }
 }
