@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.33
+    tag: 1.1.33-2-PAGOPA-2892
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -94,6 +94,8 @@ microservice-chart:
     DATASOURCE_POOL_SIZE: "50"
     SCHEDULE_HISTORY_SIZE: "100"
     SCHEDULE_HISTORY_RETRIES: "3"
+    SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
+    SCHEDULE_HISTORY_PAYMENT_PAGE_SIZE: "10000"
   envFieldRef:
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"

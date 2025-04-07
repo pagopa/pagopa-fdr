@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.33
+    tag: 1.1.33-2-PAGOPA-2892
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -135,19 +135,22 @@ scheduler:
   resources:
     !!merge <<: *resources
     requests:
-      memory: "256Mi"
+      memory: "1Gi"
       cpu: "200m"
     limits:
-      memory: "1Gi"
-      cpu: "400m"
+      memory: "2Gi"
+      cpu: "800m"
   autoscaling:
     !!merge <<: *autoscaling
   envConfig:
     !!merge <<: *envConfig
-    SCHEDULE_HISTORY_CRON: "0 0 */1 * * ?"
-    SCHEDULE_HISTORY_SIZE: "100"
+    CUSTOM_JAVA_OPTS: "-DXmx=1024m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
+    SCHEDULE_HISTORY_SIZE: "300"
     SCHEDULE_HISTORY_RETRIES: "3"
     SCHEDULE_HISTORY_LOCK_DURATION: "1h"
+    SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
+    SCHEDULE_HISTORY_PAYMENT_PAGE_SIZE: "10000"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
