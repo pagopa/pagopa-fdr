@@ -5,6 +5,6 @@
 
   <property name="version" value="1.0.1" global="false"/>
 
-  <include file="./0/db.changelog-01-amount-float8.sql"/>
+  <include file="./1/db.changelog-202504081545.sql"/>
 
 </databaseChangeLog>
