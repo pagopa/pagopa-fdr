@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        environment: [prod]
+        environment: [ prod ]
     environment:
       name: ${{ matrix.environment }}
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -39,39 +39,45 @@ jobs:
 
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # Internal APIs
-      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
+      - name: Create OpEx dashboard for Internal APIs
+        uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
           config: .opex/env/${{ matrix.environment }}/internal/config.yaml
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ secrets.CD_CLIENT_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.INTERNAL_SUBSCRIPTION_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
           # from https://github.com/pagopa/opex-dashboard-azure-action/pkgs/container/opex-dashboard-azure-action
           docker-version: sha256:e4245954566cd3470e1b5527d33bb58ca132ce7493eac01be9e808fd25a11c8d
+          terraform-version: ${{ vars.TERRAFORM_VERSION }}
 
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # Organizations APIs
-      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
+      - name: Create OpEx dashboard for Organizations APIs
+        uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
           config: .opex/env/${{ matrix.environment }}/organization/config.yaml
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ secrets.CD_CLIENT_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.ORG_SUBSCRIPTION_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
           # from https://github.com/pagopa/opex-dashboard-azure-action/pkgs/container/opex-dashboard-azure-action
           docker-version: sha256:e4245954566cd3470e1b5527d33bb58ca132ce7493eac01be9e808fd25a11c8d
+          terraform-version: ${{ vars.TERRAFORM_VERSION }}
 
       # from https://github.com/pagopa/opex-dashboard-azure-action/
       # PSPs APIs
-      - uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
+      - name: Create OpEx dashboard for PSPs APIs
+        uses: pagopa/opex-dashboard-azure-action@ece3bc2b133be74cabb50aec14cdb9b8051b886f # v1.1.2
         with:
           environment: ${{ matrix.environment }}
           api-name:
           config: .opex/env/${{ matrix.environment }}/psp/config.yaml
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ secrets.CD_CLIENT_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.PSP_SUBSCRIPTION_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
           # from https://github.com/pagopa/opex-dashboard-azure-action/pkgs/container/opex-dashboard-azure-action
           docker-version: sha256:e4245954566cd3470e1b5527d33bb58ca132ce7493eac01be9e808fd25a11c8d
+          terraform-version: ${{ vars.TERRAFORM_VERSION }}
