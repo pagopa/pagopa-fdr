@@ -64,7 +64,7 @@ CREATE TABLE fdr3.payment (
 	iuv varchar(50) NOT NULL,
 	iur varchar(50) NOT NULL,
 	"index" numeric(19) NOT NULL,
-	amount float4 NOT NULL,
+	amount float8 NOT NULL,
 	pay_date timestamp(6) NOT NULL,
 	pay_status varchar(50) NOT NULL,
 	transfer_id numeric(19) NOT NULL,
