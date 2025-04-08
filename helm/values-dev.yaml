@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.32
+    tag: 1.1.34
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -37,7 +37,7 @@ microservice-chart: &microservice-chart
   ingress: &ingress
     create: true
     host: "weudev.fdr.internal.dev.platform.pagopa.it"
-    path: /pagopa-fdr-service(/|$)(.*)
+    path: /pagopa-fdr-service/(.*)
     servicePort: 8080
   serviceAccount:
     name: "fdr-workload-identity"
@@ -131,23 +131,26 @@ scheduler:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service-scheduler-unused(/|$)(.*)
+    path: /pagopa-fdr-service-scheduler-unused/(.*)
   resources:
     !!merge <<: *resources
     requests:
-      memory: "256Mi"
+      memory: "1Gi"
       cpu: "200m"
     limits:
-      memory: "1Gi"
-      cpu: "400m"
+      memory: "2Gi"
+      cpu: "800m"
   autoscaling:
     !!merge <<: *autoscaling
   envConfig:
     !!merge <<: *envConfig
-    SCHEDULE_HISTORY_CRON: "0 0 */1 * * ?"
-    SCHEDULE_HISTORY_SIZE: "100"
+    CUSTOM_JAVA_OPTS: "-DXmx=1024m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
+    SCHEDULE_HISTORY_SIZE: "300"
     SCHEDULE_HISTORY_RETRIES: "3"
     SCHEDULE_HISTORY_LOCK_DURATION: "1h"
+    SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
+    SCHEDULE_HISTORY_PAYMENT_PAGE_SIZE: "10000"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
