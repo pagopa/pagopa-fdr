@@ -7,6 +7,8 @@ import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.storage.model.PaymentBlob;
+import java.math.RoundingMode;
+import java.util.Date;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
@@ -43,10 +45,10 @@ public interface FlowBlobMapper {
                 .organizationName(flow.receiverOrganizationName)
                 .build())
         .regulation(flow.regulation)
-        .regulationDate(flow.regulationDate.toString())
+        .regulationDate(Date.from(flow.regulationDate).toString())
         .bicCodePouringBank(flow.bicCodePouringBank)
         .computedTotPayments(flow.computedTotPayments)
-        .computedSumPayments(flow.computedTotAmount)
+        .computedSumPayments(flow.computedTotAmount.setScale(2, RoundingMode.HALF_UP))
         .payments(payments)
         .build();
   }
@@ -57,7 +59,7 @@ public interface FlowBlobMapper {
         .iur(elem.getIur())
         .iuv(elem.getIuv())
         .idTransfer(elem.getTransferId())
-        .pay(elem.getAmount())
+        .pay(elem.getAmount().setScale(2, RoundingMode.HALF_UP))
         .payDate(elem.getPayDate().toString())
         .payStatus(elem.getPayStatus())
         .build();
