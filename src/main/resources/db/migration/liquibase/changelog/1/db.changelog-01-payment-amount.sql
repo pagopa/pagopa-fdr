@@ -1,0 +1,1 @@
+ALTER TABLE fdr3.flow ALTER COLUMN tot_amount TYPE float8 USING tot_amount::float8;

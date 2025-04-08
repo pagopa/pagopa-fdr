@@ -7,4 +7,6 @@
 
   <include file="./db.changelog-master-0.xml"/>
 
+  <include file="./0/db.changelog-01-payment-amount.sql"/>
+
 </databaseChangeLog>
