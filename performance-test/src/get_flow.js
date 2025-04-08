@@ -74,7 +74,10 @@ export default function () {
   console.log(`Selected organization: ${selectedId}`);
 
   // Get flow list
-  const getFlowListURL = `${fdrBaseUrlOrg}/organizations/${requestValues.creditorInstitutionId}/fdrs`
+  const now = new Date();
+  now.setHours(0, 0, 0, 0); // publishedGt set to today at 00:00:00
+  const isoDate = now.toISOString();
+  const getFlowListURL = `${fdrBaseUrlOrg}/organizations/${requestValues.creditorInstitutionId}/fdrs?publishedGt=${isoDate}`;
   params.tags.api_name = "get_flow_list";
   var getFlowListResponse = http.get(getFlowListURL, params);
   check(getFlowListResponse, {
