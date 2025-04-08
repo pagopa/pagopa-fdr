@@ -37,7 +37,7 @@ const subscriptionKeyPSP = `${__ENV.API_SUBSCRIPTION_KEY_PSP}`;
 const subscriptionKeyOrg = `${__ENV.API_SUBSCRIPTION_KEY_ORG}`;
 
 // Predefined organizations ID
-const predefinedOrgIds = ["77777777777", "88888888888", "15376371009"];
+const predefinedOrgIds = ["88888888888", "15376371009"];
 
 export function setup() {
   var params = {
