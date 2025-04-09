@@ -109,10 +109,10 @@ microservice-chart: &microservice-chart
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
           - matchExpressions:
-              - key: node_type
+              - key: nodo
                 operator: In
                 values:
-                  - nodo
+                  - "true"
   canaryDelivery:
     create: false
 # Configuration for standard application
