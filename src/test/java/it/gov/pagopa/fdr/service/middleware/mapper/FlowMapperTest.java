@@ -6,14 +6,23 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.controller.model.flow.*;
+import it.gov.pagopa.fdr.controller.model.flow.FlowByCICreated;
+import it.gov.pagopa.fdr.controller.model.flow.FlowByCIPublished;
+import it.gov.pagopa.fdr.controller.model.flow.FlowByPSP;
+import it.gov.pagopa.fdr.controller.model.flow.Receiver;
+import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
-import it.gov.pagopa.fdr.controller.model.flow.response.*;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsPublishedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
+import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -205,7 +214,7 @@ class FlowMapperTest {
             .sumPayments(100.0)
             .totPayments(10L)
             .regulation("testRegulation")
-            .regulationDate(Instant.now())
+            .regulationDate(LocalDate.from(Instant.now()))
             .bicCodePouringBank("testBicCode")
             .sender(sender)
             .receiver(receiver)

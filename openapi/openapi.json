@@ -89,10 +89,10 @@
             "description": "The description related to the regulation payment related to the flow.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.identificativoUnivocoRegolamento]</b>."
           },
           "regulationDate": {
-            "$ref": "#/components/schemas/Instant",
+            "$ref": "#/components/schemas/LocalDate",
             "type": "string",
             "examples": [
-              "2023-04-03T12:00:30.900000Z"
+              "2023-04-03"
             ],
             "description": "The date of the regulation payment related to the flow.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.dataRegolamento]</b>."
           },
@@ -120,7 +120,7 @@
             "examples": [
               0.01
             ],
-            "pattern": "^\\d{1,2147483647}([.]\\d{1,2})?$",
+            "pattern": "^\\d{1,2147483647}[.]\\d{1,2}?$",
             "description": "The total amount of payments to be calculated in the flow during the flow compilation.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.importoTotalePagamenti]</b>."
           }
         }
@@ -399,6 +399,10 @@
         "type": "string",
         "format": "date-time"
       },
+      "LocalDate": {
+        "type": "string",
+        "format": "date"
+      },
       "Metadata": {
         "type": "object",
         "properties": {
@@ -607,7 +611,7 @@
             "examples": [
               0.01
             ],
-            "pattern": "^\\d{1,2147483647}([.]\\d{1,2})?$",
+            "pattern": "^\\d{1,2147483647}[.]\\d{1,2}?$",
             "description": "The value of the payment amount in decimal euro.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.datiSingoliPagamenti.singoloImportoPagato]</b>."
           },
           "payStatus": {
@@ -808,10 +812,10 @@
             "description": "The description related to the regulation payment related to the flow."
           },
           "regulationDate": {
-            "$ref": "#/components/schemas/Instant",
+            "$ref": "#/components/schemas/LocalDate",
             "type": "string",
             "examples": [
-              "2023-04-03T12:00:30.900000Z"
+              "2023-04-03"
             ],
             "description": "The date of the regulation payment related to the flow."
           },
@@ -846,6 +850,7 @@
             "examples": [
               81.66
             ],
+            "pattern": "^\\d{1,2147483647}[.]\\d{1,2}?$",
             "description": "The computed total amount of payments calculated in the flow during the compilation."
           },
           "totPayments": {
@@ -862,6 +867,7 @@
             "examples": [
               100.95
             ],
+            "pattern": "^\\d{1,2147483647}[.]\\d{1,2}?$",
             "description": "The total amount of payments to be calculated in the flow during the flow compilation."
           }
         }
@@ -924,10 +930,10 @@
             "description": "The description related to the regulation payment related to the flow."
           },
           "regulationDate": {
-            "$ref": "#/components/schemas/Instant",
+            "$ref": "#/components/schemas/LocalDate",
             "type": "string",
             "examples": [
-              "2023-04-03T12:00:30.900000Z"
+              "2023-04-03"
             ],
             "description": "The date of the regulation payment related to the flow."
           },
@@ -970,6 +976,7 @@
             "examples": [
               100.95
             ],
+            "pattern": "^\\d{1,2147483647}[.]\\d{1,2}?$",
             "description": "The computed total amount of payments calculated in the flow during the compilation."
           },
           "totPayments": {
@@ -986,6 +993,7 @@
             "examples": [
               100.95
             ],
+            "pattern": "^\\d{1,2147483647}[.]\\d{1,2}?$",
             "description": "The total amount of payments to be calculated in the flow during the flow compilation."
           }
         }
