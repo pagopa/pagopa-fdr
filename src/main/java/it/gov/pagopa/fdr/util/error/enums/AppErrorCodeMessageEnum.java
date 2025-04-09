@@ -46,6 +46,12 @@ public enum AppErrorCodeMessageEnum {
       RestResponse.Status.BAD_REQUEST,
       "An error occurred during execution of analysis of JSON request, in particular regarding its"
           + " format"),
+  BAD_REQUEST_INPUT_JSON_DATE(
+      "1006",
+      "bad.request.inputJson.date",
+      RestResponse.Status.BAD_REQUEST,
+      "An error occurred during execution of request syntactic validation, in particular regarding"
+          + " the analysis of date"),
 
   // semantic errors - cached configuration
   PSP_UNKNOWN(

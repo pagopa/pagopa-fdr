@@ -18,6 +18,7 @@ import jakarta.validation.UnexpectedTypeException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -142,6 +143,13 @@ public class ExceptionMappers {
                 field,
                 currentValue,
                 accepted);
+      } else if (target.isAssignableFrom(Date.class)) {
+        appEx =
+            new AppException(
+                invalidFormatException,
+                AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_DATE,
+                field,
+                currentValue);
       } else if (target.isAssignableFrom(Instant.class)) {
         appEx =
             new AppException(
@@ -149,6 +157,7 @@ public class ExceptionMappers {
                 AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_INSTANT,
                 field,
                 currentValue);
+
       } else {
         appEx =
             new AppException(
