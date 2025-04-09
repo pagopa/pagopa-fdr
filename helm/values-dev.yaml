@@ -51,7 +51,7 @@ microservice-chart: &microservice-chart
     allowPrivilegeEscalation: false
   resources: &resources
     requests:
-      memory: "2Gi"
+      memory: "1Gi"
       cpu: "400m"
     limits:
       memory: "3Gi"
@@ -107,7 +107,7 @@ microservice-chart: &microservice-chart
               - key: node_type
                 operator: In
                 values:
-                  - user
+                  - nodo
   canaryDelivery:
     create: false
 # Configuration for standard application
@@ -142,6 +142,8 @@ scheduler:
       cpu: "800m"
   autoscaling:
     !!merge <<: *autoscaling
+    minReplica: 1
+    maxReplica: 1
   envConfig:
     !!merge <<: *envConfig
     CUSTOM_JAVA_OPTS: "-DXmx=1024m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
