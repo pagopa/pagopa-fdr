@@ -99,6 +99,11 @@ microservice-chart: &microservice-chart
   nodeSelector: {}
   tmpVolumeMount:
     create: true
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "nodo"
+      effect: NoSchedule
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
