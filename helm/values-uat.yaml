@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.36
+    tag: 1.1.37
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -51,7 +51,7 @@ microservice-chart: &microservice-chart
     allowPrivilegeEscalation: false
   resources: &resources
     requests:
-      memory: "2Gi"
+      memory: "1Gi"
       cpu: "400m"
     limits:
       memory: "3Gi"
