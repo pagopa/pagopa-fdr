@@ -18,7 +18,7 @@ import jakarta.validation.UnexpectedTypeException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -143,7 +143,7 @@ public class ExceptionMappers {
                 field,
                 currentValue,
                 accepted);
-      } else if (target.isAssignableFrom(Date.class)) {
+      } else if (target.isAssignableFrom(LocalDate.class)) {
         appEx =
             new AppException(
                 invalidFormatException,
