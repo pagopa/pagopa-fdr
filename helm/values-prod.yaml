@@ -109,7 +109,7 @@ microservice-chart: &microservice-chart
               - key: node_type
                 operator: In
                 values:
-                  - user
+                  - nodo
   canaryDelivery:
     create: false
 # Configuration for standard application
