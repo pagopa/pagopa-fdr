@@ -33,7 +33,7 @@ public interface ISupportController {
   @GET
   @Path("iuv/{" + ControllerConstants.PARAMETER_IUV + "}/")
   @Operation(
-      operationId = "ISupportController.getByIuv",
+      operationId = "ISupportController_getByIuv",
       summary = "Get all flows related to PSP, only if contains a payment with specific IUV code",
       description =
           """
@@ -116,7 +116,7 @@ This API is used for internal purpose in order to perform a deep-search for dedi
   @GET
   @Path("iur/{" + ControllerConstants.PARAMETER_IUR + "}/")
   @Operation(
-      operationId = "ISupportController.getByIur",
+      operationId = "ISupportController_getByIur",
       summary = "Get all flows related to PSP, only if contains a payment with specific IUR code",
       description =
           """

@@ -106,9 +106,9 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_slack_webhook" {
 #  resource_group_name = local.integration_test.storage_account_rg
 #}
 
-data "azurerm_user_assigned_identity" "identity_cd" {
-  name                = "${local.product}-${local.domain}-01-github-cd-identity"
+data "azurerm_user_assigned_identity" "identity_cd_01" {
   resource_group_name = "${local.product}-identity-rg"
+  name                = "${local.product}-${local.domain}-job-01-github-cd-identity"
 }
 
 data "azurerm_user_assigned_identity" "identity_ci" {
@@ -117,3 +117,19 @@ data "azurerm_user_assigned_identity" "identity_ci" {
   name                = "${local.product}-${local.domain}-01-github-ci-identity"
   resource_group_name = "${local.product}-identity-rg"
 }
+
+data "azurerm_user_assigned_identity" "workload_identity_clientid" {
+  name                = "fdr-workload-identity"
+  resource_group_name = "pagopa-${var.env_short}-weu-${var.env}-aks-rg"
+}
+
+data "azurerm_key_vault_secret" "postgres_db_password" {
+  name         = "db-fdr3-password"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "postgres_db_admin_password" {
+  name         = "db-administrator-login-password"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
+

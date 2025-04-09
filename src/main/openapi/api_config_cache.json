@@ -7,8 +7,8 @@
     "version": "0.4.0"
   },
   "servers" : [ {
-    "url" : "https://api.dev.platform.pagopa.it/api-config-cache/p/v1/fdr",
-    "description" : "Api config cache oracle"
+    "url" : "https://api.dev.platform.pagopa.it/api-config-cache/p/v1",
+    "description" : "Api config cache - PostgreSQL instance"
   }],
   "paths": {
     "/stakeholders/fdr/cache/schemas/v1": {

@@ -4,6 +4,8 @@ public class AppConstant {
 
   public static final String SERVICE_CODE_APP = "FDR";
 
+  public static final String SERVICE_IDENTIFIER = "FDR03";
+
   public static final String REQUEST = "REQ";
   public static final String RESPONSE = "RES";
 

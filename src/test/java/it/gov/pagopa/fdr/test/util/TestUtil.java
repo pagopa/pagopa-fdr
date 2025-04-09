@@ -6,9 +6,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
+import it.gov.pagopa.fdr.controller.model.flow.Receiver;
+import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
+import it.gov.pagopa.fdr.repository.entity.FlowToHistoryEntity;
+import it.gov.pagopa.fdr.storage.model.FlowBlob;
+import it.gov.pagopa.fdr.storage.model.PaymentBlob;
 import it.gov.pagopa.fdr.util.common.FileUtil;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 public class TestUtil {
 
@@ -84,5 +91,58 @@ public class TestUtil {
             .body()
             .as(GenericResponse.class);
     assertThat(resPayment.getMessage(), equalTo(String.format("Fdr [%s] payment added", flowName)));
+  }
+
+  public static FlowBlob validFlowBlob() {
+    return FlowBlob.builder()
+        .fdr("fdr")
+        .fdrDate(Instant.now())
+        .revision(1L)
+        .created(Instant.now())
+        .updated(Instant.now())
+        .published(Instant.now())
+        .status("PUBLISHED")
+        .sender(
+            Sender.builder()
+                .type(SenderTypeEnum.ABI_CODE)
+                .id("id")
+                .pspId("5555")
+                .pspName("PSP Name")
+                .pspBrokerId("7777")
+                .channelId("7777_1")
+                .password("password")
+                .build())
+        .receiver(
+            Receiver.builder().id("id").organizationId("22222").organizationName("EC Name").build())
+        .regulation("123")
+        .regulationDate("")
+        .bicCodePouringBank("123")
+        .computedTotPayments(1L)
+        .computedSumPayments(BigDecimal.valueOf(1.0))
+        .payments(
+            List.of(
+                PaymentBlob.builder()
+                    .pay(BigDecimal.valueOf(1.0))
+                    .index(1L)
+                    .iuv("iuv")
+                    .iur("iur")
+                    .idTransfer(1L)
+                    .payDate("")
+                    .payStatus("OK")
+                    .build()))
+        .build();
+  }
+
+  public static FlowToHistoryEntity validFlowToHistory(String dynamicFlowName) {
+    return FlowToHistoryEntity.builder()
+        .id(1L)
+        .pspId(AppConstantTestHelper.PSP_CODE)
+        .name(dynamicFlowName)
+        .retries(0)
+        .isExternal(true)
+        .lastExecution(Instant.now())
+        .created(Instant.now())
+        .revision(1L)
+        .build();
   }
 }
