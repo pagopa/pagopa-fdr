@@ -43,7 +43,7 @@ microservice-chart: &microservice-chart
     name: "fdr-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: { }
+  podAnnotations: {}
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -84,10 +84,6 @@ microservice-chart: &microservice-chart
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.p.internal.postgresql.pagopa.it:6432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
     DATASOURCE_POOL_SIZE: "50"
-    SCHEDULE_HISTORY_SIZE: "100"
-    SCHEDULE_HISTORY_RETRIES: "3"
-    SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
-    SCHEDULE_HISTORY_PAYMENT_PAGE_SIZE: "10000"
   envFieldRef: &envFieldRef
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
@@ -100,7 +96,7 @@ microservice-chart: &microservice-chart
   keyvault:
     name: "pagopa-p-fdr-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: { }
+  nodeSelector: {}
   tmpVolumeMount:
     create: true
   affinity:
@@ -135,7 +131,7 @@ scheduler:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service-scheduler-unused(/|$)(.*)
+    path: /pagopa-fdr-service-scheduler-unused/(.*)
   resources:
     !!merge <<: *resources
     requests:
@@ -150,12 +146,14 @@ scheduler:
     maxReplica: 1
   envConfig:
     !!merge <<: *envConfig
-    SCHEDULE_HISTORY_CRON: "0 0 */1 * * ?"
-    SCHEDULE_HISTORY_SIZE: "100"
+    CUSTOM_JAVA_OPTS: "-DXmx=1024m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
+    SCHEDULE_HISTORY_SIZE: "300"
     SCHEDULE_HISTORY_RETRIES: "3"
     SCHEDULE_HISTORY_LOCK_DURATION: "1h"
+    SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
+    SCHEDULE_HISTORY_PAYMENT_PAGE_SIZE: "10000"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
     !!merge <<: *envSecret
-
