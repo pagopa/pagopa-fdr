@@ -3,6 +3,7 @@
     {
       "env": "dev",
       "base_path": "https://api.dev.platform.pagopa.it/fdr-psp/service/v1",
+      "base_path_org": "https://api.dev.platform.pagopa.it/fdr-org/service/v1",
       "psp_type": "BIC_CODE",
       "psp_id": "SELBIT2B",
       "psp_domain_id": "88888888888",
