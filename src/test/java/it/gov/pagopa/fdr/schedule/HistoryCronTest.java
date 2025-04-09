@@ -13,7 +13,6 @@ import it.gov.pagopa.fdr.storage.HistoryBlobStorageService;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -30,7 +29,6 @@ class HistoryCronTest {
   void execute() {
     String dynamicFlowName = TestUtil.getDynamicFlowName();
     PanacheQuery<FlowToHistoryEntity> flowToHistory = Mockito.mock(PanacheQuery.class);
-    when(flowToHistory.stream()).thenReturn(Stream.of(validFlowToHistory(dynamicFlowName)));
     when(flowToHistory.list()).thenReturn(List.of(validFlowToHistory(dynamicFlowName)));
 
     TestUtil.pspSunnyDay(dynamicFlowName);
@@ -41,6 +39,6 @@ class HistoryCronTest {
 
     historyCron.execute();
 
-    verify(flowToHistoryRepository).deleteByIdTransactional(anyLong());
+    verify(flowToHistoryRepository).deleteById(anyLong());
   }
 }

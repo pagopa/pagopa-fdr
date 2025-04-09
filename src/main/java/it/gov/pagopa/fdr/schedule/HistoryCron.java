@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.schedule;
 
+import io.quarkus.hibernate.orm.panache.Panache;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.runtime.configuration.DurationConverter;
 import io.quarkus.scheduler.Scheduled;
@@ -47,6 +48,9 @@ public class HistoryCron {
   @ConfigProperty(name = "schedule.history.lock-duration")
   String lockDuration;
 
+  @ConfigProperty(name = "schedule.history.payment-page-size")
+  Integer paymentPageSize;
+
   @Inject
   public HistoryCron(
       Logger log,
@@ -81,9 +85,10 @@ public class HistoryCron {
     // retrieve the first n flows to historicize
     try {
       log.infof("Starting execution of historicization job. Analyzing [%s] elements.", size);
-      PanacheQuery<FlowToHistoryEntity> flows = findAndLockFlowToHistory();
-      log.debugf("Found execution of historicization job. Analyzing [%s] elements.", size);
-      for (FlowToHistoryEntity flow : flows.list()) {
+      List<FlowToHistoryEntity> flows = findAndLockFlowToHistory();
+      log.debugf("Found execution of historicization job. Analyzing [%s] elements.", flows.size());
+      for (FlowToHistoryEntity flow : flows) {
+        log.debugf("Starting handleFlow. Name [%s].", flow.getName());
         handleFlow(flow);
       }
     } catch (Exception e) {
@@ -105,18 +110,17 @@ public class HistoryCron {
    * @return the PanacheQuery containing the locked flows
    */
   @Transactional
-  public PanacheQuery<FlowToHistoryEntity> findAndLockFlowToHistory() {
+  public List<FlowToHistoryEntity> findAndLockFlowToHistory() {
     // retrieve the first n flows to historicize
-    PanacheQuery<FlowToHistoryEntity> flows =
-        flowToHistoryRepository.findTopNEntitiesOrderByCreated(size, maxRetries);
+    List<FlowToHistoryEntity> flows =
+        flowToHistoryRepository.findTopNEntitiesOrderByCreated(size, maxRetries).list();
 
     // lock the flows with a lock until date set to the current time plus the duration defined
     // by the every property
-    flows.stream()
-        .forEach(
+    flows.forEach(
             flowToHistory -> {
               Duration duration = DurationConverter.parseDuration(lockDuration);
-              long secondsToAdd = 30L * flows.list().size(); // add padding of 30 seconds per flow
+              long secondsToAdd = 30L * flows.size(); // add padding of 30 seconds per flow
               duration = duration.plusSeconds(secondsToAdd);
               flowToHistory.setLockUntil(Instant.now().plus(duration));
               flowToHistoryRepository.persist(flowToHistory);
@@ -134,9 +138,11 @@ public class HistoryCron {
    *
    * @param flowToHistory the flow to process
    */
-  private void handleFlow(FlowToHistoryEntity flowToHistory)
+  @Transactional
+  public void handleFlow(FlowToHistoryEntity flowToHistory)
       throws ValidationException, IOException {
     try {
+      long startTime = System.currentTimeMillis();
       FlowEntity flow =
           flowRepository
               .findByPspIdAndNameAndRevision(
@@ -153,7 +159,11 @@ public class HistoryCron {
       FlowBlob flowBlob = flowBlobMapper.toFlowBlob(flow, payments);
       historyBlobStorageService.saveJsonFile(flowBlob, flowToHistory);
 
-      flowToHistoryRepository.deleteByIdTransactional(flowToHistory.getId());
+      flowToHistoryRepository.deleteById(flowToHistory.getId());
+      log.debugf(
+              "Ended execution of handleFlow. Flow name [%s] Elapsed time [%d] ms.",
+              flow.name,
+              System.currentTimeMillis() - startTime);
 
     } catch (Exception e) {
       updateFlowToHistory(flowToHistory);
@@ -168,7 +178,7 @@ public class HistoryCron {
     flowToHistory.setLastExecution(Instant.now());
     flowToHistory.setRetries(flowToHistory.getRetries() + 1);
     flowToHistory.setLockUntil(null);
-    flowToHistoryRepository.persist(flowToHistory);
+    Panache.getEntityManager().merge(flowToHistory);
   }
 
   private List<PaymentBlob> handlePage(Long flowId) {
@@ -176,7 +186,7 @@ public class HistoryCron {
     List<PaymentBlob> result = new ArrayList<>();
     PanacheQuery<PaymentEntity> payments;
     do {
-      payments = paymentRepository.findPageByFlowId(flowId, page, 100);
+      payments = paymentRepository.findPageByFlowId(flowId, page, paymentPageSize);
       List<PaymentBlob> paymentsBlob =
           payments.stream().map(flowBlobMapper::toPaymentBlob).toList();
       result.addAll(paymentsBlob);

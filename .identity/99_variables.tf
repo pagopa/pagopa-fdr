@@ -28,13 +28,15 @@ locals {
   }
 
   postgres_db = {
-    host = "fdr-db.${var.env_short}.internal.postgresql.pagopa.it"
-    port = 5432
-    name = "fdr3"
-    schema = "fdr3"
-    username = "fdr3"
+    host           = "fdr-db.${var.env_short}.internal.postgresql.pagopa.it"
+    port           = 5432
+    name           = "fdr3"
+    schema         = "fdr3"
+    username       = "fdr3"
     admin_username = "azureuser"
   }
+
+  terraform_version = "1.11.2"
 }
 
 variable "env" {
@@ -50,7 +52,7 @@ variable "prefix" {
   default = "pagopa"
   validation {
     condition = (
-      length(var.prefix) <= 6
+    length(var.prefix) <= 6
     )
     error_message = "Max length is 6 chars."
   }
@@ -63,7 +65,7 @@ variable "github_repository_environment" {
     reviewers_teams        = list(string)
   })
   description = "GitHub Continuous Integration roles"
-  default = {
+  default     = {
     protected_branches     = false
     custom_branch_policies = true
     reviewers_teams        = ["pagopa-team-core"]
