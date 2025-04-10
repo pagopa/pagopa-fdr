@@ -249,14 +249,6 @@ public class ExceptionMappers {
                       "",
                       "CREATED");
 
-          // violating payment_by_fdr_idx: trying to insert two time the same payment
-          case "payment_by_fdr_idx" ->
-              appEx =
-                  new AppException(
-                      trxRollbackException,
-                      AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
-                      "");
-
           // violating flow_to_historicization_idx: trying to publish two time the same flow
           case "flow_to_historicization_idx" ->
               appEx =
@@ -265,6 +257,22 @@ public class ExceptionMappers {
         }
         log.errorf(logErrorMessage(trxRollbackException.getMessage()));
       }
+    }
+
+    // If exception is a generic SQL-related batch update exception, handle the various situations
+    else if (exception.getCause() instanceof java.sql.BatchUpdateException batchUpdateException) {
+
+      String errorMessage = batchUpdateException.getCause().getMessage();
+
+      // violating payment_by_fdr_idx: trying to insert two time the same payment
+      if (errorMessage.contains("violates unique constraint \"payment_by_fdr_idx\"")) {
+        appEx =
+            new AppException(
+                batchUpdateException,
+                AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+                "");
+      }
+
     } else {
       log.errorf(logErrorMessage(exception.getMessage()));
     }
