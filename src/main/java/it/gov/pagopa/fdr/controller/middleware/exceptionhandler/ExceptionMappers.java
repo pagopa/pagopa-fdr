@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.controller.middleware.exceptionhandler;
 
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.FDR;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.TRX_ID;
 import static it.gov.pagopa.fdr.util.logging.AppMessageUtil.logErrorMessage;
 
@@ -225,6 +226,7 @@ public class ExceptionMappers {
   public RestResponse<ErrorResponse> mapArcUndeclaredThrowableException(
       ArcUndeclaredThrowableException exception) {
     String errorId = (String) MDC.get(TRX_ID);
+    String flowId = (String) MDC.get(FDR);
     AppException appEx = new AppException(exception, AppErrorCodeMessageEnum.ERROR);
 
     // If exception is a Transaction-related rollback exception, handle the various situations
@@ -246,14 +248,16 @@ public class ExceptionMappers {
                   new AppException(
                       trxRollbackException,
                       AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
-                      "",
+                      flowId,
                       "CREATED");
 
           // violating flow_to_historicization_idx: trying to publish two time the same flow
           case "flow_to_historicization_idx" ->
               appEx =
                   new AppException(
-                      trxRollbackException, AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, "");
+                      trxRollbackException,
+                      AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+                      flowId);
         }
         log.errorf(logErrorMessage(trxRollbackException.getMessage()));
       }
@@ -270,7 +274,7 @@ public class ExceptionMappers {
             new AppException(
                 batchUpdateException,
                 AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
-                "");
+                flowId);
       }
 
     } else {

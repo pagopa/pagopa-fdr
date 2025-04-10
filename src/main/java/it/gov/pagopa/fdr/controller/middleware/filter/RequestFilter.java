@@ -2,6 +2,7 @@ package it.gov.pagopa.fdr.controller.middleware.filter;
 
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.ACTION;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.EVENT_CATEGORY;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.FDR;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.HTTP_TYPE;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.ORGANIZATION_ID;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.PSP_ID;
@@ -94,7 +95,7 @@ public class RequestFilter implements ContainerRequestFilter {
     }
     containerRequestContext.setProperty("subject", subject);
 
-    putMDCReq(sessionId, fdrAction, requestPath, pspId, organizationId);
+    putMDCReq(sessionId, fdrAction, requestPath, pspId, organizationId, fdrPathParam);
 
     String body =
         new BufferedReader(new InputStreamReader(containerRequestContext.getEntityStream()))
@@ -127,12 +128,18 @@ public class RequestFilter implements ContainerRequestFilter {
   }
 
   private void putMDCReq(
-      String sessionId, String action, String requestPath, String psp, String organizationId) {
+      String sessionId,
+      String action,
+      String requestPath,
+      String psp,
+      String organizationId,
+      String flowId) {
     MDC.put(TRX_ID, sessionId);
     MDC.put(HTTP_TYPE, AppConstant.REQUEST);
     MDC.put(ACTION, action != null ? action : "NA");
     MDC.put(URI, requestPath);
     MDC.put(PSP_ID, psp != null ? psp : "NA");
     MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
+    MDC.put(FDR, flowId != null ? flowId : "NA");
   }
 }
