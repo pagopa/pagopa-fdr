@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.controller.middleware.exceptionhandler;
 
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.FDR;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.TRX_ID;
 import static it.gov.pagopa.fdr.util.logging.AppMessageUtil.logErrorMessage;
 
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import io.quarkus.arc.ArcUndeclaredThrowableException;
 import it.gov.pagopa.fdr.controller.model.error.ErrorMessage;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
@@ -20,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jboss.logging.Logger;
@@ -217,6 +220,80 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapUnexpectedTypeException(UnexpectedTypeException exception) {
     return mapThrowable(exception);
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapArcUndeclaredThrowableException(
+      ArcUndeclaredThrowableException exception) {
+    String errorId = (String) MDC.get(TRX_ID);
+    String flowId = (String) MDC.get(FDR);
+    AppException appEx = new AppException(exception, AppErrorCodeMessageEnum.ERROR);
+
+    // If exception is a Transaction-related rollback exception, handle the various situations
+    if (exception.getCause()
+        instanceof jakarta.transaction.RollbackException trxRollbackException) {
+
+      // If exception is a constraint violation exception, handle the single violations
+      if (trxRollbackException.getCause()
+          instanceof
+          org.hibernate.exception.ConstraintViolationException constraintViolationException) {
+
+        String violatedConstraint =
+            Optional.ofNullable(constraintViolationException.getConstraintName()).orElse("-");
+        switch (violatedConstraint) {
+
+          // violating flow_revision_idx: trying to create two time the same flow
+          case "flow_revision_idx" ->
+              appEx =
+                  new AppException(
+                      trxRollbackException,
+                      AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
+                      flowId,
+                      "CREATED");
+
+          // violating flow_to_historicization_idx: trying to publish two time the same flow
+          case "flow_to_historicization_idx" ->
+              appEx =
+                  new AppException(
+                      trxRollbackException,
+                      AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+                      flowId);
+        }
+        log.errorf(logErrorMessage(trxRollbackException.getMessage()));
+      }
+    }
+
+    // If exception is a generic SQL-related batch update exception, handle the various situations
+    else if (exception.getCause() instanceof java.sql.BatchUpdateException batchUpdateException) {
+
+      String errorMessage = batchUpdateException.getCause().getMessage();
+
+      // violating payment_by_fdr_idx: trying to insert two time the same payment
+      if (errorMessage.contains("violates unique constraint \"payment_by_fdr_idx\"")) {
+        appEx =
+            new AppException(
+                batchUpdateException,
+                AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+                flowId);
+      }
+
+    } else {
+      log.errorf(logErrorMessage(exception.getMessage()));
+    }
+
+    AppErrorCodeMessageEnum codeMessage = appEx.getCodeMessage();
+    RestResponse.Status status = codeMessage.httpStatus();
+    ErrorResponse errorResponse =
+        ErrorResponse.builder()
+            .errorId(errorId)
+            .httpStatusCode(status.getStatusCode())
+            .httpStatusDescription(status.getReasonPhrase())
+            .appErrorCode(codeMessage.errorCode())
+            .errors(
+                List.of(
+                    ErrorMessage.builder().message(codeMessage.message(appEx.getArgs())).build()))
+            .build();
+    return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
 
   @ServerExceptionMapper
