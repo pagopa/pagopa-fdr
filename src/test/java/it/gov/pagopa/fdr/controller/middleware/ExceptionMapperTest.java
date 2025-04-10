@@ -127,7 +127,10 @@ class ExceptionMapperTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"violates unique constraint \"payment_by_fdr_idx\",400"})
+  @CsvSource({
+    "violates unique constraint \"payment_by_fdr_idx\",400",
+    "violates unique constraint \"unmapped_idx\",500"
+  })
   @DisplayName("Test ExceptionMappers BatchUpdateException")
   void testMapArcUndeclaredThrowableException_withBatchUpdateException(
       String cause, int statusCode) {
