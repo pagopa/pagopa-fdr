@@ -59,7 +59,7 @@ microservice-chart: &microservice-chart
   autoscaling: &autoscaling
     enable: true
     minReplica: 3
-    maxReplica: 6
+    maxReplica: 10
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     triggers:
@@ -70,7 +70,7 @@ microservice-chart: &microservice-chart
       - type: memory
         metadata:
           type: Utilization
-          value: "75"
+          value: "80"
   envConfig: &envConfig
     APP_ENVIRONMENT: "prod"
     TZ: "Europe/Rome"
@@ -127,7 +127,7 @@ app:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
-    CUSTOM_JAVA_OPTS: "-DXmx=1792m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    CUSTOM_JAVA_OPTS: "-DXmx=2048m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
