@@ -127,7 +127,7 @@ app:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
-    CUSTOM_JAVA_OPTS: "-DXmx=1792m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    CUSTOM_JAVA_OPTS: "-DXmx=2048m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
