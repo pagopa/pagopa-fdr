@@ -70,7 +70,7 @@ microservice-chart: &microservice-chart
       - type: memory
         metadata:
           type: Utilization
-          value: "80"
+          value: "90"
   envConfig: &envConfig
     APP_ENVIRONMENT: "uat"
     TZ: "Europe/Rome"
