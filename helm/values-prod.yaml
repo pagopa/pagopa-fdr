@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.42-1-memory-tuning
+    tag: 1.1.42-2-memory-tuning
     pullPolicy: Always
   readinessProbe:
     httpGet:
