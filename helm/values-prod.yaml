@@ -52,7 +52,7 @@ microservice-chart: &microservice-chart
   resources: &resources
     requests:
       memory: "1Gi"
-      cpu: "400m"
+      cpu: "500m"
     limits:
       memory: "3Gi"
       cpu: "1000m"
@@ -66,7 +66,7 @@ microservice-chart: &microservice-chart
       - type: cpu
         metadata:
           type: Utilization
-          value: "75"
+          value: "90"
       - type: memory
         metadata:
           type: Utilization
