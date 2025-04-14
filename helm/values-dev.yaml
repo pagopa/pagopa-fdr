@@ -108,23 +108,11 @@ app:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
   resources:
     !!merge <<: *resources
-  autoscaling:
-    enable: true
-    minReplica: 1
-    maxReplica: 2
-    pollingInterval: 10 # seconds
-    cooldownPeriod: 50 # seconds
-    triggers:
-      - type: cpu
-        metadata:
-          type: Utilization
-          value: "75"
-      - type: memory
-        metadata:
-          type: Utilization
-          value: "75"
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
