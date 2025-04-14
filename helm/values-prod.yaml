@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.44-1-tuning-heap
+    tag: 1.1.44-4-PAGOPA-2995
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -127,7 +127,7 @@ app:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
-    # CUSTOM_JAVA_OPTS: "-DXmx=2048m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    CUSTOM_JAVA_OPTS: "-DXmx=2048m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:

@@ -31,3 +31,4 @@ ARG APP_NAME
 ENV JAVA_OPTS="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS $CUSTOM_JAVA_OPTS -jar $JAVA_APP_JAR"]
