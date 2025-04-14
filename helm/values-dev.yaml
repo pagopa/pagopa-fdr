@@ -43,7 +43,7 @@ microservice-chart: &microservice-chart
     name: "fdr-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: {}
+  podAnnotations: { }
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -151,7 +151,7 @@ scheduler:
     maxReplica: 1
   envConfig:
     !!merge <<: *envConfig
-    CUSTOM_JAVA_OPTS: "-XX:+PrintFlagsFinal -DXmx=1024m -DXms=512m -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    CUSTOM_JAVA_OPTS: "-XX:+PrintFlagsFinal -XshowSettings:vm -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=80 -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
     SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
     SCHEDULE_HISTORY_SIZE: "300"
     SCHEDULE_HISTORY_RETRIES: "3"
