@@ -25,10 +25,10 @@ COPY --from=build /code/target/quarkus-app/quarkus/ /deployments/quarkus/
 EXPOSE 8080
 USER 185
 
-ARG QUARKUS_PROFILE
-ARG APP_NAME
+#ARG QUARKUS_PROFILE
+#ARG APP_NAME
 
-ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+#ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS $CUSTOM_JAVA_OPTS -jar $JAVA_APP_JAR"]
+#ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS $CUSTOM_JAVA_OPTS -jar $JAVA_APP_JAR"]
