@@ -18,7 +18,7 @@ microservice-chart: &microservice-chart
     initialDelaySeconds: 10
     failureThreshold: 10
     periodSeconds: 5
-  deployment:
+  deployment: &deployment
     create: true
   serviceMonitor:
     create: true
@@ -57,20 +57,7 @@ microservice-chart: &microservice-chart
       memory: "3Gi"
       cpu: "800m"
   autoscaling: &autoscaling
-    enable: true
-    minReplica: 1
-    maxReplica: 1
-    pollingInterval: 10 # seconds
-    cooldownPeriod: 50 # seconds
-    triggers:
-      - type: cpu
-        metadata:
-          type: Utilization
-          value: "75"
-      - type: memory
-        metadata:
-          type: Utilization
-          value: "75"
+    enable: false
   envConfig: &envConfig
     APP_ENVIRONMENT: "dev"
     TZ: "Europe/Rome"
@@ -124,7 +111,20 @@ app:
   resources:
     !!merge <<: *resources
   autoscaling:
-    !!merge <<: *autoscaling
+    enable: true
+    minReplica: 1
+    maxReplica: 2
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization
+          value: "75"
+      - type: memory
+        metadata:
+          type: Utilization
+          value: "75"
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
@@ -138,6 +138,9 @@ scheduler:
   ingress:
     !!merge <<: *ingress
     path: /pagopa-fdr-service-scheduler-unused/(.*)
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
   resources:
     !!merge <<: *resources
     requests:
@@ -146,10 +149,6 @@ scheduler:
     limits:
       memory: "2Gi"
       cpu: "800m"
-  autoscaling:
-    !!merge <<: *autoscaling
-    minReplica: 1
-    maxReplica: 1
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
