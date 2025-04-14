@@ -49,4 +49,4 @@ jobs:
           tenant-id: ${{ secrets.TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
           # from https://github.com/pagopa/opex-dashboard-azure-action/pkgs/container/opex-dashboard-azure-action
-          docker-version: v1.2.2
+          docker-version: sha256:b17f49fc762cc2049f887f0999642c95b5546d1eb44e5ae19bed080f9d1859d4
