@@ -40,11 +40,14 @@ jobs:
           persist-credentials: false
 
       - run: |
+          python -m venv venv
+          source venv/bin/activate
           git clone https://github.com/pagopa/opex-dashboard
           cd opex-dashboard
-          pip install --user -e .
+          pip install -e .
           cd ..
-          opex_dashboard generate \
+          source venv/bin/activate
+          venv/bin/opex_dashboard generate \
             --template-name azure-dashboard \
             --config-file .opex/${{ matrix.product }}/env/${{ matrix.environment }}/config.yaml
 
