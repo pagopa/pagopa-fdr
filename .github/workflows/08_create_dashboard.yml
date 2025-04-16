@@ -55,6 +55,7 @@ jobs:
       - name: Copy Environments
         shell: bash
         run: |
+          ls
           cp -R .opex/${{ matrix.product }}/env ./azure-dashboard
 
       - name: Setup Terraform
@@ -77,6 +78,7 @@ jobs:
       - name: Terraform Apply
         shell: bash
         run: |
+          ls
           cd ./azure-dashboard
           export ARM_CLIENT_ID="${{ secrets.CD_CLIENT_ID }}"
           export ARM_TENANT_ID="${{ secrets.TENANT_ID }}"
