@@ -42,7 +42,7 @@ jobs:
       - run: |
           git clone https://github.com/pagopa/opex-dashboard
           cd opex-dashboard
-          pip install -e .
+          pip install --user -e .
           cd ..
           opex_dashboard generate \
             --template-name azure-dashboard \
