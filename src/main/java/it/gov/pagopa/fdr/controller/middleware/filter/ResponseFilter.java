@@ -125,14 +125,13 @@ public class ResponseFilter implements ContainerResponseFilter {
           logErrorResponse(
               requestMethod, requestPath, requestSubject, elapsed, errorResponse.get());
         } else {
+          String message = null;
+          if (responseContext.getEntity() != null) {
+            message = ((Throwable) responseContext.getEntity()).getMessage();
+          }
           log.infof(
               "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",
-              requestMethod,
-              requestPath,
-              requestSubject,
-              elapsed,
-              httpStatus,
-              ((Throwable) responseContext.getEntity()).getMessage());
+              requestMethod, requestPath, requestSubject, elapsed, httpStatus, message);
         }
       } else {
         log.infof(
