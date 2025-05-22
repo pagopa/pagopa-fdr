@@ -40,6 +40,7 @@ variables:
   ADMIN_USERNAME: azureuser
   FDR3_USERNAME: fdr3
   FDR3_SCHEMA: fdr3
+  FDR3_USERNAME_READ: fdr3r
 
 stages:
   - stage: initialization_jobs
@@ -54,7 +55,7 @@ stages:
             inputs:
               azureSubscription: $(AZURE_SERVICE_CONNECTION)
               keyVaultName: $(KEY_VAULT_NAME)
-              secretsFilter: 'db-administrator-login-password,db-fdr3-password'
+              secretsFilter: 'db-administrator-login-password,db-fdr3-password,db-fdr3-password-read'
           - task: AzureCLI@2
             displayName: "create all schemas"
             inputs:
@@ -83,5 +84,38 @@ stages:
                 ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on sequences to $FDR3_USERNAME;
                 ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on functions to $FDR3_USERNAME;
                 END
+                \$\$;
+                "
+          - task: AzureCLI@2
+            displayName: "create FDR3 user READ"
+            inputs:
+              azureSubscription: $(AZURE_SERVICE_CONNECTION)
+              scriptLocation: inlineScript
+              scriptType: bash
+              inlineScript: |
+
+                az config set extension.use_dynamic_install=yes_without_prompt
+                az postgres flexible-server execute --name $(DB_HOST) --admin-user $(ADMIN_USERNAME) \
+                --admin-password '$(db-administrator-login-password)' --database-name "$(DATABASE_NAME)" \
+                --querytext "
+                do \$\$
+
+                BEGIN
+                  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$FDR3_USERNAME_READ') THEN
+                    CREATE ROLE $FDR3_USERNAME_READ WITH
+                    NOSUPERUSER
+                    LOGIN
+                    NOREPLICATION
+                    NOBYPASSRLS
+                    CONNECTION LIMIT -1;
+                  END IF;
+
+                  ALTER ROLE $FDR3_USERNAME_READ PASSWORD '$(db-fdr3-password-read)';
+
+                  GRANT SELECT ON ALL TABLES IN SCHEMA $FDR_SCHEMA TO $FDR3_USERNAME_READ;
+                  GRANT USAGE ON SCHEMA $FDR3_SCHEMA TO $FDR3_USERNAME_READ;
+
+                END;
+
                 \$\$;
                 "
