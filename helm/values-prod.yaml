@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.48-1-PIDM-581-fdr-urgente-flussi-e-pagamenti-sella-da-verificare
+    tag: 1.1.48-2-PIDM-581-fdr-urgente-flussi-e-pagamenti-sella-da-verificare
     pullPolicy: Always
   readinessProbe:
     httpGet:
