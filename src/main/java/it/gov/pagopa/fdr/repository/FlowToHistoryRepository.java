@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.repository;
 
-
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import it.gov.pagopa.fdr.repository.common.Repository;
@@ -27,7 +26,7 @@ public class FlowToHistoryRepository extends Repository
       Integer limit, Integer maxRetries) {
     return find(
             "retries < ?1 and (lockUntil IS NULL OR lockUntil < ?2) order by isExternal DESC,"
-                + " created DESC",
+                + " created ASC",
             maxRetries,
             Instant.now())
         .page(0, limit);
