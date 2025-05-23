@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr.repository;
 
-import static io.quarkus.panache.common.Sort.by;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -27,8 +26,8 @@ public class FlowToHistoryRepository extends Repository
   public PanacheQuery<FlowToHistoryEntity> findTopNEntitiesOrderByCreated(
       Integer limit, Integer maxRetries) {
     return find(
-            "retries < ?1 and (lockUntil IS NULL OR lockUntil < ?2)",
-            by("created").descending(),
+            "retries < ?1 and (lockUntil IS NULL OR lockUntil < ?2) order by isExternal DESC,"
+                + " created DESC",
             maxRetries,
             Instant.now())
         .page(0, limit);
