@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.test.util;
 import io.restassured.http.Header;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import java.nio.file.Paths;
+import java.time.Instant;
 
 public class AppConstantTestHelper {
 
@@ -21,7 +22,7 @@ public class AppConstantTestHelper {
 
   // Organizations Controller Paths
   public static final String ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL =
-      "/organizations/%s/fdrs?" + ControllerConstants.PARAMETER_PSP + "=%s";
+      "/organizations/%s/fdrs?" + ControllerConstants.PARAMETER_PSP + "=%s&" + ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN + "=" + Instant.now() + "&" + ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN + "=" + Instant.now();
   public static final String ORGANIZATIONS_GET_REPORTING_FLOW_URL =
       "/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
   public static final String ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL =
