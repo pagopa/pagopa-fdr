@@ -14,6 +14,7 @@ public class FindFlowsByFiltersArgs {
   private Long revision;
   private Instant createdGt;
   private Instant publishedGt;
+  private Instant flowDate;
   private long pageNumber;
   private long pageSize;
 }
