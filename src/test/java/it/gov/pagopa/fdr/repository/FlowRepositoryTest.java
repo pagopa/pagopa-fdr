@@ -93,7 +93,7 @@ class FlowRepositoryTest {
 
         RepositoryPagedResult<FlowEntity> result =
                 flowRepository.findLatestPublishedByOrganizationIdAndOptionalPspId(
-                        pspId, organizationId, publishedGt, flowDate, pageNumber, pageSize);
+                        organizationId, pspId, publishedGt, flowDate, pageNumber, pageSize);
 
         List<FlowEntity> entities = result.getData();
 
