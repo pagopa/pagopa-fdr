@@ -87,8 +87,8 @@ class FlowRepositoryTest {
 
         String pspId = AppConstantTestHelper.PSP_CODE;
         String organizationId = AppConstantTestHelper.EC_CODE;
-        Instant publishedGt = Instant.now().minus(Duration.ofDays(36000));
-        Instant flowDate = Instant.now().minus(Duration.ofDays(36000));
+        Instant publishedGt = Instant.parse(PUBLISHED_DATE);
+        Instant flowDate = Instant.parse(FLOW_DATE);
         int pageNumber = 1;
         int pageSize = 10;
 
