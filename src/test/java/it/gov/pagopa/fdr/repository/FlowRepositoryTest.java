@@ -12,11 +12,14 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import static io.smallrye.common.constraint.Assert.assertTrue;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOW_DATE;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PUBLISHED_DATE;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
@@ -84,8 +87,8 @@ class FlowRepositoryTest {
 
         String pspId = AppConstantTestHelper.PSP_CODE;
         String organizationId = AppConstantTestHelper.EC_CODE;
-        Instant publishedGt = Instant.now().minusSeconds(3600);
-        Instant flowDate = Instant.now().minusSeconds(3600);
+        Instant publishedGt = Timestamp.valueOf(PUBLISHED_DATE).toInstant();
+        Instant flowDate = Timestamp.valueOf(FLOW_DATE).toInstant();
         int pageNumber = 1;
         int pageSize = 10;
 

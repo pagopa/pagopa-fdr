@@ -38,11 +38,6 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
 
-  public static final String PUBLISHED_DATE = "2000-01-01T12:00:00Z";
-  public static final String FLOW_DATE = "2000-01-01T12:00:00Z";
-  public static final String PUBLISHED_DATE_FUTURE = "3000-01-01T12:00:00Z";
-  public static final String FLOW_DATE_FUTURE = "3000-01-01T12:00:00Z";
-
   /** ############### getAllPublishedFlow ################ */
   @Test
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow")

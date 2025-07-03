@@ -64,6 +64,10 @@ public class AppConstantTestHelper {
   public static final String IUV_CODE_C = "c";
   public static final String IUV_CODE_D = "d";
   public static final String IUV_CODE_E = "e";
+  public static final String PUBLISHED_DATE = "2000-01-01T12:00:00Z";
+  public static final String FLOW_DATE = "2000-01-01T12:00:00Z";
+  public static final String PUBLISHED_DATE_FUTURE = "3000-01-01T12:00:00Z";
+  public static final String FLOW_DATE_FUTURE = "3000-01-01T12:00:00Z";
 
   public static final Header HEADER = new Header("Content-Type", "application/json");
 
