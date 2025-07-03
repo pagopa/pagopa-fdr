@@ -38,8 +38,10 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
 
-  public static final String PUBLISHED_DATE = "2025-01-01T12:00:00Z";
-  public static final String FLOW_DATE = "2025-01-01T12:00:00Z";
+  public static final String PUBLISHED_DATE = "2000-01-01T12:00:00Z";
+  public static final String FLOW_DATE = "2000-01-01T12:00:00Z";
+  public static final String PUBLISHED_DATE_FUTURE = "3000-01-01T12:00:00Z";
+  public static final String FLOW_DATE_FUTURE = "3000-01-01T12:00:00Z";
 
   /** ############### getAllPublishedFlow ################ */
   @Test
@@ -134,7 +136,7 @@ class OrganizationsControllerTest {
   void testOrganization_getAllPublishedFlow_with_published_date_filter_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(EC_CODE, PSP_CODE, Instant.now());
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(EC_CODE, PSP_CODE, PUBLISHED_DATE_FUTURE);
     PaginatedFlowsResponse res =
             given()
                     .header(HEADER)
@@ -152,7 +154,7 @@ class OrganizationsControllerTest {
   void testOrganization_getAllPublishedFlow_with_flow_date_filter_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, Instant.now());
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, FLOW_DATE_FUTURE);
     PaginatedFlowsResponse res =
             given()
                     .header(HEADER)
