@@ -12,7 +12,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -87,8 +87,8 @@ class FlowRepositoryTest {
 
         String pspId = AppConstantTestHelper.PSP_CODE;
         String organizationId = AppConstantTestHelper.EC_CODE;
-        Instant publishedGt = Timestamp.valueOf(PUBLISHED_DATE).toInstant();
-        Instant flowDate = Timestamp.valueOf(FLOW_DATE).toInstant();
+        Instant publishedGt = Instant.now().minus(Duration.ofDays(36000));
+        Instant flowDate = Instant.now().minus(Duration.ofDays(36000));
         int pageNumber = 1;
         int pageSize = 10;
 
