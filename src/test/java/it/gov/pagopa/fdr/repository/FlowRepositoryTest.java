@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -97,6 +96,8 @@ class FlowRepositoryTest {
                         pspId, organizationId, publishedGt, flowDate, pageNumber, pageSize);
 
         List<FlowEntity> entities = result.getData();
+
+        System.out.println(entities);
         assertFalse(entities.isEmpty());
 
         assertTrue(
