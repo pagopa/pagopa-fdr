@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.test.util;
 import io.restassured.http.Header;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import java.nio.file.Paths;
-import java.time.Instant;
 
 public class AppConstantTestHelper {
 
