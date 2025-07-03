@@ -24,9 +24,9 @@ public class AppConstantTestHelper {
   public static final String ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL =
           "/organizations/%s/fdrs?" + ControllerConstants.PARAMETER_PSP + "=%s";
   public static final String ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER =
-          ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL + "&" + ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN + "=" + Instant.now();
+          ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL + "&" + ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN + "=%s";
   public static final String ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER =
-          ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL + "&" + ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN + "=" + Instant.now();
+          ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL + "&" + ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN + "=%s";
   public static final String ORGANIZATIONS_GET_REPORTING_FLOW_URL =
       "/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
   public static final String ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL =
