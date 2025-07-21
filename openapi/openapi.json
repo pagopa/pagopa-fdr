@@ -236,6 +236,12 @@
             "type" : "string",
             "examples" : [ "2025-01-01T12:00:30.900000Z" ],
             "description" : "The date and time on which the flow is published."
+          },
+          "flowDate" : {
+            "$ref" : "#/components/schemas/Instant",
+            "type" : "string",
+            "examples" : [ "2025-01-01T12:00:30.900000Z" ],
+            "description" : "The date and time on which the flow was created by the PSP."
           }
         }
       },

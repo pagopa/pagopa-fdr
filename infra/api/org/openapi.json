@@ -304,6 +304,14 @@
               "2025-01-01T12:00:30.900000Z"
             ],
             "description": "The date and time on which the flow is published."
+          },
+          "flowDate": {
+            "$ref": "#/components/schemas/Instant",
+            "type": "string",
+            "example": [
+              "2025-01-01T12:00:30.900000Z"
+            ],
+            "description": "The date and time on which the flow was created by the PSP."
           }
         }
       },
@@ -991,196 +999,6 @@
     }
   },
   "paths": {
-    "/info": {
-      "get": {
-        "summary": "Health-check",
-        "operationId": "IInfoController_healthCheck",
-        "tags": [
-          "Info"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InfoResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/organizations/{organizationId}/fdrs": {
-      "get": {
-        "summary": "Get all published flow related to creditor institution",
-        "operationId": "IOrganizationsController_getAllPublishedFlows",
-        "tags": [
-          "Organizations"
-        ],
-        "parameters": [
-          {
-            "description": "The creditor institution identifier, used as a search filter",
-            "example": "15376371009",
-            "name": "organizationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^(.{1,35})$"
-            }
-          },
-          {
-            "description": "A date to be used as a lower limit search on flow date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
-            "example": "2025-01-01T12:00:00Z",
-            "name": "flowDate",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/Instant"
-            }
-          },
-          {
-            "description": "The index of the page to be shown in the result",
-            "example": 1,
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1,
-              "minimum": 1
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "pattern": "^(.{1,35})$"
-            }
-          },
-          {
-            "description": "A date to be used as a lower limit search on publication date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
-            "example": "2025-01-01T12:00:00Z",
-            "name": "publishedGt",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/Instant"
-            }
-          },
-          {
-            "description": "The number of the elements of the page to be shown in the result",
-            "example": 50,
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1000,
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedFlowsResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}": {
       "get": {
         "summary": "Get single published flow related to creditor institution, searching by name and revision",
@@ -1390,6 +1208,196 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedPaymentsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "get": {
+        "summary": "Health-check",
+        "operationId": "IInfoController_healthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/organizations/{organizationId}/fdrs": {
+      "get": {
+        "summary": "Get all published flow related to creditor institution",
+        "operationId": "IOrganizationsController_getAllPublishedFlows",
+        "tags": [
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "description": "The creditor institution identifier, used as a search filter",
+            "example": "15376371009",
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(.{1,35})$"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on flow date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "flowDate",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            }
+          },
+          {
+            "description": "The index of the page to be shown in the result",
+            "example": 1,
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "The PSP identifier, used as a search filter",
+            "example": "88888888888",
+            "name": "pspId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^(.{1,35})$"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on publication date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "publishedGt",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            }
+          },
+          {
+            "description": "The number of the elements of the page to be shown in the result",
+            "example": 50,
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1000,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedFlowsResponse"
                 }
               }
             }
