@@ -15,6 +15,7 @@ public class ControllerConstants {
   public static final String PARAMETER_PSP = "pspId";
   public static final String PARAMETER_CREATED_GREATER_THAN = "createdGt";
   public static final String PARAMETER_PUBLISHED_GREATER_THAN = "publishedGt";
+  public static final String PARAMETER_FLOW_DATE_GREATER_THAN = "flowDate";
   public static final String PARAMETER_REVISION = "revision";
 
   public static final String URL_PARAMETER_FDR = "fdrs/{" + ControllerConstants.PARAMETER_FDR + "}";

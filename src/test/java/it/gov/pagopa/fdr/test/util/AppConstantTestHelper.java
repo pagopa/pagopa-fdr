@@ -21,7 +21,11 @@ public class AppConstantTestHelper {
 
   // Organizations Controller Paths
   public static final String ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL =
-      "/organizations/%s/fdrs?" + ControllerConstants.PARAMETER_PSP + "=%s";
+          "/organizations/%s/fdrs?" + ControllerConstants.PARAMETER_PSP + "=%s";
+  public static final String ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER =
+          ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL + "&" + ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN + "=%s";
+  public static final String ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER =
+          ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL + "&" + ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN + "=%s";
   public static final String ORGANIZATIONS_GET_REPORTING_FLOW_URL =
       "/organizations/%s/fdrs/%s/revisions/%s/psps/%s";
   public static final String ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL =
@@ -59,6 +63,10 @@ public class AppConstantTestHelper {
   public static final String IUV_CODE_C = "c";
   public static final String IUV_CODE_D = "d";
   public static final String IUV_CODE_E = "e";
+  public static final String PUBLISHED_DATE = "2000-01-01T12:00:00Z";
+  public static final String FLOW_DATE = "2000-01-01T12:00:00Z";
+  public static final String PUBLISHED_DATE_FUTURE = "3000-01-01T12:00:00Z";
+  public static final String FLOW_DATE_FUTURE = "3000-01-01T12:00:00Z";
 
   public static final Header HEADER = new Header("Content-Type", "application/json");
 

@@ -304,6 +304,14 @@
               "2025-01-01T12:00:30.900000Z"
             ],
             "description": "The date and time on which the flow is published."
+          },
+          "flowDate": {
+            "$ref": "#/components/schemas/Instant",
+            "type": "string",
+            "example": [
+              "2025-01-01T12:00:30.900000Z"
+            ],
+            "description": "The date and time on which the flow was created by the PSP."
           }
         }
       },
@@ -991,20 +999,92 @@
     }
   },
   "paths": {
-    "/info": {
-      "get": {
-        "summary": "Health-check",
-        "operationId": "IInfoController_healthCheck",
+    "/psps/{pspId}/fdrs/{fdr}/payments/add": {
+      "put": {
+        "summary": "Add one or more payments to an existing flow",
+        "operationId": "IPspsController_addPaymentToExistingFlow",
         "tags": [
-          "Info"
+          "PSP"
         ],
+        "parameters": [
+          {
+            "description": "The flow name, used as a search filter",
+            "example": "2025-01-0188888888888-0001",
+            "name": "fdr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The PSP identifier, used as a search filter",
+            "example": "88888888888",
+            "name": "pspId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPaymentRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InfoResponse"
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1033,14 +1113,24 @@
         }
       }
     },
-    "/psps/{pspId}/created": {
-      "get": {
-        "summary": "Get all draft flows related to the PSP",
-        "operationId": "IPspsController_getAllFlowsNotInPublishedStatus",
+    "/psps/{pspId}/fdrs/{fdr}/publish": {
+      "post": {
+        "summary": "Publish an existing flow in draft status",
+        "operationId": "IPspsController_publishFlow",
         "tags": [
           "PSP"
         ],
         "parameters": [
+          {
+            "description": "The flow name, used as a search filter",
+            "example": "2025-01-0188888888888-0001",
+            "name": "fdr",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "The PSP identifier, used as a search filter",
             "example": "88888888888",
@@ -1050,39 +1140,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "description": "A date to be used as a lower limit search on creation date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
-            "example": "2025-01-01T12:00:00Z",
-            "name": "createdGt",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/Instant"
-            }
-          },
-          {
-            "description": "The index of the page to be shown in the result",
-            "example": 1,
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1,
-              "minimum": 1
-            }
-          },
-          {
-            "description": "The number of the elements of the page to be shown in the result",
-            "example": 50,
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1000,
-              "minimum": 1
-            }
           }
         ],
         "responses": {
@@ -1091,7 +1148,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedFlowsCreatedResponse"
+                  "$ref": "#/components/schemas/GenericResponse"
                 }
               }
             }
@@ -1276,10 +1333,10 @@
         }
       }
     },
-    "/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}/payments": {
+    "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}/payments": {
       "get": {
-        "summary": "Get payments of draft flow related to the PSP, searching by name",
-        "operationId": "IPspsController_getPaymentsForFlowNotInPublishedStatus",
+        "summary": "Get payments of published flow related to the PSP, searching by name and revision",
+        "operationId": "IPspsController_getPaymentsForFlowInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -1312,6 +1369,17 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "The specific revision of the flow needed",
+            "example": 1,
+            "name": "revision",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
             }
           },
           {
@@ -1633,10 +1701,10 @@
         }
       }
     },
-    "/psps/{pspId}/fdrs/{fdr}/payments/add": {
-      "put": {
-        "summary": "Add one or more payments to an existing flow",
-        "operationId": "IPspsController_addPaymentToExistingFlow",
+    "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}": {
+      "get": {
+        "summary": "Get single published flow related to the PSP, searching by name and revision",
+        "operationId": "IPspsController_getSingleFlowInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -1652,6 +1720,16 @@
             }
           },
           {
+            "description": "The creditor institution identifier, used as a search filter",
+            "example": "15376371009",
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "The PSP identifier, used as a search filter",
             "example": "88888888888",
             "name": "pspId",
@@ -1660,24 +1738,196 @@
             "schema": {
               "type": "string"
             }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddPaymentRequest"
-              }
+          },
+          {
+            "description": "The specific revision of the flow needed",
+            "example": 1,
+            "name": "revision",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
+                  "$ref": "#/components/schemas/SingleFlowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "get": {
+        "summary": "Health-check",
+        "operationId": "IInfoController_healthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psps/{pspId}/created": {
+      "get": {
+        "summary": "Get all draft flows related to the PSP",
+        "operationId": "IPspsController_getAllFlowsNotInPublishedStatus",
+        "tags": [
+          "PSP"
+        ],
+        "parameters": [
+          {
+            "description": "The PSP identifier, used as a search filter",
+            "example": "88888888888",
+            "name": "pspId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on creation date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "createdGt",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            }
+          },
+          {
+            "description": "The index of the page to be shown in the result",
+            "example": 1,
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "The number of the elements of the page to be shown in the result",
+            "example": 50,
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1000,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedFlowsCreatedResponse"
                 }
               }
             }
@@ -1861,10 +2111,10 @@
         }
       }
     },
-    "/psps/{pspId}/fdrs/{fdr}/publish": {
-      "post": {
-        "summary": "Publish an existing flow in draft status",
-        "operationId": "IPspsController_publishFlow",
+    "/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}/payments": {
+      "get": {
+        "summary": "Get payments of draft flow related to the PSP, searching by name",
+        "operationId": "IPspsController_getPaymentsForFlowNotInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -1880,6 +2130,16 @@
             }
           },
           {
+            "description": "The creditor institution identifier, used as a search filter",
+            "example": "15376371009",
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "The PSP identifier, used as a search filter",
             "example": "88888888888",
             "name": "pspId",
@@ -1887,6 +2147,30 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "The index of the page to be shown in the result",
+            "example": 1,
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "The number of the elements of the page to be shown in the result",
+            "example": 50,
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1000,
+              "minimum": 1
             }
           }
         ],
@@ -1896,7 +2180,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
+                  "$ref": "#/components/schemas/PaginatedPaymentsResponse"
                 }
               }
             }
@@ -2103,288 +2387,12 @@
           }
         }
       }
-    },
-    "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}": {
-      "get": {
-        "summary": "Get single published flow related to the PSP, searching by name and revision",
-        "operationId": "IPspsController_getSingleFlowInPublishedStatus",
-        "tags": [
-          "PSP"
-        ],
-        "parameters": [
-          {
-            "description": "The flow name, used as a search filter",
-            "example": "2025-01-0188888888888-0001",
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The creditor institution identifier, used as a search filter",
-            "example": "15376371009",
-            "name": "organizationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The specific revision of the flow needed",
-            "example": 1,
-            "name": "revision",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SingleFlowResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}/payments": {
-      "get": {
-        "summary": "Get payments of published flow related to the PSP, searching by name and revision",
-        "operationId": "IPspsController_getPaymentsForFlowInPublishedStatus",
-        "tags": [
-          "PSP"
-        ],
-        "parameters": [
-          {
-            "description": "The flow name, used as a search filter",
-            "example": "2025-01-0188888888888-0001",
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The creditor institution identifier, used as a search filter",
-            "example": "15376371009",
-            "name": "organizationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The specific revision of the flow needed",
-            "example": 1,
-            "name": "revision",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "description": "The index of the page to be shown in the result",
-            "example": 1,
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1,
-              "minimum": 1
-            }
-          },
-          {
-            "description": "The number of the elements of the page to be shown in the result",
-            "example": 50,
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1000,
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedPaymentsResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "info": {
     "title": "FDR - Flussi di Rendicontazione",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.36"
+    "version": "1.1.49"
   },
   "servers": [
     {

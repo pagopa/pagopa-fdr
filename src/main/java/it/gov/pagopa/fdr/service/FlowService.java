@@ -73,7 +73,7 @@ public class FlowService {
 
     RepositoryPagedResult<FlowEntity> paginatedResult =
         this.flowRepository.findLatestPublishedByOrganizationIdAndOptionalPspId(
-            organizationId, pspId, args.getPublishedGt(), (int) pageNumber, (int) pageSize);
+            organizationId, pspId, args.getPublishedGt(), args.getFlowDate(), (int) pageNumber, (int) pageSize);
     log.debugf(
         "Found [%s] entities in [%s] pages. Mapping data to final response.",
         paginatedResult.getTotalElements(), paginatedResult.getTotalPages());

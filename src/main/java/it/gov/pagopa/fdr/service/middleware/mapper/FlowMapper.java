@@ -39,6 +39,7 @@ public interface FlowMapper {
               .pspId(entity.getPspDomainId())
               .revision(entity.getRevision())
               .published(entity.getPublished())
+              .flowDate(entity.getDate())
               .build());
     }
     return converted;
