@@ -17,6 +17,7 @@ public class MDCKeys {
   public static final String FDR = "fdr";
   public static final String IUV = "iuv";
   public static final String IUR = "iur";
+  public static final String IS_RE_ENABLED_FOR_THIS_CALL = "isReEnabledForThisCall";
 
   private MDCKeys() {
     throw new IllegalStateException("Logstash MDC custom keys class");

@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.service;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.IS_RE_ENABLED_FOR_THIS_CALL;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.Config;
@@ -18,6 +19,8 @@ import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.service.middleware.mapper.PaymentMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
+import it.gov.pagopa.fdr.service.model.re.*;
+import it.gov.pagopa.fdr.util.constant.MDCKeys;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,11 +34,14 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
+import org.slf4j.MDC;
 
 @ApplicationScoped
 public class PaymentService {
 
   private final Logger log;
+
+  private final ReService reService;
 
   private final Config cachedConfig;
 
@@ -50,25 +56,19 @@ public class PaymentService {
       Config cachedConfig,
       FlowRepository flowRepository,
       PaymentRepository paymentRepository,
+      ReService reService,
       PaymentMapper paymentMapper) {
 
     this.log = log;
     this.cachedConfig = cachedConfig;
     this.flowRepository = flowRepository;
     this.paymentRepository = paymentRepository;
+    this.reService = reService;
     this.paymentMapper = paymentMapper;
   }
 
   @WithSpan(kind = SERVER)
   public PaginatedPaymentsResponse getPaymentsFromPublishedFlow(FindFlowsByFiltersArgs args) {
-
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    MDC.put(ORGANIZATION_ID, organizationId);
-    MDC.put(FDR, fdr);
-    MDC.put(PSP_ID, psp);
-     */
 
     String organizationId = args.getOrganizationId();
     String pspId = args.getPspId();
@@ -102,14 +102,6 @@ public class PaymentService {
   @WithSpan(kind = SERVER)
   public PaginatedPaymentsResponse getPaymentsFromUnpublishedFlow(FindFlowsByFiltersArgs args) {
 
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    MDC.put(ORGANIZATION_ID, organizationId);
-    MDC.put(FDR, fdr);
-    MDC.put(PSP_ID, psp);
-     */
-
     String organizationId = args.getOrganizationId();
     String pspId = args.getPspId();
     String flowName = args.getFlowName();
@@ -141,13 +133,6 @@ public class PaymentService {
   @Transactional(rollbackOn = Exception.class)
   public GenericResponse addPaymentToExistingFlow(
       String pspId, String flowName, AddPaymentRequest request) {
-
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    MDC.put(FDR, fdr);
-    MDC.put(PSP_ID, pspId);
-     */
 
     log.debugf(
         "Adding [%s] new payments on flow [%s], pspId [%s]",
@@ -186,18 +171,8 @@ public class PaymentService {
         paymentMapper.toEntity(publishingFlow, paymentsToAdd, now);
     addPaymentToExistingFlowInTransaction(publishingFlow, paymentEntities, now);
 
-    /*
-    String sessionId = org.slf4j.MDC.get(TRX_ID);
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    reService.sendEvent(
-        ReInternal.builder()
-            .serviceIdentifier(AppVersionEnum.FDR003).created(Instant.now()).sessionId(sessionId)
-            .eventType(EventTypeEnum.INTERNAL).fdrPhysicalDelete(false)
-            .fdrStatus(it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.INSERTED).flowRead(false)
-            .fdr(fdr).pspId(pspId).organizationId(fdrEntity.getReceiver().getOrganizationId())
-            .revision(fdrEntity.getRevision()).fdrAction(FdrActionEnum.ADD_PAYMENT).build());
-    }
-     */
+    // Send event to Registro Eventi for internal operation
+    storeInternalREEvent(publishingFlow, FdrStatusEnum.INSERTED, FdrActionEnum.ADD_PAYMENT);
 
     return GenericResponse.builder()
         .message(String.format("Fdr [%s] payment added", flowName))
@@ -208,13 +183,6 @@ public class PaymentService {
   @Transactional(rollbackOn = Exception.class)
   public GenericResponse deletePaymentFromExistingFlow(
       String pspId, String flowName, DeletePaymentRequest request) {
-
-    /*
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-    String action = (String) MDC.get(ACTION);
-    MDC.put(FDR, fdr);
-    MDC.put(PSP_ID, pspId);
-     */
 
     log.debugf(
         "Deleting [%s] payments on flow [%s], pspId [%s]",
@@ -255,24 +223,38 @@ public class PaymentService {
     Instant now = Instant.now();
     deletePaymentToExistingFlowInTransaction(publishingFlow, paymentEntities, now);
 
-    /*
-     String sessionId = org.slf4j.MDC.get(TRX_ID);
-     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERNAL.name());
-     reService.sendEvent(
-         ReInternal.builder()
-             .serviceIdentifier(AppVersionEnum.FDR003).created(Instant.now()).sessionId(sessionId)
-             .eventType(EventTypeEnum.INTERNAL).fdrPhysicalDelete(false)
-             .fdrStatus(
-                 FlowStatusEnum.INSERTED == status
-                     ? it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.INSERTED
-                     : it.gov.pagopa.fdr.service.re.model.FdrStatusEnum.CREATED)
-             .flowRead(false).fdr(fdr).pspId(pspId).organizationId(fdrEntity.getReceiver().getOrganizationId())
-             .revision(fdrEntity.getRevision()).fdrAction(FdrActionEnum.DELETE_PAYMENT).build());
-    */
+    // Send event to Registro Eventi for internal operation
+    FdrStatusEnum status =
+        FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())
+            ? FdrStatusEnum.INSERTED
+            : FdrStatusEnum.CREATED;
+    storeInternalREEvent(publishingFlow, status, FdrActionEnum.DELETE_PAYMENT);
 
     return GenericResponse.builder()
         .message(String.format("Fdr [%s] payment deleted", flowName))
         .build();
+  }
+
+  private void storeInternalREEvent(
+      FlowEntity publishingFlow, FdrStatusEnum status, FdrActionEnum action) {
+
+    boolean canBeWrittenAsREEvent =
+        "1".equals(Optional.ofNullable(MDC.get(IS_RE_ENABLED_FOR_THIS_CALL)).orElse("0"));
+    if (canBeWrittenAsREEvent) {
+      reService.sendEvent(
+          ReEvent.builder()
+              .serviceIdentifier(AppVersionEnum.FDR003)
+              .created(Instant.now())
+              .sessionId(MDC.get(MDCKeys.TRX_ID))
+              .eventType(EventTypeEnum.INTERNAL)
+              .fdrStatus(status)
+              .fdr(publishingFlow.getName())
+              .pspId(publishingFlow.getSenderId())
+              .organizationId(publishingFlow.getReceiverId())
+              .revision(publishingFlow.getRevision())
+              .fdrAction(action)
+              .build());
+    }
   }
 
   @SneakyThrows

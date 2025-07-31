@@ -1,13 +1,6 @@
 package it.gov.pagopa.fdr.controller.middleware.filter;
 
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.EVENT_CATEGORY;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.FDR;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.HTTP_TYPE;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.ORGANIZATION_ID;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.PSP_ID;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.TRX_ID;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.URI;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.*;
 
 import it.gov.pagopa.fdr.service.ReService;
 import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
@@ -43,100 +36,78 @@ public class RequestFilter implements ContainerRequestFilter {
 
   @Override
   public void filter(ContainerRequestContext containerRequestContext) throws IOException {
-    long requestStartTime = System.nanoTime();
-    containerRequestContext.setProperty("requestStartTime", requestStartTime);
 
+    // Generating values for session
+    long requestStartTime = System.nanoTime();
     String sessionId = UUID.randomUUID().toString();
 
+    // Extracting info from request URL
     String requestMethod = containerRequestContext.getMethod();
     String requestPath = containerRequestContext.getUriInfo().getAbsolutePath().getPath();
-    String pspPathParam =
-        containerRequestContext
-            .getUriInfo()
-            .getPathParameters()
-            .getFirst(ControllerConstants.PARAMETER_PSP);
-    String fdrPathParam =
-        containerRequestContext
-            .getUriInfo()
-            .getPathParameters()
-            .getFirst(ControllerConstants.PARAMETER_FDR);
-    String ecPathParam =
-        containerRequestContext
-            .getUriInfo()
-            .getPathParameters()
-            .getFirst(ControllerConstants.PARAMETER_ORGANIZATION);
 
+    // Extracting path parameters
+    MultivaluedMap<String, String> pathParameters =
+        containerRequestContext.getUriInfo().getPathParameters();
+    String pspPathParam = pathParameters.getFirst(ControllerConstants.PARAMETER_PSP);
+    String flowPathParam = pathParameters.getFirst(ControllerConstants.PARAMETER_FDR);
+    String organizationPathParam =
+        pathParameters.getFirst(ControllerConstants.PARAMETER_ORGANIZATION);
+
+    // Defining subject and start time, needed for ResponseFilter
+    String subject = "NA";
+    if (!pathParameters.isEmpty()) {
+      if (pathParameters.containsKey(ControllerConstants.PARAMETER_PSP)) {
+        subject = pathParameters.getFirst(ControllerConstants.PARAMETER_PSP);
+      } else if (pathParameters.containsKey(ControllerConstants.PARAMETER_ORGANIZATION)) {
+        subject = pathParameters.getFirst(ControllerConstants.PARAMETER_ORGANIZATION);
+      }
+    }
+    containerRequestContext.setProperty("subject", subject);
+    containerRequestContext.setProperty("requestStartTime", requestStartTime);
+
+    // Extract FdrAction value and store on Registro Eventi IF AND ONLY IF this value
+    // (extracted from existing @Re annotation in controller) is set!
     FdrActionEnum fdrActionEnum =
-        AppReUtil.getFlowNamebyAnnotation(
+        AppReUtil.getFdrActionByAnnotation(
             ((ContainerRequestContextImpl) containerRequestContext)
                 .getServerRequestContext()
                 .getResteasyReactiveResourceInfo()
                 .getAnnotations());
-
-    String fdrAction = null;
     if (fdrActionEnum != null) {
-      fdrAction = fdrActionEnum.name();
+
+      // Extracting request body in order to be lately stored in BLOB Storage
+      String fdrAction = fdrActionEnum.name();
+      String body =
+          new BufferedReader(new InputStreamReader(containerRequestContext.getEntityStream()))
+              .lines()
+              .collect(Collectors.joining("\n"));
+      containerRequestContext.setEntityStream(new ByteArrayInputStream(body.getBytes()));
+
+      // Set request values as properties
+      containerRequestContext.setProperty("parsedRequest", body);
+      containerRequestContext.setProperty("fdrAction", fdrAction);
     }
 
-    MultivaluedMap<String, String> pathparam =
-        containerRequestContext.getUriInfo().getPathParameters();
-
-    String subject = "NA";
-    String pspId = null;
-    String organizationId = null;
-    if (!pathparam.isEmpty()) {
-      if (pathparam.containsKey(ControllerConstants.PARAMETER_PSP)) {
-        subject = pathparam.getFirst(ControllerConstants.PARAMETER_PSP);
-        pspId = subject;
-      } else if (pathparam.containsKey(ControllerConstants.PARAMETER_ORGANIZATION)) {
-        subject = pathparam.getFirst(ControllerConstants.PARAMETER_ORGANIZATION);
-        organizationId = subject;
-      }
-    }
-    containerRequestContext.setProperty("subject", subject);
-
-    putMDCReq(sessionId, fdrAction, requestPath, pspId, organizationId, fdrPathParam);
-
-    String body =
-        new BufferedReader(new InputStreamReader(containerRequestContext.getEntityStream()))
-            .lines()
-            .collect(Collectors.joining("\n"));
-    containerRequestContext.setEntityStream(new ByteArrayInputStream(body.getBytes()));
-
-    /*reService.sendEvent(
-    ReInterface.builder()
-        .serviceIdentifier(AppVersionEnum.FDR003)
-        .created(Instant.now())
-        .sessionId(sessionId)
-        .eventType(EventTypeEnum.INTERFACE)
-        .httpType(HttpTypeEnum.REQ)
-        .httpMethod(requestMethod)
-        .httpUrl(requestPath)
-        .payload(body)
-        .header(
-            containerRequestContext.getHeaders().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
-        .pspId(pspPathParam)
-        .fdr(fdrPathParam)
-        .organizationId(ecPathParam)
-        .fdrAction(fdrActionEnum)
-        .build());*/
-
-    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
+    // Logging request execution
+    putRequestInfoInMDC(
+        sessionId, fdrActionEnum, requestPath, pspPathParam, organizationPathParam, flowPathParam);
     log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
     MDC.remove(EVENT_CATEGORY);
   }
 
-  private void putMDCReq(
+  private void putRequestInfoInMDC(
       String sessionId,
-      String action,
+      FdrActionEnum action,
       String requestPath,
       String psp,
       String organizationId,
       String flowId) {
-    MDC.put(TRX_ID, sessionId);
+
+    MDC.put(IS_RE_ENABLED_FOR_THIS_CALL, action != null ? "1" : "0");
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
     MDC.put(HTTP_TYPE, AppConstant.REQUEST);
-    MDC.put(ACTION, action != null ? action : "NA");
+    MDC.put(TRX_ID, sessionId);
+    MDC.put(ACTION, action != null ? action.name() : "NA");
     MDC.put(URI, requestPath);
     MDC.put(PSP_ID, psp != null ? psp : "NA");
     MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
