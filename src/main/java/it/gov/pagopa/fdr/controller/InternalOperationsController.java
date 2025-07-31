@@ -25,7 +25,6 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
-  // @Re(action = FdrActionEnum.INTERNAL_CREATE_FLOW)
   public RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       String pspId, String flowName, CreateFlowRequest request) {
 
@@ -34,7 +33,6 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
-  // @Re(action = FdrActionEnum.INTERNAL_ADD_PAYMENT)
   public GenericResponse addPaymentToExistingFlowForInternalUse(
       String pspId, String flowName, AddPaymentRequest request) {
 
@@ -42,7 +40,6 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
-  // @Re(action = FdrActionEnum.INTERNAL_DELETE_PAYMENT)
   public GenericResponse deletePaymentFromExistingFlowForInternalUse(
       String pspId, String flowName, DeletePaymentRequest request) {
 
@@ -50,14 +47,12 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
-  // @Re(action = FdrActionEnum.INTERNAL_PUBLISH)
   public GenericResponse publishFlowForInternalUse(String pspId, String flowName) {
 
     return this.flowService.publishFlow(pspId, flowName, true);
   }
 
   @Override
-  // @Re(action = FdrActionEnum.INTERNAL_DELETE_FLOW)
   public GenericResponse deleteExistingFlowForInternalUse(String pspId, String flowName) {
 
     return this.flowService.deleteExistingFlow(pspId, flowName);
