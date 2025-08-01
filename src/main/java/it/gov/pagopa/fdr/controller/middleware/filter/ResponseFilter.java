@@ -193,9 +193,9 @@ public class ResponseFilter implements ContainerResponseFilter {
       MDC.put(ORGANIZATION_ID, "NA");
     }
 
-    if (response instanceof ErrorResponse) {
+    if (response instanceof ErrorResponse errResponse) {
 
-      Optional<ErrorResponse> errorResponse = Optional.of((ErrorResponse) response);
+      Optional<ErrorResponse> errorResponse = Optional.of(errResponse);
       MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
       MDC.put(MDCKeys.CODE, errorResponse.get().getAppErrorCode());
       MDC.put(
