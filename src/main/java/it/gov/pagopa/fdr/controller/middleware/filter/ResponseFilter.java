@@ -141,7 +141,7 @@ public class ResponseFilter implements ContainerResponseFilter {
                 + " [description:%s]",
             requestMethod,
             StringUtil.sanitize(requestPath),
-            requestSubject,
+            StringUtil.sanitize(requestSubject),
             elapsed,
             errorResponse.getHttpStatusCode(),
             errorResponse.getAppErrorCode(),
@@ -159,16 +159,20 @@ public class ResponseFilter implements ContainerResponseFilter {
             "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",
             requestMethod,
             StringUtil.sanitize(requestPath),
-            requestSubject,
+            StringUtil.sanitize(requestSubject),
             elapsed,
             httpStatus,
-            message);
+            StringUtil.sanitize(message));
       }
 
     } else {
       log.infof(
           "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d]",
-          requestMethod, StringUtil.sanitize(requestPath), requestSubject, elapsed, httpStatus);
+          requestMethod,
+          StringUtil.sanitize(requestPath),
+          StringUtil.sanitize(requestSubject),
+          elapsed,
+          httpStatus);
     }
   }
 
