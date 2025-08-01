@@ -5,6 +5,7 @@ import static it.gov.pagopa.fdr.util.constant.MDCKeys.*;
 import it.gov.pagopa.fdr.service.ReService;
 import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
+import it.gov.pagopa.fdr.util.common.StringUtil;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import it.gov.pagopa.fdr.util.re.AppReUtil;
@@ -91,7 +92,9 @@ public class RequestFilter implements ContainerRequestFilter {
     // Logging request execution
     putRequestInfoInMDC(
         sessionId, fdrActionEnum, requestPath, pspPathParam, organizationPathParam, flowPathParam);
-    log.infof("REQ --> %s [uri:%s] [subject:%s]", requestMethod, requestPath, subject);
+    log.infof(
+        "REQ --> %s [uri:%s] [subject:%s]",
+        requestMethod, StringUtil.sanitize(requestPath), subject);
     MDC.remove(EVENT_CATEGORY);
   }
 

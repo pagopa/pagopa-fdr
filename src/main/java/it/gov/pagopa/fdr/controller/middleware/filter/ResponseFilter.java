@@ -11,6 +11,7 @@ import it.gov.pagopa.fdr.service.model.re.AppVersionEnum;
 import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.service.model.re.ReEvent;
+import it.gov.pagopa.fdr.util.common.StringUtil;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
 import it.gov.pagopa.fdr.util.constant.MDCKeys;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
@@ -139,7 +140,7 @@ public class ResponseFilter implements ContainerResponseFilter {
             "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [appErrorCode:%s]"
                 + " [description:%s]",
             requestMethod,
-            requestPath,
+            StringUtil.sanitize(requestPath),
             requestSubject,
             elapsed,
             errorResponse.getHttpStatusCode(),
@@ -156,13 +157,18 @@ public class ResponseFilter implements ContainerResponseFilter {
         }
         log.infof(
             "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",
-            requestMethod, requestPath, requestSubject, elapsed, httpStatus, message);
+            requestMethod,
+            StringUtil.sanitize(requestPath),
+            requestSubject,
+            elapsed,
+            httpStatus,
+            message);
       }
 
     } else {
       log.infof(
           "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d]",
-          requestMethod, requestPath, requestSubject, elapsed, httpStatus);
+          requestMethod, StringUtil.sanitize(requestPath), requestSubject, elapsed, httpStatus);
     }
   }
 
