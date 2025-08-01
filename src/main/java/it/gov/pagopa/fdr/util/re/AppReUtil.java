@@ -9,14 +9,14 @@ import java.util.Optional;
 
 public class AppReUtil {
 
-  public static FdrActionEnum getFlowNamebyAnnotation(Annotation[] annotations) {
-    Optional<Annotation> reAnnotaion =
+  public static FdrActionEnum getFdrActionByAnnotation(Annotation[] annotations) {
+    Optional<Annotation> reAnnotation =
         Arrays.stream(annotations)
             .filter(a -> a.annotationType().isAssignableFrom(Re.class))
             .findFirst();
 
     FdrActionEnum fdrActionEnum =
-        reAnnotaion
+        reAnnotation
             .map(
                 a -> {
                   try {

@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.service;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.IS_RE_ENABLED_FOR_THIS_CALL;
 
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.Config;
@@ -17,6 +18,8 @@ import it.gov.pagopa.fdr.service.middleware.mapper.FlowMapper;
 import it.gov.pagopa.fdr.service.middleware.mapper.FlowToHistoryMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
+import it.gov.pagopa.fdr.service.model.re.*;
+import it.gov.pagopa.fdr.util.constant.MDCKeys;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,22 +28,28 @@ import java.time.Instant;
 import java.util.Optional;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
+import org.slf4j.MDC;
 
 @ApplicationScoped
 public class FlowService {
 
   private final Logger log;
 
+  private final ReService reService;
+
   private final Config cachedConfig;
 
   private final FlowRepository flowRepository;
+
   private final FlowToHistoryRepository flowToHistoryRepository;
 
   private final FlowMapper flowMapper;
+
   private final FlowToHistoryMapper flowToHistoryMapper;
 
   public FlowService(
       Logger log,
+      ReService reService,
       Config cachedConfig,
       FlowRepository flowRepository,
       FlowToHistoryRepository flowToHistoryRepository,
@@ -48,6 +57,7 @@ public class FlowService {
       FlowToHistoryMapper flowToHistoryMapper) {
 
     this.log = log;
+    this.reService = reService;
     this.cachedConfig = cachedConfig;
     this.flowRepository = flowRepository;
     this.flowToHistoryRepository = flowToHistoryRepository;
@@ -73,7 +83,12 @@ public class FlowService {
 
     RepositoryPagedResult<FlowEntity> paginatedResult =
         this.flowRepository.findLatestPublishedByOrganizationIdAndOptionalPspId(
-            organizationId, pspId, args.getPublishedGt(), args.getFlowDate(), (int) pageNumber, (int) pageSize);
+            organizationId,
+            pspId,
+            args.getPublishedGt(),
+            args.getFlowDate(),
+            (int) pageNumber,
+            (int) pageSize);
     log.debugf(
         "Found [%s] entities in [%s] pages. Mapping data to final response.",
         paginatedResult.getTotalElements(), paginatedResult.getTotalPages());
@@ -213,6 +228,9 @@ public class FlowService {
     FlowEntity entity = flowMapper.toEntity(request, revision);
     this.flowRepository.createEntity(entity);
 
+    // Send event to Registro Eventi for internal operation
+    storeInternalREEvent(entity, FdrStatusEnum.CREATED, FdrActionEnum.CREATE_FLOW);
+
     return GenericResponse.builder().message(String.format("Fdr [%s] saved", flowName)).build();
   }
 
@@ -247,6 +265,9 @@ public class FlowService {
         flowToHistoryMapper.toEntity(publishingFlow, isInternalCall);
     this.flowToHistoryRepository.createEntity(flowToHistoryEntity);
 
+    // Send event to Registro Eventi for internal operation
+    storeInternalREEvent(publishingFlow, FdrStatusEnum.PUBLISHED, FdrActionEnum.PUBLISH);
+
     return GenericResponse.builder().message(String.format("Fdr [%s] published", flowName)).build();
   }
 
@@ -270,6 +291,9 @@ public class FlowService {
     FlowEntity publishingFlow = optPublishingFlow.get();
     this.flowRepository.deleteEntity(publishingFlow);
 
+    // Send event to Registro Eventi for internal operation
+    storeInternalREEvent(publishingFlow, FdrStatusEnum.DELETED, FdrActionEnum.DELETE_FLOW);
+
     return GenericResponse.builder().message(String.format("Fdr [%s] deleted", flowName)).build();
   }
 
@@ -284,5 +308,30 @@ public class FlowService {
     publishingFlow.setIsLatest(true);
     publishingFlow.setStatus(FlowStatusEnum.PUBLISHED.name());
     this.flowRepository.updateEntity(publishingFlow);
+  }
+
+  private void storeInternalREEvent(
+      FlowEntity publishingFlow, FdrStatusEnum status, FdrActionEnum action) {
+
+    MDC.put(MDCKeys.ORGANIZATION_ID, publishingFlow.getReceiverId());
+    MDC.put(MDCKeys.FDR_STATUS, status.name());
+
+    boolean canBeWrittenAsREEvent =
+        "1".equals(Optional.ofNullable(MDC.get(IS_RE_ENABLED_FOR_THIS_CALL)).orElse("0"));
+    if (canBeWrittenAsREEvent) {
+      reService.sendEvent(
+          ReEvent.builder()
+              .serviceIdentifier(AppVersionEnum.FDR003)
+              .created(Instant.now())
+              .sessionId(MDC.get(MDCKeys.TRX_ID))
+              .eventType(EventTypeEnum.INTERNAL)
+              .fdrStatus(status)
+              .fdr(publishingFlow.getName())
+              .pspId(publishingFlow.getSenderId())
+              .organizationId(publishingFlow.getReceiverId())
+              .revision(publishingFlow.getRevision())
+              .fdrAction(action)
+              .build());
+    }
   }
 }

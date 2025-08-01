@@ -17,5 +17,5 @@ public class BlobHttpBody {
 
   private String fileName;
 
-  private long fileLength;
+  private Long fileLength;
 }

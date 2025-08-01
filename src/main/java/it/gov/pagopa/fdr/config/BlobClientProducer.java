@@ -1,7 +1,6 @@
 package it.gov.pagopa.fdr.config;
 
-import com.azure.storage.blob.BlobContainerAsyncClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -10,17 +9,34 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class BlobClientProducer {
 
   @ConfigProperty(name = "blob.history.connect-str")
-  String blobConnectionsStr;
+  String blobHistoryConnectionStr;
 
   @ConfigProperty(name = "blob.history.containername")
-  String blobContainerName;
+  String blobHistoryContainerName;
+
+  @ConfigProperty(name = "blob.re.connect-str")
+  String blobReConnectionStr;
+
+  @ConfigProperty(name = "blob.re.name")
+  String blobReContainerName;
 
   @Produces
   @ApplicationScoped
-  public BlobContainerAsyncClient createBlobContainerClient() {
-    var blobServiceClient =
-        new BlobServiceClientBuilder().connectionString(blobConnectionsStr).buildAsyncClient();
+  public BlobContainerAsyncClient createBlobContainerAsyncClient() {
 
-    return blobServiceClient.getBlobContainerAsyncClient(blobContainerName);
+    BlobServiceAsyncClient blobServiceClient =
+        new BlobServiceClientBuilder()
+            .connectionString(blobHistoryConnectionStr)
+            .buildAsyncClient();
+    return blobServiceClient.getBlobContainerAsyncClient(blobHistoryContainerName);
+  }
+
+  @Produces
+  @ApplicationScoped
+  public BlobContainerClient createBlobContainerClient() {
+
+    BlobServiceClient blobServiceClient =
+        new BlobServiceClientBuilder().connectionString(blobReConnectionStr).buildClient();
+    return blobServiceClient.getBlobContainerClient(blobReContainerName);
   }
 }
