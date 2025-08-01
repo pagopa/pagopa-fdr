@@ -94,7 +94,7 @@ public class RequestFilter implements ContainerRequestFilter {
         sessionId, fdrActionEnum, requestPath, pspPathParam, organizationPathParam, flowPathParam);
     log.infof(
         "REQ --> %s [uri:%s] [subject:%s]",
-        requestMethod, StringUtil.sanitize(requestPath), subject);
+        requestMethod, StringUtil.sanitize(requestPath), StringUtil.sanitize(subject));
     MDC.remove(EVENT_CATEGORY);
   }
 
