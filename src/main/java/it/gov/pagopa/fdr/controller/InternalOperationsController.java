@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.controller;
 
+import it.gov.pagopa.fdr.controller.interfaces.annotation.Re;
 import it.gov.pagopa.fdr.controller.interfaces.controller.IInternalOperationsController;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
@@ -9,6 +10,7 @@ import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.service.FlowService;
 import it.gov.pagopa.fdr.service.PaymentService;
 import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
+import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import jakarta.ws.rs.core.Response.Status;
 import org.jboss.resteasy.reactive.RestResponse;
 
@@ -25,6 +27,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
+  @Re(action = FdrActionEnum.INTERNAL_CREATE_FLOW)
   public RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       String pspId, String flowName, CreateFlowRequest request) {
 
@@ -33,6 +36,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
+  @Re(action = FdrActionEnum.INTERNAL_ADD_PAYMENT)
   public GenericResponse addPaymentToExistingFlowForInternalUse(
       String pspId, String flowName, AddPaymentRequest request) {
 
@@ -40,6 +44,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
+  @Re(action = FdrActionEnum.INTERNAL_DELETE_PAYMENT)
   public GenericResponse deletePaymentFromExistingFlowForInternalUse(
       String pspId, String flowName, DeletePaymentRequest request) {
 
@@ -47,12 +52,14 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
+  @Re(action = FdrActionEnum.INTERNAL_PUBLISH)
   public GenericResponse publishFlowForInternalUse(String pspId, String flowName) {
 
     return this.flowService.publishFlow(pspId, flowName, true);
   }
 
   @Override
+  @Re(action = FdrActionEnum.INTERNAL_DELETE_FLOW)
   public GenericResponse deleteExistingFlowForInternalUse(String pspId, String flowName) {
 
     return this.flowService.deleteExistingFlow(pspId, flowName);

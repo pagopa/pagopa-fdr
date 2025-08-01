@@ -2,7 +2,6 @@ package it.gov.pagopa.fdr.controller.middleware.filter;
 
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.*;
 
-import it.gov.pagopa.fdr.service.ReService;
 import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.util.common.StringUtil;
@@ -17,8 +16,10 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
 import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
@@ -26,13 +27,13 @@ import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 @Provider
 public class RequestFilter implements ContainerRequestFilter {
 
+  @ConfigProperty(name = "registro-eventi.exclude-from-save.actions")
+  private Set<String> actionsExcludedFromSave;
+
   private final Logger log;
 
-  private final ReService reService;
-
-  public RequestFilter(Logger log, ReService reService) {
+  public RequestFilter(Logger log) {
     this.log = log;
-    this.reService = reService;
   }
 
   @Override
@@ -74,7 +75,7 @@ public class RequestFilter implements ContainerRequestFilter {
                 .getServerRequestContext()
                 .getResteasyReactiveResourceInfo()
                 .getAnnotations());
-    if (fdrActionEnum != null) {
+    if (fdrActionEnum != null && isActionIncludedForRE(fdrActionEnum)) {
 
       // Extracting request body in order to be lately stored in BLOB Storage
       String fdrAction = fdrActionEnum.name();
@@ -115,5 +116,9 @@ public class RequestFilter implements ContainerRequestFilter {
     MDC.put(PSP_ID, psp != null ? psp : "NA");
     MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
     MDC.put(FDR, flowId != null ? flowId : "NA");
+  }
+
+  private boolean isActionIncludedForRE(FdrActionEnum fdrActionEnum) {
+    return !actionsExcludedFromSave.contains(fdrActionEnum.name());
   }
 }
