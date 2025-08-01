@@ -75,7 +75,8 @@ public class RequestFilter implements ContainerRequestFilter {
                 .getServerRequestContext()
                 .getResteasyReactiveResourceInfo()
                 .getAnnotations());
-    if (fdrActionEnum != null && isActionIncludedForRE(fdrActionEnum)) {
+    boolean isActionIncludedForRE = isActionIncludedForRE(fdrActionEnum);
+    if (isActionIncludedForRE) {
 
       // Extracting request body in order to be lately stored in BLOB Storage
       String fdrAction = fdrActionEnum.name();
@@ -93,6 +94,7 @@ public class RequestFilter implements ContainerRequestFilter {
     // Logging request execution
     putRequestInfoInMDC(
         sessionId, fdrActionEnum, requestPath, pspPathParam, organizationPathParam, flowPathParam);
+    MDC.put(IS_RE_ENABLED_FOR_THIS_CALL, isActionIncludedForRE ? "1" : "0");
     log.infof(
         "REQ --> %s [uri:%s] [subject:%s]",
         requestMethod, StringUtil.sanitize(requestPath), StringUtil.sanitize(subject));
@@ -107,7 +109,6 @@ public class RequestFilter implements ContainerRequestFilter {
       String organizationId,
       String flowId) {
 
-    MDC.put(IS_RE_ENABLED_FOR_THIS_CALL, action != null ? "1" : "0");
     MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
     MDC.put(HTTP_TYPE, AppConstant.REQUEST);
     MDC.put(TRX_ID, sessionId);
@@ -119,6 +120,6 @@ public class RequestFilter implements ContainerRequestFilter {
   }
 
   private boolean isActionIncludedForRE(FdrActionEnum fdrActionEnum) {
-    return !actionsExcludedFromSave.contains(fdrActionEnum.name());
+    return fdrActionEnum != null && !actionsExcludedFromSave.contains(fdrActionEnum.name());
   }
 }
