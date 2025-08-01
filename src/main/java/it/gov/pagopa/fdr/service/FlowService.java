@@ -313,6 +313,9 @@ public class FlowService {
   private void storeInternalREEvent(
       FlowEntity publishingFlow, FdrStatusEnum status, FdrActionEnum action) {
 
+    MDC.put(MDCKeys.ORGANIZATION_ID, publishingFlow.getReceiverId());
+    MDC.put(MDCKeys.FDR_STATUS, status.name());
+
     boolean canBeWrittenAsREEvent =
         "1".equals(Optional.ofNullable(MDC.get(IS_RE_ENABLED_FOR_THIS_CALL)).orElse("0"));
     if (canBeWrittenAsREEvent) {

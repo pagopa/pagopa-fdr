@@ -1,8 +1,8 @@
 package it.gov.pagopa.fdr.service;
 
 import com.azure.core.util.BinaryData;
-import com.azure.storage.blob.BlobAsyncClient;
-import com.azure.storage.blob.BlobContainerAsyncClient;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import it.gov.pagopa.fdr.repository.entity.re.ReEventEntity;
@@ -11,8 +11,11 @@ import it.gov.pagopa.fdr.service.model.re.BlobHttpBody;
 import it.gov.pagopa.fdr.service.model.re.ReEvent;
 import it.gov.pagopa.fdr.util.common.StringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.io.ByteArrayInputStream;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -21,31 +24,22 @@ public class ReService {
 
   private final Logger log;
 
-  @ConfigProperty(name = "blob.re.connect-str")
-  String blobConnectStr;
-
   @ConfigProperty(name = "blob.re.name")
   String blobContainerName;
 
-  private final BlobContainerAsyncClient blobContainerClient;
+  private final BlobContainerClient blobContainerClient;
 
   private final ReEventMapper reEventMapper;
 
   public ReService(
-      Logger log, ReEventMapper reEventMapper, BlobContainerAsyncClient blobContainerClient) {
+      Logger log, ReEventMapper reEventMapper, BlobContainerClient blobContainerClient) {
 
     this.log = log;
     this.reEventMapper = reEventMapper;
     this.blobContainerClient = blobContainerClient;
   }
 
-  public void init() {
-
-    /*log.infof("RE Blob service init, container name [%s]", blobContainerName);
-    BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(blobConnectStr).buildClient();
-    this.blobContainerClient = blobServiceClient.createBlobContainerIfNotExists(blobContainerName);*/
-  }
-
+  @Transactional(Transactional.TxType.NOT_SUPPORTED)
   public void sendEvent(ReEvent... reEvents) {
     Uni.createFrom()
         .voidItem()
@@ -89,7 +83,12 @@ public class ReService {
     String reqPayload = reEvent.getReqPayload();
     if (reqPayload != null && !reqPayload.isBlank()) {
       BlobHttpBody reqBlobRef =
-          writeBlob(reEvent.getSessionId(), reEvent.getFdrAction().name(), "REQ", reqPayload);
+          writeBlob(
+              reEvent.getSessionId(),
+              reEvent.getCreated(),
+              reEvent.getFdrAction().name(),
+              "REQ",
+              reqPayload);
       reEvent.setReqBodyRef(reqBlobRef);
     }
 
@@ -97,17 +96,31 @@ public class ReService {
     String resPayload = reEvent.getResPayload();
     if (resPayload != null && !resPayload.isBlank()) {
       BlobHttpBody resBlobRef =
-          writeBlob(reEvent.getSessionId(), reEvent.getFdrAction().name(), "RES", reqPayload);
+          writeBlob(
+              reEvent.getSessionId(),
+              reEvent.getCreated(),
+              reEvent.getFdrAction().name(),
+              "RES",
+              resPayload);
       reEvent.setResBodyRef(resBlobRef);
     }
   }
 
   private BlobHttpBody writeBlob(
-      String sessionId, String fdrAction, String httpType, String payload) {
+      String sessionId, Instant createdAt, String fdrAction, String httpType, String payload) {
 
     // Construct BLOB file name
     BlobHttpBody blobHttpBody = null;
-    String fileName = String.format("%s_%s_%s.json.zip", sessionId, fdrAction, httpType);
+
+    LocalDateTime creationDate = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault());
+    String folder =
+        String.format(
+            "%d/%02d/%02d/%02d",
+            creationDate.getYear(),
+            creationDate.getMonthValue(),
+            creationDate.getDayOfMonth(),
+            creationDate.getHour());
+    String fileName = String.format("%s/%s_%s_%s.json.zip", folder, sessionId, fdrAction, httpType);
 
     try {
 
@@ -115,8 +128,13 @@ public class ReService {
       byte[] compressedPayload = StringUtil.zip(payload);
 
       // Store BLOB file on BLOB Storage
-      BinaryData body = BinaryData.fromStream(new ByteArrayInputStream(compressedPayload));
-      BlobAsyncClient blobClient = blobContainerClient.getBlobAsyncClient(fileName);
+      // Note: Before the method BinaryData.fromStream(new ByteArrayInputStream(compressedPayload))
+      // was used,
+      // but getLength() method will always return null. Currently using fromBytes() method but if
+      // used menory is
+      // too much high, return to use fromStream() method.
+      BinaryData body = BinaryData.fromBytes(compressedPayload);
+      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
       blobClient.upload(body);
 
       // Construct BlobHttpBody object to be returned

@@ -6,6 +6,7 @@ import it.gov.pagopa.fdr.service.model.re.BlobHttpBody;
 import it.gov.pagopa.fdr.service.model.re.ReEvent;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
@@ -22,32 +23,40 @@ public interface ReEventMapper {
   default ReEventEntity toEntity(ReEvent reEvent) {
 
     BlobHttpBody reqBlobBodyRef = reEvent.getReqBodyRef();
-    BlobRefEntity reqRefEntity = new BlobRefEntity();
-    reqRefEntity.setStorageAccount(reqBlobBodyRef.getStorageAccount());
-    reqRefEntity.setContainerName(reqBlobBodyRef.getContainerName());
-    reqRefEntity.setFileName(reqBlobBodyRef.getFileName());
-    reqRefEntity.setFileLength(reqBlobBodyRef.getFileLength());
+    BlobRefEntity reqRefEntity = null;
+    if (reqBlobBodyRef != null) {
+      reqRefEntity = new BlobRefEntity();
+      reqRefEntity.setStorageAccount(reqBlobBodyRef.getStorageAccount());
+      reqRefEntity.setContainerName(reqBlobBodyRef.getContainerName());
+      reqRefEntity.setFileName(reqBlobBodyRef.getFileName());
+      reqRefEntity.setFileLength(
+          Optional.ofNullable(reqBlobBodyRef.getFileLength()).orElse(-1L).intValue());
+    }
 
     BlobHttpBody resBlobBodyRef = reEvent.getResBodyRef();
-    BlobRefEntity resRefEntity = new BlobRefEntity();
-    resRefEntity.setStorageAccount(resBlobBodyRef.getStorageAccount());
-    resRefEntity.setContainerName(resBlobBodyRef.getContainerName());
-    resRefEntity.setFileName(resBlobBodyRef.getFileName());
-    resRefEntity.setFileLength(resBlobBodyRef.getFileLength());
+    BlobRefEntity resRefEntity = null;
+    if (resBlobBodyRef != null) {
+      resRefEntity = new BlobRefEntity();
+      resRefEntity.setStorageAccount(resBlobBodyRef.getStorageAccount());
+      resRefEntity.setContainerName(resBlobBodyRef.getContainerName());
+      resRefEntity.setFileName(resBlobBodyRef.getFileName());
+      resRefEntity.setFileLength(
+          Optional.ofNullable(resBlobBodyRef.getFileLength()).orElse(-1L).intValue());
+    }
 
     String formattedCreationDate = DATE_FORMATTER.format(reEvent.getCreated());
 
     ReEventEntity converted = new ReEventEntity();
     converted.setPartitionKey(formattedCreationDate);
     converted.setUniqueId(String.format("%s_%s", formattedCreationDate, reEvent.hashCode()));
-    converted.setFdr(reEvent.getFdr());
+    converted.setFdr(availableValueOrNull(reEvent.getFdr()));
     converted.setFdrAction(nameOrNull(reEvent.getFdrAction()));
     converted.setServiceIdentifier(nameOrNull(reEvent.getServiceIdentifier()));
     converted.setCreated(reEvent.getCreated().toString());
     converted.setSessionId(reEvent.getSessionId());
     converted.setEventType(nameOrNull(reEvent.getEventType()));
-    converted.setPspId(reEvent.getPspId());
-    converted.setOrganizationId(reEvent.getOrganizationId());
+    converted.setPspId(availableValueOrNull(reEvent.getPspId()));
+    converted.setOrganizationId(availableValueOrNull(reEvent.getOrganizationId()));
     converted.setFdrStatus(nameOrNull(reEvent.getFdrStatus()));
     converted.setHttpMethod(reEvent.getHttpMethod());
     converted.setHttpUrl(reEvent.getHttpUrl());
@@ -66,5 +75,9 @@ public interface ReEventMapper {
 
   private static String nameOrNull(Enum<?> value) {
     return value != null ? value.name() : null;
+  }
+
+  private static String availableValueOrNull(String value) {
+    return "NA".equals(value) ? null : value;
   }
 }

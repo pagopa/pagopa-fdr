@@ -15,6 +15,7 @@ public class MDCKeys {
   public static final String PSP_ID = "pspId";
   public static final String ORGANIZATION_ID = "organizationId";
   public static final String FDR = "fdr";
+  public static final String FDR_STATUS = "fdrStatus";
   public static final String IUV = "iuv";
   public static final String IUR = "iur";
   public static final String IS_RE_ENABLED_FOR_THIS_CALL = "isReEnabledForThisCall";

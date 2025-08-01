@@ -6,13 +6,15 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @MongoEntity(collection = "events")
 public class ReEventEntity extends PanacheMongoEntity {
 
-  private String PartitionKey;
+  @BsonProperty("PartitionKey")
+  private String partitionKey;
 
   private String uniqueId;
 

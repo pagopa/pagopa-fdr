@@ -70,14 +70,15 @@ public class ResponseFilter implements ContainerResponseFilter {
       String fdrAction = (String) requestContext.getProperty("fdrAction");
 
       // Populate MDC for include values on logged elements as MDC.<field>
-      putResponseInfoInMDC(
-          fdrAction, requestPath, elapsed, httpStatus, responseContext.getEntity());
+      Object responseContextEntity = responseContext.getEntity();
+      putResponseInfoInMDC(fdrAction, requestPath, elapsed, httpStatus, responseContextEntity);
 
       // Extracting request and response payloads
       String requestPayload = (String) requestContext.getProperty("parsedRequest");
+
       String responsePayload;
       try {
-        responsePayload = objectMapper.writeValueAsString(responseContext.getEntity());
+        responsePayload = objectMapper.writeValueAsString(responseContextEntity);
       } catch (JsonProcessingException e) {
         throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
       }
@@ -149,8 +150,9 @@ public class ResponseFilter implements ContainerResponseFilter {
       } else {
 
         String message = null;
-        if (responseContext.getEntity() != null) {
-          message = ((Throwable) responseContext.getEntity()).getMessage();
+        Object responseEntity = responseContext.getEntity();
+        if (responseEntity instanceof Throwable throwable) {
+          message = throwable.getMessage();
         }
         log.infof(
             "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",

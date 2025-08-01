@@ -11,5 +11,5 @@ public class BlobRefEntity {
 
   private String fileName;
 
-  private Long fileLength;
+  private Integer fileLength;
 }
