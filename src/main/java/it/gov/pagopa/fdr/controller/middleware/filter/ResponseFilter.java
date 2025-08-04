@@ -1,40 +1,34 @@
 package it.gov.pagopa.fdr.controller.middleware.filter;
 
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.ACTION;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.ELAPSED;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.EVENT_CATEGORY;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.FDR;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.HTTP_TYPE;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.ORGANIZATION_ID;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.PSP_ID;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.STATUS_CODE;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.TRX_ID;
-import static it.gov.pagopa.fdr.util.constant.MDCKeys.URI;
+import static it.gov.pagopa.fdr.util.constant.MDCKeys.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.fdr.controller.model.error.ErrorMessage;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.service.ReService;
+import it.gov.pagopa.fdr.service.model.re.AppVersionEnum;
 import it.gov.pagopa.fdr.service.model.re.EventTypeEnum;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
+import it.gov.pagopa.fdr.service.model.re.ReEvent;
+import it.gov.pagopa.fdr.util.common.StringUtil;
 import it.gov.pagopa.fdr.util.constant.AppConstant;
 import it.gov.pagopa.fdr.util.constant.MDCKeys;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
-import it.gov.pagopa.fdr.util.re.AppReUtil;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.Provider;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 import org.jboss.logging.MDC;
-import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 
 @Provider
 public class ResponseFilter implements ContainerResponseFilter {
@@ -45,6 +39,9 @@ public class ResponseFilter implements ContainerResponseFilter {
 
   private final ObjectMapper objectMapper;
 
+  private static final Set<Integer> OK_RESPONSE_CODES =
+      Set.of(Status.OK.getStatusCode(), Status.CREATED.getStatusCode());
+
   public ResponseFilter(Logger log, ReService reService, ObjectMapper objectMapper) {
     this.log = log;
     this.reService = reService;
@@ -54,125 +51,151 @@ public class ResponseFilter implements ContainerResponseFilter {
   @Override
   public void filter(
       ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-    if (requestContext.getPropertyNames().contains("requestStartTime")) {
+
+    boolean canBeWrittenAsREEvent =
+        "1".equals(Optional.ofNullable(MDC.get(IS_RE_ENABLED_FOR_THIS_CALL)).orElse("0"));
+    if (canBeWrittenAsREEvent && requestContext.getPropertyNames().contains("fdrAction")) {
+
+      //
       long requestStartTime = (long) requestContext.getProperty("requestStartTime");
       long requestFinishTime = System.nanoTime();
       long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
-      String requestSubject = (String) requestContext.getProperty("subject");
-      String action = (String) MDC.get(ACTION);
-      String psp = (String) MDC.get(PSP_ID);
-      String organizationId = (String) MDC.get(ORGANIZATION_ID);
-      String fdr = (String) MDC.get(FDR);
 
-      FdrActionEnum fdrActionEnum =
-          AppReUtil.getFlowNamebyAnnotation(
-              ((ContainerRequestContextImpl) requestContext)
-                  .getServerRequestContext()
-                  .getResteasyReactiveResourceInfo()
-                  .getAnnotations());
-
-      String sessionId = (String) MDC.get(TRX_ID);
+      // Extracting info from request and response
       String requestMethod = requestContext.getMethod();
       String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
-
       int httpStatus = responseContext.getStatus();
-      Optional<ErrorResponse> errorResponse = Optional.empty();
 
-      if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
-          && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
-        Object body = responseContext.getEntity();
-        if (body instanceof ErrorResponse) {
-          errorResponse = Optional.of((ErrorResponse) body);
-        }
-      }
-      putMDCRes(action, requestPath, psp, organizationId, elapsed, httpStatus, errorResponse);
+      // Extracting info from context properties
+      String requestSubject = (String) requestContext.getProperty("subject");
+      String fdrAction = (String) requestContext.getProperty("fdrAction");
+
+      // Populate MDC for include values on logged elements as MDC.<field>
+      Object responseContextEntity = responseContext.getEntity();
+      putResponseInfoInMDC(fdrAction, requestPath, elapsed, httpStatus, responseContextEntity);
+
+      // Extracting request and response payloads
+      String requestPayload = (String) requestContext.getProperty("parsedRequest");
 
       String responsePayload;
       try {
-        responsePayload = objectMapper.writeValueAsString(responseContext.getEntity());
+        responsePayload = objectMapper.writeValueAsString(responseContextEntity);
       } catch (JsonProcessingException e) {
         throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
       }
 
-      /*reService.sendEvent(
-      ReInterface.builder()
-          .serviceIdentifier(AppVersionEnum.FDR003)
-          .created(Instant.now())
-          .sessionId(sessionId)
-          .eventType(EventTypeEnum.INTERFACE)
-          .httpType(HttpTypeEnum.RES)
-          .httpMethod(requestMethod)
-          .httpUrl(requestPath)
-          .payload(responsePayload)
-          .header(
-              responseContext.getHeaders().entrySet().stream()
-                  .collect(
-                      Collectors.toMap(
-                          Map.Entry::getKey,
-                          a -> Stream.of(a.getValue()).map(Object::toString).toList())))
-          .pspId(psp)
-          .fdr(fdr)
-          .organizationId(organizationId)
-          .fdrAction(fdrActionEnum)
-          .build());*/
+      // Generate events on Registro Eventi and also store on BLOB storage
+      generateAndSendREEvent(
+          requestContext, fdrAction, requestPayload, responsePayload, requestMethod, requestPath);
 
-      MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
-      if (responseContext.getStatus() != Response.Status.OK.getStatusCode()
-          && responseContext.getStatus() != Status.CREATED.getStatusCode()) {
-        Object body = responseContext.getEntity();
-        if (body instanceof ErrorResponse) {
-          errorResponse = Optional.of((ErrorResponse) body);
-          logErrorResponse(
-              requestMethod, requestPath, requestSubject, elapsed, errorResponse.get());
-        } else {
-          String message = null;
-          if (responseContext.getEntity() != null) {
-            message = ((Throwable) responseContext.getEntity()).getMessage();
-          }
-          log.infof(
-              "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",
-              requestMethod, requestPath, requestSubject, elapsed, httpStatus, message);
-        }
-      } else {
-        log.infof(
-            "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d]",
-            requestMethod, requestPath, requestSubject, elapsed, httpStatus);
-      }
-
+      // Finally, log all response info with also MDC values, then clear MDC context
+      logResponse(responseContext, requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       MDC.clear();
     }
   }
 
-  private void logErrorResponse(
+  private void generateAndSendREEvent(
+      ContainerRequestContext requestContext,
+      String fdrAction,
+      String requestPayload,
+      String responsePayload,
       String requestMethod,
-      String requestPath,
-      String subject,
-      long elapsed,
-      ErrorResponse errorResponse) {
-    log.infof(
-        "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [appErrorCode:%s]"
-            + " [description:%s]",
-        requestMethod,
-        requestPath,
-        subject,
-        elapsed,
-        errorResponse.getHttpStatusCode(),
-        errorResponse.getAppErrorCode(),
-        errorResponse.getErrors().stream()
-            .map(ErrorMessage::getMessage)
-            .collect(Collectors.joining(", ")));
+      String requestPath) {
+
+    // Then, send the event: the payload will be saved on BLOB Storage, the event in MongoDB
+    reService.sendEvent(
+        ReEvent.builder()
+            .serviceIdentifier(AppVersionEnum.FDR003)
+            .created(Instant.now())
+            .sessionId((String) MDC.get(TRX_ID))
+            .eventType(EventTypeEnum.INTERFACE)
+            .httpMethod(requestMethod)
+            .httpUrl(requestPath)
+            .reqPayload(requestPayload)
+            .resPayload(responsePayload)
+            .header(
+                requestContext.getHeaders().entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+            .pspId((String) MDC.get(PSP_ID))
+            .fdr((String) MDC.get(FDR))
+            .organizationId((String) MDC.get(ORGANIZATION_ID))
+            .fdrAction(FdrActionEnum.valueOf(fdrAction))
+            .build());
   }
 
-  private void putMDCRes(
-      String action,
+  private void logResponse(
+      ContainerResponseContext responseContext,
+      String requestMethod,
       String requestPath,
-      String psp,
-      String organizationId,
-      Long elapsed,
-      Integer httpStatus,
-      Optional<ErrorResponse> errorResponse) {
+      String requestSubject,
+      long elapsed,
+      int httpStatus) {
+
+    if (OK_RESPONSE_CODES.contains(responseContext.getStatus())) {
+
+      Object body = responseContext.getEntity();
+      if (body instanceof ErrorResponse errorResponse) {
+
+        log.infof(
+            "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [appErrorCode:%s]"
+                + " [description:%s]",
+            requestMethod,
+            StringUtil.sanitize(requestPath),
+            StringUtil.sanitize(requestSubject),
+            elapsed,
+            errorResponse.getHttpStatusCode(),
+            errorResponse.getAppErrorCode(),
+            errorResponse.getErrors().stream()
+                .map(ErrorMessage::getMessage)
+                .collect(Collectors.joining(", ")));
+      } else {
+
+        String message = null;
+        Object responseEntity = responseContext.getEntity();
+        if (responseEntity instanceof Throwable throwable) {
+          message = throwable.getMessage();
+        }
+        log.infof(
+            "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d] [description:%s]",
+            requestMethod,
+            StringUtil.sanitize(requestPath),
+            StringUtil.sanitize(requestSubject),
+            elapsed,
+            httpStatus,
+            StringUtil.sanitize(message));
+      }
+
+    } else {
+      log.infof(
+          "RES --> %s [uri:%s] [subject:%s] [elapsed:%dms] [statusCode:%d]",
+          requestMethod,
+          StringUtil.sanitize(requestPath),
+          StringUtil.sanitize(requestSubject),
+          elapsed,
+          httpStatus);
+    }
+  }
+
+  private void putResponseInfoInMDC(
+      String action, String requestPath, Long elapsed, Integer httpStatus, Object response) {
+
+    MDC.put(EVENT_CATEGORY, EventTypeEnum.INTERFACE.name());
     MDC.put(HTTP_TYPE, AppConstant.RESPONSE);
-    if (errorResponse.isPresent()) {
+    MDC.put(ACTION, action != null ? action : "NA");
+    MDC.put(URI, requestPath);
+    MDC.put(ELAPSED, elapsed);
+    MDC.put(STATUS_CODE, httpStatus);
+
+    if (MDC.get(PSP_ID) == null) {
+      MDC.put(PSP_ID, "NA");
+    }
+    if (MDC.get(ORGANIZATION_ID) == null) {
+      MDC.put(ORGANIZATION_ID, "NA");
+    }
+
+    if (response instanceof ErrorResponse errResponse) {
+
+      Optional<ErrorResponse> errorResponse = Optional.of(errResponse);
       MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
       MDC.put(MDCKeys.CODE, errorResponse.get().getAppErrorCode());
       MDC.put(
@@ -183,11 +206,5 @@ public class ResponseFilter implements ContainerResponseFilter {
     } else {
       MDC.put(MDCKeys.OUTCOME, AppConstant.OK);
     }
-    MDC.put(ACTION, action != null ? action : "NA");
-    MDC.put(URI, requestPath);
-    MDC.put(ELAPSED, elapsed);
-    MDC.put(STATUS_CODE, httpStatus);
-    MDC.put(PSP_ID, psp != null ? psp : "NA");
-    MDC.put(ORGANIZATION_ID, organizationId != null ? organizationId : "NA");
   }
 }
