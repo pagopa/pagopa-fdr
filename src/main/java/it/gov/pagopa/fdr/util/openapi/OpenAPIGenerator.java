@@ -114,7 +114,7 @@ public class OpenAPIGenerator implements OASFilter {
 
   private static void extractTableMetadata(Operation operation) {
     try {
-      String[] operationIdMethodReference = operation.getOperationId().split("\\.");
+      String[] operationIdMethodReference = operation.getOperationId().split("_");
       if (operationIdMethodReference.length == 2) {
 
         Class<?> controllerClass =

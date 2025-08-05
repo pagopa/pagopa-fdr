@@ -217,7 +217,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   }
 
   public RepositoryPagedResult<FlowEntity> findLatestPublishedByOrganizationIdAndOptionalPspId(
-      String organizationId, String pspId, Instant publishedGt, int pageNumber, int pageSize) {
+      String organizationId, String pspId, Instant publishedGt, Instant flowDate, int pageNumber, int pageSize) {
 
     Parameters parameters = new Parameters();
     List<String> queryBuilder = new ArrayList<>();
@@ -236,6 +236,11 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     if (publishedGt != null) {
       queryBuilder.add("published > :publishedGt");
       parameters.and("publishedGt", publishedGt);
+    }
+
+    if (flowDate != null) {
+      queryBuilder.add("date > :flowDate");
+      parameters.and("flowDate", flowDate);
     }
 
     // setting mandatory field: flow status

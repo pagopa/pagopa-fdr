@@ -66,7 +66,6 @@ public class InternalOperationsController implements IInternalOperationsControll
   }
 
   @Override
-  @Re(action = FdrActionEnum.INTERNAL_GET_CREATED_FDR)
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
       String pspId, String flowName, String organizationId) {
 

@@ -120,6 +120,13 @@ The result of the query is paginated and contains all the metadata needed for pa
               example = "2025-01-01T12:00:00Z")
           @QueryParam(ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN)
           Instant publishedGt,
+      @Parameter(
+              description =
+                      "A date to be used as a lower limit search on flow date. In format"
+                              + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+              example = "2025-01-01T12:00:00Z")
+      @QueryParam(ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN)
+      Instant flowDate,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
