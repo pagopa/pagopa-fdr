@@ -70,11 +70,11 @@ public class Payment {
   @Schema(
       example = "EXECUTED",
       enumeration = {
-        "EXECUTED (0)",
-        "REVOKED (3)",
-        "STAND_IN (4)",
-        "STAND_IN_NO_RPT (8)",
-        "NO_RPT (9)"
+        "EXECUTED",
+        "REVOKED",
+        "STAND_IN",
+        "STAND_IN_NO_RPT",
+        "NO_RPT"
       },
       description =
           "The value of the status of the payment in relation to ist completion.<br>In the XML"
