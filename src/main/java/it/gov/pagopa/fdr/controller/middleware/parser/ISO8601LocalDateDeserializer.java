@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.io.IOException;
 import java.time.LocalDate;
 
-public class MandatoryLocalDateDeserializer extends JsonDeserializer<LocalDate> {
+public class ISO8601LocalDateDeserializer extends JsonDeserializer<LocalDate> {
 
   @Override
   public LocalDate deserialize(JsonParser parser, DeserializationContext context)

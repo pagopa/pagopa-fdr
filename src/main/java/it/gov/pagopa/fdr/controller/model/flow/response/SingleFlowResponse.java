@@ -1,9 +1,9 @@
 package it.gov.pagopa.fdr.controller.model.flow.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import it.gov.pagopa.fdr.controller.middleware.parser.ISO8601LocalDateSerializer;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
@@ -84,7 +84,7 @@ public class SingleFlowResponse {
   @Schema(
       example = "2023-04-03",
       description = "The date of the regulation payment related to the flow.")
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+  @JsonSerialize(using = ISO8601LocalDateSerializer.class)
   private LocalDate regulationDate;
 
   @Schema(

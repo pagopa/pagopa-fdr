@@ -2,7 +2,7 @@ package it.gov.pagopa.fdr.controller.model.flow.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import it.gov.pagopa.fdr.controller.middleware.parser.MandatoryLocalDateDeserializer;
+import it.gov.pagopa.fdr.controller.middleware.parser.ISO8601LocalDateDeserializer;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
@@ -71,7 +71,7 @@ public class CreateFlowRequest {
               + " primitives, this field is mappable with the tag"
               + " <b>[FlussoRiversamento.dataRegolamento]</b>.")
   // @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-  @JsonDeserialize(using = MandatoryLocalDateDeserializer.class)
+  @JsonDeserialize(using = ISO8601LocalDateDeserializer.class)
   private LocalDate regulationDate;
 
   @Schema(
