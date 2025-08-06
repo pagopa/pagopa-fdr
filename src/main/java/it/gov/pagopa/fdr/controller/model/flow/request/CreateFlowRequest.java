@@ -70,7 +70,6 @@ public class CreateFlowRequest {
           "The date of the regulation payment related to the flow.<br>In the XML request for SOAP"
               + " primitives, this field is mappable with the tag"
               + " <b>[FlussoRiversamento.dataRegolamento]</b>.")
-  // @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
   @JsonDeserialize(using = ISO8601LocalDateDeserializer.class)
   private LocalDate regulationDate;
 
