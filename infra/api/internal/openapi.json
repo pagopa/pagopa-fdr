@@ -2015,9 +2015,9 @@
     }
   },
   "info": {
-    "title": "FDR - Flussi di Rendicontazione",
+    "title": "FDR - Flussi di Rendicontazione (INTERNAL)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.51-1-fix-interfaces"
+    "version": "1.1.51-2-fix-interfaces"
   },
   "servers": [
     {
