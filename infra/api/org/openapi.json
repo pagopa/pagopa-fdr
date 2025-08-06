@@ -619,16 +619,16 @@
           "payStatus": {
             "type": "string",
             "enum": [
-              "EXECUTED (0)",
-              "REVOKED (3)",
-              "STAND_IN (4)",
-              "STAND_IN_NO_RPT (8)",
-              "NO_RPT (9)"
+              "EXECUTED",
+              "REVOKED",
+              "STAND_IN",
+              "STAND_IN_NO_RPT",
+              "NO_RPT"
             ],
             "example": [
               "EXECUTED"
             ],
-            "description": "The value of the status of the payment in relation to ist completion.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.datiSingoliPagamenti.codiceEsitoSingoloPagamento]</b>."
+            "description": "The value of the status of the payment in relation to ist completion.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.datiSingoliPagamenti.codiceEsitoSingoloPagamento]</b>.<br>The enumeration is mapped with the following values:<br><ul><li>EXECUTED -> 0</li><li>REVOKED -> 3</li><li>STAND_IN -> 4</li><li>STAND_IN_NO_RPT -> 8</li><li>NO_RPT -> 9</li></ul>"
           },
           "payDate": {
             "$ref": "#/components/schemas/Instant",
@@ -694,16 +694,17 @@
         ],
         "properties": {
           "type": {
+            "$ref": "#/components/schemas/SenderTypeEnum",
             "type": "string",
             "enum": [
-              "LEGAL_PERSON (G)",
-              "ABI_CODE (A)",
-              "BIC_CODE (B)"
+              "LEGAL_PERSON",
+              "ABI_CODE",
+              "BIC_CODE"
             ],
             "example": [
               "LEGAL_PERSON"
             ],
-            "description": "The type of the PSP sender entity.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco]</b>."
+            "description": "The type of the PSP sender entity.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco]</b>.The enumeration is mapped with the following values:<br><ul><li>LEGAL_PERSON -> G</li><li>ABI_CODE -> A</li><li>BIC_CODE -> B</li></ul>"
           },
           "id": {
             "type": "string",
@@ -755,6 +756,14 @@
             "description": "The password of the PSP sender entity's Channel.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[NodoInviaFlussoRendicontazione.password]</b>."
           }
         }
+      },
+      "SenderTypeEnum": {
+        "type": "string",
+        "enum": [
+          "LEGAL_PERSON",
+          "ABI_CODE",
+          "BIC_CODE"
+        ]
       },
       "SingleFlowCreatedResponse": {
         "type": "object",
@@ -999,6 +1008,196 @@
     }
   },
   "paths": {
+    "/info": {
+      "get": {
+        "summary": "Health-check",
+        "operationId": "IInfoController_healthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/organizations/{organizationId}/fdrs": {
+      "get": {
+        "summary": "Get all published flow related to creditor institution",
+        "operationId": "IOrganizationsController_getAllPublishedFlows",
+        "tags": [
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "description": "The creditor institution identifier, used as a search filter",
+            "example": "15376371009",
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(.{1,35})$"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on flow date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "flowDate",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            }
+          },
+          {
+            "description": "The index of the page to be shown in the result",
+            "example": 1,
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "The PSP identifier, used as a search filter",
+            "example": "88888888888",
+            "name": "pspId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^(.{1,35})$"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on publication date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "publishedGt",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            }
+          },
+          {
+            "description": "The number of the elements of the page to be shown in the result",
+            "example": 50,
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1000,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedFlowsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}": {
       "get": {
         "summary": "Get single published flow related to creditor institution, searching by name and revision",
@@ -1276,202 +1475,12 @@
           }
         }
       }
-    },
-    "/info": {
-      "get": {
-        "summary": "Health-check",
-        "operationId": "IInfoController_healthCheck",
-        "tags": [
-          "Info"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InfoResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/organizations/{organizationId}/fdrs": {
-      "get": {
-        "summary": "Get all published flow related to creditor institution",
-        "operationId": "IOrganizationsController_getAllPublishedFlows",
-        "tags": [
-          "Organizations"
-        ],
-        "parameters": [
-          {
-            "description": "The creditor institution identifier, used as a search filter",
-            "example": "15376371009",
-            "name": "organizationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^(.{1,35})$"
-            }
-          },
-          {
-            "description": "A date to be used as a lower limit search on flow date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
-            "example": "2025-01-01T12:00:00Z",
-            "name": "flowDate",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/Instant"
-            }
-          },
-          {
-            "description": "The index of the page to be shown in the result",
-            "example": 1,
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1,
-              "minimum": 1
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "pattern": "^(.{1,35})$"
-            }
-          },
-          {
-            "description": "A date to be used as a lower limit search on publication date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
-            "example": "2025-01-01T12:00:00Z",
-            "name": "publishedGt",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/Instant"
-            }
-          },
-          {
-            "description": "The number of the elements of the page to be shown in the result",
-            "example": 50,
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1000,
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedFlowsResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "info": {
     "title": "FDR - Flussi di Rendicontazione",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.49"
+    "version": "1.1.51-1-fix-interfaces"
   },
   "servers": [
     {

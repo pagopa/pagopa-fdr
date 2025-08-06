@@ -1,12 +1,7 @@
 package it.gov.pagopa.fdr.controller.model.payment;
 
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -69,17 +64,14 @@ public class Payment {
   @NotNull
   @Schema(
       example = "EXECUTED",
-      enumeration = {
-        "EXECUTED (0)",
-        "REVOKED (3)",
-        "STAND_IN (4)",
-        "STAND_IN_NO_RPT (8)",
-        "NO_RPT (9)"
-      },
+      enumeration = {"EXECUTED", "REVOKED", "STAND_IN", "STAND_IN_NO_RPT", "NO_RPT"},
       description =
           "The value of the status of the payment in relation to ist completion.<br>In the XML"
               + " request for SOAP primitives, this field is mappable with the tag"
-              + " <b>[FlussoRiversamento.datiSingoliPagamenti.codiceEsitoSingoloPagamento]</b>.")
+              + " <b>[FlussoRiversamento.datiSingoliPagamenti.codiceEsitoSingoloPagamento]</b>.<br>The"
+              + " enumeration is mapped with the following values:<br><ul><li>EXECUTED ->"
+              + " 0</li><li>REVOKED -> 3</li><li>STAND_IN -> 4</li><li>STAND_IN_NO_RPT ->"
+              + " 8</li><li>NO_RPT -> 9</li></ul>")
   private PaymentStatusEnum payStatus;
 
   @NotNull
