@@ -16,7 +16,7 @@
     "organizationName": "Comune di xyz"
   },
   "regulation": "SEPA - Bonifico xzy",
-  "regulationDate": "2023-04-03T12:00:30.900000Z",
+  "regulationDate": "2023-04-03",
   "bicCodePouringBank": "UNCRITMMXXX",
   "totPayments": 5,
   "sumPayments": 0.05
