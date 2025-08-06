@@ -32,7 +32,8 @@ run () {
 generate_openapi () {
   conf=$1
   folder_name=$2
-  tags=$3
+  section=$3
+  tags=$4
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Generate OpenAPI JSON [$version] [$conf]"
   docker run -i -d --name exportfdr_$conf --rm -p 8080:8080 $REPO:$version-$conf
@@ -42,7 +43,7 @@ generate_openapi () {
   else
     curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
 
-    jq --arg tags "$tags" '
+    jq --arg tags "$tags" --arg section "$section" '
       walk(
         if type == "object" then
           with_entries(if .key == "examples" then .key = "example" else . end)
@@ -51,7 +52,7 @@ generate_openapi () {
       )
     ' openapi/$conf.json > infra/api/$folder_name/openapi_temp.json
 
-    jq --arg tags "$tags" '
+    jq --arg tags "$tags" --arg section "$section" '
           # Converte la stringa separata da virgola in un array
           ($tags | split(",")) as $tagsArray |
 
@@ -76,6 +77,15 @@ generate_openapi () {
           walk(
             if type == "object" and has("openapi") and .openapi == "3.1.0" then
               .openapi = "3.0.1"
+            else . end
+          ) |
+
+          # Sostituisce il tag "title" inglobando il nome della sezione di API
+          walk(
+            if type == "object" then
+              if has("info") then
+                .info.title = "FDR - Flussi di Rendicontazione (\($section))"
+              else . end
             else . end
           )
         ' infra/api/$folder_name/openapi_temp.json  > infra/api/$folder_name/openapi.json
@@ -107,13 +117,13 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
     run docker
   elif [ $action = "generate_openapi" ]; then
     build openapi_internal
-    generate_openapi openapi_internal internal 'Info,Internal Operations,Support'
+    generate_openapi openapi_internal internal INTERNAL 'Info,Internal Operations,Support'
 
     build openapi_psp
-    generate_openapi openapi_psp psp 'Info,PSP'
+    generate_openapi openapi_psp psp PSPs 'Info,PSP'
 
     build openapi_organization
-    generate_openapi openapi_organization org 'Info,Organizations'
+    generate_openapi openapi_organization org ORGs 'Info,Organizations'
 
     build openapi
     generate_openapi openapi all
