@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.util.serialization;
+package it.gov.pagopa.fdr.controller.middleware.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

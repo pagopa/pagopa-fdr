@@ -1,4 +1,4 @@
-package it.gov.pagopa.fdr.controller.middleware.parser;
+package it.gov.pagopa.fdr.controller.middleware.serialization;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

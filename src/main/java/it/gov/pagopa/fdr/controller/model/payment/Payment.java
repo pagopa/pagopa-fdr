@@ -1,14 +1,9 @@
 package it.gov.pagopa.fdr.controller.model.payment;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import it.gov.pagopa.fdr.controller.middleware.serialization.MonetarySerializer;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
-import it.gov.pagopa.fdr.util.serialization.MonetarySerializer;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;

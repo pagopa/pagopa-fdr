@@ -2,7 +2,7 @@ package it.gov.pagopa.fdr.controller.model.flow.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import it.gov.pagopa.fdr.controller.middleware.parser.ISO8601LocalDateDeserializer;
+import it.gov.pagopa.fdr.controller.middleware.serialization.ISO8601LocalDateDeserializer;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
