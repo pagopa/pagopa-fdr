@@ -19,11 +19,13 @@ public class Sender {
   @NotNull
   @Schema(
       example = "LEGAL_PERSON",
-      enumeration = {"LEGAL_PERSON (G)", "ABI_CODE (A)", "BIC_CODE (B)"},
+      enumeration = {"LEGAL_PERSON", "ABI_CODE", "BIC_CODE"},
       description =
           "The type of the PSP sender entity.<br>In the XML request for SOAP primitives, this field"
               + " is mappable with the tag"
-              + " <b>[FlussoRiversamento.istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco]</b>.")
+              + " <b>[FlussoRiversamento.istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco]</b>.The"
+              + " enumeration is mapped with the following values:<br><ul><li>LEGAL_PERSON ->"
+              + " G</li><li>ABI_CODE -> A</li><li>BIC_CODE -> B</li></ul>")
   private SenderTypeEnum type;
 
   @NotNull

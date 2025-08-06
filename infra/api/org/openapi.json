@@ -623,16 +623,16 @@
           "payStatus": {
             "type": "string",
             "enum": [
-              "EXECUTED (0)",
-              "REVOKED (3)",
-              "STAND_IN (4)",
-              "STAND_IN_NO_RPT (8)",
-              "NO_RPT (9)"
+              "EXECUTED",
+              "REVOKED",
+              "STAND_IN",
+              "STAND_IN_NO_RPT",
+              "NO_RPT"
             ],
             "example": [
               "EXECUTED"
             ],
-            "description": "The value of the status of the payment in relation to ist completion.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.datiSingoliPagamenti.codiceEsitoSingoloPagamento]</b>."
+            "description": "The value of the status of the payment in relation to ist completion.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.datiSingoliPagamenti.codiceEsitoSingoloPagamento]</b>.<br>The enumeration is mapped with the following values:<br><ul><li>EXECUTED -> 0</li><li>REVOKED -> 3</li><li>STAND_IN -> 4</li><li>STAND_IN_NO_RPT -> 8</li><li>NO_RPT -> 9</li></ul>"
           },
           "payDate": {
             "$ref": "#/components/schemas/Instant",
@@ -698,16 +698,17 @@
         ],
         "properties": {
           "type": {
+            "$ref": "#/components/schemas/SenderTypeEnum",
             "type": "string",
             "enum": [
-              "LEGAL_PERSON (G)",
-              "ABI_CODE (A)",
-              "BIC_CODE (B)"
+              "LEGAL_PERSON",
+              "ABI_CODE",
+              "BIC_CODE"
             ],
             "example": [
               "LEGAL_PERSON"
             ],
-            "description": "The type of the PSP sender entity.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco]</b>."
+            "description": "The type of the PSP sender entity.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.istitutoMittente.identificativoUnivocoMittente.tipoIdentificativoUnivoco]</b>.The enumeration is mapped with the following values:<br><ul><li>LEGAL_PERSON -> G</li><li>ABI_CODE -> A</li><li>BIC_CODE -> B</li></ul>"
           },
           "id": {
             "type": "string",
@@ -759,6 +760,14 @@
             "description": "The password of the PSP sender entity's Channel.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[NodoInviaFlussoRendicontazione.password]</b>."
           }
         }
+      },
+      "SenderTypeEnum": {
+        "type": "string",
+        "enum": [
+          "LEGAL_PERSON",
+          "ABI_CODE",
+          "BIC_CODE"
+        ]
       },
       "SingleFlowCreatedResponse": {
         "type": "object",
@@ -1479,7 +1488,7 @@
   "info": {
     "title": "FDR - Flussi di Rendicontazione (ORGs)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.51-2-fix-interfaces"
+    "version": "1.1.52"
   },
   "servers": [
     {
