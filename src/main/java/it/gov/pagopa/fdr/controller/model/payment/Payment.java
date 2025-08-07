@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.controller.model.payment;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import it.gov.pagopa.fdr.controller.middleware.serialization.MonetarySerializer;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
 import jakarta.validation.constraints.*;
 import java.time.Instant;
@@ -55,10 +57,12 @@ public class Payment {
   @Digits(integer = Integer.MAX_VALUE, fraction = 2)
   @Schema(
       example = "0.01",
+      pattern = "^\\d{1,2147483647}[.]\\d{1,2}?$",
       description =
           "The value of the payment amount in decimal euro.<br>In the XML request for SOAP"
               + " primitives, this field is mappable with the tag"
               + " <b>[FlussoRiversamento.datiSingoliPagamenti.singoloImportoPagato]</b>.")
+  @JsonSerialize(using = MonetarySerializer.class)
   private Double pay;
 
   @NotNull

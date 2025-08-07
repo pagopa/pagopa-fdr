@@ -2,11 +2,15 @@ package it.gov.pagopa.fdr.controller.model.flow.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import it.gov.pagopa.fdr.controller.middleware.serialization.ISO8601LocalDateSerializer;
+import it.gov.pagopa.fdr.controller.middleware.serialization.MonetarySerializer;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import java.time.Instant;
+import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
@@ -78,9 +82,10 @@ public class SingleFlowResponse {
   private String regulation;
 
   @Schema(
-      example = "2023-04-03T12:00:30.900000Z",
+      example = "2023-04-03",
       description = "The date of the regulation payment related to the flow.")
-  private Instant regulationDate;
+  @JsonSerialize(using = ISO8601LocalDateSerializer.class)
+  private LocalDate regulationDate;
 
   @Schema(
       example = "UNCRITMMXXX",
@@ -97,8 +102,10 @@ public class SingleFlowResponse {
 
   @Schema(
       example = "100.95",
+      pattern = "^\\d{1,2147483647}[.]\\d{1,2}?$",
       description =
           "The computed total amount of payments calculated in the flow during the compilation.")
+  @JsonSerialize(using = MonetarySerializer.class)
   public Double computedSumPayments;
 
   @Schema(
@@ -109,7 +116,9 @@ public class SingleFlowResponse {
 
   @Schema(
       example = "100.95",
+      pattern = "^\\d{1,2147483647}[.]\\d{1,2}?$",
       description =
           "The total amount of payments to be calculated in the flow during the flow compilation.")
+  @JsonSerialize(using = MonetarySerializer.class)
   public Double sumPayments;
 }

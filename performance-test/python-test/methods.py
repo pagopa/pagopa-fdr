@@ -25,7 +25,7 @@ def create_empty_flow(url, flow_name, flow_date, total_payments, key):
             "organizationName": "PagoPA"
         },
         "regulation": "SEPA - Bonifico xzy",
-        "regulationDate": f"{flow_date}T12:00:00.000Z",
+        "regulationDate": f"{flow_date}",
         "bicCodePouringBank": "UNCRITMMXXX",
         "totPayments": total_payments,
         "sumPayments": total_payments * 10

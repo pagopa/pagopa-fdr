@@ -17,6 +17,7 @@ import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import org.mapstruct.Mapper;
@@ -126,6 +127,10 @@ public interface FlowMapper {
   @Mapping(source = "computedTotAmount", target = "computedSumPayments")
   @Mapping(target = "sender", expression = "java(toSender(result))")
   @Mapping(target = "receiver", expression = "java(toReceiver(result))")
+  @Mapping(
+      target = "regulationDate",
+      expression =
+          "java(result.getRegulationDate().atZone(java.time.ZoneId.of(\"UTC\")).toLocalDate())")
   SingleFlowResponse toSingleFlowResponse(FlowEntity result);
 
   @Mapping(source = "name", target = "fdr")
@@ -134,6 +139,10 @@ public interface FlowMapper {
   @Mapping(source = "computedTotAmount", target = "computedSumPayments")
   @Mapping(target = "sender", expression = "java(toSender(result))")
   @Mapping(target = "receiver", expression = "java(toReceiver(result))")
+  @Mapping(
+      target = "regulationDate",
+      expression =
+          "java(result.getRegulationDate().atZone(java.time.ZoneId.of(\"UTC\")).toLocalDate())")
   SingleFlowCreatedResponse toSingleFlowCreatedResponse(FlowEntity result);
 
   @Mapping(source = "senderType", target = "type")
@@ -170,7 +179,8 @@ public interface FlowMapper {
     entity.setComputedTotPayments(0L);
     entity.setComputedTotAmount(BigDecimal.valueOf(0.0));
     entity.setRegulation(request.getRegulation());
-    entity.setRegulationDate(request.getRegulationDate());
+    entity.setRegulationDate(
+        request.getRegulationDate().atStartOfDay(ZoneId.of("UTC")).toInstant());
     entity.setBicCodePouringBank(request.getBicCodePouringBank());
     entity.setSenderId(requestSender.getId());
     entity.setSenderType(requestSender.getType().name());

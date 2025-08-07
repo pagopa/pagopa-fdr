@@ -28,7 +28,7 @@ class HistoryServiceTest {
               "fdr": "2024-01-2660000000001-17062585352",
               "fdrDate": "2024-01-26T08:42:15.242Z",
               "regulation": "SEPA - Bonifico xzy",
-              "regulationDate": "2024-01-26T08:42:15.242Z",
+              "regulationDate": "2024-01-26",
               "bicCodePouringBank": "UNCRITMMXXX",
               "sender": {
                 "type": "LEGAL_PERSON",
@@ -96,7 +96,7 @@ class HistoryServiceTest {
               "fdr": "2024-01-2660000000001-17062585352",
               "fdrDate": "2024-01-26T08:42:15.242Z",
               "regulation": "SEPA - Bonifico xzy",
-              "regulationDate": "2024-01-26T08:42:15.242Z",
+              "regulationDate": "2024-01-26",
               "bicCodePouringBank": "UNCRITMMXXX",
               "sender": {
                 "type": "LEGAL_PERSON",

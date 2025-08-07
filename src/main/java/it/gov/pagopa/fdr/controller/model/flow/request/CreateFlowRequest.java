@@ -1,16 +1,15 @@
 package it.gov.pagopa.fdr.controller.model.flow.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import it.gov.pagopa.fdr.controller.middleware.serialization.ISO8601LocalDateDeserializer;
 import it.gov.pagopa.fdr.controller.model.flow.Receiver;
 import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
@@ -66,12 +65,13 @@ public class CreateFlowRequest {
 
   @NotNull
   @Schema(
-      example = "2023-04-03T12:00:30.900000Z",
+      example = "2023-04-03",
       description =
           "The date of the regulation payment related to the flow.<br>In the XML request for SOAP"
               + " primitives, this field is mappable with the tag"
               + " <b>[FlussoRiversamento.dataRegolamento]</b>.")
-  private Instant regulationDate;
+  @JsonDeserialize(using = ISO8601LocalDateDeserializer.class)
+  private LocalDate regulationDate;
 
   @Schema(
       example = "UNCRITMMXXX",
@@ -97,6 +97,7 @@ public class CreateFlowRequest {
   @Digits(integer = Integer.MAX_VALUE, fraction = 2)
   @Schema(
       example = "0.01",
+      pattern = "^\\d{1,2147483647}[.]\\d{1,2}?$",
       description =
           "The total amount of payments to be calculated in the flow during the flow"
               + " compilation.<br>In the XML request for SOAP primitives, this field is mappable"

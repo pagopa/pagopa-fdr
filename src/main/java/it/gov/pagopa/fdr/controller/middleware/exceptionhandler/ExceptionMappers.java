@@ -152,6 +152,7 @@ public class ExceptionMappers {
                 AppErrorCodeMessageEnum.BAD_REQUEST_INPUT_JSON_INSTANT,
                 field,
                 currentValue);
+
       } else {
         appEx =
             new AppException(
