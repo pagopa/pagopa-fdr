@@ -1544,7 +1544,7 @@ class InternalOperationControllerTest {
                     String.format(
                         "Bad request. Field [fdrDate] is equals to [%s] but it is expected to be in"
                             + " ISO-8601 format [yyyy-MM-ddTHH:mm:ssZ] (example:"
-                            + " [2025-01-01T12:00:00.123000Z].",
+                            + " [2025-01-01T12:00:00.123000Z]).",
                         wrongFormatDate)))));
   }
 

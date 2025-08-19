@@ -53,6 +53,7 @@ class FlowMapperTest {
     flowEntity.setSenderPassword("testPassword");
     flowEntity.setReceiverId("testId");
     flowEntity.setReceiverOrganizationName("testOrgName");
+    flowEntity.setRegulationDate(Instant.now());
   }
 
   @Test
@@ -214,7 +215,7 @@ class FlowMapperTest {
             .sumPayments(100.0)
             .totPayments(10L)
             .regulation("testRegulation")
-            .regulationDate(LocalDate.from(Instant.now()))
+            .regulationDate(LocalDate.now())
             .bicCodePouringBank("testBicCode")
             .sender(sender)
             .receiver(receiver)

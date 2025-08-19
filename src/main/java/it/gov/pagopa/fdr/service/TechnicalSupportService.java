@@ -39,6 +39,7 @@ public class TechnicalSupportService {
     String pspId = args.getPspId();
     String iuv = args.getIuv();
     String iur = args.getIur();
+    String orgDomainId = args.getOrgDomainId();
     int pageNumber = (int) args.getPageNumber();
     int pageSize = (int) args.getPageSize();
     Instant createdFrom = args.getCreatedFrom();
@@ -50,7 +51,7 @@ public class TechnicalSupportService {
         pspId, iuv, iur, createdFrom, createdTo);
     RepositoryPagedResult<PaymentEntity> result =
         paymentRepository.findByPspAndIuvAndIur(
-            pspId, iuv, iur, createdFrom, createdTo, pageNumber, pageSize);
+            pspId, iuv, iur, createdFrom, createdTo, orgDomainId, pageNumber, pageSize);
     log.debugf(
         "Found [%s] entities in [%s] pages. Mapping data to final response.",
         result.getTotalElements(), result.getTotalPages());

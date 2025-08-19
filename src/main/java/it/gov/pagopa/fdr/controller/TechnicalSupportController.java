@@ -20,6 +20,7 @@ public class TechnicalSupportController implements ISupportController {
       String iuv,
       Instant createdFrom,
       Instant createdTo,
+      String orgDomainId,
       long pageNumber,
       long pageSize) {
 
@@ -28,6 +29,7 @@ public class TechnicalSupportController implements ISupportController {
             .pspId(pspId)
             .iuv(iuv)
             .iur(null)
+            .orgDomainId(orgDomainId)
             .createdFrom(createdFrom)
             .createdTo(createdTo)
             .pageNumber(pageNumber)

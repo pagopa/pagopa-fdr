@@ -50,6 +50,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
       String iur,
       Instant createdFrom,
       Instant createdTo,
+      String orgDomainId,
       int pageNumber,
       int pageSize) {
 
@@ -57,6 +58,11 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
         new StringBuilder(
             "SELECT p FROM PaymentEntity p LEFT JOIN FETCH p.flow WHERE p.flow.pspDomainId = :psp");
     Parameters params = new Parameters().and("psp", pspId);
+
+    if (orgDomainId != null) {
+      query.append("  and p.flow.orgDomainId = :orgDomainId");
+      params.and("orgDomainId", orgDomainId);
+    }
     if (iuv != null) {
       query.append(" and iuv = :iuv");
       params.and("iuv", iuv);

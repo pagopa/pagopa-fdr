@@ -100,6 +100,8 @@ This API is used for internal purpose in order to perform a deep-search for dedi
               description = "The upper limit of the date related to the flow creation date",
               example = "2025-01-31T12:00:00.00000Z")
           Instant createdTo,
+      @QueryParam("organizationId") @Parameter(description = "The ID of an EC")
+          String organizationId,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
