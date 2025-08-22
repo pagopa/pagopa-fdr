@@ -64,7 +64,7 @@ microservice-chart: &microservice-chart
     OTEL_ENDPOINT: "http://otel-collector.elastic-system.svc.cluster.local:4317"
     QUARKUS_OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod"
     QUARKUS_OTEL_SERVICE_NAME: "pagopa-fdr"
-    LOG_LEVEL: "ERROR"
+    LOG_LEVEL: "INFO"
     ADAPTER_API_CONFIG_CACHE_URL: "https://api.platform.pagopa.it/api-config-cache/p/v1"
     ADAPTER_API_CONFIG_CACHE_CRON: "0 */1 * * * ?"
     BLOB_RE_CONTAINER_NAME: "re-payload"
