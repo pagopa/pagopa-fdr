@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-fdr-chart
 description: Flussi di rendicontazioni
 type: application
-version: "1.135.0"
-appVersion: "1.1.53-1-PAGOPA-3220-aca-sviluppo-caricamento-massivo"
+version: "1.136.0"
+appVersion: "1.1.53-2-PAGOPA-3220-aca-sviluppo-caricamento-massivo"
 dependencies:
   - name: microservice-chart
     version: 7.5.0

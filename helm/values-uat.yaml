@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.53-1-PAGOPA-3220-aca-sviluppo-caricamento-massivo
+    tag: 1.1.53-2-PAGOPA-3220-aca-sviluppo-caricamento-massivo
     pullPolicy: Always
   readinessProbe:
     httpGet:
