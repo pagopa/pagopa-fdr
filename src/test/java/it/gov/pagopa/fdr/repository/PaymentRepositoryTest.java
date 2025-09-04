@@ -29,7 +29,8 @@ class PaymentRepositoryTest {
     TestUtil.pspSunnyDay(flowName);
 
     RepositoryPagedResult<PaymentEntity> result =
-        paymentRepository.findByPspAndIuvAndIur(PSP_CODE, IUV_CODE_A, IUR_CODE, null, null, 1, 10);
+        paymentRepository.findByPspAndIuvAndIur(
+            PSP_CODE, IUV_CODE_A, IUR_CODE, null, null, null, 1, 10);
 
     assertNotNull(result);
     List<PaymentEntity> payments = result.getData();
