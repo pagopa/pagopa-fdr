@@ -62,6 +62,8 @@ microservice-chart: &microservice-chart
     APP_ENVIRONMENT: "uat"
     TZ: "Europe/Rome"
     OTEL_ENDPOINT: "http://otel-collector.elastic-system.svc.cluster.local:4317"
+    OTEL_TRACES_SAMPLER: "traceidratio"
+    OTEL_TRACES_SAMPLER_ARG: "0.5"
     QUARKUS_OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=uat"
     QUARKUS_OTEL_SERVICE_NAME: "pagopa-fdr"
     LOG_LEVEL: "INFO"
