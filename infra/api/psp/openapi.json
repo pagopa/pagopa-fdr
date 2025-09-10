@@ -1019,7 +1019,7 @@
     "/info": {
       "get": {
         "summary": "Health-check",
-        "operationId": "IInfoController_healthCheck",
+        "operationId": "healthCheck",
         "tags": [
           "Info"
         ],
@@ -1061,7 +1061,7 @@
     "/psps/{pspId}/created": {
       "get": {
         "summary": "Get all draft flows related to the PSP",
-        "operationId": "IPspsController_getAllFlowsNotInPublishedStatus",
+        "operationId": "getAllFlowsNotInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -1189,7 +1189,7 @@
     "/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
       "get": {
         "summary": "Get single draft flow related to the PSP, searching by name",
-        "operationId": "IPspsController_getSingleFlowNotInPublishedStatus",
+        "operationId": "getSingleFlowNotInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -1304,7 +1304,7 @@
     "/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}/payments": {
       "get": {
         "summary": "Get payments of draft flow related to the PSP, searching by name",
-        "operationId": "IPspsController_getPaymentsForFlowNotInPublishedStatus",
+        "operationId": "getPaymentsForFlowNotInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -1443,7 +1443,7 @@
     "/psps/{pspId}/fdrs/{fdr}": {
       "delete": {
         "summary": "Delete an existing draft flow and all related payments",
-        "operationId": "IPspsController_deleteExistingFlow",
+        "operationId": "deleteExistingFlow",
         "tags": [
           "PSP"
         ],
@@ -1546,7 +1546,7 @@
       },
       "post": {
         "summary": "Create a new flow structure",
-        "operationId": "IPspsController_createEmptyFlow",
+        "operationId": "createEmptyFlow",
         "tags": [
           "PSP"
         ],
@@ -1661,7 +1661,7 @@
     "/psps/{pspId}/fdrs/{fdr}/payments/add": {
       "put": {
         "summary": "Add one or more payments to an existing flow",
-        "operationId": "IPspsController_addPaymentToExistingFlow",
+        "operationId": "addPaymentToExistingFlow",
         "tags": [
           "PSP"
         ],
@@ -1775,7 +1775,7 @@
     "/psps/{pspId}/fdrs/{fdr}/payments/del": {
       "put": {
         "summary": "Delete one or more payments from an existing flow",
-        "operationId": "IPspsController_deletePaymentFromExistingFlow",
+        "operationId": "deletePaymentFromExistingFlow",
         "tags": [
           "PSP"
         ],
@@ -1889,7 +1889,7 @@
     "/psps/{pspId}/fdrs/{fdr}/publish": {
       "post": {
         "summary": "Publish an existing flow in draft status",
-        "operationId": "IPspsController_publishFlow",
+        "operationId": "publishFlow",
         "tags": [
           "PSP"
         ],
@@ -1994,7 +1994,7 @@
     "/psps/{pspId}/published": {
       "get": {
         "summary": "Get all published flow related to the PSP",
-        "operationId": "IPspsController_getAllFlowsInPublishedStatus",
+        "operationId": "getAllFlowsInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -2132,7 +2132,7 @@
     "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}": {
       "get": {
         "summary": "Get single published flow related to the PSP, searching by name and revision",
-        "operationId": "IPspsController_getSingleFlowInPublishedStatus",
+        "operationId": "getSingleFlowInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -2258,7 +2258,7 @@
     "/psps/{pspId}/published/fdrs/{fdr}/revisions/{revision}/organizations/{organizationId}/payments": {
       "get": {
         "summary": "Get payments of published flow related to the PSP, searching by name and revision",
-        "operationId": "IPspsController_getPaymentsForFlowInPublishedStatus",
+        "operationId": "getPaymentsForFlowInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -2409,7 +2409,7 @@
   "info": {
     "title": "FDR - Flussi di Rendicontazione (PSPs)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.51-2-fix-interfaces"
+    "version": "1.1.54"
   },
   "servers": [
     {

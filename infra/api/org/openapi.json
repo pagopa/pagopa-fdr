@@ -1019,7 +1019,7 @@
     "/info": {
       "get": {
         "summary": "Health-check",
-        "operationId": "IInfoController_healthCheck",
+        "operationId": "healthCheck",
         "tags": [
           "Info"
         ],
@@ -1061,7 +1061,7 @@
     "/organizations/{organizationId}/fdrs": {
       "get": {
         "summary": "Get all published flow related to creditor institution",
-        "operationId": "IOrganizationsController_getAllPublishedFlows",
+        "operationId": "getAllPublishedFlows",
         "tags": [
           "Organizations"
         ],
@@ -1209,7 +1209,7 @@
     "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}": {
       "get": {
         "summary": "Get single published flow related to creditor institution, searching by name and revision",
-        "operationId": "IOrganizationsController_getSinglePublishedFlow",
+        "operationId": "getSinglePublishedFlow",
         "tags": [
           "Organizations"
         ],
@@ -1336,7 +1336,7 @@
     "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}/payments": {
       "get": {
         "summary": "Get all payments of single published flow related to creditor institution, searching by name and revision",
-        "operationId": "IOrganizationsController_getPaymentsFromPublishedFlow",
+        "operationId": "getPaymentsFromPublishedFlow",
         "tags": [
           "Organizations"
         ],
@@ -1488,7 +1488,7 @@
   "info": {
     "title": "FDR - Flussi di Rendicontazione (ORGs)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.52"
+    "version": "1.1.54"
   },
   "servers": [
     {
