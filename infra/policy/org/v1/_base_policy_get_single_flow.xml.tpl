@@ -19,8 +19,8 @@
                 // Get the current value of the regulationDate.
                 var regulationDate = body["regulationDate"].ToString();
 
-                // Append the time string to the date.
-                body["regulationDate"] = regulationDate + "T00:00:00.000000Z";
+                // Append the time to the date in ISO 8601 format with CEST (UTC+2): YYYY-MM-DDThh:mm:ss.ssssss+02:00.
+                body["regulationDate"] = regulationDate + "T00:00:00.000000+02:00";
             }
 
             // Convert the modified JObject back to a string and set it as the new response body.
