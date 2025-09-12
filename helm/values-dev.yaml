@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.54
+    tag: 1.1.54-1-PIDM-919
     pullPolicy: Always
   readinessProbe:
     httpGet:

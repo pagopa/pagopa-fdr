@@ -171,6 +171,39 @@ resource "azurerm_api_management_api_operation_policy" "fdr3_delete_payments_rat
   })
 }
 
+// PSP API operationId=IPspsController_getSingleFlowNotInPublishedStatus
+resource "azurerm_api_management_api_operation_policy" "fdr3_get_single_created_flow" {
+  api_name            = "${local.project}-fdr-service-api-psp-v1"
+  resource_group_name = local.apim.rg
+  api_management_name = local.apim.name
+  operation_id        = "IPspsController_getSingleFlowNotInPublishedStatus"
+  xml_content = templatefile("./policy/_operation_policy_regulation_date.xml.tpl", {
+    hostname = local.hostname
+  })
+}
+
+// PSP API operationId=IPspsController_getSingleFlowInPublishedStatus
+resource "azurerm_api_management_api_operation_policy" "fdr3_get_single_published_flow" {
+  api_name            = "${local.project}-fdr-service-api-psp-v1"
+  resource_group_name = local.apim.rg
+  api_management_name = local.apim.name
+  operation_id        = "IPspsController_getSingleFlowInPublishedStatus"
+  xml_content = templatefile("./policy/_operation_policy_regulation_date.xml.tpl", {
+    hostname = local.hostname
+  })
+}
+
+// Org API operationId=IOrganizationsController_getSinglePublishedFlow
+resource "azurerm_api_management_api_operation_policy" "fdr3_get_single_flow" {
+  api_name            = "${local.project}-fdr-service-api-org-v1"
+  resource_group_name = local.apim.rg
+  api_management_name = local.apim.name
+  operation_id        = "IOrganizationsController_getSinglePublishedFlow"
+  xml_content = templatefile("./policy/_operation_policy_regulation_date.xml.tpl", {
+    hostname = local.hostname
+  })
+}
+
 #######################
 ##  Policies SHA     ##
 #######################
@@ -204,6 +237,12 @@ resource "terraform_data" "sha256_fdr3_add_payments_policy_base" {
 
 resource "terraform_data" "sha256_fdr3_delete_payments_policy_base" {
   input = sha256(templatefile("./policy/psp/v1/_base_policy_payments_delete.xml.tpl", {
+    hostname = local.hostname
+  }))
+}
+
+resource "terraform_data" "sha256_fdr3_org_get_single_flow_policy_base" {
+  input = sha256(templatefile("./policy/_operation_policy_regulation_date.xml.tpl", {
     hostname = local.hostname
   }))
 }
