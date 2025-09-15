@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.54-2-PAGOPA-2800-fd-r-sampling-dei-log-su-ai-e-elk
+    tag: 1.1.55
     pullPolicy: Always
   readinessProbe:
     httpGet:
