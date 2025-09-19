@@ -18,8 +18,8 @@ workflows:
 
   # Workflow: Create new flow
   - workflowId: create-new-flow
-    summary: PSP create a new flow for a creditor institution
-    description: This workflow describe the use case when a PSP create a new FdR flow for a specific creditor institution. The workflow describes the steps for creating a flow, adding payments to the flow, and publishing the flow.
+    summary: PSP creates a new flow for a creditor institution
+    description: This workflow describes the use case when a PSP create a new FdR flow for a specific creditor institution. The workflow describes the steps for creating a flow, adding payments to the flow, and publishing the flow.
     inputs:
       type: object
       properties:
@@ -297,8 +297,8 @@ workflows:
 
   # Workflow: create new flow revision
   - workflowId: create-new-revision-for-existing-flow
-    summary: PSP create a new revision for an existing flow
-    description: This workflow describe the use case when a PSP create a new revision for an existing FdR flow for a specific creditor institution. The workflow describes the steps for creating a flow, adding payments to the flow, publishing the flow, then repeat again these steps.
+    summary: PSP creates a new revision for an existing flow
+    description: This workflow describes the use case when a PSP create a new revision for an existing FdR flow for a specific creditor institution. The workflow describes the steps for creating a flow, adding payments to the flow, publishing the flow, then repeat again these steps.
     dependsOn:
       - create-new-flow
     inputs:
@@ -538,7 +538,7 @@ workflows:
   # Workflow: Try to create new flow but fails, then delete flow
   - workflowId: failure-on-new-flow-creation
     summary: PSP fails to create a new flow for a creditor institution
-    description: This workflow describe the use case when a PSP try to create a wrong FdR flow for a specific creditor institution. The workflow describes a recommended way to interact in case of failure.
+    description: This workflow describes the use case when a PSP try to create a wrong FdR flow for a specific creditor institution. The workflow describes a recommended way to interact in case of failure.
     inputs:
       type: object
       properties:
@@ -806,8 +806,8 @@ workflows:
 
   # Workflow: Read published flow
   - workflowId: read-published-flow
-    summary: CI read a flow published by PSP
-    description: This workflow describe the use case when a CI read a FdR flow published by a PSP. The workflow doesn't include flow creation but simply retrieve an existing flow from list.
+    summary: CI reads a flow published by PSP
+    description: This workflow describes the use case when a CI read a FdR flow published by a PSP. The workflow doesn't include flow creation but simply retrieve an existing flow from list.
     inputs:
       type: object
       properties:
