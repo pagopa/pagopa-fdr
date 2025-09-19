@@ -39,19 +39,21 @@ generate_openapi () {
   docker run -i -d --name exportfdr_$conf --rm -p 8080:8080 $REPO:$version-$conf
   sleep 10
   if [ $folder_name = "all" ]; then
-    curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
-  else
-    curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
+    curl http://localhost:8080/q/openapi?format=json > openapi/$conf.temp.json
 
-    jq --arg tags "$tags" --arg section "$section" '
-
+    jq '
       # Mantiene solo la parte dopo "_" negli operationId
       walk(
         if type == "object" and has("operationId") then
           .operationId = (.operationId | split("_")[1:] | join("_"))
         else . end
-      ) |
+      )
+    ' openapi/$conf.temp.json > openapi/$conf.json
+    rm openapi/$conf.temp.json
+  else
+    curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
 
+    jq --arg tags "$tags" --arg section "$section" '
       walk(
         if type == "object" then
           with_entries(if .key == "examples" then .key = "example" else . end)
