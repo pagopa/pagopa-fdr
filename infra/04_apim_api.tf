@@ -59,7 +59,7 @@ module "apim_api_fdr_api_v1_psp" {
 
   content_format = "openapi"
 
-  content_value = templatefile("./api/psp/openapi.json", {
+  content_value = templatefile("../openapi/psp/openapi.json", {
     host = local.apim_hostname
   })
 
@@ -100,7 +100,7 @@ module "apim_api_fdr_api_v1_org" {
 
   content_format = "openapi"
 
-  content_value = templatefile("./api/org/openapi.json", {
+  content_value = templatefile("../openapi/org/openapi.json", {
     host = local.apim_hostname
   })
 
@@ -138,7 +138,7 @@ module "apim_api_fdr_api_v1_internal" {
   service_url  = local.apim_fdr_service_api_internal.service_url
 
   content_format = "openapi"
-  content_value  = templatefile("./api/internal/openapi.json", {
+  content_value = templatefile("../openapi/internal/openapi.json", {
     host = local.apim_hostname
   })
 
