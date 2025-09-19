@@ -6,6 +6,7 @@ import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.openapi.OASFactory;
@@ -41,7 +42,14 @@ public class OpenAPIGenerator implements OASFilter {
             .termsOfService("https://www.pagopa.gov.it/"));
     openAPI.setServers(
         List.of(
-            OASFactory.createServer().url("${host}").description("Environment host"),
+            OASFactory.createServer()
+                .url("https://{host}/")
+                .description("Environment host")
+                .variables(
+                    Map.of(
+                        "host",
+                        OASFactory.createServerVariable()
+                            .defaultValue("https://api.dev.platform.pagopa.it/"))),
             OASFactory.createServer().url("http://localhost:8080/").description("Localhost")));
 
     updateAPIsWithTableMetadata(openAPI.getPaths());
@@ -117,6 +125,8 @@ public class OpenAPIGenerator implements OASFilter {
       String[] operationIdMethodReference = operation.getOperationId().split("_");
       if (operationIdMethodReference.length == 2) {
 
+        // operation.setOperationId(operationIdMethodReference[1]); TODO include this when partners
+        // are ready for changes
         Class<?> controllerClass =
             Class.forName(
                 "it.gov.pagopa.fdr.controller.interfaces.controller."

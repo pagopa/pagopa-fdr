@@ -1058,12 +1058,160 @@
         }
       }
     },
-    "/internal/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
+    "/organizations/{organizationId}/fdrs": {
       "get": {
-        "summary": "Get single draft flow related to the PSP, searching by name (for internal process)",
-        "operationId": "IInternalOperationsController_getSingleFlowNotInPublishedStatusForInternalUse",
+        "summary": "Get all published flow related to creditor institution",
+        "operationId": "IOrganizationsController_getAllPublishedFlows",
         "tags": [
-          "Internal Operations"
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "description": "The creditor institution identifier, used as a search filter",
+            "example": "15376371009",
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(.{1,35})$"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on flow date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "flowDate",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            }
+          },
+          {
+            "description": "The index of the page to be shown in the result",
+            "example": 1,
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "The PSP identifier, used as a search filter",
+            "example": "88888888888",
+            "name": "pspId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^(.{1,35})$"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on publication date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "publishedGt",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            }
+          },
+          {
+            "description": "The number of the elements of the page to be shown in the result",
+            "example": 50,
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1000,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedFlowsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}": {
+      "get": {
+        "summary": "Get single published flow related to creditor institution, searching by name and revision",
+        "operationId": "IOrganizationsController_getSinglePublishedFlow",
+        "tags": [
+          "Organizations"
         ],
         "parameters": [
           {
@@ -1095,6 +1243,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "The specific revision of the flow needed",
+            "example": 1,
+            "name": "revision",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
           }
         ],
         "responses": {
@@ -1103,7 +1263,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SingleFlowCreatedResponse"
+                  "$ref": "#/components/schemas/SingleFlowResponse"
                 }
               }
             }
@@ -1173,574 +1333,32 @@
         }
       }
     },
-    "/internal/psps/{pspId}/fdrs/{fdr}": {
-      "delete": {
-        "summary": "Delete an existing draft flow and all related payments (for internal process)",
-        "operationId": "IInternalOperationsController_deleteExistingFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "description": "The flow name, used as a search filter",
-            "example": "2025-01-0188888888888-0001",
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Create a new flow structure (for internal process)",
-        "operationId": "IInternalOperationsController_createEmptyFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "description": "The flow name, used as a search filter",
-            "example": "2025-01-0188888888888-0001",
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "[a-zA-Z0-9\\-_]{1,35}"
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateFlowRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/fdrs/{fdr}/payments/add": {
-      "put": {
-        "summary": "Add one or more payments to an existing flow (for internal process)",
-        "operationId": "IInternalOperationsController_addPaymentToExistingFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "description": "The flow name, used as a search filter",
-            "example": "2025-01-0188888888888-0001",
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddPaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/fdrs/{fdr}/payments/del": {
-      "put": {
-        "summary": "Delete one or more payments from an existing flow (for internal process)",
-        "operationId": "IInternalOperationsController_deletePaymentFromExistingFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "description": "The flow name, used as a search filter",
-            "example": "2025-01-0188888888888-0001",
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DeletePaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/fdrs/{fdr}/publish": {
-      "post": {
-        "summary": "Publish an existing flow in draft status (for internal process)",
-        "operationId": "IInternalOperationsController_publishFlowForInternalUse",
-        "tags": [
-          "Internal Operations"
-        ],
-        "parameters": [
-          {
-            "description": "The flow name, used as a search filter",
-            "example": "2025-01-0188888888888-0001",
-            "name": "fdr",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GenericResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/iur/{iur}": {
+    "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}/payments": {
       "get": {
-        "summary": "Get all flows related to PSP, only if contains a payment with specific IUR code",
-        "operationId": "ISupportController_getByIur",
+        "summary": "Get all payments of single published flow related to creditor institution, searching by name and revision",
+        "operationId": "IOrganizationsController_getPaymentsFromPublishedFlow",
         "tags": [
-          "Support"
+          "Organizations"
         ],
         "parameters": [
           {
-            "description": "The payment's IUR code, used as a search filter",
-            "example": "17854456582215",
-            "name": "iur",
+            "description": "The flow name, used as a search filter",
+            "example": "2025-01-0188888888888-0001",
+            "name": "fdr",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "pattern": "^(.{1,35})$"
+              "type": "string"
+            }
+          },
+          {
+            "description": "The creditor institution identifier, used as a search filter",
+            "example": "15376371009",
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -1750,26 +1368,19 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "pattern": "^(.{1,35})$"
+              "type": "string"
             }
           },
           {
-            "description": "The lower limit of the date related to the flow creation date",
-            "example": "2025-01-01T12:00:00.00000Z",
-            "name": "createdFrom",
-            "in": "query",
+            "description": "The specific revision of the flow needed",
+            "example": 1,
+            "name": "revision",
+            "in": "path",
+            "required": true,
             "schema": {
-              "$ref": "#/components/schemas/Instant"
-            }
-          },
-          {
-            "description": "The upper limit of the date related to the flow creation date",
-            "example": "2025-01-31T12:00:00.00000Z",
-            "name": "createdTo",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/Instant"
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
             }
           },
           {
@@ -1803,156 +1414,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedFlowsBySenderAndReceiverResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 400,
-                  "httpStatusDescription": "Bad Request",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "path": "<detail.path.if-exist>",
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "example": {
-                  "httpStatusCode": 404,
-                  "httpStatusDescription": "Not Found",
-                  "appErrorCode": "FDR-XXXX",
-                  "errors": [
-                    {
-                      "message": "<detail.message>"
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
-                  "httpStatusCode": 500,
-                  "httpStatusDescription": "Internal Server Error",
-                  "appErrorCode": "FDR-0500",
-                  "errors": [
-                    {
-                      "message": "An unexpected error has occurred. Please contact support."
-                    }
-                  ]
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/psps/{pspId}/iuv/{iuv}": {
-      "get": {
-        "summary": "Get all flows related to PSP, only if contains a payment with specific IUV code",
-        "operationId": "ISupportController_getByIuv",
-        "tags": [
-          "Support"
-        ],
-        "parameters": [
-          {
-            "description": "The payment's IUV code, used as a search filter",
-            "example": "17854456582215",
-            "name": "iuv",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^(.{1,35})$"
-            }
-          },
-          {
-            "description": "The PSP identifier, used as a search filter",
-            "example": "88888888888",
-            "name": "pspId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^(.{1,35})$"
-            }
-          },
-          {
-            "description": "The lower limit of the date related to the flow creation date",
-            "example": "2025-01-01T12:00:00.00000Z",
-            "name": "createdFrom",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/Instant"
-            }
-          },
-          {
-            "description": "The upper limit of the date related to the flow creation date",
-            "example": "2025-01-31T12:00:00.00000Z",
-            "name": "createdTo",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/Instant"
-            }
-          },
-          {
-            "description": "The index of the page to be shown in the result",
-            "example": 1,
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1,
-              "minimum": 1
-            }
-          },
-          {
-            "description": "The number of the elements of the page to be shown in the result",
-            "example": 50,
-            "name": "size",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "default": 1000,
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedFlowsBySenderAndReceiverResponse"
+                  "$ref": "#/components/schemas/PaginatedPaymentsResponse"
                 }
               }
             }
@@ -2024,9 +1486,9 @@
     }
   },
   "info": {
-    "title": "FDR - Flussi di Rendicontazione (INTERNAL)",
+    "title": "FDR - Flussi di Rendicontazione (ORGs)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.52"
+    "version": "1.1.54"
   },
   "servers": [
     {
