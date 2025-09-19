@@ -1,0 +1,946 @@
+arazzo: 1.0.1
+
+# Info metadata
+info:
+  title: Flussi di Rendicontazione - REST API workflows
+  version: 1.0.0
+  description: This Arazzo documentation describes possible workflows that may be part of real use cases when using the FdR REST APIs. The use cases described are expressed both for the PSP side (creation and publication of flows) and for the CI side (consultation of flows).
+
+# API Sources
+sourceDescriptions:
+  - name: fdr-apis
+    url: ../openapi.json # USE THIS FOR: run_arazzo_workflow.sh
+    #url: https://raw.githubusercontent.com/pagopa/pagopa-fdr/refs/heads/PAGOPA-3250/openapi/openapi.json # USE THIS FOR: Symplr Workflow visualizer
+    type: openapi
+
+# Workflows specification
+workflows:
+
+  # Workflow: Create new flow
+  - workflowId: create-new-flow
+    summary: PSP create a new flow for a creditor institution
+    description: This workflow describe the use case when a PSP create a new FdR flow for a specific creditor institution. The workflow describes the steps for creating a flow, adding payments to the flow, and publishing the flow.
+    inputs:
+      type: object
+      properties:
+        apiKey:
+          description: The API subscription key, used for authentication on the API
+          type: string
+        fdr:
+          description: The unique identifier of the flow, composed in the format '<date><pspId>-<uid>'.
+          type: string
+        fdrDate:
+          description: The date related to the flow reporting.
+          type: string
+          example: "2025-01-01T12:00:00Z"
+        senderType:
+          description: The type of the PSP sender entity.
+          type: string
+        senderId:
+          description: The identifier of the PSP sender entity.
+          type: string
+        pspId:
+          description: The domain identifier of the PSP sender entity.
+          type: string
+        pspName:
+          description: The fiscal name of the PSP sender entity.
+          type: string
+        pspBrokerId:
+          description: The domain identifier of the PSP sender entity's Broker.
+          type: string
+        channelId:
+          description: The identifier of the PSP sender entity's Channel.
+          type: string
+        receiverId:
+          description: The identifier of the Creditor Institution receiver entity.
+          type: string
+        organizationId:
+          description: The domain identifier of the Creditor Institution receiver entity.
+          type: string
+        organizationName:
+          description: The fiscal name of the Creditor Institution receiver entity.
+          type: string
+        regulation:
+          description: The description related to the regulation payment related to the flow.
+          type: string
+        regulationDate:
+          description: The date of the regulation payment related to the flow.
+          type: string
+          example: "2025-01-01"
+        totPayments:
+          description: The total number of payments to be included in the flow during the flow compilation.
+          type: integer
+          format: int64
+        sumPayments:
+          description: The total amount of payments to be calculated in the flow during the flow compilation.
+          type: number
+          exclusiveMinimum: 0.0
+          format: double
+        payments:
+          description: The list of payments to be added on the draft flow.
+          type: array
+    steps:
+      - stepId: create-empty-flow
+        description: Create a new flow structure
+        operationId: createEmptyFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        requestBody:
+          contentType: application/json
+          payload:
+            fdr: $inputs.fdr
+            fdrDate: $inputs.fdrDate
+            sender:
+              type: $inputs.senderType
+              id: $inputs.senderId
+              pspId: $inputs.pspId
+              pspName: $inputs.pspName
+              pspBrokerId: $inputs.pspBrokerId
+              channelId: $inputs.channelId
+            receiver:
+              id: $inputs.receiverId
+              organizationId: $inputs.organizationId
+              organizationName: $inputs.organizationName
+            regulation: $inputs.regulation
+            regulationDate: $inputs.regulationDate
+            totPayments: $inputs.totPayments
+            sumPayments: $inputs.sumPayments
+        successCriteria:
+          - condition: $statusCode == 201
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: add-payments-to-draft-flow
+        description: Add a sample payment to the newly created flow
+        operationId: addPaymentToExistingFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        requestBody:
+          contentType: application/json
+          payload:
+            payments: $inputs.payments
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: read-draft-flow
+        description: Get single draft flow related to the PSP, searching by name
+        operationId: getSingleFlowNotInPublishedStatus
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: organizationId
+            in: path
+            value: $inputs.organizationId
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          status: $response.body#/status
+          fdrDate: $response.body#/fdrDate
+          totPayments: $response.body#/totPayments
+          sumPayments: $response.body#/sumPayments
+
+      - stepId: publish-draft-flow
+        description: Publish an existing flow in draft status
+        operationId: publishFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: read-published-flow
+        description: Get single published flow related to the PSP, searching by name and revision
+        operationId: getSingleFlowInPublishedStatus
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: revision
+            in: path
+            value: "1"
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+          - name: organizationId
+            in: path
+            value: $inputs.organizationId
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          status: $response.body#/status
+          fdrDate: $response.body#/fdrDate
+          totPayments: $response.body#/totPayments
+          sumPayments: $response.body#/sumPayments
+
+
+  # Workflow: create new flow revision
+  - workflowId: create-new-revision-for-existing-flow
+    summary: PSP create a new revision for an existing flow
+    description: This workflow describe the use case when a PSP create a new revision for an existing FdR flow for a specific creditor institution. The workflow describes the steps for creating a flow, adding payments to the flow, publishing the flow, then repeat again these steps.
+    dependsOn:
+      - create-new-flow
+    inputs:
+      type: object
+      properties:
+        apiKey:
+          description: The API subscription key, used for authentication on the API
+          type: string
+        fdr:
+          description: The unique identifier of the flow, composed in the format '<date><pspId>-<uid>'
+          type: string
+        fdrDate:
+          description: The date related to the flow reporting.
+          type: string
+          example: "2025-01-01T12:00:00Z"
+        senderType:
+          description: The type of the PSP sender entity.
+          type: string
+        senderId:
+          description: The identifier of the PSP sender entity.
+          type: string
+        pspId:
+          description: The domain identifier of the PSP sender entity.
+          type: string
+        pspName:
+          description: The fiscal name of the PSP sender entity.
+          type: string
+        pspBrokerId:
+          description: The domain identifier of the PSP sender entity's Broker.
+          type: string
+        channelId:
+          description: The identifier of the PSP sender entity's Channel.
+          type: string
+        receiverId:
+          description: The identifier of the Creditor Institution receiver entity.
+          type: string
+        organizationId:
+          description: The domain identifier of the Creditor Institution receiver entity.
+          type: string
+        organizationName:
+          description: The fiscal name of the Creditor Institution receiver entity.
+          type: string
+        regulation:
+          description: The description related to the regulation payment related to the flow.
+          type: string
+        regulationDate:
+          description: The date of the regulation payment related to the flow.
+          type: string
+          example: "2025-01-01"
+        totPayments:
+          description: The total number of payments to be included in the flow during the flow compilation.
+          type: integer
+          format: int64
+        sumPayments:
+          description: The total amount of payments to be calculated in the flow during the flow compilation.
+          type: number
+          exclusiveMinimum: 0.0
+          format: double
+        payments:
+          description: The list of payments to be added on the draft flow.
+          type: array
+    steps:
+      - stepId: create-empty-flow-again
+        description: Create a new flow structure again
+        operationId: createEmptyFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        requestBody:
+          contentType: application/json
+          payload:
+            fdr: $inputs.fdr
+            fdrDate: $inputs.fdrDate
+            sender:
+              type: $inputs.senderType
+              id: $inputs.senderId
+              pspId: $inputs.pspId
+              pspName: $inputs.pspName
+              pspBrokerId: $inputs.pspBrokerId
+              channelId: $inputs.channelId
+            receiver:
+              id: $inputs.receiverId
+              organizationId: $inputs.organizationId
+              organizationName: $inputs.organizationName
+            regulation: $inputs.regulation
+            regulationDate: $inputs.regulationDate
+            totPayments: $inputs.totPayments
+            sumPayments: $inputs.sumPayments
+        successCriteria:
+          - condition: $statusCode == 201
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: add-payments-to-draft-flow
+        description: Add a sample payment to the newly created flow
+        operationId: addPaymentToExistingFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        requestBody:
+          contentType: application/json
+          payload:
+            payments: $inputs.payments
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: publish-draft-flow
+        description: Publish an existing flow in draft status
+        operationId: publishFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: read-published-flow
+        description: Get single published flow related to the PSP, searching by name and revision
+        operationId: getSingleFlowInPublishedStatus
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: revision
+            in: path
+            value: "2"
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+          - name: organizationId
+            in: path
+            value: $inputs.organizationId
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          status: $response.body#/status
+          fdrDate: $response.body#/fdrDate
+          totPayments: $response.body#/totPayments
+          sumPayments: $response.body#/sumPayments
+
+
+  # Workflow: Try to create new flow but fails, then delete flow
+  - workflowId: failure-on-new-flow-creation
+    summary: PSP fails to create a new flow for a creditor institution
+    description: This workflow describe the use case when a PSP try to create a wrong FdR flow for a specific creditor institution. The workflow describes a recommended way to interact in case of failure.
+    inputs:
+      type: object
+      properties:
+        apiKey:
+          description: The API subscription key, used for authentication on the API
+          type: string
+        fdr:
+          description: The unique identifier of the flow, composed in the format '<date><pspId>-<uid>'
+          type: string
+        fdrDate:
+          description: The date related to the flow reporting.
+          type: string
+          example: "2025-01-01T12:00:00Z"
+        senderType:
+          description: The type of the PSP sender entity.
+          type: string
+        senderId:
+          description: The identifier of the PSP sender entity.
+          type: string
+        pspId:
+          description: The domain identifier of the PSP sender entity.
+          type: string
+        pspName:
+          description: The fiscal name of the PSP sender entity.
+          type: string
+        pspBrokerId:
+          description: The domain identifier of the PSP sender entity's Broker.
+          type: string
+        channelId:
+          description: The identifier of the PSP sender entity's Channel.
+          type: string
+        receiverId:
+          description: The identifier of the Creditor Institution receiver entity.
+          type: string
+        organizationId:
+          description: The domain identifier of the Creditor Institution receiver entity.
+          type: string
+        organizationName:
+          description: The fiscal name of the Creditor Institution receiver entity.
+          type: string
+        regulation:
+          description: The description related to the regulation payment related to the flow.
+          type: string
+        regulationDate:
+          description: The date of the regulation payment related to the flow.
+          type: string
+          example: "2025-01-01"
+        totPayments:
+          description: The total number of payments to be included in the flow during the flow compilation.
+          type: integer
+          format: int64
+        sumPayments:
+          description: The total amount of payments to be calculated in the flow during the flow compilation.
+          type: number
+          exclusiveMinimum: 0.0
+          format: double
+        payments:
+          description: The list of payments to be added on the draft flow.
+          type: array
+    steps:
+      - stepId: create-empty-flow
+        description: Create a new flow structure
+        operationId: createEmptyFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        requestBody:
+          contentType: application/json
+          payload:
+            fdr: $inputs.fdr
+            fdrDate: $inputs.fdrDate
+            sender:
+              type: $inputs.senderType
+              id: $inputs.senderId
+              pspId: $inputs.pspId
+              pspName: $inputs.pspName
+              pspBrokerId: $inputs.pspBrokerId
+              channelId: $inputs.channelId
+            receiver:
+              id: $inputs.receiverId
+              organizationId: $inputs.organizationId
+              organizationName: $inputs.organizationName
+            regulation: $inputs.regulation
+            regulationDate: $inputs.regulationDate
+            totPayments: $inputs.totPayments
+            sumPayments: $inputs.sumPayments
+        successCriteria:
+          - condition: $statusCode == 201
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: add-payments-to-draft-flow
+        description: Add a sample payment to the newly created flow
+        operationId: addPaymentToExistingFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        requestBody:
+          contentType: application/json
+          payload:
+            payments: $inputs.payments
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: delete-payments-to-draft-flow
+        description: Delete one or more payments from an existing flow
+        operationId: deletePaymentFromExistingFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        requestBody:
+          contentType: application/json
+          payload:
+            indexList:
+              - 1
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: publish-draft-flow
+        description: Publish an existing flow in draft status
+        operationId: publishFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        successCriteria:
+          - condition: $statusCode == 400
+        onFailure:
+          - name: ok
+            type: end
+            criteria:
+              - condition: $statusCode == 200
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+      - stepId: delete-published-flow
+        description: Get single published flow related to the PSP, searching by name and revision
+        operationId: deleteExistingFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: fdr
+            in: path
+            value: $inputs.fdr
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          message: $.response.body.message
+
+
+  # Workflow: Read published flow
+  - workflowId: read-published-flow
+    summary: CI read a flow published by PSP
+    description: This workflow describe the use case when a CI read a FdR flow published by a PSP. The workflow doesn't include flow creation but simply retrieve an existing flow from list.
+    inputs:
+      type: object
+      properties:
+        apiKey:
+          description: The API subscription key, used for authentication on the API
+          type: string
+        fdr:
+          description: The unique identifier of the flow, composed in the format '<date><pspId>-<uid>'
+          type: string
+        pspId:
+          description: The domain identifier of the PSP sender entity.
+          type: string
+        organizationId:
+          description: The domain identifier of the Creditor Institution receiver entity.
+          type: string
+    steps:
+      - stepId: read-all-published-flows
+        description: Get all published flow related to creditor institution
+        operationId: getAllPublishedFlows
+        parameters:
+          - name: pspId
+            in: query
+            value: $inputs.pspId
+          - name: organizationId
+            in: path
+            value: $inputs.organizationId
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          fdrId: $response.body#/data/0/fdr
+          revision: $response.body#/data/0/revision
+          result: $response.body#/data/0
+
+      - stepId: read-single-published-flow
+        description: Get single published flow related to creditor institution, searching by name and revision
+        operationId: getSinglePublishedFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: organizationId
+            in: path
+            value: $inputs.organizationId
+          - name: fdr
+            in: path
+            value: $steps.read-all-published-flows.outputs.fdrId
+          - name: revision
+            in: path
+            value: $steps.read-all-published-flows.outputs.revision
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          fdrDate: $response.body#/fdrDate
+          totPayments: $response.body#/totPayments
+          sumPayments: $response.body#/sumPayments
+
+      - stepId: read-all-payments-from-published-flow
+        description: Get all payments of single published flow related to creditor institution, searching by name and revision
+        operationId: getPaymentsFromPublishedFlow
+        parameters:
+          - name: pspId
+            in: path
+            value: $inputs.pspId
+          - name: organizationId
+            in: path
+            value: $inputs.organizationId
+          - name: fdr
+            in: path
+            value: $steps.read-all-published-flows.outputs.fdrId
+          - name: revision
+            in: path
+            value: $steps.read-all-published-flows.outputs.revision
+          - name: Ocp-Apim-Subscription-Key
+            in: header
+            value: $inputs.apiKey
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: bad-request
+            type: end
+            criteria:
+              - condition: $statusCode == 400
+          - name: unauthorized
+            type: end
+            criteria:
+              - condition: $statusCode == 401
+          - name: not-found
+            type: end
+            criteria:
+              - condition: $statusCode == 404
+          - name: internal-server-error
+            type: end
+            criteria:
+              - condition: $statusCode == 500
+        outputs:
+          result: $response.body#/count
