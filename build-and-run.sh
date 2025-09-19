@@ -80,6 +80,14 @@ generate_openapi () {
             else . end
           ) |
 
+          # Sostituisce il tag "url" in tag server
+          walk(
+            if type == "object" and has("servers") then
+                .servers |= map(if .url | contains("{host}") then .url = "${host}" | del(.variables) else . end)
+              else .
+              end
+          ) |
+
           # Sostituisce il tag "title" inglobando il nome della sezione di API
           walk(
             if type == "object" then
