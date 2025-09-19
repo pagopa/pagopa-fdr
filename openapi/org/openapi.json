@@ -1019,7 +1019,7 @@
     "/info": {
       "get": {
         "summary": "Health-check",
-        "operationId": "healthCheck",
+        "operationId": "IInfoController_healthCheck",
         "tags": [
           "Info"
         ],
@@ -1061,7 +1061,7 @@
     "/organizations/{organizationId}/fdrs": {
       "get": {
         "summary": "Get all published flow related to creditor institution",
-        "operationId": "getAllPublishedFlows",
+        "operationId": "IOrganizationsController_getAllPublishedFlows",
         "tags": [
           "Organizations"
         ],
@@ -1209,7 +1209,7 @@
     "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}": {
       "get": {
         "summary": "Get single published flow related to creditor institution, searching by name and revision",
-        "operationId": "getSinglePublishedFlow",
+        "operationId": "IOrganizationsController_getSinglePublishedFlow",
         "tags": [
           "Organizations"
         ],
@@ -1336,7 +1336,7 @@
     "/organizations/{organizationId}/fdrs/{fdr}/revisions/{revision}/psps/{pspId}/payments": {
       "get": {
         "summary": "Get all payments of single published flow related to creditor institution, searching by name and revision",
-        "operationId": "getPaymentsFromPublishedFlow",
+        "operationId": "IOrganizationsController_getPaymentsFromPublishedFlow",
         "tags": [
           "Organizations"
         ],

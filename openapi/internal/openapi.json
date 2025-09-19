@@ -1019,7 +1019,7 @@
     "/info": {
       "get": {
         "summary": "Health-check",
-        "operationId": "healthCheck",
+        "operationId": "IInfoController_healthCheck",
         "tags": [
           "Info"
         ],
@@ -1061,7 +1061,7 @@
     "/internal/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
       "get": {
         "summary": "Get single draft flow related to the PSP, searching by name (for internal process)",
-        "operationId": "getSingleFlowNotInPublishedStatusForInternalUse",
+        "operationId": "IInternalOperationsController_getSingleFlowNotInPublishedStatusForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1176,7 +1176,7 @@
     "/internal/psps/{pspId}/fdrs/{fdr}": {
       "delete": {
         "summary": "Delete an existing draft flow and all related payments (for internal process)",
-        "operationId": "deleteExistingFlowForInternalUse",
+        "operationId": "IInternalOperationsController_deleteExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1279,7 +1279,7 @@
       },
       "post": {
         "summary": "Create a new flow structure (for internal process)",
-        "operationId": "createEmptyFlowForInternalUse",
+        "operationId": "IInternalOperationsController_createEmptyFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1394,7 +1394,7 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/payments/add": {
       "put": {
         "summary": "Add one or more payments to an existing flow (for internal process)",
-        "operationId": "addPaymentToExistingFlowForInternalUse",
+        "operationId": "IInternalOperationsController_addPaymentToExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1508,7 +1508,7 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/payments/del": {
       "put": {
         "summary": "Delete one or more payments from an existing flow (for internal process)",
-        "operationId": "deletePaymentFromExistingFlowForInternalUse",
+        "operationId": "IInternalOperationsController_deletePaymentFromExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1622,7 +1622,7 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/publish": {
       "post": {
         "summary": "Publish an existing flow in draft status (for internal process)",
-        "operationId": "publishFlowForInternalUse",
+        "operationId": "IInternalOperationsController_publishFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1727,7 +1727,7 @@
     "/internal/psps/{pspId}/iur/{iur}": {
       "get": {
         "summary": "Get all flows related to PSP, only if contains a payment with specific IUR code",
-        "operationId": "getByIur",
+        "operationId": "ISupportController_getByIur",
         "tags": [
           "Support"
         ],
@@ -1876,7 +1876,7 @@
     "/internal/psps/{pspId}/iuv/{iuv}": {
       "get": {
         "summary": "Get all flows related to PSP, only if contains a payment with specific IUV code",
-        "operationId": "getByIuv",
+        "operationId": "ISupportController_getByIuv",
         "tags": [
           "Support"
         ],

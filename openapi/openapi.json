@@ -22,14 +22,6 @@
       "description": "APIs for technical support, used for troubleshooting operations"
     }
   ],
-  "securitySchemes": {
-    "ApiKey": {
-      "description": "The API key to access this function app.",
-      "in": "header",
-      "name": "Ocp-Apim-Subscription-Key",
-      "type": "apiKey"
-    }
-  },
   "components": {
     "schemas": {
       "AddPaymentRequest": {
