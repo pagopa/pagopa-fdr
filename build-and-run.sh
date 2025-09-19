@@ -44,13 +44,21 @@ generate_openapi () {
     curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
 
     jq --arg tags "$tags" --arg section "$section" '
+
+      # Mantiene solo la parte dopo "_" negli operationId
+      walk(
+        if type == "object" and has("operationId") then
+          .operationId = (.operationId | split("_")[1:] | join("_"))
+        else . end
+      ) |
+
       walk(
         if type == "object" then
           with_entries(if .key == "examples" then .key = "example" else . end)
           | del(.info.description, .requestBody.required, .exclusiveMinimum, .get.description, .post.description, .put.description, .delete.description)
         else . end
       )
-    ' openapi/$conf.json > infra/api/$folder_name/openapi_temp.json
+    ' openapi/$conf.json > openapi/$folder_name/openapi_temp.json
 
     jq --arg tags "$tags" --arg section "$section" '
           # Converte la stringa separata da virgola in un array
@@ -96,9 +104,9 @@ generate_openapi () {
               else . end
             else . end
           )
-        ' infra/api/$folder_name/openapi_temp.json  > infra/api/$folder_name/openapi.json
+        ' openapi/$folder_name/openapi_temp.json  > openapi/$folder_name/openapi.json
 
-    rm infra/api/$folder_name/openapi_temp.json
+    rm openapi/$folder_name/openapi_temp.json
     rm openapi/$conf.json
   fi
   docker rm -f exportfdr_$conf
