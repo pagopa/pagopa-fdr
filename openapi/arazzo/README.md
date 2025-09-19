@@ -1,6 +1,19 @@
-# Runnable workflows
+# Arazzo specification for FdR
 
-## Create new Flow
+## Requirements
+
+It is required to install `arazzo-runner` CLI dependency on your machine.
+
+```
+pip install arazzo-runner
+```
+
+## Runnable workflows
+
+In order to run the following workflows, it is required to export the variables `UAT_FDR_PSP_APIKEY` and
+`UAT_FDR_ORG_APIKEY` via `export` command.
+
+### Create new Flow
 
 ```
 sh ./run_arazzo_workflow.sh \
@@ -13,7 +26,7 @@ sh ./run_arazzo_workflow.sh \
 --input_file ./env/inputs.uat.env
 ```
 
-## Create new revision for existing Flow
+### Create new revision for existing Flow
 
 ```
 sh ./run_arazzo_workflow.sh \
@@ -26,7 +39,7 @@ sh ./run_arazzo_workflow.sh \
 --input_file ./env/inputs.uat.env
 ```
 
-## Failure during creating new Flow
+### Failure during creating new Flow
 
 ```
 sh ./run_arazzo_workflow.sh \
@@ -39,7 +52,7 @@ sh ./run_arazzo_workflow.sh \
 --input_file ./env/inputs.uat.env
 ```
 
-## Read published flow
+### Read published flow
 
 ```
 sh ./run_arazzo_workflow.sh \
