@@ -40,7 +40,7 @@ microservice-chart: &microservice-chart
     servicePort: 8080
   serviceAccount:
     name: "fdr-workload-identity"
-  azure:
+  azure: &azure
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: {}
   podSecurityContext:
@@ -106,12 +106,33 @@ microservice-chart: &microservice-chart
                   - "true"
   canaryDelivery:
     create: false
+# Configuration for standard application
+app:
+  !!merge <<: *microservice-chart
+  ingress:
+    !!merge <<: *ingress
+  azure:
+    !!merge <<: *azure
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
+  resources:
+    !!merge <<: *resources
+  envConfig:
+    !!merge <<: *envConfig
+    SCHEDULE_HISTORY_CRON: "off"
+  envFieldRef:
+    !!merge <<: *envFieldRef
+  envSecret:
+    !!merge <<: *envSecret
 # Configuration for org application
 org-microservice-chart:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
     path: /pagopa-fdr-service/(organizations|info)/(.*)
+  azure:
+    !!merge <<: *azure
   deployment:
     !!merge <<: *deployment
     replicas: 1
@@ -130,6 +151,8 @@ psp-microservice-chart:
   ingress:
     !!merge <<: *ingress
     path: /pagopa-fdr-service/(psps|info)/(.*)
+  azure:
+    !!merge <<: *azure
   deployment:
     !!merge <<: *deployment
     replicas: 1
@@ -148,6 +171,8 @@ internal-microservice-chart:
   ingress:
     !!merge <<: *ingress
     path: /pagopa-fdr-service/(internal|info)/(.*)
+  azure:
+    !!merge <<: *azure
   deployment:
     !!merge <<: *deployment
     replicas: 1
@@ -166,6 +191,8 @@ scheduler:
   ingress:
     !!merge <<: *ingress
     path: /pagopa-fdr-service-scheduler-unused/(.*)
+  azure:
+    !!merge <<: *azure
   deployment:
     !!merge <<: *deployment
     replicas: 1
