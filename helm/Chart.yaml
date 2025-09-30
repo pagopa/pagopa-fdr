@@ -8,6 +8,15 @@ dependencies:
   - name: microservice-chart
     version: 7.5.0
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
+    alias: org-microservice-chart
+  - name: microservice-chart
+    version: 7.5.0
+    repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
+    alias: psp-microservice-chart
+  - name: microservice-chart
+    version: 7.5.0
+    repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
+    alias: internal-microservice-chart
   - name: microservice-chart
     version: 7.5.0
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"

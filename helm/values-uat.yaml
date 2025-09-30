@@ -37,7 +37,6 @@ microservice-chart: &microservice-chart
   ingress: &ingress
     create: true
     host: "weuuat.fdr.internal.uat.platform.pagopa.it"
-    path: /pagopa-fdr-service/(.*)
     servicePort: 8080
   serviceAccount:
     name: "fdr-workload-identity"
@@ -107,11 +106,83 @@ microservice-chart: &microservice-chart
                   - "true"
   canaryDelivery:
     create: false
-# Configuration for standard application
-app:
+# Configuration for org application
+org-microservice-chart:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
+    path: /pagopa-fdr-service/(organizations|info)/(.*)
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
+  resources:
+    !!merge <<: *resources
+  autoscaling:
+    !!merge <<: *autoscaling
+    enable: true
+    minReplica: 1
+    maxReplica: 2
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization
+          value: "75"
+      - type: memory
+        metadata:
+          type: Utilization
+          value: "90"
+  envConfig:
+    !!merge <<: *envConfig
+    SCHEDULE_HISTORY_CRON: "off"
+  envFieldRef:
+    !!merge <<: *envFieldRef
+  envSecret:
+    !!merge <<: *envSecret
+# Configuration for psp application
+psp-microservice-chart:
+  !!merge <<: *microservice-chart
+  ingress:
+    !!merge <<: *ingress
+    path: /pagopa-fdr-service/(psps|info)/(.*)
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
+  resources:
+    !!merge <<: *resources
+  autoscaling:
+    !!merge <<: *autoscaling
+    enable: true
+    minReplica: 1
+    maxReplica: 2
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization
+          value: "75"
+      - type: memory
+        metadata:
+          type: Utilization
+          value: "90"
+  envConfig:
+    !!merge <<: *envConfig
+    SCHEDULE_HISTORY_CRON: "off"
+  envFieldRef:
+    !!merge <<: *envFieldRef
+  envSecret:
+    !!merge <<: *envSecret
+# Configuration for internal application
+internal-microservice-chart:
+  !!merge <<: *microservice-chart
+  ingress:
+    !!merge <<: *ingress
+    path: /pagopa-fdr-service/(internal|info)/(.*)
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
   resources:
     !!merge <<: *resources
   autoscaling:
