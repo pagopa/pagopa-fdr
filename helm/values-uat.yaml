@@ -144,7 +144,7 @@ org-microservice-chart:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service/(organizations|info)/(.*)
+    path: /pagopa-fdr-service/((?:organizations)/.*)
   azure:
     !!merge <<: *azure
   deployment:
@@ -180,7 +180,7 @@ psp-microservice-chart:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service/(psps|info)/(.*)
+    path: /pagopa-fdr-service/((?:psps)/.*)
   azure:
     !!merge <<: *azure
   deployment:
@@ -216,7 +216,7 @@ internal-microservice-chart:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service/(internal|info)/(.*)
+    path: /pagopa-fdr-service/((?:internal)/.*)
   azure:
     !!merge <<: *azure
   deployment:
