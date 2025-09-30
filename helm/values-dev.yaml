@@ -41,7 +41,7 @@ microservice-chart: &microservice-chart
   serviceAccount:
     name: "fdr-workload-identity"
   azure: &azure
-    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
+    workloadIdentityClientId: edaa7974-85d3-47ec-9a72-0c050f15fe1f
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
