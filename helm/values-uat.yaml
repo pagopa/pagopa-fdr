@@ -111,6 +111,7 @@ app:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
+    path: /pagopa-fdr-service/(.*)
   azure:
     !!merge <<: *azure
   resources:
