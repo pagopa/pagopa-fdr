@@ -37,6 +37,7 @@ microservice-chart: &microservice-chart
   ingress: &ingress
     create: true
     host: "weuuat.fdr.internal.uat.platform.pagopa.it"
+    path: /pagopa-fdr-service/(.*)
     servicePort: 8080
   serviceAccount:
     name: "fdr-workload-identity"
@@ -111,7 +112,6 @@ app:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service/(.*)
   azure:
     !!merge <<: *azure
   resources:
