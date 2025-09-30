@@ -1022,7 +1022,7 @@
       "get": {
         "summary": "Health-check",
         "description": "## Description:\nGet health check and deployment-related information",
-        "operationId": "IInfoController_healthCheck",
+        "operationId": "healthCheck",
         "tags": [
           "Info"
         ],
@@ -1065,7 +1065,7 @@
       "get": {
         "summary": "Get single draft flow related to the PSP, searching by name (for internal process)",
         "description": "## Description:\nThis API permits to search a single draft flow for a specific PSP.\nIn order to do so, it is required to add the following search filters:\n- Creditor institution identifier: for filtering by specific organization\n- PSP identifier: for filtering by flow-related PSP\n- Flow name: for filtering by specific instance of the flow\n\nThe result will contains a single element because there can be only one draft flow for each\nunique identifier.<br>\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\nThis API is used only by internal processes in FdR ecosystem.\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | Y\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | N\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IInternalOperationsController_getSingleFlowNotInPublishedStatusForInternalUse",
+        "operationId": "getSingleFlowNotInPublishedStatusForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1181,7 +1181,7 @@
       "delete": {
         "summary": "Delete an existing draft flow and all related payments (for internal process)",
         "description": "## Description:\nThis API permits to delete a draft flow and all the payments associated to it. The deletion process\nirreversibly removes the flow and all related payments, making it impossible to recover any data afterwards.\nThis procedure frees the draft for the flow with a specific identifier, enabling the generation of\na new revision from scratch.<br>\nPlease note that in order to remove an existing flow and all the related payments, the flow must\nexist and be in draft, i.e. not be in PUBLISHED status. A published flow cannot be removed at all and\ncan only be 'replaced' by the creation of a new revision of the same flow through the 'new flow creation'\nAPI, although the old revision will be present anyway.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>\nThis API is used only by internal processes in FdR ecosystem.\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | Y\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | N\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Read and Write\n***Cacheable*** | N\n",
-        "operationId": "IInternalOperationsController_deleteExistingFlowForInternalUse",
+        "operationId": "deleteExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1285,7 +1285,7 @@
       "post": {
         "summary": "Create a new flow structure (for internal process)",
         "description": "## Description:\nThis API permits to generate a new flow for a specific creditor institution. The generated flow\nis only a structure that define the main fields and the guidelines related to the payments that\nmust be added in the next operations.<br>\nThe flow can only be created if no other flow exists in the CREATED or INSERTED state with the\nsame identifier. If it is necessary to define a new version but you have a flow in the listed statuses,\nyou must first publish the flow in draft status, or delete the flow completely via the API if you want\nto change it in its entirety.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular (but not limited) on creditor institution\nand PSP. Also, the name of the flow is validated against a specific standard format.<br>\nThis API is used only by internal processes in FdR ecosystem.\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3002** | 400 | Flow with ID [%] already exists with [%] status.\n**FDR-2002** | 400 | PSP Broker with ID [%] is invalid or unknown.\n**FDR-2003** | 400 | PSP Broker with ID [%] is not enabled.\n**FDR-2004** | 400 | Channel with ID [%] is invalid or unknown.\n**FDR-2005** | 400 | Channel with ID [%] is not enabled.\n**FDR-2006** | 400 | Channel with ID [%] is not authorized to be used with PSP Broker with ID [%].\n**FDR-2007** | 400 | Channel with ID [%] is not authorized to be used with PSP with ID [%].\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3004** | 400 | Flow with ID [%] have field sender.pspId [%] that does not match with query param [%].\n**FDR-3010** | 400 | Field fdr [%] does not match with query param [%].\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | Y\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | N\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
-        "operationId": "IInternalOperationsController_createEmptyFlowForInternalUse",
+        "operationId": "createEmptyFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1402,7 +1402,7 @@
       "put": {
         "summary": "Add one or more payments to an existing flow (for internal process)",
         "description": "## Description:\nThis API permits to add one or more payments to a given flow, previously created through\nthe dedicated API. Newly added payments will be validated according to the indexes defined\nduring the insertion process and according to the totality of the indexes of the payments\nalready inserted in the same flow.<br>\nIn addition, during the process of adding payments the relevant flow is updated, in particular\nby adjusting the ‘computed values’: these fields will include the updated count of the inserted\npayments and the total amount of payments added together.<br>\nPlease note that in order to add a new payment, the flow must exist and be in draft, i.e.\nnot be in PUBLISHED status. In order to add a payment to an already published flow, it is necessary\nto create a new revision of the same flow through the 'new flow creation' API.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP. Also, the name of the flow is validated\nagainst a specific standard format.<br>\nThis API is used only by internal processes in FdR ecosystem.\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3005** | 400 | There are one or more identical payment indexes in same request for flow with ID [%].\n**FDR-3001** | 404 | Flow with ID [%] not found.\n**FDR-3006** | 400 | One or more payment index already added on flow with ID [%].\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | Y\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | N\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
-        "operationId": "IInternalOperationsController_addPaymentToExistingFlowForInternalUse",
+        "operationId": "addPaymentToExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1518,7 +1518,7 @@
       "put": {
         "summary": "Delete one or more payments from an existing flow (for internal process)",
         "description": "## Description:\nThis API permits to remove one or more payments from a particular flow, which were\npreviously added via the dedicated API. The payments to be removed are indicated in the request\nvia the index with which they were previously defined when they were added to the flow,\nand must all be present within the flow at the time of deletion.<br>\nIn addition, during the process of removing payments the relevant flow is updated, in particular\nby adjusting the ‘computed fields’: these fields will include the updated count of the removed\npayments and the total amount of payments reduced by the amounts of the removed payments.<br>\nPlease note that in order to remove an existing payment, the flow must exist and be in draft,\ni.e. not be in PUBLISHED status. In order to remove a payment from a flow that has already been\npublished, it is necessary to create a new revision of the same flow through the 'new flow creation' API\nnot including the affected payments.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>\nThis API is used only by internal processes in FdR ecosystem.\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3005** | 400 | There are one or more identical payment indexes in same request for flow with ID [%].\n**FDR-3001** | 404 | Flow with ID [%] not found.\n**FDR-3003** | 400 | Flow with ID [%] exists with [%] status.\n**FDR-3007** | 400 | Index of payment not match with index loaded on flow with ID [%].\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | Y\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | N\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
-        "operationId": "IInternalOperationsController_deletePaymentFromExistingFlowForInternalUse",
+        "operationId": "deletePaymentFromExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1634,7 +1634,7 @@
       "post": {
         "summary": "Publish an existing flow in draft status (for internal process)",
         "description": "## Description:\nThis API permits to publish a flow in draft, completed and ready to be retrieved by\nthe creditor institution related to the flow. The publication release a new revision of\ncertain flow, permitting to generate a new version if required.<br>\nIn addition, during the flow publication process a final validation of the \"computed fields\" is performed,\nchecking that their values are equal to the values pre-defined in the creation phase of the empty flow.\nPlease note that, in order to publish a flow, it must be in draft, so it must not be already in PUBLISHED status.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>\nThis API is used only by internal processes in FdR ecosystem and, because of this, does not\nprovide a historicization procedure: that task is demanded uniquely to external publish API.\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n**FDR-3003** | 400 | Flow with ID [%] exists with [%] status.\n**FDR-4001** | 400 | On flow with ID [%], [%] payments were defined to be added but [%] were actually added.\n**FDR-4002** | 400 | On flow with ID [%], an amount of [%] euro for all payments were defined to be added but [%] is actually calculated.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | Y\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | N\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
-        "operationId": "IInternalOperationsController_publishFlowForInternalUse",
+        "operationId": "publishFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1740,7 +1740,7 @@
       "get": {
         "summary": "Get all flows related to PSP, only if contains a payment with specific IUR code",
         "description": "## Description:\nThis API permits to search all the flows that contains a payment with specific IUR code\n(Identificativo Univoco Riscossione) in relation to a PSP.<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\nThis API is used for internal purpose in order to perform a deep-search for dedicated troubleshooting.\n",
-        "operationId": "ISupportController_getByIur",
+        "operationId": "getByIur",
         "tags": [
           "Support"
         ],
@@ -1890,7 +1890,7 @@
       "get": {
         "summary": "Get all flows related to PSP, only if contains a payment with specific IUV code",
         "description": "## Description:\nThis API permits to search all the flows that contains a payment with specific IUV code\n(Identificativo Univoco Versamento) in relation to a PSP.<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\nThis API is used for internal purpose in order to perform a deep-search for dedicated troubleshooting.\n",
-        "operationId": "ISupportController_getByIuv",
+        "operationId": "getByIuv",
         "tags": [
           "Support"
         ],
@@ -2048,7 +2048,7 @@
       "get": {
         "summary": "Get all published flow related to creditor institution",
         "description": "## Description:\nThis API permits to search all published flows for a specific creditor institution,\nformatted in a paginated view. The search can be enhanced including the PSP identifier\nin order to filter only the flows for certain PSP. The only flows retrieved are the latest\nrevision, as same as \"nodoChiediElencoFlussiRendicontazione\" primitive does.<br>\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP (if that search filter is defined).<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IOrganizationsController_getAllPublishedFlows",
+        "operationId": "getAllPublishedFlows",
         "tags": [
           "Organizations"
         ],
@@ -2197,7 +2197,7 @@
       "get": {
         "summary": "Get single published flow related to creditor institution, searching by name and revision",
         "description": "## Description:\nThis API permits to search a single published flows for a specific creditor institution.\nIn order to do so, it is required to add the following search filters:\n - Creditor institution identifier: for filtering by specific organization\n - PSP identifier: for filtering by flow-related PSP\n - Flow name: for filtering by specific instance of the flow\n - Revision: for filtering by flow revision\n\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IOrganizationsController_getSinglePublishedFlow",
+        "operationId": "getSinglePublishedFlow",
         "tags": [
           "Organizations"
         ],
@@ -2325,7 +2325,7 @@
       "get": {
         "summary": "Get all payments of single published flow related to creditor institution, searching by name and revision",
         "description": "## Description:\nThis API permits to search all the payments of a single published flow for a specific creditor institution,\nformatted in a paginated view. In order to do so, it is required to add the following search filters:\n - Creditor institution identifier: for filtering by specific organization\n - PSP identifier: for filtering by flow-related PSP\n - Flow name: for filtering by specific instance of the flow\n - Revision: for filtering by flow revision\n\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IOrganizationsController_getPaymentsFromPublishedFlow",
+        "operationId": "getPaymentsFromPublishedFlow",
         "tags": [
           "Organizations"
         ],
@@ -2477,7 +2477,7 @@
       "get": {
         "summary": "Get all draft flows related to the PSP",
         "description": "## Description:\nThis API permits to search all draft flows for a specific PSP, formatted in a paginated view.\nThe only flows retrieved are the single draft revision, one for each flow identifier.<br>\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IPspsController_getAllFlowsNotInPublishedStatus",
+        "operationId": "getAllFlowsNotInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -2606,7 +2606,7 @@
       "get": {
         "summary": "Get single draft flow related to the PSP, searching by name",
         "description": "## Description:\nThis API permits to search a single draft flow for a specific PSP.\nIn order to do so, it is required to add the following search filters:\n- Creditor institution identifier: for filtering by specific organization\n- PSP identifier: for filtering by flow-related PSP\n- Flow name: for filtering by specific instance of the flow\n\nThe result will contains a single element because there can be only one draft flow for each\nunique identifier.<br>\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IPspsController_getSingleFlowNotInPublishedStatus",
+        "operationId": "getSingleFlowNotInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -2722,7 +2722,7 @@
       "get": {
         "summary": "Get payments of draft flow related to the PSP, searching by name",
         "description": "## Description:\nThis API permits to search all the payments of a single draft flow for a specific PSP,\nformatted in a paginated view. In order to do so, it is required to add the following search filters:\n- Creditor institution identifier: for filtering by specific organization\n- PSP identifier: for filtering by flow-related PSP\n- Flow name: for filtering by specific instance of the flow\n\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IPspsController_getPaymentsForFlowNotInPublishedStatus",
+        "operationId": "getPaymentsForFlowNotInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -2862,7 +2862,7 @@
       "delete": {
         "summary": "Delete an existing draft flow and all related payments",
         "description": "## Description:\nThis API permits to delete a draft flow and all the payments associated to it. The deletion process\nirreversibly removes the flow and all related payments, making it impossible to recover any data afterwards.\nThis procedure frees the draft for the flow with a specific identifier, enabling the generation of\na new revision from scratch.<br>\nPlease note that in order to remove an existing flow and all the related payments, the flow must\nexist and be in draft, i.e. not be in PUBLISHED status. A published flow cannot be removed at all and\ncan only be 'replaced' by the creation of a new revision of the same flow through the 'new flow creation'\nAPI, although the old revision will be present anyway.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Read and Write\n***Cacheable*** | N\n",
-        "operationId": "IPspsController_deleteExistingFlow",
+        "operationId": "deleteExistingFlow",
         "tags": [
           "PSP"
         ],
@@ -2966,7 +2966,7 @@
       "post": {
         "summary": "Create a new flow structure",
         "description": "## Description:\nThis API permits to generate a new flow for a specific creditor institution. The generated flow\nis only a structure that define the main fields and the guidelines related to the payments that\nmust be added in the next operations.<br>\nThe flow can only be created if no other flow exists in the CREATED or INSERTED state with the\nsame identifier. If it is necessary to define a new version but you have a flow in the listed statuses,\nyou must first publish the flow in draft status, or delete the flow completely via the API if you want\nto change it in its entirety.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular (but not limited) on creditor institution\nand PSP. Also, the name of the flow is validated against a specific standard format.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3002** | 400 | Flow with ID [%] already exists with [%] status.\n**FDR-2002** | 400 | PSP Broker with ID [%] is invalid or unknown.\n**FDR-2003** | 400 | PSP Broker with ID [%] is not enabled.\n**FDR-2004** | 400 | Channel with ID [%] is invalid or unknown.\n**FDR-2005** | 400 | Channel with ID [%] is not enabled.\n**FDR-2006** | 400 | Channel with ID [%] is not authorized to be used with PSP Broker with ID [%].\n**FDR-2007** | 400 | Channel with ID [%] is not authorized to be used with PSP with ID [%].\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3004** | 400 | Flow with ID [%] have field sender.pspId [%] that does not match with query param [%].\n**FDR-3010** | 400 | Field fdr [%] does not match with query param [%].\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
-        "operationId": "IPspsController_createEmptyFlow",
+        "operationId": "createEmptyFlow",
         "tags": [
           "PSP"
         ],
@@ -3083,7 +3083,7 @@
       "put": {
         "summary": "Add one or more payments to an existing flow",
         "description": "## Description:\nThis API permits to add one or more payments to a given flow, previously created through\nthe dedicated API. Newly added payments will be validated according to the indexes defined\nduring the insertion process and according to the totality of the indexes of the payments\nalready inserted in the same flow.<br>\nIn addition, during the process of adding payments the relevant flow is updated, in particular\nby adjusting the ‘computed values’: these fields will include the updated count of the inserted\npayments and the total amount of payments added together.<br>\nPlease note that in order to add a new payment, the flow must exist and be in draft, i.e.\nnot be in PUBLISHED status. In order to add a payment to an already published flow, it is necessary\nto create a new revision of the same flow through the 'new flow creation' API.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP. Also, the name of the flow is validated\nagainst a specific standard format.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3005** | 400 | There are one or more identical payment indexes in same request for flow with ID [%].\n**FDR-3001** | 404 | Flow with ID [%] not found.\n**FDR-3006** | 400 | One or more payment index already added on flow with ID [%].\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
-        "operationId": "IPspsController_addPaymentToExistingFlow",
+        "operationId": "addPaymentToExistingFlow",
         "tags": [
           "PSP"
         ],
@@ -3199,7 +3199,7 @@
       "put": {
         "summary": "Delete one or more payments from an existing flow",
         "description": "## Description:\nThis API permits to remove one or more payments from a particular flow, which were\npreviously added via the dedicated API. The payments to be removed are indicated in the request\nvia the index with which they were previously defined when they were added to the flow,\nand must all be present within the flow at the time of deletion.<br>\nIn addition, during the process of removing payments the relevant flow is updated, in particular\nby adjusting the ‘computed fields’: these fields will include the updated count of the removed\npayments and the total amount of payments reduced by the amounts of the removed payments.<br>\nPlease note that in order to remove an existing payment, the flow must exist and be in draft,\ni.e. not be in PUBLISHED status. In order to remove a payment from a flow that has already been\npublished, it is necessary to create a new revision of the same flow through the 'new flow creation' API\nnot including the affected payments.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3005** | 400 | There are one or more identical payment indexes in same request for flow with ID [%].\n**FDR-3001** | 404 | Flow with ID [%] not found.\n**FDR-3003** | 400 | Flow with ID [%] exists with [%] status.\n**FDR-3007** | 400 | Index of payment not match with index loaded on flow with ID [%].\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
-        "operationId": "IPspsController_deletePaymentFromExistingFlow",
+        "operationId": "deletePaymentFromExistingFlow",
         "tags": [
           "PSP"
         ],
@@ -3315,7 +3315,7 @@
       "post": {
         "summary": "Publish an existing flow in draft status",
         "description": "## Description:\nThis API permits to publish a flow in draft, completed and ready to be retrieved by\nthe creditor institution related to the flow. The publication release a new revision of\ncertain flow, permitting to generate a new version if required. After publication,\nspecific metadata are saved in order to perform an asynchronous historicization of this\nflow, including all the payments related to it.<br>\nIn addition, during the flow publication process a final validation of the \"computed fields\" is performed,\nchecking that their values are equal to the values pre-defined in the creation phase of the empty flow.\nPlease note that, in order to publish a flow, it must be in draft, so it must not be already in PUBLISHED status.<br>\nBefore executing the operation, the request fields are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n**FDR-3003** | 400 | Flow with ID [%] exists with [%] status.\n**FDR-4001** | 400 | On flow with ID [%], [%] payments were defined to be added but [%] were actually added.\n**FDR-4002** | 400 | On flow with ID [%], an amount of [%] euro for all payments were defined to be added but [%] is actually calculated.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | N\n***Stateless*** | Y\n***Read/Write Intensive*** | Write\n***Cacheable*** | N\n",
-        "operationId": "IPspsController_publishFlow",
+        "operationId": "publishFlow",
         "tags": [
           "PSP"
         ],
@@ -3421,7 +3421,7 @@
       "get": {
         "summary": "Get all published flow related to the PSP",
         "description": "## Description:\nThis API permits to search all published flows for a specific PSP, formatted in a paginated view.\nThe search can be enhanced including the creditor institution identifier in order to filter only the flows\nfor certain receiver. The only flows retrieved are the latest revision, as same as \"nodoChiediElencoFlussiRendicontazione\"\nprimitive does.<br>\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on PSP and creditor institution (if that\nsearch filter is defined).<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IPspsController_getAllFlowsInPublishedStatus",
+        "operationId": "getAllFlowsInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -3560,7 +3560,7 @@
       "get": {
         "summary": "Get single published flow related to the PSP, searching by name and revision",
         "description": "## Description:\nThis API permits to search a single published flow for a specific PSP.\nIn order to do so, it is required to add the following search filters:\n- Creditor institution identifier: for filtering by specific organization\n- PSP identifier: for filtering by flow-related PSP\n- Flow name: for filtering by specific instance of the flow\n- Revision: for filtering by flow revision\n\nThe result will contains a single element because there can be only one flow for each\nunique identifier and revision.<br>\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IPspsController_getSingleFlowInPublishedStatus",
+        "operationId": "getSingleFlowInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -3687,7 +3687,7 @@
       "get": {
         "summary": "Get payments of published flow related to the PSP, searching by name and revision",
         "description": "## Description:\nThis API permits to search all the payments of a single published flow for a specific PSP,\nformatted in a paginated view. In order to do so, it is required to add the following search filters:\n- Creditor institution identifier: for filtering by specific organization\n- PSP identifier: for filtering by flow-related PSP\n- Flow name: for filtering by specific instance of the flow\n- Revision: for filtering by flow revision\n\nBefore executing the query, the search filters are validated against entities configured for\n<i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,\nthe name of the flow is validated against a specific standard format.<br>\nThe result of the query is paginated and contains all the metadata needed for pagination purposes.<br>\n\n\n## Error codes:\nAPPLICATIVE CODE | HTTP CODE | MESSAGE\n- | - | -\n**FDR-2000** | 400 | PSP with ID [%] is invalid or unknown.\n**FDR-2001** | 400 | PSP with ID [%] is not enabled.\n**FDR-2008** | 400 | Creditor institution with ID [%] is invalid or unknown.\n**FDR-2009** | 400 | Creditor institution with ID [%] is not enabled.\n**FDR-3008** | 400 | Flow identifier [%] contains a date that is not compliant.\n**FDR-3009** | 400 | Flow identifier [%] contains a PSP ID that is not compliant.\n**FDR-3001** | 404 | Flow with ID [%] not found.\n\n\n## API properties:\nPROPERTY | VALUE\n- | -\n***Internal*** | N\n***External*** | Y\n***Synchronous*** | Synchronous\n***Authorization*** | Y (Authorizer)\n***Authentication*** | Y (Subscription Key)\n***TPS*** | 1.0/sec\n***Idempotency*** | Y\n***Stateless*** | Y\n***Read/Write Intensive*** | Read\n***Cacheable*** | Y\n",
-        "operationId": "IPspsController_getPaymentsForFlowInPublishedStatus",
+        "operationId": "getPaymentsForFlowInPublishedStatus",
         "tags": [
           "PSP"
         ],
@@ -3843,8 +3843,13 @@
   },
   "servers": [
     {
-      "url": "${host}",
-      "description": "Environment host"
+      "url": "https://{host}/",
+      "description": "Environment host",
+      "variables": {
+        "host": {
+          "default": "https://api.dev.platform.pagopa.it/"
+        }
+      }
     },
     {
       "url": "http://localhost:8080/",
