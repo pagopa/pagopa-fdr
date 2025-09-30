@@ -39,7 +39,17 @@ generate_openapi () {
   docker run -i -d --name exportfdr_$conf --rm -p 8080:8080 $REPO:$version-$conf
   sleep 10
   if [ $folder_name = "all" ]; then
-    curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
+    curl http://localhost:8080/q/openapi?format=json > openapi/$conf.temp.json
+
+    jq '
+      # Mantiene solo la parte dopo "_" negli operationId
+      walk(
+        if type == "object" and has("operationId") then
+          .operationId = (.operationId | split("_")[1:] | join("_"))
+        else . end
+      )
+    ' openapi/$conf.temp.json > openapi/$conf.json
+    rm openapi/$conf.temp.json
   else
     curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
 
@@ -50,7 +60,7 @@ generate_openapi () {
           | del(.info.description, .requestBody.required, .exclusiveMinimum, .get.description, .post.description, .put.description, .delete.description)
         else . end
       )
-    ' openapi/$conf.json > infra/api/$folder_name/openapi_temp.json
+    ' openapi/$conf.json > openapi/$folder_name/openapi_temp.json
 
     jq --arg tags "$tags" --arg section "$section" '
           # Converte la stringa separata da virgola in un array
@@ -80,6 +90,14 @@ generate_openapi () {
             else . end
           ) |
 
+          # Sostituisce il tag "url" in tag server
+          walk(
+            if type == "object" and has("servers") then
+                .servers |= map(if .url | contains("{host}") then .url = "${host}" | del(.variables) else . end)
+              else .
+              end
+          ) |
+
           # Sostituisce il tag "title" inglobando il nome della sezione di API
           walk(
             if type == "object" then
@@ -88,9 +106,9 @@ generate_openapi () {
               else . end
             else . end
           )
-        ' infra/api/$folder_name/openapi_temp.json  > infra/api/$folder_name/openapi.json
+        ' openapi/$folder_name/openapi_temp.json  > openapi/$folder_name/openapi.json
 
-    rm infra/api/$folder_name/openapi_temp.json
+    rm openapi/$folder_name/openapi_temp.json
     rm openapi/$conf.json
   fi
   docker rm -f exportfdr_$conf

@@ -49,3 +49,4 @@ nb-configuration.xml
 /helm/charts/*
 **/.terraform/
 /.run/
+/infra/.terraform.lock.hcl
