@@ -1,11 +1,10 @@
 package it.gov.pagopa.fdr.controller;
 
-import it.gov.pagopa.fdr.controller.interfaces.controller.IInfoController;
+import it.gov.pagopa.fdr.controller.interfaces.controller.IPspsInfoController;
 import it.gov.pagopa.fdr.controller.model.common.response.InfoResponse;
 import it.gov.pagopa.fdr.service.HealthCheckService;
-import jakarta.ws.rs.Path;
 
-public class PspsInfoController implements IInfoController {
+public class PspsInfoController implements IPspsInfoController {
 
   private final HealthCheckService healthCheckService;
 
@@ -13,7 +12,6 @@ public class PspsInfoController implements IInfoController {
     this.healthCheckService = healthCheckService;
   }
 
-  @Path("/psps/info")
   @Override
   public InfoResponse healthCheck() {
     return healthCheckService.getHealthInfo();
