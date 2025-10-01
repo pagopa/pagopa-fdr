@@ -2,6 +2,10 @@
   "openapi": "3.0.1",
   "tags": [
     {
+      "name": "Info",
+      "description": "Info operations"
+    },
+    {
       "name": "Internal Operations",
       "description": "APIs for internal operations, used for hidden processes in FdR ecosystem"
     },
@@ -362,6 +366,39 @@
               "Success"
             ],
             "description": "The descriptive information that shows a message related to the executed operation."
+          }
+        }
+      },
+      "InfoResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": [
+              "pagopa-fdr"
+            ],
+            "description": "The identificative name of the deployed application"
+          },
+          "version": {
+            "type": "string",
+            "example": [
+              "1.2.3"
+            ],
+            "description": "The current version of the deployed application"
+          },
+          "environment": {
+            "type": "string",
+            "example": [
+              "dev"
+            ],
+            "description": "The current environment where the application is deployed"
+          },
+          "description": {
+            "type": "string",
+            "example": [
+              "FDR - Flussi di rendicontazione"
+            ],
+            "description": "The descriptive information related to the info response"
           }
         }
       },
@@ -979,6 +1016,48 @@
     }
   },
   "paths": {
+    "/internal/info": {
+      "get": {
+        "summary": "Health-check",
+        "operationId": "IInternalInfoController_HealthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
       "get": {
         "summary": "Get single draft flow related to the PSP, searching by name (for internal process)",
@@ -1950,12 +2029,96 @@
           }
         }
       }
+    },
+    "/organizations/info": {
+      "get": {
+        "summary": "Health-check",
+        "operationId": "IOrganizationsInfoController_HealthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psps/info": {
+      "get": {
+        "summary": "Health-check",
+        "operationId": "IPspsInfoController_HealthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "info": {
     "title": "FDR - Flussi di Rendicontazione (INTERNAL)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.57-2-PIDM-1007-incident"
+    "version": "1.1.57-3-PIDM-1007-incident"
   },
   "servers": [
     {

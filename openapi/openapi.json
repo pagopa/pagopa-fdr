@@ -2,6 +2,10 @@
   "openapi": "3.1.0",
   "tags": [
     {
+      "name": "Info",
+      "description": "Info operations"
+    },
+    {
       "name": "Internal Operations",
       "description": "APIs for internal operations, used for hidden processes in FdR ecosystem"
     },
@@ -363,6 +367,39 @@
               "Success"
             ],
             "description": "The descriptive information that shows a message related to the executed operation."
+          }
+        }
+      },
+      "InfoResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "examples": [
+              "pagopa-fdr"
+            ],
+            "description": "The identificative name of the deployed application"
+          },
+          "version": {
+            "type": "string",
+            "examples": [
+              "1.2.3"
+            ],
+            "description": "The current version of the deployed application"
+          },
+          "environment": {
+            "type": "string",
+            "examples": [
+              "dev"
+            ],
+            "description": "The current environment where the application is deployed"
+          },
+          "description": {
+            "type": "string",
+            "examples": [
+              "FDR - Flussi di rendicontazione"
+            ],
+            "description": "The descriptive information related to the info response"
           }
         }
       },
@@ -981,6 +1018,49 @@
     }
   },
   "paths": {
+    "/internal/info": {
+      "get": {
+        "summary": "Health-check",
+        "description": "## Description:\nGet health check and deployment-related information",
+        "operationId": "HealthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
       "get": {
         "summary": "Get single draft flow related to the PSP, searching by name (for internal process)",
@@ -1964,6 +2044,49 @@
         }
       }
     },
+    "/organizations/info": {
+      "get": {
+        "summary": "Health-check",
+        "description": "## Description:\nGet health check and deployment-related information",
+        "operationId": "HealthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/organizations/{organizationId}/fdrs": {
       "get": {
         "summary": "Get all published flow related to creditor institution",
@@ -2365,6 +2488,49 @@
                 },
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psps/info": {
+      "get": {
+        "summary": "Health-check",
+        "description": "## Description:\nGet health check and deployment-related information",
+        "operationId": "HealthCheck",
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
                 }
               }
             }
