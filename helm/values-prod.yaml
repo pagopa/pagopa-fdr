@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.57
+    tag: 1.1.57-3-PIDM-1007-incident
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -41,8 +41,8 @@ microservice-chart: &microservice-chart
     servicePort: 8080
   serviceAccount:
     name: "fdr-workload-identity"
-  azure:
-    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
+  azure: &azure
+    workloadIdentityClientId: b1a66dc4-4de4-43ac-9794-3924673c5f1d
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
@@ -54,8 +54,8 @@ microservice-chart: &microservice-chart
       memory: "1Gi"
       cpu: "500m"
     limits:
-      memory: "3Gi"
-      cpu: "1000m"
+      memory: "3.5Gi"
+      cpu: "1.5"
   autoscaling: &autoscaling
     enable: false
   envConfig: &envConfig
@@ -70,10 +70,9 @@ microservice-chart: &microservice-chart
     ADAPTER_API_CONFIG_CACHE_URL: "https://api.platform.pagopa.it/api-config-cache/p/v1"
     ADAPTER_API_CONFIG_CACHE_CRON: "0 */1 * * * ?"
     BLOB_RE_CONTAINER_NAME: "re-payload"
-    DATASOURCE_URL: "jdbc:postgresql://fdr-db.p.internal.postgresql.pagopa.it:6432/fdr3?sslmode=require&prepareThreshold=0"
+    DATASOURCE_URL: "jdbc:postgresql://fdr-db.p.internal.postgresql.pagopa.it:5432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
-    DATASOURCE_POOL_SIZE: "50"
-    CUSTOM_JAVA_OPTS: "-XshowSettings:vm -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=80 -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    CUSTOM_JAVA_OPTS: "-XshowSettings:vm -XX:+UnlockExperimentalVMOptions -XX:InitiatingHeapOccupancyPercent=20 -XX:+UseG1GC -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30 -Xms512m -Xmx2500m"
     RE_ACTIONS_EXCLUDED_FROM_SAVE: "GET_ALL_FDR,INTERNAL_CREATE_FLOW,INTERNAL_ADD_PAYMENT,INTERNAL_DELETE_PAYMENT,INTERNAL_PUBLISH,INTERNAL_DELETE_FLOW"
   envFieldRef: &envFieldRef
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
@@ -112,6 +111,8 @@ app:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
+  azure:
+    !!merge <<: *azure
   resources:
     !!merge <<: *resources
   autoscaling:
@@ -133,6 +134,118 @@ app:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
+  envFieldRef:
+    !!merge <<: *envFieldRef
+  envSecret:
+    !!merge <<: *envSecret
+# Configuration for org application
+org-microservice-chart:
+  !!merge <<: *microservice-chart
+  ingress:
+    !!merge <<: *ingress
+    path: /pagopa-fdr-service/((?:organizations)/.*)
+  azure:
+    !!merge <<: *azure
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
+  resources:
+    !!merge <<: *resources
+  autoscaling:
+    !!merge <<: *autoscaling
+    enable: true
+    minReplica: 3
+    maxReplica: 6
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization
+          value: "90"
+      - type: memory
+        metadata:
+          type: Utilization
+          value: "90"
+  envConfig:
+    !!merge <<: *envConfig
+    SCHEDULE_HISTORY_CRON: "off"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
+  envFieldRef:
+    !!merge <<: *envFieldRef
+  envSecret:
+    !!merge <<: *envSecret
+# Configuration for psp application
+psp-microservice-chart:
+  !!merge <<: *microservice-chart
+  ingress:
+    !!merge <<: *ingress
+    path: /pagopa-fdr-service/((?:psps)/.*)
+  azure:
+    !!merge <<: *azure
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
+  resources:
+    !!merge <<: *resources
+  autoscaling:
+    !!merge <<: *autoscaling
+    enable: true
+    minReplica: 3
+    maxReplica: 6
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization
+          value: "90"
+      - type: memory
+        metadata:
+          type: Utilization
+          value: "90"
+  envConfig:
+    !!merge <<: *envConfig
+    SCHEDULE_HISTORY_CRON: "off"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
+  envFieldRef:
+    !!merge <<: *envFieldRef
+  envSecret:
+    !!merge <<: *envSecret
+# Configuration for internal application
+internal-microservice-chart:
+  !!merge <<: *microservice-chart
+  ingress:
+    !!merge <<: *ingress
+    path: /pagopa-fdr-service/((?:internal)/.*)
+  azure:
+    !!merge <<: *azure
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1
+  resources:
+    !!merge <<: *resources
+  autoscaling:
+    !!merge <<: *autoscaling
+    enable: true
+    minReplica: 3
+    maxReplica: 6
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization
+          value: "90"
+      - type: memory
+        metadata:
+          type: Utilization
+          value: "90"
+  envConfig:
+    !!merge <<: *envConfig
+    SCHEDULE_HISTORY_CRON: "off"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -143,6 +256,8 @@ scheduler:
   ingress:
     !!merge <<: *ingress
     path: /pagopa-fdr-service-scheduler-unused/(.*)
+  azure:
+    !!merge <<: *azure
   deployment:
     !!merge <<: *deployment
     replicas: 1
@@ -162,6 +277,7 @@ scheduler:
     SCHEDULE_HISTORY_LOCK_DURATION: "1h"
     SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
     SCHEDULE_HISTORY_PAYMENT_PAGE_SIZE: "10000"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "20"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
