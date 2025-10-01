@@ -10,6 +10,8 @@ Manage FDR ( aka "Flussi di Rendicontazione" ) exchanged between PSP and EC
 
 - Arazzo documentation - See
   the [Arazzo file](https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/arazzo/fdr.arazzo.yaml)
+- All APIs - See
+  the [OpenApi 3 here](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/openapi.json)
 - PSP APIs - See
   the [OpenApi 3 here](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-fdr/main/openapi/psp/openapi.json)
 - Organizations APIs - See
