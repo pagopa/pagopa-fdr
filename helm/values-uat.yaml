@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.57-2-PIDM-1007-incident
+    tag: 1.1.57-3-PIDM-1007-incident
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -43,7 +43,7 @@ microservice-chart: &microservice-chart
     name: "fdr-workload-identity"
   azure: &azure
     workloadIdentityClientId: 4b94f301-aeff-444a-a471-b2851be13635
-  podAnnotations: { }
+  podAnnotations: {}
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -87,7 +87,7 @@ microservice-chart: &microservice-chart
   keyvault:
     name: "pagopa-u-fdr-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: { }
+  nodeSelector: {}
   tmpVolumeMount:
     create: true
   tolerations:
