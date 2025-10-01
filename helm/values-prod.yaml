@@ -72,7 +72,6 @@ microservice-chart: &microservice-chart
     BLOB_RE_CONTAINER_NAME: "re-payload"
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.p.internal.postgresql.pagopa.it:5432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
-    DATASOURCE_POOL_SIZE: "50"
     CUSTOM_JAVA_OPTS: "-XshowSettings:vm -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=80 -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
     RE_ACTIONS_EXCLUDED_FROM_SAVE: "GET_ALL_FDR,INTERNAL_CREATE_FLOW,INTERNAL_ADD_PAYMENT,INTERNAL_DELETE_PAYMENT,INTERNAL_PUBLISH,INTERNAL_DELETE_FLOW"
   envFieldRef: &envFieldRef
@@ -135,6 +134,7 @@ app:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
+    DATASOURCE_POOL_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -171,6 +171,7 @@ org-microservice-chart:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
+    DATASOURCE_POOL_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -207,6 +208,7 @@ psp-microservice-chart:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
+    DATASOURCE_POOL_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -243,6 +245,7 @@ internal-microservice-chart:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
+    DATASOURCE_POOL_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -274,6 +277,7 @@ scheduler:
     SCHEDULE_HISTORY_LOCK_DURATION: "1h"
     SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
     SCHEDULE_HISTORY_PAYMENT_PAGE_SIZE: "10000"
+    DATASOURCE_POOL_SIZE: "20"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
