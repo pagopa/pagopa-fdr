@@ -134,7 +134,7 @@ app:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
-    DATASOURCE_POOL_SIZE: "50"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -171,7 +171,7 @@ org-microservice-chart:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
-    DATASOURCE_POOL_SIZE: "50"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -208,7 +208,7 @@ psp-microservice-chart:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
-    DATASOURCE_POOL_SIZE: "50"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -245,7 +245,7 @@ internal-microservice-chart:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
-    DATASOURCE_POOL_SIZE: "50"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
@@ -277,7 +277,7 @@ scheduler:
     SCHEDULE_HISTORY_LOCK_DURATION: "1h"
     SCHEDULE_THREAD_MAX_TIMEOUT: "3600"
     SCHEDULE_HISTORY_PAYMENT_PAGE_SIZE: "10000"
-    DATASOURCE_POOL_SIZE: "20"
+    QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "20"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
