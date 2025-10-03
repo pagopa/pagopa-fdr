@@ -109,6 +109,22 @@ class OrganizationsControllerTest {
   }
 
   @Test
+  @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with wrong flow date filter")
+  void testOrganization_getAllPublishedFlow_with_flow_date_filter_Ko() {
+    String flowName = TestUtil.getDynamicFlowName();
+
+    TestUtil.pspSunnyDay(flowName);
+
+    String url =
+        ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(
+            EC_CODE,
+            PSP_CODE,
+            Instant.now().atZone(ZoneOffset.UTC).minus(2, ChronoUnit.MONTHS).toString());
+
+    given().header(HEADER).when().get(url).then().statusCode(400).extract().as(ErrorResponse.class);
+  }
+
+  @Test
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow no results")
   void testOrganization_getAllPublishedFlow_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
