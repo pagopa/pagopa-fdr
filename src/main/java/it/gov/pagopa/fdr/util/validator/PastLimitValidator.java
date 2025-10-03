@@ -25,11 +25,9 @@ public class PastLimitValidator implements ConstraintValidator<PastLimit, Instan
     }
 
     Instant now = Instant.now();
-
     ZonedDateTime nowUtc = now.atZone(ZoneOffset.UTC);
 
     ZonedDateTime limitZoned = nowUtc.minus(relativeValue, relativeUnit);
-
     Instant limitDate = limitZoned.toInstant();
 
     boolean isValid = !flowDate.isBefore(limitDate);
