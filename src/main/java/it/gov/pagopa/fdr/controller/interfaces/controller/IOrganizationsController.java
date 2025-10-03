@@ -11,6 +11,8 @@ import it.gov.pagopa.fdr.util.openapi.APITableMetadata;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISecurityMode;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISynchronism;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.ReadWrite;
+import it.gov.pagopa.fdr.util.validator.PastLimit;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
@@ -22,6 +24,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -122,11 +125,12 @@ The result of the query is paginated and contains all the metadata needed for pa
           Instant publishedGt,
       @Parameter(
               description =
-                      "A date to be used as a lower limit search on flow date. In format"
-                              + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+                  "A date to be used as a lower limit search on flow date. In format"
+                      + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
               example = "2025-01-01T12:00:00Z")
-      @QueryParam(ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN)
-      Instant flowDate,
+          @PastLimit(value = 1, unit = ChronoUnit.MONTHS)
+          @QueryParam(ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN)
+          Instant flowDate,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
@@ -135,6 +139,7 @@ The result of the query is paginated and contains all the metadata needed for pa
       @QueryParam(ControllerConstants.PARAMETER_PAGE_SIZE)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_SIZE_DEFAULT)
           @Min(value = 1)
+          @Max(value = 1000)
           @Parameter(
               description = "The number of the elements of the page to be shown in the result",
               example = "50")
