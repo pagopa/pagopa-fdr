@@ -253,7 +253,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     String queryString = String.join(AND, queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(SortField.of("name", Direction.Ascending));
+    Sort sort = getSort(SortField.of("date", Direction.Ascending));
 
     PanacheQuery<FlowEntity> resultPage =
         FlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
