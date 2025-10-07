@@ -1,5 +1,10 @@
 microservice-chart: &microservice-chart
   namespace: "fdr"
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
     tag: 1.1.57
