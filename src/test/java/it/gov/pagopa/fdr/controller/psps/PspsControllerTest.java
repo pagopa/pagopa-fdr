@@ -568,9 +568,12 @@ class PspsControllerTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0702 - flow already exists")
-  void test_psp_KO_FDR0702() {
+  void test_psp_KO_FDR0702_temporaryname() {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+    String date = "2023-04-05T09:21:37.810Z";
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -593,7 +596,31 @@ class PspsControllerTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    ErrorResponse resDelError =
+
+    GenericResponse resSavePays =
+        given()
+             .body(PAYMENTS_ADD_TEMPLATE)
+             .header(HEADER)
+             .when()
+             .put(urlSavePayment)
+             .then()
+             .statusCode(200)
+             .extract()
+             .as(GenericResponse.class);
+      assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
+
+    GenericResponse resPublish =
+        given()
+              .header(HEADER)
+              .when()
+              .post(urlPublishFlow)
+              .then()
+              .statusCode(200)
+              .extract()
+              .as(GenericResponse.class);
+    assertThat(resPublish.getMessage(), equalTo("Fdr [%s] published".formatted(flowName)));
+
+    ErrorResponse resCreateError =
         given()
             .body(bodyFmt)
             .header(HEADER)
@@ -604,17 +631,69 @@ class PspsControllerTest {
             .extract()
             .as(ErrorResponse.class);
     assertThat(
-        resDelError.getAppErrorCode(),
-        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST.errorCode()));
+        resCreateError.getAppErrorCode(),
+        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_DATE_NOT_COMPLIANT.errorCode()));
     assertThat(
-        resDelError.getErrors(),
+        resCreateError.getErrors(),
         hasItem(
             hasProperty(
                 "message",
                 equalTo(
                     String.format(
-                        "Flow with ID [%s] already exists with [CREATED] status.", flowName)))));
+                        "Flow [%s] contains a date that is not compliant."
+                        + " The inserted date [%s] must be after the date "
+                        + "in the last revision [%s].", flowName, date, date)))));
   }
+
+    @Test
+    @DisplayName("PSPS - KO FDR-0702 - flow already exists")
+    void test_psp_KO_FDR0702() {
+        String flowName = TestUtil.getDynamicFlowName();
+        String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+
+        String bodyFmt =
+                FLOW_TEMPLATE.formatted(
+                        flowName,
+                        SenderTypeEnum.LEGAL_PERSON.name(),
+                        PSP_CODE,
+                        BROKER_CODE,
+                        CHANNEL_CODE,
+                        EC_CODE);
+
+        GenericResponse resSave =
+                given()
+                        .body(bodyFmt)
+                        .header(HEADER)
+                        .when()
+                        .post(urlSave)
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .as(GenericResponse.class);
+        assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
+
+        ErrorResponse resDelError =
+                given()
+                        .body(bodyFmt)
+                        .header(HEADER)
+                        .when()
+                        .post(urlSave)
+                        .then()
+                        .statusCode(400)
+                        .extract()
+                        .as(ErrorResponse.class);
+        assertThat(
+                resDelError.getAppErrorCode(),
+                equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST.errorCode()));
+        assertThat(
+                resDelError.getErrors(),
+                hasItem(
+                        hasProperty(
+                                "message",
+                                equalTo(
+                                        String.format(
+                                                "Flow with ID [%s] already exists with [CREATED] status.", flowName)))));
+    }
 
   @Test
   @DisplayName("PSPS - KO FDR-0703 - flow not found in publish flow CREATED")
