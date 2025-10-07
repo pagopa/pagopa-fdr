@@ -73,7 +73,7 @@ microservice-chart: &microservice-chart
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.d.internal.postgresql.pagopa.it:5432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
     DATASOURCE_POOL_SIZE: "20"
-    CUSTOM_JAVA_OPTS: "-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+UseContainerSupport -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=80 -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    CUSTOM_JAVA_OPTS: "-XX:+UnlockExperimentalVMOptions -XX:+PrintFlagsFinal -XshowSettings:vm -XX:+UseContainerSupport -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=80 -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
     RE_ACTIONS_EXCLUDED_FROM_SAVE: "GET_ALL_FDR,INTERNAL_CREATE_FLOW,INTERNAL_ADD_PAYMENT,INTERNAL_DELETE_PAYMENT,INTERNAL_PUBLISH,INTERNAL_DELETE_FLOW"
   envFieldRef: &envFieldRef
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
