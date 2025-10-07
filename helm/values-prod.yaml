@@ -54,8 +54,8 @@ microservice-chart: &microservice-chart
       memory: "1Gi"
       cpu: "500m"
     limits:
-    memory: "3.5Gi"
-    cpu: '1.5'
+      memory: "3.5Gi"
+      cpu: '1.5'
   autoscaling: &autoscaling
     enable: false
   envConfig: &envConfig
@@ -73,7 +73,7 @@ microservice-chart: &microservice-chart
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.p.internal.postgresql.pagopa.it:5432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
     DATASOURCE_POOL_SIZE: "50"
-    CUSTOM_JAVA_OPTS: "-XshowSettings:vm -XX:+UnlockExperimentalVMOptions -XX:InitiatingHeapOccupancyPercent=20 -XX:+UseG1GC -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30 -Xms512m -Xmx2500m"
+    CUSTOM_JAVA_OPTS: "-XshowSettings:vm -XX:+UnlockExperimentalVMOptions -XX:InitiatingHeapOccupancyPercent=20 -XX:+UseContainerSupport -XX:+UseG1GC -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30 -Xms512m -Xmx2500m"
     RE_ACTIONS_EXCLUDED_FROM_SAVE: "GET_ALL_FDR,INTERNAL_CREATE_FLOW,INTERNAL_ADD_PAYMENT,INTERNAL_DELETE_PAYMENT,INTERNAL_PUBLISH,INTERNAL_DELETE_FLOW"
   envFieldRef: &envFieldRef
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
