@@ -7,7 +7,7 @@ microservice-chart: &microservice-chart
       maxSurge: 1
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.57
+    tag: 1.1.57-1-PIDM-504-upd-deploy-config
     pullPolicy: Always
   readinessProbe:
     httpGet:
