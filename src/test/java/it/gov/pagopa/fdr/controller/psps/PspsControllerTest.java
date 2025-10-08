@@ -90,7 +90,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - OK - inserimento completo e pubblicazione di un flusso")
   void test_psp_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
   }
 
   @Test
@@ -1648,7 +1648,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - OK - getAllPublishedFlow")
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = PSP_GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1, EC_CODE);
     SingleFlowResponse res =
         given()
@@ -1710,7 +1710,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - KO FDR-0708 - psp unknown")
   void test_psp_getAllPublishedFlow_KO_FDR0708() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String pspUnknown = "PSP_UNKNOWN";
     String url = PSP_GET_FDR_PUBLISHED_URL.formatted(pspUnknown, flowName, 1, EC_CODE);
     ErrorResponse res =
@@ -1737,7 +1737,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - KO FDR-0709 - psp not enabled")
   void test_psp_getAllPublishedFlow_KO_FDR0709() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = PSP_GET_FDR_PUBLISHED_URL.formatted(PSP_CODE_NOT_ENABLED, flowName, 1, EC_CODE);
 
     ErrorResponse res =
@@ -1762,7 +1762,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - KO FDR-0716 - creditor institution unknown")
   void test_psp_getAllPublishedFlow_KO_FDR0716() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String ecUnknown = "EC_UNKNOWN";
     String url = PSP_GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1, ecUnknown);
 
@@ -1790,7 +1790,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - KO FDR-0717 - creditor institution not enabled")
   void test_psp_getAllPublishedFlow_KO_FDR0717() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = PSP_GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1, EC_CODE_NOT_ENABLED);
 
     ErrorResponse res =
@@ -1818,7 +1818,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - OK - recupero di un reporting flow")
   void test_psp_getReportingFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = PSP_GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1L, EC_CODE);
     SingleFlowResponse res =
         given()
@@ -1840,8 +1840,8 @@ class PspsControllerTest {
   @DisplayName("PSPS - OK - recupero di un reporting flow pubblicato alla revision 2")
   void test_psp_getReportingFlow_revision_2_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE_FUTURE);
 
     String url = PSP_GET_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 2L, EC_CODE);
     SingleFlowResponse res =
@@ -1880,7 +1880,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - OK - recupero dei payments di un flow pubblicato")
   void test_psp_getReportingFlowPaymentsPublished_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
     String url = PSP_GET_PAYMENTS_FDR_PUBLISHED_URL.formatted(PSP_CODE, flowName, 1L, EC_CODE);
 
@@ -1955,7 +1955,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - OK - unpublished fdr and payments retrieval")
   void test_psp_getReportingFlowPayments_created_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspCreateUnpublishedFlow(flowName);
+    TestUtil.pspCreateUnpublishedFlow(flowName, FLOW_DATE);
     String url = (PSP_GET_PAYMENTS_FDR_CREATED_URL).formatted(PSP_CODE, flowName, EC_CODE);
     PaginatedPaymentsResponse res =
         given()
@@ -1985,7 +1985,7 @@ class PspsControllerTest {
   @DisplayName("PSPS - KO - unpublished flow retrieval for a published flow - Fdr not found")
   void test_psp_getUnpublishedFlowPayments_Ko() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = (PSP_GET_PAYMENTS_FDR_CREATED_URL).formatted(PSP_CODE, flowName, EC_CODE);
     ErrorResponse res =
         given()

@@ -35,9 +35,9 @@ public class TestUtil {
   public static String PAYMENTS_ADD_TEMPLATE_2 =
       FileUtil.getStringFromJsonFile(PAYMENTS_ADD_TEMPLATE_2_PATH);
 
-  public static void pspSunnyDay(String flowName) {
+  public static void pspSunnyDay(String flowName, String date) {
 
-    pspCreateUnpublishedFlow(flowName);
+    pspCreateUnpublishedFlow(flowName, date);
 
     String urlPublish = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
     GenericResponse resPublish =
@@ -53,11 +53,12 @@ public class TestUtil {
     assertThat(resPublish.getMessage(), equalTo(String.format("Fdr [%s] published", flowName)));
   }
 
-  public static void pspCreateUnpublishedFlow(String flowName) {
+  public static void pspCreateUnpublishedFlow(String flowName, String date) {
     String urlPspFlow = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,
+            date,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,

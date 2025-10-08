@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.schedule;
 
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOW_DATE;
 import static it.gov.pagopa.fdr.test.util.TestUtil.validFlowToHistory;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -31,7 +32,7 @@ class HistoryCronTest {
     PanacheQuery<FlowToHistoryEntity> flowToHistory = Mockito.mock(PanacheQuery.class);
     when(flowToHistory.list()).thenReturn(List.of(validFlowToHistory(dynamicFlowName)));
 
-    TestUtil.pspSunnyDay(dynamicFlowName);
+    TestUtil.pspSunnyDay(dynamicFlowName, FLOW_DATE);
 
     when(flowToHistoryRepository.findTopNEntitiesOrderByCreated(anyInt(), anyInt()))
         .thenReturn(flowToHistory);

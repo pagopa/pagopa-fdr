@@ -147,7 +147,7 @@ class InternalOperationControllerTest {
   @DisplayName("PSPS - OK - flow and payments creation with subsequent publish ")
   void test_psp_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
   }
 
   @Test
