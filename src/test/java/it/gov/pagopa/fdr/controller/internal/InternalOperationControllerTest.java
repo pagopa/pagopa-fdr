@@ -53,6 +53,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             pspNotMatch,
             BROKER_CODE,
@@ -93,6 +94,7 @@ class InternalOperationControllerTest {
             .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_FIELDS_PATH)
             .formatted(
                 flowName,
+                FLOW_DATE,
                 SenderTypeEnum.LEGAL_PERSON.name(),
                 PSP_CODE,
                 BROKER_CODE,
@@ -131,7 +133,7 @@ class InternalOperationControllerTest {
 
     String bodyFmt =
         TestUtil.FLOW_TEMPLATE.formatted(
-            flowName, SenderTypeEnum.ABI_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+            flowName, FLOW_DATE, SenderTypeEnum.ABI_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse res =
         given()
@@ -154,7 +156,7 @@ class InternalOperationControllerTest {
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
-            flowName, SenderTypeEnum.BIC_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+            flowName, FLOW_DATE, SenderTypeEnum.BIC_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse res =
         given()
@@ -178,6 +180,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -241,6 +244,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -297,6 +301,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -392,6 +397,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -450,6 +456,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -513,6 +520,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -562,6 +570,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -613,6 +622,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -663,6 +673,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -712,6 +723,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -764,6 +776,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -819,6 +832,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -889,6 +903,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -954,6 +969,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1021,6 +1037,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             pspUnknown,
             BROKER_CODE,
@@ -1053,6 +1070,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE_NOT_ENABLED,
             BROKER_CODE,
@@ -1086,6 +1104,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             brokerPspUnknown,
@@ -1122,6 +1141,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE_NOT_ENABLED,
@@ -1159,6 +1179,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1194,6 +1215,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1227,6 +1249,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE_2,
@@ -1266,6 +1289,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE_2,
             BROKER_CODE,
@@ -1305,6 +1329,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1340,6 +1365,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1375,6 +1401,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1413,6 +1440,7 @@ class InternalOperationControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1528,7 +1556,7 @@ class InternalOperationControllerTest {
     String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
     String wrongEnum = "WRONG_ENUM";
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, wrongEnum, PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+        FLOW_TEMPLATE.formatted(flowName, FLOW_DATE, wrongEnum, PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     ErrorResponse res =
         given()
