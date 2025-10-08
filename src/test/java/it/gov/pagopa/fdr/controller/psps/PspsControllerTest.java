@@ -541,8 +541,8 @@ class PspsControllerTest {
   }
 
   @Test
-  @DisplayName("PSPS - KO FDR-0702 - flow already exists")
-  void test_psp_KO_FDR0702_temporaryname() {
+  @DisplayName("PSPS - KO FDR-0702 - new revision with same flow date")
+  void test_psp_KO_FDR0702_sameFlowDate() {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
