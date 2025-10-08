@@ -6,8 +6,9 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
-public class PastLimitValidator implements ConstraintValidator<PastLimit, Instant> {
+public class PastLimitValidator implements ConstraintValidator<PastLimit, Optional<Instant>> {
 
   private long relativeValue;
   private ChronoUnit relativeUnit;
@@ -19,10 +20,11 @@ public class PastLimitValidator implements ConstraintValidator<PastLimit, Instan
   }
 
   @Override
-  public boolean isValid(Instant flowDate, ConstraintValidatorContext context) {
-    if (flowDate == null) {
+  public boolean isValid(Optional<Instant> optionalFlowDate, ConstraintValidatorContext context) {
+    if (optionalFlowDate.isEmpty()) {
       return true;
     }
+    Instant flowDate = optionalFlowDate.get();
 
     Instant now = Instant.now();
     ZonedDateTime nowUtc = now.atZone(ZoneOffset.UTC);
