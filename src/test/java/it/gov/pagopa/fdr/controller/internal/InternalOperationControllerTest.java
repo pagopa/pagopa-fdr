@@ -94,7 +94,6 @@ class InternalOperationControllerTest {
             .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_FIELDS_PATH)
             .formatted(
                 flowName,
-                FLOW_DATE,
                 SenderTypeEnum.LEGAL_PERSON.name(),
                 PSP_CODE,
                 BROKER_CODE,
