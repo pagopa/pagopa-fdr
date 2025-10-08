@@ -1,8 +1,13 @@
 microservice-chart: &microservice-chart
   namespace: "fdr"
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.58
+    tag: 1.1.58-3-next-release
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -20,6 +25,7 @@ microservice-chart: &microservice-chart
     periodSeconds: 5
   deployment: &deployment
     create: true
+    replicas: 1 # default
   serviceMonitor:
     create: true
     endpoints:
@@ -73,7 +79,7 @@ microservice-chart: &microservice-chart
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.u.internal.postgresql.pagopa.it:5432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
     DATASOURCE_POOL_SIZE: "50"
-    CUSTOM_JAVA_OPTS: "-XshowSettings:vm -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=80 -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
+    CUSTOM_JAVA_OPTS: "-XX:+UnlockExperimentalVMOptions -XshowSettings:vm -XX:+UseContainerSupport -XX:+UseG1GC -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=80 -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
     RE_ACTIONS_EXCLUDED_FROM_SAVE: "GET_ALL_FDR,INTERNAL_CREATE_FLOW,INTERNAL_ADD_PAYMENT,INTERNAL_DELETE_PAYMENT,INTERNAL_PUBLISH,INTERNAL_DELETE_FLOW"
   envFieldRef: &envFieldRef
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
@@ -112,6 +118,9 @@ app:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
+  deployment:
+    !!merge <<: *deployment
+    replicas: 1 # (default) same as HPA minReplica
   resources:
     !!merge <<: *resources
   autoscaling:

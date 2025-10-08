@@ -2,40 +2,7 @@ package it.gov.pagopa.fdr.controller.psps;
 
 import static io.restassured.RestAssured.given;
 import static io.smallrye.common.constraint.Assert.assertTrue;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_2;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.BROKER_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.CHANNEL_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.EC_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_DELETE_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_PUBLISH_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOWS_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOW_TEMPLATE_WRONG_FIELDS_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.FLOW_TEMPLATE_WRONG_INSTANT_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.HEADER;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.IUR_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.MALFORMED_JSON_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_2_ADD_TEMPLATE_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_INVALID_FORMAT_TEMPLATE_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_INVALID_FORMAT_VALUE_TEMPLATE_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_ADD_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_SAME_INDEX_TEMPLATE_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_DELETE_WRONG_TEMPLATE_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PAYMENTS_SAME_INDEX_ADD_TEMPLATE_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_2;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_3;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_CODE_NOT_ENABLED;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_GET_ALL_FDR_CREATED_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_GET_FDR_PUBLISHED_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_GET_PAYMENTS_FDR_CREATED_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_GET_PAYMENTS_FDR_PUBLISHED_URL;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.PSP_PAYMENTS_DELETE_TEMPLATE_PATH;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT;
+import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static it.gov.pagopa.fdr.test.util.TestUtil.FLOW_TEMPLATE;
 import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE;
 import static it.gov.pagopa.fdr.test.util.TestUtil.PAYMENTS_ADD_TEMPLATE_2;
@@ -101,7 +68,7 @@ class PspsControllerTest {
 
     String bodyFmt =
         TestUtil.FLOW_TEMPLATE.formatted(
-            flowName, SenderTypeEnum.ABI_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+            flowName, FLOW_DATE, SenderTypeEnum.ABI_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse res =
         given()
@@ -124,7 +91,7 @@ class PspsControllerTest {
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
-            flowName, SenderTypeEnum.BIC_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+            flowName, FLOW_DATE, SenderTypeEnum.BIC_CODE.name(), PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     GenericResponse res =
         given()
@@ -148,6 +115,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -211,6 +179,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -267,6 +236,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -358,6 +328,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -414,6 +385,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -477,6 +449,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -526,6 +499,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -568,13 +542,17 @@ class PspsControllerTest {
 
   @Test
   @DisplayName("PSPS - KO FDR-0702 - flow already exists")
-  void test_psp_KO_FDR0702() {
+  void test_psp_KO_FDR0702_temporaryname() {
     String flowName = TestUtil.getDynamicFlowName();
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+    String date = "2023-04-05T09:21:37.810Z";
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -593,7 +571,31 @@ class PspsControllerTest {
             .as(GenericResponse.class);
     assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
 
-    ErrorResponse resDelError =
+
+    GenericResponse resSavePays =
+        given()
+             .body(PAYMENTS_ADD_TEMPLATE)
+             .header(HEADER)
+             .when()
+             .put(urlSavePayment)
+             .then()
+             .statusCode(200)
+             .extract()
+             .as(GenericResponse.class);
+      assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
+
+    GenericResponse resPublish =
+        given()
+              .header(HEADER)
+              .when()
+              .post(urlPublishFlow)
+              .then()
+              .statusCode(200)
+              .extract()
+              .as(GenericResponse.class);
+    assertThat(resPublish.getMessage(), equalTo("Fdr [%s] published".formatted(flowName)));
+
+    ErrorResponse resCreateError =
         given()
             .body(bodyFmt)
             .header(HEADER)
@@ -604,17 +606,70 @@ class PspsControllerTest {
             .extract()
             .as(ErrorResponse.class);
     assertThat(
-        resDelError.getAppErrorCode(),
-        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST.errorCode()));
+        resCreateError.getAppErrorCode(),
+        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_DATE_NOT_COMPLIANT.errorCode()));
     assertThat(
-        resDelError.getErrors(),
+        resCreateError.getErrors(),
         hasItem(
             hasProperty(
                 "message",
                 equalTo(
                     String.format(
-                        "Flow with ID [%s] already exists with [CREATED] status.", flowName)))));
+                        "Flow [%s] contains a date that is not compliant."
+                        + " The inserted date [%s] must be after the date "
+                        + "in the last revision [%s].", flowName, date, date)))));
   }
+
+    @Test
+    @DisplayName("PSPS - KO FDR-0702 - flow already exists")
+    void test_psp_KO_FDR0702() {
+        String flowName = TestUtil.getDynamicFlowName();
+        String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+
+        String bodyFmt =
+                FLOW_TEMPLATE.formatted(
+                        flowName,
+                        FLOW_DATE,
+                        SenderTypeEnum.LEGAL_PERSON.name(),
+                        PSP_CODE,
+                        BROKER_CODE,
+                        CHANNEL_CODE,
+                        EC_CODE);
+
+        GenericResponse resSave =
+                given()
+                        .body(bodyFmt)
+                        .header(HEADER)
+                        .when()
+                        .post(urlSave)
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .as(GenericResponse.class);
+        assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
+
+        ErrorResponse resDelError =
+                given()
+                        .body(bodyFmt)
+                        .header(HEADER)
+                        .when()
+                        .post(urlSave)
+                        .then()
+                        .statusCode(400)
+                        .extract()
+                        .as(ErrorResponse.class);
+        assertThat(
+                resDelError.getAppErrorCode(),
+                equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST.errorCode()));
+        assertThat(
+                resDelError.getErrors(),
+                hasItem(
+                        hasProperty(
+                                "message",
+                                equalTo(
+                                        String.format(
+                                                "Flow with ID [%s] already exists with [CREATED] status.", flowName)))));
+    }
 
   @Test
   @DisplayName("PSPS - KO FDR-0703 - flow not found in publish flow CREATED")
@@ -625,6 +680,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -674,6 +730,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -725,6 +782,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             pspNotMatch,
             BROKER_CODE,
@@ -764,6 +822,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -819,6 +878,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -889,6 +949,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -954,6 +1015,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1021,6 +1083,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             pspUnknown,
             BROKER_CODE,
@@ -1053,6 +1116,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE_NOT_ENABLED,
             BROKER_CODE,
@@ -1086,6 +1150,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             brokerPspUnknown,
@@ -1122,6 +1187,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE_NOT_ENABLED,
@@ -1159,6 +1225,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1194,6 +1261,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1227,6 +1295,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE_2,
@@ -1266,6 +1335,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE_2,
             BROKER_CODE,
@@ -1305,6 +1375,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1340,6 +1411,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1375,6 +1447,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1413,6 +1486,7 @@ class PspsControllerTest {
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
             REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1452,6 +1526,7 @@ class PspsControllerTest {
             .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_FIELDS_PATH)
             .formatted(
                 flowName,
+                FLOW_DATE,
                 SenderTypeEnum.LEGAL_PERSON.name(),
                 PSP_CODE,
                 BROKER_CODE,
@@ -1560,7 +1635,7 @@ class PspsControllerTest {
     String url = FLOWS_URL.formatted(PSP_CODE, flowName);
     String wrongEnum = "WRONG_ENUM";
     String bodyFmt =
-        FLOW_TEMPLATE.formatted(flowName, wrongEnum, PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
+        FLOW_TEMPLATE.formatted(flowName, FLOW_DATE, wrongEnum, PSP_CODE, BROKER_CODE, CHANNEL_CODE, EC_CODE);
 
     ErrorResponse res =
         given()
@@ -1672,6 +1747,7 @@ class PspsControllerTest {
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
@@ -1916,6 +1992,7 @@ class PspsControllerTest {
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,
