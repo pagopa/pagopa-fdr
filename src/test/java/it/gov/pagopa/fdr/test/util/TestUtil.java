@@ -58,6 +58,7 @@ public class TestUtil {
     String bodyFmtPspFlow =
         FLOW_TEMPLATE.formatted(
             flowName,
+            FLOW_DATE,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,

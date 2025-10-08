@@ -182,6 +182,14 @@ public enum AppErrorCodeMessageEnum {
           + " is not equals to the one defined in the request. So, it is required to update one of"
           + " them in order to proceed."),
 
+  REPORTING_FLOW_DATE_NOT_COMPLIANT(
+      "3011",
+      "fdr.date.wrongFormat",
+      RestResponse.Status.BAD_REQUEST,
+      "An error occurred during flow analysis. The value of flow date"
+          + " is not compliant with the required values. The date must "
+          + " come after the one in the last revision."),
+
   // semantic checks - publish-related checks
   REPORTING_FLOW_WRONG_TOT_PAYMENT(
       "4001",
