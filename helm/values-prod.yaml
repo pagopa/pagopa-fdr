@@ -127,7 +127,7 @@ app:
     !!merge <<: *autoscaling
     enable: true
     minReplica: 3
-    maxReplica: 8
+    maxReplica: 10
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     triggers:
