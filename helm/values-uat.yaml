@@ -116,7 +116,7 @@ microservice-chart: &microservice-chart
 # Configuration for standard application
 app:
   !!merge <<: *microservice-chart
-  fullnameOverride: "pagopafdr"
+  fullnameOverride: "pagopafdr-microservice-chart"
   ingress:
     !!merge <<: *ingress
   deployment:
