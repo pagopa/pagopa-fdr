@@ -58,7 +58,7 @@ microservice-chart: &microservice-chart
   resources: &resources
     requests:
       memory: "1Gi"
-      cpu: "500m"
+      cpu: "750m"
     limits:
       memory: "3.5Gi"
       cpu: '1.5'
@@ -127,14 +127,14 @@ app:
     !!merge <<: *autoscaling
     enable: true
     minReplica: 3
-    maxReplica: 8
+    maxReplica: 10
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     triggers:
       - type: cpu
         metadata:
           type: Utilization
-          value: "90"
+          value: "150"
       - type: memory
         metadata:
           type: Utilization
