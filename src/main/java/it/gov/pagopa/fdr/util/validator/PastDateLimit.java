@@ -11,13 +11,13 @@ import java.time.temporal.ChronoUnit;
 @Constraint(validatedBy = PastLimitValidator.class)
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PastLimit {
+public @interface PastDateLimit {
 
   long value();
 
   ChronoUnit unit();
 
-  String message() default "La data non può risalire a più di {value} {unit} fa.";
+  String message() default "The date cannot be older than {value} {unit}.";
 
   Class<?>[] groups() default {};
 

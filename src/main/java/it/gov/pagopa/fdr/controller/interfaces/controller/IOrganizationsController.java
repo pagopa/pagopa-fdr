@@ -11,7 +11,7 @@ import it.gov.pagopa.fdr.util.openapi.APITableMetadata;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISecurityMode;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISynchronism;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.ReadWrite;
-import it.gov.pagopa.fdr.util.validator.PastLimit;
+import it.gov.pagopa.fdr.util.validator.PastDateLimit;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -124,7 +124,7 @@ The result of the query is paginated and contains all the metadata needed for pa
                       + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses a "
                       + "dynamic default equal to the start of the previous calendar month at 00:00 UTC",
               example = "2025-01-01T12:00:00Z")
-          @PastLimit(value = 1, unit = ChronoUnit.MONTHS)
+          @PastDateLimit(value = 1, unit = ChronoUnit.MONTHS)
           @QueryParam(ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN)
           Optional<Instant> publishedGt,
       @Parameter(
@@ -133,7 +133,7 @@ The result of the query is paginated and contains all the metadata needed for pa
                       + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses"
                       + " a dynamic default equal to the start of the previous calendar month at 00:00 UTC",
               example = "2025-01-01T12:00:00Z")
-          @PastLimit(value = 1, unit = ChronoUnit.MONTHS)
+          @PastDateLimit(value = 1, unit = ChronoUnit.MONTHS)
           @QueryParam(ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN)
           Optional<Instant> flowDate,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)

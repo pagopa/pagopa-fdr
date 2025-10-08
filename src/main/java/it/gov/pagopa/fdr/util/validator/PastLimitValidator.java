@@ -8,13 +8,13 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
-public class PastLimitValidator implements ConstraintValidator<PastLimit, Optional<Instant>> {
+public class PastLimitValidator implements ConstraintValidator<PastDateLimit, Optional<Instant>> {
 
   private long relativeValue;
   private ChronoUnit relativeUnit;
 
   @Override
-  public void initialize(PastLimit constraintAnnotation) {
+  public void initialize(PastDateLimit constraintAnnotation) {
     this.relativeValue = constraintAnnotation.value();
     this.relativeUnit = constraintAnnotation.unit();
   }
