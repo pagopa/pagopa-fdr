@@ -116,6 +116,7 @@ microservice-chart: &microservice-chart
 # Configuration for standard application
 app:
   !!merge <<: *microservice-chart
+  fullnameOverride: "pagopafdr"
   ingress:
     !!merge <<: *ingress
   deployment:
@@ -155,6 +156,9 @@ scheduler:
   deployment:
     !!merge <<: *deployment
     replicas: 1
+  autoscaling:
+    !!merge <<: *autoscaling
+    enable: false
   resources:
     !!merge <<: *resources
     requests:
