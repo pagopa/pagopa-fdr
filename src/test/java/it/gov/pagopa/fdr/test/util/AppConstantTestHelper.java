@@ -86,6 +86,9 @@ public class AppConstantTestHelper {
   public static final String FLOW_TEMPLATE_PATH =
       Paths.get(TEST_UTIL_PATH, "flow-template.json").toString();
 
+  public static final String FLOW_TEMPLATE_CUSTOM_DATE_PATH =
+      Paths.get(TEST_UTIL_PATH, "flow-template-custom-date.json").toString();
+
   public static String PAYMENTS_ADD_TEMPLATE_PATH =
       Paths.get(TEST_UTIL_PATH, "payments-add-template.json").toString();
 

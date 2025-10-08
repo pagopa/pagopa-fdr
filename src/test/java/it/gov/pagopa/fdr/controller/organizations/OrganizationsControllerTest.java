@@ -22,6 +22,7 @@ import it.gov.pagopa.fdr.test.util.TestUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -60,11 +61,15 @@ class OrganizationsControllerTest {
   @Test
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with published date filter")
   void testOrganization_getAllPublishedFlow_with_published_date_filter_Ok() {
+    Instant now = Instant.now();
+    ZonedDateTime nowUtc = now.atZone(ZoneOffset.UTC);
+    ZonedDateTime limitZoned = nowUtc.minusDays(25);
+    Instant lastMonthDate = limitZoned.toInstant();
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName);
     String url =
         ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(
-            EC_CODE, PSP_CODE, PUBLISHED_DATE);
+            EC_CODE, PSP_CODE, lastMonthDate);
     PaginatedFlowsResponse res =
         given()
             .header(HEADER)
