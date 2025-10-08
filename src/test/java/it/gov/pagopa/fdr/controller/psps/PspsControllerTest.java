@@ -547,7 +547,6 @@ class PspsControllerTest {
     String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
     String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
     String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
-    String date = "2023-04-05T09:21:37.810Z";
 
     String bodyFmt =
         FLOW_TEMPLATE.formatted(
@@ -617,7 +616,7 @@ class PspsControllerTest {
                     String.format(
                         "Flow [%s] contains a date that is not compliant."
                         + " The inserted date [%s] must be after the date "
-                        + "in the last revision [%s].", flowName, date, date)))));
+                        + "in the last revision [%s].", flowName, FLOW_DATE, FLOW_DATE)))));
   }
 
     @Test
@@ -1526,7 +1525,6 @@ class PspsControllerTest {
             .getStringFromResourceAsString(FLOW_TEMPLATE_WRONG_FIELDS_PATH)
             .formatted(
                 flowName,
-                FLOW_DATE,
                 SenderTypeEnum.LEGAL_PERSON.name(),
                 PSP_CODE,
                 BROKER_CODE,
