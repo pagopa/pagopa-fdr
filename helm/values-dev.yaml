@@ -170,7 +170,7 @@ scheduler:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service-scheduler-unused/(.*)
+    path: /fake-path-for-scheduler/(.*)
   deployment:
     !!merge <<: *deployment
     replicas: 1
