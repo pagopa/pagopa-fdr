@@ -1,7 +1,7 @@
 <policies>
     <inbound>
         <base />
-        <set-backend-service base-url="https://${hostname}/pagopa-fdr-service" />
+        <set-backend-service base-url="https://${hostname}/pagopa-fdr-service-core" />
         <!-- Calling Authorizer's fragment -->
         <set-variable name="application_domain" value="fdr" />
         <choose>

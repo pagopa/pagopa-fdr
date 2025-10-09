@@ -116,7 +116,6 @@ microservice-chart: &microservice-chart
 # Configuration for standard application
 core:
   !!merge <<: *microservice-chart
-  fullnameOverride: "pagopafdr-core"
   ingress:
     !!merge <<: *ingress
     path: /pagopa-fdr-service-core/(.*)

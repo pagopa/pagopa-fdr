@@ -142,7 +142,7 @@ module "apim_api_fdr_api_v1_internal" {
     host = local.apim_hostname
   })
 
-  xml_content = templatefile("./policy/_base_policy.xml.tpl", {
+  xml_content = templatefile("./policy/internal/_base_policy.xml.tpl", {
     hostname = local.hostname
   })
 }
@@ -224,7 +224,7 @@ resource "terraform_data" "sha256_fdr3_policy_orgs_v1" {
 }
 
 resource "terraform_data" "sha256_fdr3_policy_base" {
-  input = sha256(templatefile("./policy/_base_policy.xml.tpl", {
+  input = sha256(templatefile("./policy/internal/_base_policy.xml.tpl", {
     hostname = local.hostname
   }))
 }

@@ -1,5 +1,5 @@
 apiVersion: v2
-name: pagopa-fdr-chart
+name: pagopa-fdr-3-chart
 description: Flussi di rendicontazioni
 type: application
 version: "1.148.0"
