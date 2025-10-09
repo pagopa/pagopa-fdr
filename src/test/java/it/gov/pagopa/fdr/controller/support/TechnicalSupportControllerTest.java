@@ -32,7 +32,7 @@ class TechnicalSupportControllerTest {
   @DisplayName("SUPPORT - OK - getFdrByPspIdIuv")
   void testSupport_getFdrByPspIdIuv_Ok() {
     flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = GET_ALL_FDR_BY_PSP_ID_IUV.formatted(PSP_CODE, IUV_CODE_A);
     PaginatedFlowsBySenderAndReceiverResponse res =
         given()
@@ -72,7 +72,7 @@ class TechnicalSupportControllerTest {
   @DisplayName("SUPPORT - OK - getFdrByPspIdIur")
   void testSupport_getFdrByPspIdIur_Ok() {
     flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = GET_ALL_FDR_BY_PSP_ID_IUR.formatted(PSP_CODE, IUR_CODE);
     PaginatedFlowsBySenderAndReceiverResponse res =
         given()

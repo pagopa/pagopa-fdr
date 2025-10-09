@@ -39,7 +39,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow")
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
     PaginatedFlowsResponse res =
         given()
@@ -66,7 +66,7 @@ class OrganizationsControllerTest {
     ZonedDateTime limitZoned = nowUtc.minusDays(25);
     Instant lastMonthDate = limitZoned.toInstant();
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url =
         ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(
             EC_CODE, PSP_CODE, lastMonthDate);
@@ -93,14 +93,8 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with flow date filter")
   void testOrganization_getAllPublishedFlow_with_flow_date_filter_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-
-    TestUtil.pspSunnyDay(flowName);
-
-    String url =
-        ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(
-            EC_CODE,
-            PSP_CODE,
-            Instant.now().atZone(ZoneOffset.UTC).minus(10, ChronoUnit.DAYS).toString());
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, FLOW_DATE_PARAMETER);
     PaginatedFlowsResponse res =
         given()
             .header(HEADER)
@@ -133,7 +127,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow no results")
   void testOrganization_getAllPublishedFlow_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
     PaginatedFlowsResponse res =
         given()
@@ -151,7 +145,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with published date filter no results")
   void testOrganization_getAllPublishedFlow_with_published_date_filter_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url =
         ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(
             EC_CODE, PSP_CODE, PUBLISHED_DATE_FUTURE);
@@ -171,7 +165,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with flow date filter no results")
   void testOrganization_getAllPublishedFlow_with_flow_date_filter_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url =
         ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(
             EC_CODE, PSP_CODE, FLOW_DATE_FUTURE);
@@ -291,7 +285,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK - reporting flow retrieval")
   void testOrganization_getReportingFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = ORGANIZATIONS_GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
     SingleFlowResponse res =
         given()
@@ -313,8 +307,8 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK -  retrieval of a published revision 2 reporting flow")
   void testOrganization_getReportingFlow_revision_2_OK() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE_FUTURE);
 
     String url = ORGANIZATIONS_GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 2L, PSP_CODE);
     SingleFlowResponse res =
@@ -335,7 +329,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - KO FDR-0701 - getReportingFlow reporting flow not found")
   void testOrganization_getReportingFlow_KO_FDR0701() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
     String flowNameWrong = TestUtil.getDynamicFlowName();
     String url =
@@ -365,7 +359,7 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK -  payments retrieval from a published flow")
   void testOrganization_getReportingFlowPayments_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
     String url =
         ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
@@ -399,7 +393,7 @@ class OrganizationsControllerTest {
       "ORGANIZATIONS - OK - payments retrieval from a published flow using custom pagination")
   void testOrganization_getReportingFlowPayments_pagination_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
     String url =
         (ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL + "?page=2&size=1")

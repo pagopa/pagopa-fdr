@@ -119,7 +119,8 @@ This API is used only by internal processes in FdR ecosystem.
         AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_DATE_WRONG_FORMAT,
         AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
         AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH,
-        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH
+        AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_DATE_NOT_COMPLIANT
       })
   RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       @PathParam(ControllerConstants.PARAMETER_PSP)

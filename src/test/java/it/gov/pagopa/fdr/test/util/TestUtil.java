@@ -15,8 +15,6 @@ import it.gov.pagopa.fdr.storage.model.PaymentBlob;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 public class TestUtil {
@@ -30,7 +28,6 @@ public class TestUtil {
   }
 
   public static final String FLOW_TEMPLATE = FileUtil.getStringFromJsonFile(FLOW_TEMPLATE_PATH);
-  public static final String FLOW_TEMPLATE_CUSTOM_DATE_FLOW_TEMPLATE = FileUtil.getStringFromJsonFile(FLOW_TEMPLATE_CUSTOM_DATE_PATH);
 
   public static String PAYMENTS_ADD_TEMPLATE =
       FileUtil.getStringFromJsonFile(PAYMENTS_ADD_TEMPLATE_PATH);
@@ -38,9 +35,9 @@ public class TestUtil {
   public static String PAYMENTS_ADD_TEMPLATE_2 =
       FileUtil.getStringFromJsonFile(PAYMENTS_ADD_TEMPLATE_2_PATH);
 
-  public static void pspSunnyDay(String flowName) {
+  public static void pspSunnyDay(String flowName, String date) {
 
-    pspCreateUnpublishedFlow(flowName);
+    pspCreateUnpublishedFlow(flowName, date);
 
     String urlPublish = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
     GenericResponse resPublish =
@@ -56,16 +53,12 @@ public class TestUtil {
     assertThat(resPublish.getMessage(), equalTo(String.format("Fdr [%s] published", flowName)));
   }
 
-  public static void pspCreateUnpublishedFlow(String flowName) {
-    Instant now = Instant.now();
-    ZonedDateTime nowUtc = now.atZone(ZoneOffset.UTC);
-    ZonedDateTime limitZoned = nowUtc.minusDays(20);
-    Instant flowDate = limitZoned.toInstant();
+  public static void pspCreateUnpublishedFlow(String flowName, String date) {
     String urlPspFlow = FLOWS_URL.formatted(PSP_CODE, flowName);
     String bodyFmtPspFlow =
-            FLOW_TEMPLATE_CUSTOM_DATE_FLOW_TEMPLATE.formatted(
+        FLOW_TEMPLATE.formatted(
             flowName,
-            flowDate,
+            date,
             SenderTypeEnum.LEGAL_PERSON.name(),
             PSP_CODE,
             BROKER_CODE,

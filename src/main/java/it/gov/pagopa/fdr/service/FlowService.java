@@ -222,6 +222,17 @@ public class FlowService {
     // retrieve the last published flow, in order to take its revision and increment it
     Optional<FlowEntity> lastPublishedFlow =
         flowRepository.findLastPublishedByPspIdAndName(pspId, flowName);
+
+    // check if the date in the new flow comes after the one in the last revision
+    if(lastPublishedFlow.isPresent() && !request.getFdrDate().isAfter(lastPublishedFlow.get().date)) {
+        throw new AppException(
+                AppErrorCodeMessageEnum.REPORTING_FLOW_DATE_NOT_COMPLIANT,
+                flowName,
+                request.getFdrDate(),
+                lastPublishedFlow.get().date);
+    }
+
+    // incrementing revision value using the revision of the last flow
     Long revision = lastPublishedFlow.map(flowEntity -> (flowEntity.getRevision() + 1)).orElse(1L);
 
     // finally, persist the newly generated entity

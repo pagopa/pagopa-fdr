@@ -26,7 +26,7 @@ class PaymentRepositoryTest {
   @DisplayName("PaymentRepositoryTest OK - findByPspAndIuvAndIur")
   void testFindByPspAndIuvAndIur() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
     RepositoryPagedResult<PaymentEntity> result =
         paymentRepository.findByPspAndIuvAndIur(
@@ -47,7 +47,7 @@ class PaymentRepositoryTest {
   void findByFlowId() {
 
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
     RepositoryPagedResult<PaymentEntity> result = paymentRepository.findByFlowId(1L, 1, 10);
 
