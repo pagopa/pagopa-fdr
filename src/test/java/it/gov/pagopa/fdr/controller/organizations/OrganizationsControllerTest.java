@@ -99,8 +99,8 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with flow date filter")
   void testOrganization_getAllPublishedFlow_with_flow_date_filter_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, FLOW_DATE_FUTURE);
+    TestUtil.pspSunnyDay(flowName, VALID_FLOW_DATE);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, VALID_DATE_FILTER);
     PaginatedFlowsResponse res =
         given()
             .header(HEADER)
@@ -110,7 +110,13 @@ class OrganizationsControllerTest {
             .statusCode(200)
             .extract()
             .as(PaginatedFlowsResponse.class);
-    assertThat(res.getCount(), equalTo(0L));
+    assertThat(res.getCount(), greaterThan(0L));
+    assertThat(
+            res.getData(),
+            hasItem(
+                    anyOf(
+                            hasProperty("name", equalTo(flowName)),
+                            hasProperty("pspId", equalTo(PSP_CODE)))));
   }
 
   @Test
