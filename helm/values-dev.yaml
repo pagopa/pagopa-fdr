@@ -125,7 +125,7 @@ core:
   autoscaling:
     !!merge <<: *autoscaling
     enable: true
-    minReplica: 1
+    minReplica: 3
     maxReplica: 8
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
@@ -170,7 +170,7 @@ scheduler:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /fake-path-for-scheduler/(.*)
+    create: false
   deployment:
     !!merge <<: *deployment
     replicas: 1
