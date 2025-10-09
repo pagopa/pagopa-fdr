@@ -32,7 +32,7 @@ class FlowRepositoryTest {
     @DisplayName("FlowRepositoryTest OK - findPublishedByPspIdAndOptionalOrganizationId")
     void testFindPublishedByPspIdAndOptionalOrganizationId() {
         String flowName = TestUtil.getDynamicFlowName();
-        TestUtil.pspSunnyDay(flowName);
+        TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
         String pspId = AppConstantTestHelper.PSP_CODE;
         String organizationId = AppConstantTestHelper.EC_CODE;
@@ -61,7 +61,7 @@ class FlowRepositoryTest {
     @DisplayName("FlowRepositoryTest OK - findUnpublishedByOrganizationIdAndPspIdAndName")
     void testFindUnpublishedByOrganizationIdAndPspIdAndName() {
         String flowName = TestUtil.getDynamicFlowName();
-        TestUtil.pspCreateUnpublishedFlow(flowName);
+        TestUtil.pspCreateUnpublishedFlow(flowName, FLOW_DATE);
 
         String pspId = AppConstantTestHelper.PSP_CODE;
         String organizationId = AppConstantTestHelper.EC_CODE;
@@ -82,7 +82,7 @@ class FlowRepositoryTest {
     @DisplayName("FlowRepositoryTest OK - findLatestPublishedByOrganizationIdAndOptionalPspId")
     void testFindLatestPublishedByOrganizationIdAndOptionalPspId() {
         String flowName = TestUtil.getDynamicFlowName();
-        TestUtil.pspSunnyDay(flowName);
+        TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
         String pspId = AppConstantTestHelper.PSP_CODE;
         String organizationId = AppConstantTestHelper.EC_CODE;
