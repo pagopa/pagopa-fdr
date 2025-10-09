@@ -145,8 +145,8 @@ core:
       - type: cron
         metadata:
           timezone: Europe/Rome
-          start: 0 12 * * *
-          end: 15 12 * * *
+          start: 10 12 * * *
+          end: 30 12 * * *
           desiredReplicas: "3"
       - type: cpu
         metadata:
