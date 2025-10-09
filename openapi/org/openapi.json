@@ -1078,13 +1078,14 @@
             }
           },
           {
-            "description": "A date to be used as a lower limit search on flow date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "description": "A date to be used as a lower limit search on flow date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses a dynamic default equal to the start of the previous calendar month at 00:00 UTC",
             "example": "2025-01-01T12:00:00Z",
             "name": "flowDate",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/Instant"
-            }
+            },
+            "required": false
           },
           {
             "description": "The index of the page to be shown in the result",
@@ -1109,13 +1110,14 @@
             }
           },
           {
-            "description": "A date to be used as a lower limit search on publication date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+            "description": "A date to be used as a lower limit search on publication date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses a dynamic default equal to the start of the previous calendar month at 00:00 UTC",
             "example": "2025-01-01T12:00:00Z",
             "name": "publishedGt",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/Instant"
-            }
+            },
+            "required": false
           },
           {
             "description": "The number of the elements of the page to be shown in the result",
@@ -1126,6 +1128,7 @@
               "type": "integer",
               "format": "int64",
               "default": 1000,
+              "maximum": 1000,
               "minimum": 1
             }
           }
@@ -1488,7 +1491,7 @@
   "info": {
     "title": "FDR - Flussi di Rendicontazione (ORGs)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.54"
+    "version": "1.1.60"
   },
   "servers": [
     {
