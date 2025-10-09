@@ -116,9 +116,9 @@ microservice-chart: &microservice-chart
 # Configuration for standard application
 app:
   !!merge <<: *microservice-chart
-  fullnameOverride: "pagopafdr-microservice-chart"
   ingress:
     !!merge <<: *ingress
+    path: /pagopa-fdr-service-app/(.*)
   deployment:
     !!merge <<: *deployment
     replicas: 1
