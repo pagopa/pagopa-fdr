@@ -160,7 +160,6 @@ scheduler:
     replicas: 1
   autoscaling:
     !!merge <<: *autoscaling
-    enable: false
   resources:
     !!merge <<: *resources
     requests:
