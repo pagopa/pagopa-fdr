@@ -12,7 +12,6 @@ import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 
 public class OrganizationsController implements IOrganizationsController {
@@ -38,10 +37,7 @@ public class OrganizationsController implements IOrganizationsController {
             long pageSize
     ) {
 
-        Instant now = Instant.now();
-        ZonedDateTime nowUtc = now.atZone(ZoneOffset.UTC);
-        ZonedDateTime limitZoned = nowUtc.minusMonths(1);
-        Instant defaultDate = limitZoned.toInstant();
+        Instant defaultDate = Instant.now().atZone(ZoneOffset.UTC).minusMonths(1).toInstant();
         return this.flowService.getPaginatedPublishedFlowsForCI(
                 FindFlowsByFiltersArgs.builder()
                         .organizationId(organizationId)

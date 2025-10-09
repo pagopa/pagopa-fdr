@@ -4,7 +4,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -25,12 +24,7 @@ public class PastLimitValidator implements ConstraintValidator<PastDateLimit, Op
       return true;
     }
     Instant flowDate = optionalFlowDate.get();
-
-    Instant now = Instant.now();
-    ZonedDateTime nowUtc = now.atZone(ZoneOffset.UTC);
-
-    ZonedDateTime limitZoned = nowUtc.minus(relativeValue, relativeUnit);
-    Instant limitDate = limitZoned.toInstant();
+    Instant limitDate = Instant.now().atZone(ZoneOffset.UTC).minus(relativeValue, relativeUnit).toInstant();
 
     boolean isValid = !flowDate.isBefore(limitDate);
 
