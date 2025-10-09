@@ -1,10 +1,5 @@
 microservice-chart: &microservice-chart
   namespace: "fdr"
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0
-      maxSurge: 1
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
     tag: 1.1.60
@@ -24,8 +19,11 @@ microservice-chart: &microservice-chart
     failureThreshold: 10
     periodSeconds: 5
   deployment: &deployment
-    create: true
-    replicas: 1 # default
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
   serviceMonitor:
     create: true
     endpoints:
@@ -114,13 +112,31 @@ microservice-chart: &microservice-chart
   canaryDelivery:
     create: false
 # Configuration for standard application
-app:
+core:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
+    path: /pagopa-fdr-service-core/(.*)
   deployment:
     !!merge <<: *deployment
-    replicas: 1
+  autoscaling:
+    !!merge <<: *autoscaling
+    enable: true
+    minReplica: 1
+    maxReplica: 2
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    advanced:
+      restoreToOriginalReplicaCount: false
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization
+          value: "90"
+      - type: memory
+        metadata:
+          type: Utilization
+          value: "90"
   resources:
     !!merge <<: *resources
   envConfig:
@@ -135,10 +151,12 @@ scheduler:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service-scheduler-unused/(.*)
+    create: false
   deployment:
     !!merge <<: *deployment
     replicas: 1
+  autoscaling:
+    !!merge <<: *autoscaling
   resources:
     !!merge <<: *resources
     requests:

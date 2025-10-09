@@ -1,10 +1,5 @@
 microservice-chart: &microservice-chart
   namespace: "fdr"
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0
-      maxSurge: 1
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
     tag: 1.1.60
@@ -26,6 +21,11 @@ microservice-chart: &microservice-chart
   deployment: &deployment
     create: true
     replicas: 1 # default
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
   serviceMonitor:
     create: true
     endpoints:
@@ -57,7 +57,7 @@ microservice-chart: &microservice-chart
     allowPrivilegeEscalation: false
   resources: &resources
     requests:
-      memory: "1Gi"
+      memory: "1250Mi"
       cpu: "750m"
     limits:
       memory: "3.5Gi"
@@ -114,10 +114,11 @@ microservice-chart: &microservice-chart
   canaryDelivery:
     create: false
 # Configuration for standard application
-app:
+core:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
+    path: /pagopa-fdr-service-core/(.*)
   deployment:
     !!merge <<: *deployment
     replicas: 3 # same as HPA minReplica
@@ -130,7 +131,15 @@ app:
     maxReplica: 10
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
+    advanced:
+      restoreToOriginalReplicaCount: false
     triggers:
+      - type: cron
+        metadata:
+          timezone: Europe/Rome
+          start: 0 1 * * *
+          end: 30 10 * * *
+          desiredReplicas: "8"
       - type: cpu
         metadata:
           type: Utilization
@@ -138,7 +147,7 @@ app:
       - type: memory
         metadata:
           type: Utilization
-          value: "90"
+          value: "110"
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
@@ -151,10 +160,12 @@ scheduler:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service-scheduler-unused/(.*)
+    create: false
   deployment:
     !!merge <<: *deployment
     replicas: 1
+  autoscaling:
+    !!merge <<: *autoscaling
   resources:
     !!merge <<: *resources
     requests:

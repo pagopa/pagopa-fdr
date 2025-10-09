@@ -1,7 +1,7 @@
 <policies>
   <inbound>
     <base/>
-    <set-backend-service base-url="https://${hostname}/pagopa-fdr-service"/>
+    <set-backend-service base-url="https://${hostname}/pagopa-fdr-service-core"/>
   </inbound>
   <outbound>
     <base/>
