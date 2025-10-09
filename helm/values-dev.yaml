@@ -114,11 +114,11 @@ microservice-chart: &microservice-chart
   canaryDelivery:
     create: false
 # Configuration for standard application
-app:
+core:
   !!merge <<: *microservice-chart
   ingress:
     !!merge <<: *ingress
-    path: /pagopa-fdr-service-app/(.*)
+    path: /pagopa-fdr-service-core/(.*)
   deployment:
     !!merge <<: *deployment
     replicas: 1
