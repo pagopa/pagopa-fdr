@@ -65,7 +65,6 @@ public class AppConstantTestHelper {
   public static final String IUV_CODE_E = "e";
   public static final String PUBLISHED_DATE = "2000-01-01T12:00:00Z";
   public static final String FLOW_DATE = "2022-01-01T12:00:00Z";
-  public static final String FLOW_DATE_PARAMETER = "2000-01-01T12:00:00Z";
   public static final String PUBLISHED_DATE_FUTURE = "3000-01-01T12:00:00Z";
   public static final String FLOW_DATE_FUTURE = "3000-01-01T12:00:00Z";
 
@@ -86,9 +85,6 @@ public class AppConstantTestHelper {
   // Test Util Path
   public static final String FLOW_TEMPLATE_PATH =
       Paths.get(TEST_UTIL_PATH, "flow-template.json").toString();
-
-  public static final String FLOW_TEMPLATE_CUSTOM_DATE_PATH =
-      Paths.get(TEST_UTIL_PATH, "flow-template-custom-date.json").toString();
 
   public static String PAYMENTS_ADD_TEMPLATE_PATH =
       Paths.get(TEST_UTIL_PATH, "payments-add-template.json").toString();

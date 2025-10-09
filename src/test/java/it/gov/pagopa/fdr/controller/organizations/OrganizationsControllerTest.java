@@ -22,7 +22,6 @@ import it.gov.pagopa.fdr.test.util.TestUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -34,12 +33,23 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
 
+  private static final String VALID_FLOW_DATE = Instant.now()
+          .atZone(ZoneOffset.UTC)
+          .minusMonths(1)
+          .truncatedTo(ChronoUnit.SECONDS)
+          .toInstant()
+          .toString();
+  private static final Instant VALID_DATE_FILTER = Instant.now()
+          .atZone(ZoneOffset.UTC)
+          .minusDays(25)
+          .toInstant();
+
   /** ############### getAllPublishedFlow ################ */
   @Test
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow")
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
+    TestUtil.pspSunnyDay(flowName, VALID_FLOW_DATE);
     String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
     PaginatedFlowsResponse res =
         given()
@@ -61,15 +71,11 @@ class OrganizationsControllerTest {
   @Test
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with published date filter")
   void testOrganization_getAllPublishedFlow_with_published_date_filter_Ok() {
-    Instant now = Instant.now();
-    ZonedDateTime nowUtc = now.atZone(ZoneOffset.UTC);
-    ZonedDateTime limitZoned = nowUtc.minusDays(25);
-    Instant lastMonthDate = limitZoned.toInstant();
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
+    TestUtil.pspSunnyDay(flowName, VALID_FLOW_DATE);
     String url =
         ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(
-            EC_CODE, PSP_CODE, lastMonthDate);
+            EC_CODE, PSP_CODE, VALID_DATE_FILTER);
     PaginatedFlowsResponse res =
         given()
             .header(HEADER)
@@ -94,7 +100,7 @@ class OrganizationsControllerTest {
   void testOrganization_getAllPublishedFlow_with_flow_date_filter_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName, FLOW_DATE);
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, FLOW_DATE_PARAMETER);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, FLOW_DATE_FUTURE);
     PaginatedFlowsResponse res =
         given()
             .header(HEADER)
@@ -112,13 +118,13 @@ class OrganizationsControllerTest {
   void testOrganization_getAllPublishedFlow_with_flow_date_filter_Ko() {
     String flowName = TestUtil.getDynamicFlowName();
 
-    TestUtil.pspSunnyDay(flowName);
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
 
     String url =
         ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(
             EC_CODE,
             PSP_CODE,
-            Instant.now().atZone(ZoneOffset.UTC).minus(2, ChronoUnit.MONTHS).toString());
+            Instant.now().atZone(ZoneOffset.UTC).minusMonths(2).toString());
 
     given().header(HEADER).when().get(url).then().statusCode(400).extract().as(ErrorResponse.class);
   }
