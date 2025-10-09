@@ -2,14 +2,14 @@ apiVersion: v2
 name: pagopa-fdr-3-chart
 description: Flussi di rendicontazioni
 type: application
-version: "1.148.0"
+version: "1.148.3"
 appVersion: "1.1.60"
 dependencies:
   - name: microservice-chart
-    version: 8.0.1
+    version: 8.0.2
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
     alias: core
   - name: microservice-chart
-    version: 8.0.1
+    version: 8.0.2
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
     alias: scheduler
