@@ -142,6 +142,7 @@ core:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
+    QUARKUS_HIBERNATE_ORM_LOG_SQL: "true"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
