@@ -102,7 +102,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
                          return connection.prepareStatement(INSERT_IN_BULK);
                      })) {
 
-            int batchSize = 500;
+            int batchSize = 100;
             int count = 0;
 
             for (PaymentEntity payment : entityBatch) {
