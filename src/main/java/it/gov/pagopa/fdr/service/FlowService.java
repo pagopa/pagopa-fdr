@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.service;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.IS_RE_ENABLED_FOR_THIS_CALL;
 
+import io.micrometer.core.annotation.Timed;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
@@ -200,6 +201,7 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
+  @Timed(value = "paymentService.createEmptyFlow.task", description = "Time taken to perform createEmptyFlow")
   public GenericResponse createEmptyFlow(String pspId, String flowName, CreateFlowRequest request) {
 
     log.debugf(
@@ -247,6 +249,7 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
+  @Timed(value = "paymentService.publishFlow.task", description = "Time taken to perform publishFlow")
   public GenericResponse publishFlow(String pspId, String flowName, boolean isInternalCall) {
 
     log.debugf("Publishing existing flows by pspId [%s], flowName [%s]", pspId, flowName);

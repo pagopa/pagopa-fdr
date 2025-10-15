@@ -144,7 +144,6 @@ public class PaymentService {
     SemanticValidator.validateAddPaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    // TODO set read-only!
     Optional<FlowEntity> optPublishingFlow = flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
     if (optPublishingFlow.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
