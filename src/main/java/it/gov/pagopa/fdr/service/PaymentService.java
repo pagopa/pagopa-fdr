@@ -271,8 +271,12 @@ public class PaymentService {
   private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
 
     // generate quantity to add on computed values
-    int paymentsToAdd = paymentEntities.size();
-    double amountToAdd = paymentEntities.stream().mapToDouble(payment -> payment.getAmount().doubleValue()).sum();
+    int paymentsToAdd = 0;
+    double amountToAdd = 0.0;
+    for (PaymentEntity paymentEntity : paymentEntities) {
+      paymentsToAdd++;
+      amountToAdd += paymentEntity.getAmount().doubleValue();
+    }
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed

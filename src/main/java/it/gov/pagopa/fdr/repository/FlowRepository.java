@@ -304,12 +304,10 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
             + " status = ?"
             + " WHERE id = ?";
 
-    try (PreparedStatement preparedStatement =
-        session.doReturningWork(connection -> connection.prepareStatement(query))) {
+    try (PreparedStatement preparedStatement = session.doReturningWork(connection -> connection.prepareStatement(query))) {
 
       preparedStatement.setLong(1, paymentsToAdd);
-      preparedStatement.setBigDecimal(
-          2, BigDecimal.valueOf(amountToAdd).setScale(2, RoundingMode.HALF_UP));
+      preparedStatement.setBigDecimal(2, BigDecimal.valueOf(amountToAdd).setScale(2, RoundingMode.HALF_UP));
       preparedStatement.setTimestamp(3, Timestamp.from(now));
       preparedStatement.setString(4, status.name());
       preparedStatement.setLong(5, flowId);
