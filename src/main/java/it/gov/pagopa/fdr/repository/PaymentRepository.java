@@ -93,54 +93,51 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     return count(QUERY_GET_BY_FLOW_ID_AND_INDEXES, flowId, indexes);
   }
 
-    public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
-        Session session = entityManager.unwrap(Session.class);
-
-        try (PreparedStatement preparedStatement =
-                     session.doReturningWork(connection -> {
-                         connection.setAutoCommit(false);
-                         return connection.prepareStatement(INSERT_IN_BULK);
-                     })) {
-
-            int batchSize = 100;
-            int count = 0;
-
-            for (PaymentEntity payment : entityBatch) {
-                payment.exportInPreparedStatement(preparedStatement);
-                preparedStatement.addBatch();
-
-                if (++count % batchSize == 0) {
-                    preparedStatement.executeBatch();
-                }
-            }
-            preparedStatement.executeBatch(); // esegui i rimanenti
-
-            session.doWork(connection -> connection.commit());
-        } catch (SQLException e) {
-            log.error("An error occurred while executing payments bulk insert", e);
-            session.doWork(connection -> connection.rollback());
-            throw e;
-        }
-    }
-
-
 //  public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
-//
 //    Session session = entityManager.unwrap(Session.class);
 //
-//    try (PreparedStatement preparedStatement =
-//        session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
+//    try (PreparedStatement preparedStatement = session.doReturningWork(connection -> {
+//        connection.setAutoCommit(false);
+//        return connection.prepareStatement(INSERT_IN_BULK);
+//    })) {
+//      int batchSize = 100;
+//      int count = 0;
 //
 //      for (PaymentEntity payment : entityBatch) {
 //        payment.exportInPreparedStatement(preparedStatement);
 //        preparedStatement.addBatch();
+//        if (++count % batchSize == 0) {
+//          preparedStatement.executeBatch();
+//        }
 //      }
-//      preparedStatement.executeBatch();
+//      preparedStatement.executeBatch(); // esegui i rimanenti
+//
+//      session.doWork(connection -> connection.commit());
 //    } catch (SQLException e) {
 //      log.error("An error occurred while executing payments bulk insert", e);
+//      session.doWork(connection -> connection.rollback());
 //      throw e;
 //    }
-//  }
+//}
+
+
+  public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
+
+    Session session = entityManager.unwrap(Session.class);
+
+    try (PreparedStatement preparedStatement =
+        session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
+
+      for (PaymentEntity payment : entityBatch) {
+        payment.exportInPreparedStatement(preparedStatement);
+        preparedStatement.addBatch();
+      }
+      preparedStatement.executeBatch();
+    } catch (SQLException e) {
+      log.error("An error occurred while executing payments bulk insert", e);
+      throw e;
+    }
+  }
 
   public PanacheQuery<PaymentEntity> findPageByFlowId(Long flowId, int pageNumber, int pageSize) {
 

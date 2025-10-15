@@ -54,9 +54,7 @@ public interface PaymentMapper {
         .build();
   }
 
-  default List<PaymentEntity> toEntity(
-      FlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
-
+  default List<PaymentEntity> toEntity(FlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
     List<PaymentEntity> converted = new LinkedList<>();
     for (Payment payment : payments) {
       PaymentEntity entity = new PaymentEntity();

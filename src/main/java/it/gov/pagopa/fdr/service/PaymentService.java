@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.service;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.IS_RE_ENABLED_FOR_THIS_CALL;
 
+import io.micrometer.core.annotation.Timed;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
@@ -131,19 +132,20 @@ public class PaymentService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
-  public GenericResponse addPaymentToExistingFlow(
-      String pspId, String flowName, AddPaymentRequest request) {
+  @Timed(value = "paymentService.addPaymentToExistingFlow.task", description = "Time taken to perform addPaymentToExistingFlow")
+  public GenericResponse addPaymentToExistingFlow(String pspId, String flowName, AddPaymentRequest request) {
 
     log.debugf(
         "Adding [%s] new payments on flow [%s], pspId [%s]",
-        request.getPayments().size(), flowName, pspId);
+        request.getPayments().size(), flowName, pspId
+    );
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateAddPaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
-    Optional<FlowEntity> optPublishingFlow =
-        flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
+    // TODO set read-only!
+    Optional<FlowEntity> optPublishingFlow = flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
     if (optPublishingFlow.isEmpty()) {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
@@ -152,23 +154,31 @@ public class PaymentService {
     FlowEntity publishingFlow = optPublishingFlow.get();
     List<Payment> paymentsToAdd = request.getPayments();
     Set<Long> indexes = paymentsToAdd.stream().map(Payment::getIndex).collect(Collectors.toSet());
-    long numberOfAlreadyUsedIndexes =
-        paymentRepository.countByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+    // remove count -> execute only 1 query
+    List<PaymentEntity> indexesAlreadyAdded = paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+    if (!indexesAlreadyAdded.isEmpty()) {
+      List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
+      throw new AppException(
+              AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+              conflictingIndexes,
+              flowName
+      );
+    }
+    /*
+    long numberOfAlreadyUsedIndexes = paymentRepository.countByFlowIdAndIndexes(publishingFlow.getId(), indexes);
     if (numberOfAlreadyUsedIndexes > 0) {
-      List<PaymentEntity> indexesAlreadyAdded =
-          paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
-      List<Long> conflictingIndexes =
-          indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
+      List<PaymentEntity> indexesAlreadyAdded = paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+      List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
           conflictingIndexes,
           flowName);
     }
+     */
 
     // create all entities in batch, from each payment to be added, in transactional way
     Instant now = Instant.now();
-    List<PaymentEntity> paymentEntities =
-        paymentMapper.toEntity(publishingFlow, paymentsToAdd, now);
+    List<PaymentEntity> paymentEntities = paymentMapper.toEntity(publishingFlow, paymentsToAdd, now);
     addPaymentToExistingFlowInTransaction(publishingFlow, paymentEntities, now);
 
     // Send event to Registro Eventi for internal operation
@@ -258,19 +268,16 @@ public class PaymentService {
   }
 
   @SneakyThrows
-  private void addPaymentToExistingFlowInTransaction(
-      FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
+  private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
 
     // generate quantity to add on computed values
     int paymentsToAdd = paymentEntities.size();
-    double amountToAdd =
-        paymentEntities.stream().mapToDouble(payment -> payment.getAmount().doubleValue()).sum();
+    double amountToAdd = paymentEntities.stream().mapToDouble(payment -> payment.getAmount().doubleValue()).sum();
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed
     this.paymentRepository.createEntityInBulk(paymentEntities);
-    this.flowRepository.updateComputedValues(
-        publishingFlow.getId(), paymentsToAdd, amountToAdd, now, FlowStatusEnum.INSERTED);
+    this.flowRepository.updateComputedValues(publishingFlow.getId(), paymentsToAdd, amountToAdd, now, FlowStatusEnum.INSERTED);
   }
 
   @SneakyThrows

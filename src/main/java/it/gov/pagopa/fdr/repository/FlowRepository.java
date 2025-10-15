@@ -23,6 +23,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
@@ -67,19 +70,36 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
         .firstResultOptional();
   }
 
+//  public Optional<FlowEntity> findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
+//    FlowEntity entity =
+//        find(
+//                QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME,
+//                pspId,
+//                flowName,
+//                FlowStatusEnum.PUBLISHED.name())
+//            .firstResultOptional()
+//            .orElse(null);
+//    if (entity != null) {
+//      entityManager.detach(entity);
+//    }
+//    return Optional.ofNullable(entity);
+//  }
+
   public Optional<FlowEntity> findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
-    FlowEntity entity =
-        find(
-                QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME,
-                pspId,
-                flowName,
-                FlowStatusEnum.PUBLISHED.name())
-            .firstResultOptional()
-            .orElse(null);
-    if (entity != null) {
-      entityManager.detach(entity);
+    try {
+      FlowEntity entity = entityManager.createQuery(
+                      "FROM FlowEntity WHERE pspDomainId = :pspId AND name = :flowName AND status != :status",
+                      FlowEntity.class
+              )
+              .setParameter("pspId", pspId)
+              .setParameter("flowName", flowName)
+              .setParameter("status", FlowStatusEnum.PUBLISHED.name())
+              .setHint("org.hibernate.readOnly", true)
+              .getSingleResult();
+      return Optional.of(entity);
+    } catch (NoResultException e) {
+      return Optional.empty();
     }
-    return Optional.ofNullable(entity);
   }
 
   public Optional<FlowEntity> findUnpublishedByOrganizationIdAndPspIdAndName(
