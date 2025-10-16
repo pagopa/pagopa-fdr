@@ -28,6 +28,7 @@ microservice-chart: &microservice-chart
         maxUnavailable: 0
   serviceMonitor:
     create: true
+    prometheusManaged: true
     endpoints:
       - interval: 5s
         targetPort: 8080
