@@ -31,6 +31,7 @@
       "target": 7
     }
   ],
+  "teardownTimeout": "360s",
   "thresholds": {
     "http_req_failed": [
       "rate<0.001"
