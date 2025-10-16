@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.service;
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.IS_RE_ENABLED_FOR_THIS_CALL;
 
+import io.micrometer.core.annotation.Timed;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import it.gov.pagopa.fdr.Config;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
@@ -131,8 +132,8 @@ public class PaymentService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
-  public GenericResponse addPaymentToExistingFlow(
-      String pspId, String flowName, AddPaymentRequest request) {
+  @Timed(value = "paymentService.addPaymentToExistingFlow.task", description = "Time taken to perform addPaymentToExistingFlow")
+  public GenericResponse addPaymentToExistingFlow(String pspId, String flowName, AddPaymentRequest request) {
 
     log.debugf(
         "Adding [%s] new payments on flow [%s], pspId [%s]",
