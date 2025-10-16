@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.61
+    tag: 1.1.61-4-add-timed-metric
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -26,12 +26,8 @@ microservice-chart: &microservice-chart
       rollingUpdate:
         maxSurge: 1
         maxUnavailable: 0
-  serviceMonitor:
-    create: true
-    endpoints:
-      - interval: 5s
-        targetPort: 8080
-        path: /q/metrics
+  serviceMonitor: &serviceMonitor
+    create: false
   ports:
     - 12345 #jmx-exporter
     - 8080
@@ -57,11 +53,11 @@ microservice-chart: &microservice-chart
     allowPrivilegeEscalation: false
   resources: &resources
     requests:
-      memory: "1Gi"
-      cpu: "400m"
+      memory: "1250Mi"
+      cpu: "750m"
     limits:
-      memory: "3Gi"
-      cpu: "800m"
+      memory: "3.5Gi"
+      cpu: '1.5'
   autoscaling: &autoscaling
     enable: false
   envConfig: &envConfig
@@ -121,14 +117,14 @@ core:
     path: /pagopa-fdr-service-core/(.*)
   deployment:
     !!merge <<: *deployment
-    replicas: 1 # (default) same as HPA minReplica
+    replicas: 3 # same as HPA minReplica
   resources:
     !!merge <<: *resources
   autoscaling:
     !!merge <<: *autoscaling
     enable: true
-    minReplica: 1
-    maxReplica: 2
+    minReplica: 3
+    maxReplica: 10
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     advanced:
@@ -137,11 +133,11 @@ core:
       - type: cpu
         metadata:
           type: Utilization
-          value: "75"
+          value: "150"
       - type: memory
         metadata:
           type: Utilization
-          value: "90"
+          value: "110"
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
@@ -149,6 +145,14 @@ core:
     !!merge <<: *envFieldRef
   envSecret:
     !!merge <<: *envSecret
+  serviceMonitor:
+    !!merge <<: *serviceMonitor
+    create: true
+    prometheusManaged: true
+    endpoints:
+      - interval: 5s
+        targetPort: 8080
+        path: /q/metrics
 # Configuration for CronJob scheduler
 scheduler:
   !!merge <<: *microservice-chart

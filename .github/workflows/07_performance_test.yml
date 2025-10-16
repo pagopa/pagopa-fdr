@@ -19,6 +19,7 @@ on:
         type: choice
         description: Select the Test Type
         options:
+          - custom
           - constant
           - constant-discard-bodies
           - load
@@ -32,14 +33,14 @@ on:
         type: choice
         description: Select the Script Name
         options:
-          - create_flow_sequential
           - create_flow_parallel
+          - create_flow_sequential
           - get_flow
       flow-size:
         required: true
         type: number
         description: Select the number of payments sent in flow
-        default: 100
+        default: 30000
       max-parallel-calls:
         required: false
         type: number
