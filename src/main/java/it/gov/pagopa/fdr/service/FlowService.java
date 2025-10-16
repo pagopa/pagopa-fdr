@@ -201,7 +201,7 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
-  @Timed(value = "paymentService.createEmptyFlow.task", description = "Time taken to perform createEmptyFlow")
+  @Timed(value = "paymentService.createEmptyFlow.task", description = "Time taken to perform createEmptyFlow", percentiles = 0.95, histogram = true)
   public GenericResponse createEmptyFlow(String pspId, String flowName, CreateFlowRequest request) {
 
     log.debugf(
@@ -249,7 +249,7 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
-  @Timed(value = "paymentService.publishFlow.task", description = "Time taken to perform publishFlow")
+  @Timed(value = "paymentService.publishFlow.task", description = "Time taken to perform publishFlow", percentiles = 0.95, histogram = true)
   public GenericResponse publishFlow(String pspId, String flowName, boolean isInternalCall) {
 
     log.debugf("Publishing existing flows by pspId [%s], flowName [%s]", pspId, flowName);

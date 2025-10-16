@@ -132,7 +132,7 @@ public class PaymentService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
-  @Timed(value = "paymentService.addPaymentToExistingFlow.task", description = "Time taken to perform addPaymentToExistingFlow")
+  @Timed(value = "paymentService.addPaymentToExistingFlow.task", description = "Time taken to perform addPaymentToExistingFlow", percentiles = 0.95, histogram = true)
   public GenericResponse addPaymentToExistingFlow(String pspId, String flowName, AddPaymentRequest request) {
 
     log.debugf(
