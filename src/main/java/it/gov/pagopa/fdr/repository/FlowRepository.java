@@ -290,6 +290,45 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     persist(entity);
   }
 
+  /*
+  public void updateComputedValuesFromPayments(Long flowId, Instant now, FlowStatusEnum status) throws SQLException {
+    Session session = entityManager.unwrap(Session.class);
+
+    // L’aggregazione viene fatta direttamente dal DB
+    String query = """
+        UPDATE flow f
+        SET
+            computed_tot_payments = computed_tot_payments + (
+                SELECT COUNT(*) FROM payment p WHERE p.flow_id = f.id AND p.created >= ?
+            ),
+            computed_tot_amount = computed_tot_amount + (
+                SELECT COALESCE(SUM(p.amount),0) FROM payment p WHERE p.flow_id = f.id AND p.created >= ?
+            ),
+            updated = ?,
+            status = ?
+        WHERE id = ?
+        """;
+
+    try (PreparedStatement ps = session.doReturningWork(c -> c.prepareStatement(query))) {
+      Timestamp nowTs = Timestamp.from(now);
+
+      // parametri per COUNT e SUM
+      ps.setTimestamp(1, nowTs);
+      ps.setTimestamp(2, nowTs);
+      ps.setTimestamp(3, nowTs);
+      ps.setString(4, status.name());
+      ps.setLong(5, flowId);
+
+      ps.executeUpdate();
+    } catch (SQLException e) {
+      log.error("Errore durante l'aggiornamento aggregato del flow", e);
+      throw e;
+    }
+  }
+  */
+
+
+
   public void updateComputedValues(
       Long flowId, int paymentsToAdd, double amountToAdd, Instant now, FlowStatusEnum status)
       throws SQLException {

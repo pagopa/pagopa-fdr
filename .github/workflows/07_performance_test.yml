@@ -32,6 +32,7 @@ on:
         type: choice
         description: Select the Script Name
         options:
+          - random_flow_parallel
           - create_flow_sequential
           - create_flow_parallel
           - get_flow
