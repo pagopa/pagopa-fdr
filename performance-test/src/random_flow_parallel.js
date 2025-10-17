@@ -91,7 +91,7 @@ export default function () {
   }
 
   // Add all payments in the created flow
-  const maxParallelCalls = randomIntFromInterval(1, __ENV.MAX_PARALLEL_CALLS && Number(__ENV.MAX_PARALLEL_CALLS) > 0 ? Number(__ENV.MAX_PARALLEL_CALLS) : 5);
+  const maxParallelCalls = randomIntFromInterval(3, __ENV.MAX_PARALLEL_CALLS && Number(__ENV.MAX_PARALLEL_CALLS) > 0 ? Number(__ENV.MAX_PARALLEL_CALLS) : 5);
   console.log(`Defining max [${maxParallelCalls}] parallel calls with max [${paymentsInFlow}] payments.`);
   const addPaymentsUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}/payments/add`
   params.tags.api_name = "add_payment";
