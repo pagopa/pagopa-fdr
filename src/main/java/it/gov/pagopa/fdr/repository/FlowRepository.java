@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.repository;
 
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
@@ -280,13 +281,13 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     return getPagedResult(resultPage);
   }
 
+  @Timed(value = "flowRepository.createEntity.task", description = "Time taken to perform createEntity", percentiles = 0.95, histogram = true)
   public void createEntity(FlowEntity entity) {
-
     entity.persist();
   }
 
+  @Timed(value = "flowRepository.updateEntity.task", description = "Time taken to perform updateEntity", percentiles = 0.95, histogram = true)
   public void updateEntity(FlowEntity entity) {
-
     persist(entity);
   }
 
@@ -328,7 +329,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   */
 
 
-
+  @Timed(value = "flowRepository.updateComputedValues.task", description = "Time taken to perform updateComputedValues", percentiles = 0.95, histogram = true)
   public void updateComputedValues(
       Long flowId, int paymentsToAdd, double amountToAdd, Instant now, FlowStatusEnum status)
       throws SQLException {
@@ -359,6 +360,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     }
   }
 
+  @Timed(value = "flowRepository.updateLastPublishedAsNotLatest.task", description = "Time taken to perform updateLastPublishedAsNotLatest", percentiles = 0.95, histogram = true)
   public void updateLastPublishedAsNotLatest(String pspId, String flowName) {
 
     Optional<FlowEntity> optEntity = findLastPublishedByPspIdAndName(pspId, flowName);
