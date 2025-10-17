@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.repository;
 
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
@@ -23,6 +24,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
@@ -67,19 +71,36 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
         .firstResultOptional();
   }
 
+//  public Optional<FlowEntity> findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
+//    FlowEntity entity =
+//        find(
+//                QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME,
+//                pspId,
+//                flowName,
+//                FlowStatusEnum.PUBLISHED.name())
+//            .firstResultOptional()
+//            .orElse(null);
+//    if (entity != null) {
+//      entityManager.detach(entity);
+//    }
+//    return Optional.ofNullable(entity);
+//  }
+
   public Optional<FlowEntity> findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
-    FlowEntity entity =
-        find(
-                QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME,
-                pspId,
-                flowName,
-                FlowStatusEnum.PUBLISHED.name())
-            .firstResultOptional()
-            .orElse(null);
-    if (entity != null) {
-      entityManager.detach(entity);
+    try {
+      FlowEntity entity = entityManager.createQuery(
+                      "FROM FlowEntity WHERE pspDomainId = :pspId AND name = :flowName AND status != :status",
+                      FlowEntity.class
+              )
+              .setParameter("pspId", pspId)
+              .setParameter("flowName", flowName)
+              .setParameter("status", FlowStatusEnum.PUBLISHED.name())
+              .setHint("org.hibernate.readOnly", true)
+              .getSingleResult();
+      return Optional.of(entity);
+    } catch (NoResultException e) {
+      return Optional.empty();
     }
-    return Optional.ofNullable(entity);
   }
 
   public Optional<FlowEntity> findUnpublishedByOrganizationIdAndPspIdAndName(
@@ -260,16 +281,55 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     return getPagedResult(resultPage);
   }
 
+  @Timed(value = "flowRepository.createEntity.task", description = "Time taken to perform createEntity", percentiles = 0.95, histogram = true)
   public void createEntity(FlowEntity entity) {
-
     entity.persist();
   }
 
+  @Timed(value = "flowRepository.updateEntity.task", description = "Time taken to perform updateEntity", percentiles = 0.95, histogram = true)
   public void updateEntity(FlowEntity entity) {
-
     persist(entity);
   }
 
+  /*
+  public void updateComputedValuesFromPayments(Long flowId, Instant now, FlowStatusEnum status) throws SQLException {
+    Session session = entityManager.unwrap(Session.class);
+
+    // L’aggregazione viene fatta direttamente dal DB
+    String query = """
+        UPDATE flow f
+        SET
+            computed_tot_payments = computed_tot_payments + (
+                SELECT COUNT(*) FROM payment p WHERE p.flow_id = f.id AND p.created >= ?
+            ),
+            computed_tot_amount = computed_tot_amount + (
+                SELECT COALESCE(SUM(p.amount),0) FROM payment p WHERE p.flow_id = f.id AND p.created >= ?
+            ),
+            updated = ?,
+            status = ?
+        WHERE id = ?
+        """;
+
+    try (PreparedStatement ps = session.doReturningWork(c -> c.prepareStatement(query))) {
+      Timestamp nowTs = Timestamp.from(now);
+
+      // parametri per COUNT e SUM
+      ps.setTimestamp(1, nowTs);
+      ps.setTimestamp(2, nowTs);
+      ps.setTimestamp(3, nowTs);
+      ps.setString(4, status.name());
+      ps.setLong(5, flowId);
+
+      ps.executeUpdate();
+    } catch (SQLException e) {
+      log.error("Errore durante l'aggiornamento aggregato del flow", e);
+      throw e;
+    }
+  }
+  */
+
+
+  @Timed(value = "flowRepository.updateComputedValues.task", description = "Time taken to perform updateComputedValues", percentiles = 0.95, histogram = true)
   public void updateComputedValues(
       Long flowId, int paymentsToAdd, double amountToAdd, Instant now, FlowStatusEnum status)
       throws SQLException {
@@ -284,12 +344,10 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
             + " status = ?"
             + " WHERE id = ?";
 
-    try (PreparedStatement preparedStatement =
-        session.doReturningWork(connection -> connection.prepareStatement(query))) {
+    try (PreparedStatement preparedStatement = session.doReturningWork(connection -> connection.prepareStatement(query))) {
 
       preparedStatement.setLong(1, paymentsToAdd);
-      preparedStatement.setBigDecimal(
-          2, BigDecimal.valueOf(amountToAdd).setScale(2, RoundingMode.HALF_UP));
+      preparedStatement.setBigDecimal(2, BigDecimal.valueOf(amountToAdd).setScale(2, RoundingMode.HALF_UP));
       preparedStatement.setTimestamp(3, Timestamp.from(now));
       preparedStatement.setString(4, status.name());
       preparedStatement.setLong(5, flowId);
@@ -302,6 +360,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     }
   }
 
+  @Timed(value = "flowRepository.updateLastPublishedAsNotLatest.task", description = "Time taken to perform updateLastPublishedAsNotLatest", percentiles = 0.95, histogram = true)
   public void updateLastPublishedAsNotLatest(String pspId, String flowName) {
 
     Optional<FlowEntity> optEntity = findLastPublishedByPspIdAndName(pspId, flowName);

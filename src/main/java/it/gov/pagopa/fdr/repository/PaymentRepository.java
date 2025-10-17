@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.repository;
 
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
@@ -93,16 +94,24 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     return count(QUERY_GET_BY_FLOW_ID_AND_INDEXES, flowId, indexes);
   }
 
+  @Timed(value = "paymentRepository.createEntityInBulk.task", description = "Time taken to perform createEntityInBulk", percentiles = 0.95, histogram = true)
   public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
 
+    final int batchSize = 500; // TODO according to quarkus.hibernate-orm.jdbc.batch_size (TO SET IN CHART)
     Session session = entityManager.unwrap(Session.class);
 
     try (PreparedStatement preparedStatement =
-        session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
+                 session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
 
+      int count = 0;
       for (PaymentEntity payment : entityBatch) {
         payment.exportInPreparedStatement(preparedStatement);
         preparedStatement.addBatch();
+        count++;
+
+        if (count % batchSize == 0) {
+          preparedStatement.executeBatch();
+        }
       }
       preparedStatement.executeBatch();
     } catch (SQLException e) {
@@ -110,6 +119,25 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
       throw e;
     }
   }
+
+
+//  public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
+//
+//    Session session = entityManager.unwrap(Session.class);
+//
+//    try (PreparedStatement preparedStatement =
+//        session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
+//
+//      for (PaymentEntity payment : entityBatch) {
+//        payment.exportInPreparedStatement(preparedStatement);
+//        preparedStatement.addBatch();
+//      }
+//      preparedStatement.executeBatch();
+//    } catch (SQLException e) {
+//      log.error("An error occurred while executing payments bulk insert", e);
+//      throw e;
+//    }
+//  }
 
   public PanacheQuery<PaymentEntity> findPageByFlowId(Long flowId, int pageNumber, int pageSize) {
 

@@ -71,7 +71,7 @@ public class ReService {
           reEventEntity.persist();
 
         } catch (Exception e) {
-          log.errorf("An error occurred while storing events for Registro Eventi.", e);
+          log.errorf("An error occurred while storing events for Registro Eventi: " + e.getClass(), e);
         }
       }
     }
@@ -129,10 +129,8 @@ public class ReService {
 
       // Store BLOB file on BLOB Storage
       // Note: Before the method BinaryData.fromStream(new ByteArrayInputStream(compressedPayload))
-      // was used,
-      // but getLength() method will always return null. Currently using fromBytes() method but if
-      // used menory is
-      // too much high, return to use fromStream() method.
+      // was used, but getLength() method will always return null. Currently using fromBytes() method but if
+      // used memory is too much high, return to use fromStream() method.
       BinaryData body = BinaryData.fromBytes(compressedPayload);
       BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
       blobClient.upload(body);

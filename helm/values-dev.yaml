@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.61
+    tag: 1.1.61-7-try-to-optimize
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -142,6 +142,7 @@ core:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
+    QUARKUS_HIBERNATE_ORM_LOG_SQL: "false"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:

@@ -60,3 +60,8 @@ export function createInsertAndPublishFlowSetup(requestValues, paymentsInFlow, t
       console.log(`Publish flow in error: ${publishFlowUrl} =>  response: ${publishFlowResponse.status} - ${publishFlowResponse.body}`);
     }
 }
+
+export function randomIntFromInterval(min, max) {
+    // min and max included
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
