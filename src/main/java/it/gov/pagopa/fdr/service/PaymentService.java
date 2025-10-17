@@ -181,8 +181,7 @@ public class PaymentService {
     addPaymentToExistingFlowInTransaction(publishingFlow, paymentEntities, now);
 
     // Send event to Registro Eventi for internal operation
-    // TODO restore
-//    storeInternalREEvent(publishingFlow, FdrStatusEnum.INSERTED, FdrActionEnum.ADD_PAYMENT);
+    storeInternalREEvent(publishingFlow, FdrStatusEnum.INSERTED, FdrActionEnum.ADD_PAYMENT);
 
     return GenericResponse.builder()
         .message(String.format("Fdr [%s] payment added", flowName))

@@ -32,7 +32,7 @@ const requestValues = {
 const maxPaymentsInCall = 1000;
 // const totalAmount = paymentsInFlow * 100.00;
 
-let totalAnalysis = {
+var totalAnalysis = {
   payments: 0
 }
 
@@ -54,8 +54,6 @@ export function setup() {
   let flowNameAndDate = generateFlowNameAndDate(requestValues.pspDomainId, `${__VU}`);
 
   const paymentsInFlow = randomIntFromInterval(1, `${__ENV.PAYMENTS_IN_FLOW}`);
-
-  totalAnalysis.payments += paymentsInFlow;
 
   let requests = [];
 
@@ -82,6 +80,9 @@ export default function () {
   const flowName = data.flowName;
   const flowDate = data.flowDate;
   const paymentsInFlow = data.paymentsInFlow;
+
+  totalAnalysis.payments += paymentsInFlow;
+
   let createFlowRequest = buildCreateFlowRequest(flowName, flowDate, paymentsInFlow, data.totalAmount, requestValues);
   const createFlowUrl = `${fdrBaseUrl}/psps/${requestValues.pspDomainId}/fdrs/${flowName}`
   params.tags.api_name = "create_empty_flow";
