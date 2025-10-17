@@ -40,12 +40,12 @@ on:
         required: true
         type: number
         description: Select the number of payments sent in flow
-        default: 100
+        default: 30000
       max-parallel-calls:
         required: false
         type: number
         description: Select the number of maximum API calls in parallel (for each VU)
-        default: 5
+        default: 10
 
 permissions:
   id-token: write
