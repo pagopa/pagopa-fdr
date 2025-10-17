@@ -32,7 +32,9 @@ const requestValues = {
 const maxPaymentsInCall = 1000;
 // const totalAmount = paymentsInFlow * 100.00;
 
-let totalAmount = 0;
+let totalAnalysis = {
+  payments: 0
+}
 
 const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY_PSP}`;
 
@@ -52,6 +54,8 @@ export function setup() {
   let flowNameAndDate = generateFlowNameAndDate(requestValues.pspDomainId, `${__VU}`);
 
   const paymentsInFlow = randomIntFromInterval(1, `${__ENV.PAYMENTS_IN_FLOW}`);
+
+  totalAnalysis.payments += paymentsInFlow;
 
   let requests = [];
 
@@ -134,4 +138,5 @@ export default function () {
 export function teardown(data) {
   // After All
   // teardown code
+  console.log(`Total payments added: ${totalAnalysis.payments}`);
 }
