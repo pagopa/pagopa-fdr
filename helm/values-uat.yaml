@@ -26,12 +26,8 @@ microservice-chart: &microservice-chart
       rollingUpdate:
         maxSurge: 1
         maxUnavailable: 0
-  serviceMonitor:
-    create: true
-    endpoints:
-      - interval: 5s
-        targetPort: 8080
-        path: /q/metrics
+  serviceMonitor: &serviceMonitor
+    create: false
   ports:
     - 12345 #jmx-exporter
     - 8080
@@ -149,6 +145,14 @@ core:
     !!merge <<: *envFieldRef
   envSecret:
     !!merge <<: *envSecret
+  serviceMonitor:
+    !!merge <<: *serviceMonitor
+    create: true
+    prometheusManaged: true
+    endpoints:
+      - interval: 5s
+        targetPort: 8080
+        path: /q/metrics
 # Configuration for CronJob scheduler
 scheduler:
   !!merge <<: *microservice-chart
