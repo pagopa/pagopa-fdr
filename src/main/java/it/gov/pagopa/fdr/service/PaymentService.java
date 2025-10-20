@@ -26,6 +26,8 @@ import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -232,7 +234,7 @@ public class PaymentService {
     Instant now = Instant.now();
     deletePaymentToExistingFlowInTransaction(publishingFlow, paymentEntities, now);
 
-    // Send event to Registro Eventi for internal operation
+    // send events to Registro Eventi for internal operation
     FdrStatusEnum status =
         FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())
             ? FdrStatusEnum.INSERTED
@@ -266,21 +268,42 @@ public class PaymentService {
     }
   }
 
-  @SneakyThrows
+//  @SneakyThrows
+//  private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
+//
+//    // generate quantity to add on computed values
+//    int paymentsToAdd = 0;
+//    double amountToAdd = 0.0;
+//    for (PaymentEntity paymentEntity : paymentEntities) {
+//      paymentsToAdd++;
+//      amountToAdd += paymentEntity.getAmount().doubleValue();
+//    }
+//
+//    // finally, update referenced flow: increment counters about computed total payments and
+//    // their total sum, define last update time and change status if needed
+//    this.paymentRepository.createEntityInBulk(paymentEntities);
+//    this.flowRepository.updateComputedValues(publishingFlow.getId(), paymentsToAdd, amountToAdd, now, FlowStatusEnum.INSERTED);
+//  }
+
+    @SneakyThrows
   private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
 
-    // generate quantity to add on computed values
-    int paymentsToAdd = 0;
-    double amountToAdd = 0.0;
-    for (PaymentEntity paymentEntity : paymentEntities) {
-      paymentsToAdd++;
-      amountToAdd += paymentEntity.getAmount().doubleValue();
-    }
+    long paymentsToAdd = paymentEntities.size();
 
-    // finally, update referenced flow: increment counters about computed total payments and
-    // their total sum, define last update time and change status if needed
-    this.paymentRepository.createEntityInBulk(paymentEntities);
-    this.flowRepository.updateComputedValues(publishingFlow.getId(), paymentsToAdd, amountToAdd, now, FlowStatusEnum.INSERTED);
+    BigDecimal amountToAdd = paymentEntities.stream()
+              .map(PaymentEntity::getAmount)
+              .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+      for (PaymentEntity payment : paymentEntities) {
+        paymentRepository.persist(payment);
+      }
+
+      flowRepository.updateComputedValues(
+              publishingFlow.getId(),
+              paymentsToAdd,
+              amountToAdd,
+              now,
+              FlowStatusEnum.INSERTED);
   }
 
   @SneakyThrows
@@ -288,12 +311,10 @@ public class PaymentService {
       FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
 
     // generate quantity to subtract on computed values (evaluated as negative value)
-    int paymentsToAdd = -1 * paymentEntities.size();
-    double amountToAdd =
-        -1
-            * paymentEntities.stream()
-                .mapToDouble(payment -> payment.getAmount().doubleValue())
-                .sum();
+    long paymentsToAdd = -1 * paymentEntities.size();
+    BigDecimal amountToAdd = paymentEntities.stream()
+            .map(PaymentEntity::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add).multiply(BigDecimal.valueOf(-1));
 
     // finally, update referenced flow: increment counters about computed total payments and
     // their total sum, define last update time and change status if needed

@@ -329,10 +329,9 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   */
 
 
+  /*
   @Timed(value = "flowRepository.updateComputedValues.task", description = "Time taken to perform updateComputedValues", percentiles = 0.95, histogram = true)
-  public void updateComputedValues(
-      Long flowId, int paymentsToAdd, double amountToAdd, Instant now, FlowStatusEnum status)
-      throws SQLException {
+  public void updateComputedValues(Long flowId, long paymentsToAdd, BigDecimal amountToAdd, Instant now, FlowStatusEnum status) throws SQLException {
 
     Session session = entityManager.unwrap(Session.class);
 
@@ -347,7 +346,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     try (PreparedStatement preparedStatement = session.doReturningWork(connection -> connection.prepareStatement(query))) {
 
       preparedStatement.setLong(1, paymentsToAdd);
-      preparedStatement.setBigDecimal(2, BigDecimal.valueOf(amountToAdd).setScale(2, RoundingMode.HALF_UP));
+      preparedStatement.setBigDecimal(2, amountToAdd.setScale(2, RoundingMode.HALF_UP));
       preparedStatement.setTimestamp(3, Timestamp.from(now));
       preparedStatement.setString(4, status.name());
       preparedStatement.setLong(5, flowId);
@@ -359,6 +358,25 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
       throw e;
     }
   }
+  */
+
+  @Timed(value = "flowRepository.updateComputedValues.task", description = "Time taken to perform updateComputedValues", percentiles = 0.95, histogram = true)
+  public void updateComputedValues(Long flowId, long paymentsToAdd, BigDecimal amountToAdd, Instant now, FlowStatusEnum status) {
+
+    update(
+            "SET computedTotPayments = computedTotPayments + ?1, " +
+                    "    computedTotAmount = computedTotAmount + ?2, " +
+                    "    updated = ?3, " +
+                    "    status = ?4 " +
+                    "WHERE id = ?5",
+            paymentsToAdd,
+            amountToAdd,
+            now,
+            status,
+            flowId
+    );
+  }
+
 
   @Timed(value = "flowRepository.updateLastPublishedAsNotLatest.task", description = "Time taken to perform updateLastPublishedAsNotLatest", percentiles = 0.95, histogram = true)
   public void updateLastPublishedAsNotLatest(String pspId, String flowName) {
