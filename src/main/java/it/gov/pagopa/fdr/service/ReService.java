@@ -4,7 +4,6 @@ import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.infrastructure.Infrastructure;
 import it.gov.pagopa.fdr.repository.entity.re.ReEventEntity;
 import it.gov.pagopa.fdr.service.middleware.mapper.ReEventMapper;
 import it.gov.pagopa.fdr.service.model.re.BlobHttpBody;
@@ -16,6 +15,11 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -31,47 +35,57 @@ public class ReService {
 
   private final ReEventMapper reEventMapper;
 
+  private final ExecutorService eventExecutor;
+
   public ReService(
-      Logger log, ReEventMapper reEventMapper, BlobContainerClient blobContainerClient) {
+      Logger log, ReEventMapper reEventMapper,
+      BlobContainerClient blobContainerClient
+  ) {
 
     this.log = log;
     this.reEventMapper = reEventMapper;
     this.blobContainerClient = blobContainerClient;
+
+    this.eventExecutor = Executors.newFixedThreadPool(4, new ThreadFactory() {
+      private final AtomicInteger counter = new AtomicInteger(1);
+      @Override
+      public Thread newThread(Runnable r) {
+        Thread t = new Thread(r);
+        t.setName("re-event-sender-" + counter.getAndIncrement());
+        return t;
+      }
+    });
   }
 
   @Transactional(Transactional.TxType.NOT_SUPPORTED)
   public void sendEvent(ReEvent... reEvents) {
+    // fire and forget
     Uni.createFrom()
-        .voidItem()
-        .runSubscriptionOn(Infrastructure.getDefaultWorkerPool()) // esegue storeEvents su worker
-        .onItem()
-        .invoke(() -> storeEvents(reEvents)) // codice sincrono, ma non blocca thread reactive
-        .subscribe()
-        .with(
-            ignored -> {}, // ok
-            failure -> log.error("Errore durante l'invio evento", failure));
+            .voidItem()
+            .runSubscriptionOn(eventExecutor)
+            .onItem()
+            .invoke(() -> storeEvents(reEvents)) // codice sincrono, ma non blocca thread reactive
+            .subscribe()
+            .with(ignored -> {}, failure -> {});
   }
 
   private void storeEvents(ReEvent... reEvents) {
-
     if (this.blobContainerClient == null) {
       log.debugf("RE Blob container [%s] NOT INITIALIZED", blobContainerName);
 
     } else {
 
       for (ReEvent reEvent : reEvents) {
-
         try {
-
           // Store request and response payload as BLOB file
           writeBlobsIfExist(reEvent);
 
           // Store RE event in collection
-          ReEventEntity reEventEntity = reEventMapper.toEntity(reEvent);
-          reEventEntity.persist();
-
+          ReEventEntity entity = reEventMapper.toEntity(reEvent);
+          entity.persist();
+          log.debugf("RE Event [%s] saved", entity.id);
         } catch (Exception e) {
-          log.errorf("An error occurred while storing events for Registro Eventi: " + e.getClass(), e);
+          log.errorf("Errore durante il salvataggio dell'evento %s: %s", reEvent, e.getMessage(), e);
         }
       }
     }
