@@ -19,11 +19,16 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class PaymentRepository extends Repository implements PanacheRepository<PaymentEntity> {
+
+  @ConfigProperty(name = "schedule.history.size")
+  Integer batchSize;
 
   public static final String INDEX = "index";
   private final EntityManager entityManager;
