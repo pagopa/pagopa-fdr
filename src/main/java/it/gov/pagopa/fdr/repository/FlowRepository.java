@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.Query;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
@@ -328,8 +327,6 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   }
   */
 
-
-  /*
   @Timed(value = "flowRepository.updateComputedValues.task", description = "Time taken to perform updateComputedValues", percentiles = 0.95, histogram = true)
   public void updateComputedValues(Long flowId, long paymentsToAdd, BigDecimal amountToAdd, Instant now, FlowStatusEnum status) throws SQLException {
 
@@ -358,25 +355,6 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
       throw e;
     }
   }
-  */
-
-  @Timed(value = "flowRepository.updateComputedValues.task", description = "Time taken to perform updateComputedValues", percentiles = 0.95, histogram = true)
-  public void updateComputedValues(Long flowId, long paymentsToAdd, BigDecimal amountToAdd, Instant now, FlowStatusEnum status) {
-
-    update(
-            "SET computedTotPayments = computedTotPayments + ?1, " +
-                    "    computedTotAmount = computedTotAmount + ?2, " +
-                    "    updated = ?3, " +
-                    "    status = ?4 " +
-                    "WHERE id = ?5",
-            paymentsToAdd,
-            amountToAdd,
-            now,
-            status,
-            flowId
-    );
-  }
-
 
   @Timed(value = "flowRepository.updateLastPublishedAsNotLatest.task", description = "Time taken to perform updateLastPublishedAsNotLatest", percentiles = 0.95, histogram = true)
   public void updateLastPublishedAsNotLatest(String pspId, String flowName) {

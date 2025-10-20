@@ -294,16 +294,15 @@ public class PaymentService {
               .map(PaymentEntity::getAmount)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-      for (PaymentEntity payment : paymentEntities) {
-        paymentRepository.persist(payment);
-      }
+    this.paymentRepository.createEntityInBulk(paymentEntities);
 
-      flowRepository.updateComputedValues(
-              publishingFlow.getId(),
-              paymentsToAdd,
-              amountToAdd,
-              now,
-              FlowStatusEnum.INSERTED);
+    flowRepository.updateComputedValues(
+            publishingFlow.getId(),
+            paymentsToAdd,
+            amountToAdd,
+            now,
+            FlowStatusEnum.INSERTED
+    );
   }
 
   @SneakyThrows
