@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -52,9 +50,14 @@ public class ReService {
       public Thread newThread(Runnable r) {
         Thread t = new Thread(r);
         t.setName("re-event-sender-" + counter.getAndIncrement());
+        t.setDaemon(true);
         return t;
       }
     });
+  }
+
+  public void shutdown() {
+    eventExecutor.shutdown();
   }
 
   @Transactional(Transactional.TxType.NOT_SUPPORTED)
@@ -77,18 +80,23 @@ public class ReService {
 
       for (ReEvent reEvent : reEvents) {
         try {
-          // Store request and response payload as BLOB file
-          writeBlobsIfExist(reEvent);
-
-          // Store RE event in collection
-          ReEventEntity entity = reEventMapper.toEntity(reEvent);
-          entity.persist();
-          log.debugf("RE Event [%s] saved", entity.id);
+          storeEvent(reEvent);
         } catch (Exception e) {
           log.errorf("Errore durante il salvataggio dell'evento %s: %s", reEvent, e.getMessage(), e);
         }
       }
     }
+  }
+
+  void storeEvent(ReEvent reEvent) {
+    // Store request and response payload as BLOB file
+    writeBlobsIfExist(reEvent);
+
+    // Store RE event in collection
+    ReEventEntity entity = reEventMapper.toEntity(reEvent);
+    entity.persist();
+
+    log.debugf("RE Event [%s] saved", entity.id);
   }
 
   private void writeBlobsIfExist(ReEvent reEvent) {
