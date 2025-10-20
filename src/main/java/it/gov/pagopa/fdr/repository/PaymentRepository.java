@@ -102,7 +102,6 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
   @Timed(value = "paymentRepository.createEntityInBulk.task", description = "Time taken to perform createEntityInBulk", percentiles = 0.95, histogram = true)
   public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
 
-    final int batchSize = 500; // TODO according to quarkus.hibernate-orm.jdbc.batch_size (TO SET IN CHART)
     Session session = entityManager.unwrap(Session.class);
 
     try (PreparedStatement preparedStatement =
