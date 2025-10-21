@@ -124,25 +124,6 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     }
   }
 
-
-//  public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
-//
-//    Session session = entityManager.unwrap(Session.class);
-//
-//    try (PreparedStatement preparedStatement =
-//        session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
-//
-//      for (PaymentEntity payment : entityBatch) {
-//        payment.exportInPreparedStatement(preparedStatement);
-//        preparedStatement.addBatch();
-//      }
-//      preparedStatement.executeBatch();
-//    } catch (SQLException e) {
-//      log.error("An error occurred while executing payments bulk insert", e);
-//      throw e;
-//    }
-//  }
-
   public PanacheQuery<PaymentEntity> findPageByFlowId(Long flowId, int pageNumber, int pageSize) {
 
     Page page = Page.of(pageNumber, pageSize);

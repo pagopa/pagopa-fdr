@@ -29,8 +29,7 @@ public class Config {
 
   private FdrCacheApi nodeCacheApi;
 
-  public Config(ObjectMapper objectMapper, Logger log) {
-    this.objectMapper = objectMapper;
+  public Config(Logger log) {
     this.log = log;
   }
 
@@ -53,8 +52,6 @@ public class Config {
     this.cache = newCache;
   }
 
-  private final ObjectMapper objectMapper;
-
   ConfigDataV1 cache;
 
   @SneakyThrows
@@ -64,7 +61,6 @@ public class Config {
       log.debug("Api config cache NOT INITIALIZED. Initializing it by demand.");
       this.cache = nodeCacheApi.cache(null);
     }
-    //return objectMapper.readValue(objectMapper.writeValueAsString(this.cache), ConfigDataV1.class);
     return this.cache;
   }
 

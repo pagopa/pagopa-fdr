@@ -70,21 +70,6 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
         .firstResultOptional();
   }
 
-//  public Optional<FlowEntity> findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
-//    FlowEntity entity =
-//        find(
-//                QUERY_GET_UNPUBLISHED_BY_PSP_AND_NAME,
-//                pspId,
-//                flowName,
-//                FlowStatusEnum.PUBLISHED.name())
-//            .firstResultOptional()
-//            .orElse(null);
-//    if (entity != null) {
-//      entityManager.detach(entity);
-//    }
-//    return Optional.ofNullable(entity);
-//  }
-
   public Optional<FlowEntity> findUnpublishedByPspIdAndNameReadOnly(String pspId, String flowName) {
     try {
       FlowEntity entity = entityManager.createQuery(
@@ -289,43 +274,6 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
   public void updateEntity(FlowEntity entity) {
     persist(entity);
   }
-
-  /*
-  public void updateComputedValuesFromPayments(Long flowId, Instant now, FlowStatusEnum status) throws SQLException {
-    Session session = entityManager.unwrap(Session.class);
-
-    // L’aggregazione viene fatta direttamente dal DB
-    String query = """
-        UPDATE flow f
-        SET
-            computed_tot_payments = computed_tot_payments + (
-                SELECT COUNT(*) FROM payment p WHERE p.flow_id = f.id AND p.created >= ?
-            ),
-            computed_tot_amount = computed_tot_amount + (
-                SELECT COALESCE(SUM(p.amount),0) FROM payment p WHERE p.flow_id = f.id AND p.created >= ?
-            ),
-            updated = ?,
-            status = ?
-        WHERE id = ?
-        """;
-
-    try (PreparedStatement ps = session.doReturningWork(c -> c.prepareStatement(query))) {
-      Timestamp nowTs = Timestamp.from(now);
-
-      // parametri per COUNT e SUM
-      ps.setTimestamp(1, nowTs);
-      ps.setTimestamp(2, nowTs);
-      ps.setTimestamp(3, nowTs);
-      ps.setString(4, status.name());
-      ps.setLong(5, flowId);
-
-      ps.executeUpdate();
-    } catch (SQLException e) {
-      log.error("Errore durante l'aggiornamento aggregato del flow", e);
-      throw e;
-    }
-  }
-  */
 
   @Timed(value = "flowRepository.updateComputedValues.task", description = "Time taken to perform updateComputedValues", percentiles = 0.95, histogram = true)
   public void updateComputedValues(Long flowId, long paymentsToAdd, BigDecimal amountToAdd, Instant now, FlowStatusEnum status) throws SQLException {

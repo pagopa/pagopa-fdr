@@ -165,17 +165,6 @@ public class PaymentService {
               flowName
       );
     }
-    /*
-    long numberOfAlreadyUsedIndexes = paymentRepository.countByFlowIdAndIndexes(publishingFlow.getId(), indexes);
-    if (numberOfAlreadyUsedIndexes > 0) {
-      List<PaymentEntity> indexesAlreadyAdded = paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
-      List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
-      throw new AppException(
-          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
-          conflictingIndexes,
-          flowName);
-    }
-     */
 
     // create all entities in batch, from each payment to be added, in transactional way
     Instant now = Instant.now();
@@ -268,24 +257,7 @@ public class PaymentService {
     }
   }
 
-//  @SneakyThrows
-//  private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
-//
-//    // generate quantity to add on computed values
-//    int paymentsToAdd = 0;
-//    double amountToAdd = 0.0;
-//    for (PaymentEntity paymentEntity : paymentEntities) {
-//      paymentsToAdd++;
-//      amountToAdd += paymentEntity.getAmount().doubleValue();
-//    }
-//
-//    // finally, update referenced flow: increment counters about computed total payments and
-//    // their total sum, define last update time and change status if needed
-//    this.paymentRepository.createEntityInBulk(paymentEntities);
-//    this.flowRepository.updateComputedValues(publishingFlow.getId(), paymentsToAdd, amountToAdd, now, FlowStatusEnum.INSERTED);
-//  }
-
-    @SneakyThrows
+  @SneakyThrows
   private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
 
     long paymentsToAdd = paymentEntities.size();
