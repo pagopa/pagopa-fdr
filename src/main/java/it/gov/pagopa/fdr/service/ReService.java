@@ -29,9 +29,6 @@ public class ReService {
   @ConfigProperty(name = "blob.re.name")
   String blobContainerName;
 
-  @ConfigProperty(name = "re-events.thread-pool-size")
-  Integer reEventsThreadPoolSize;
-
   private final BlobContainerClient blobContainerClient;
 
   private final ReEventMapper reEventMapper;
@@ -40,7 +37,8 @@ public class ReService {
 
   public ReService(
       Logger log, ReEventMapper reEventMapper,
-      BlobContainerClient blobContainerClient
+      BlobContainerClient blobContainerClient,
+      @ConfigProperty(name = "re-events.thread-pool-size") Integer reEventsThreadPoolSize
   ) {
 
     this.log = log;
