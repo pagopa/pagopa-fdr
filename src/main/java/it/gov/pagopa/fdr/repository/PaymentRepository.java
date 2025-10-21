@@ -27,7 +27,7 @@ import org.jboss.logging.Logger;
 @ApplicationScoped
 public class PaymentRepository extends Repository implements PanacheRepository<PaymentEntity> {
 
-  @ConfigProperty(name = "schedule.history.size")
+  @ConfigProperty(name = "payments.batch.size")
   Integer batchSize;
 
   public static final String INDEX = "index";
