@@ -29,6 +29,9 @@ public class ReService {
   @ConfigProperty(name = "blob.re.name")
   String blobContainerName;
 
+  @ConfigProperty(name = "re-events.thread-pool-size")
+  Integer reEventsThreadPoolSize;
+
   private final BlobContainerClient blobContainerClient;
 
   private final ReEventMapper reEventMapper;
@@ -44,7 +47,7 @@ public class ReService {
     this.reEventMapper = reEventMapper;
     this.blobContainerClient = blobContainerClient;
 
-    this.eventExecutor = Executors.newFixedThreadPool(4, new ThreadFactory() {
+    this.eventExecutor = Executors.newFixedThreadPool(reEventsThreadPoolSize, new ThreadFactory() {
       private final AtomicInteger counter = new AtomicInteger(1);
       @Override
       public Thread newThread(Runnable r) {
