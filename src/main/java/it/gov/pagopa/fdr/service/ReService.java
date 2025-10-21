@@ -83,7 +83,7 @@ public class ReService {
         try {
           storeEvent(reEvent);
         } catch (Exception e) {
-          log.errorf("Errore durante il salvataggio dell'evento %s: %s", reEvent, e.getMessage(), e);
+          log.errorf("An error occurred while storing events for Registro Eventi %s: %s", reEvent, e.getMessage(), e);
         }
       }
     }

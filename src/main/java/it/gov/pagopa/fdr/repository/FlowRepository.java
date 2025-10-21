@@ -81,7 +81,7 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
               .setParameter(STATUS, FlowStatusEnum.PUBLISHED.name())
               .setHint("org.hibernate.readOnly", true)
               .getSingleResult();
-      return Optional.of(entity);
+      return Optional.ofNullable(entity);
     } catch (NoResultException e) {
       return Optional.empty();
     }
