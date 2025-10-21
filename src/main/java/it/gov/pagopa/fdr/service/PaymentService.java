@@ -282,7 +282,7 @@ public class PaymentService {
       FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
 
     // generate quantity to subtract on computed values (evaluated as negative value)
-    long paymentsToAdd = -1 * paymentEntities.size();
+    long paymentsToAdd = -1L * paymentEntities.size();
     BigDecimal amountToAdd = paymentEntities.stream()
             .map(PaymentEntity::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add).multiply(BigDecimal.valueOf(-1));

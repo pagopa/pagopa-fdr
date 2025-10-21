@@ -76,9 +76,9 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
                       "FROM FlowEntity WHERE pspDomainId = :pspId AND name = :flowName AND status != :status",
                       FlowEntity.class
               )
-              .setParameter("pspId", pspId)
+              .setParameter(PSP_ID, pspId)
               .setParameter("flowName", flowName)
-              .setParameter("status", FlowStatusEnum.PUBLISHED.name())
+              .setParameter(STATUS, FlowStatusEnum.PUBLISHED.name())
               .setHint("org.hibernate.readOnly", true)
               .getSingleResult();
       return Optional.of(entity);

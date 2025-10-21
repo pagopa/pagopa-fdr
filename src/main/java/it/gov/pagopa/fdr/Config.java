@@ -1,6 +1,5 @@
 package it.gov.pagopa.fdr;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.annotation.Timed;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.scheduler.ScheduledExecution;
