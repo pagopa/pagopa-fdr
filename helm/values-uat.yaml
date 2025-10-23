@@ -54,10 +54,10 @@ microservice-chart: &microservice-chart
   resources: &resources
     requests:
       memory: "1250Mi"
-      cpu: "500m"
+      cpu: "300m"
     limits:
       memory: "2.5Gi"
-      cpu: '750m'
+      cpu: '550m'
   autoscaling: &autoscaling
     enable: false
   envConfig: &envConfig
@@ -174,7 +174,7 @@ scheduler:
       cpu: "200m"
     limits:
       memory: "2Gi"
-      cpu: "800m"
+      cpu: "600m"
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
