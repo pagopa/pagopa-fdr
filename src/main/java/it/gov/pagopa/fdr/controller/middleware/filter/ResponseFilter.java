@@ -198,11 +198,11 @@ public class ResponseFilter implements ContainerResponseFilter {
       Optional<ErrorResponse> errorResponse = Optional.of(errResponse);
       MDC.put(MDCKeys.OUTCOME, AppConstant.KO);
       MDC.put(MDCKeys.CODE, errorResponse.get().getAppErrorCode());
+      // don't modify error message to be able to trace validation errors too
       MDC.put(
-          MDCKeys.MESSAGE,
-          errorResponse.get().getErrors().stream()
-              .map(ErrorMessage::getMessage)
-              .collect(Collectors.joining(", ")));
+              MDCKeys.MESSAGE,
+              errorResponse.get().getErrors().stream().map(e -> e.getMessage()).collect(Collectors.joining(", ")) );
+
     } else {
       MDC.put(MDCKeys.OUTCOME, AppConstant.OK);
     }

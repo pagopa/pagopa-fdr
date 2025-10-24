@@ -1,5 +1,6 @@
 package it.gov.pagopa.fdr.repository;
 
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
@@ -18,11 +19,16 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class PaymentRepository extends Repository implements PanacheRepository<PaymentEntity> {
+
+  @ConfigProperty(name = "payments.batch.size")
+  Integer batchSize;
 
   public static final String INDEX = "index";
   private final EntityManager entityManager;
@@ -93,16 +99,23 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     return count(QUERY_GET_BY_FLOW_ID_AND_INDEXES, flowId, indexes);
   }
 
+  @Timed(value = "paymentRepository.createEntityInBulk.task", description = "Time taken to perform createEntityInBulk", percentiles = 0.95, histogram = true)
   public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
 
     Session session = entityManager.unwrap(Session.class);
 
     try (PreparedStatement preparedStatement =
-        session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
+                 session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
 
+      int count = 0;
       for (PaymentEntity payment : entityBatch) {
         payment.exportInPreparedStatement(preparedStatement);
         preparedStatement.addBatch();
+        count++;
+
+        if (count % batchSize == 0) {
+          preparedStatement.executeBatch();
+        }
       }
       preparedStatement.executeBatch();
     } catch (SQLException e) {

@@ -1,6 +1,6 @@
 package it.gov.pagopa.fdr;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.scheduler.ScheduledExecution;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,8 +28,7 @@ public class Config {
 
   private FdrCacheApi nodeCacheApi;
 
-  public Config(ObjectMapper objectMapper, Logger log) {
-    this.objectMapper = objectMapper;
+  public Config(Logger log) {
     this.log = log;
   }
 
@@ -52,17 +51,16 @@ public class Config {
     this.cache = newCache;
   }
 
-  private final ObjectMapper objectMapper;
-
   ConfigDataV1 cache;
 
   @SneakyThrows
+  @Timed(value = "config.cache.task", description = "Time taken to perform get cloned cache")
   public ConfigDataV1 getClonedCache() {
     if (this.cache == null) {
       log.debug("Api config cache NOT INITIALIZED. Initializing it by demand.");
       this.cache = nodeCacheApi.cache(null);
     }
-    return objectMapper.readValue(objectMapper.writeValueAsString(this.cache), ConfigDataV1.class);
+    return this.cache;
   }
 
   private final Logger log;

@@ -87,7 +87,7 @@ class FlowRepositoryTest {
         String pspId = AppConstantTestHelper.PSP_CODE;
         String organizationId = AppConstantTestHelper.EC_CODE;
         Instant publishedGt = Instant.parse(PUBLISHED_DATE);
-        Instant flowDate = Instant.parse(FLOW_DATE);
+        Instant flowDate = Instant.parse(FLOW_DATE).minusSeconds(1);
         int pageNumber = 1;
         int pageSize = 10;
 
@@ -97,7 +97,6 @@ class FlowRepositoryTest {
 
         List<FlowEntity> entities = result.getData();
 
-        System.out.println(entities);
         assertFalse(entities.isEmpty());
 
         assertTrue(
