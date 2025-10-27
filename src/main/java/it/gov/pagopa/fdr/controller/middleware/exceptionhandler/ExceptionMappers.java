@@ -71,7 +71,7 @@ public class ExceptionMappers {
             .errors(List.of(errorMessage))
             .build();
 
-    log.errorf(logErrorMessage(appEx.getMessage()));
+    log.errorf(logErrorMessage(message));
 
     return RestResponse.status(codeMessage.httpStatus(), errorResponse);
   }
