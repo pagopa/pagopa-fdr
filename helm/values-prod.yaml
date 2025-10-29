@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.61
+    tag: 1.1.61-19-try-to-optimize
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -26,12 +26,8 @@ microservice-chart: &microservice-chart
       rollingUpdate:
         maxSurge: 1
         maxUnavailable: 0
-  serviceMonitor:
-    create: true
-    endpoints:
-      - interval: 5s
-        targetPort: 8080
-        path: /q/metrics
+  serviceMonitor: &serviceMonitor
+    create: false
   ports:
     - 12345 #jmx-exporter
     - 8080
@@ -58,10 +54,10 @@ microservice-chart: &microservice-chart
   resources: &resources
     requests:
       memory: "1250Mi"
-      cpu: "750m"
+      cpu: "300m"
     limits:
-      memory: "3.5Gi"
-      cpu: '1.5'
+      memory: "2.5Gi"
+      cpu: '550m'
   autoscaling: &autoscaling
     enable: false
   envConfig: &envConfig
@@ -79,8 +75,10 @@ microservice-chart: &microservice-chart
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.p.internal.postgresql.pagopa.it:5432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
     DATASOURCE_POOL_SIZE: "50"
-    CUSTOM_JAVA_OPTS: "-XX:+UnlockExperimentalVMOptions -XshowSettings:vm -XX:+UnlockExperimentalVMOptions -XX:InitiatingHeapOccupancyPercent=20 -XX:+UseContainerSupport -XX:+UseG1GC -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30 -Xms512m -Xmx2500m"
+    CUSTOM_JAVA_OPTS: "-XX:+UnlockExperimentalVMOptions -XshowSettings:vm -XX:InitiatingHeapOccupancyPercent=20 -XX:+UseContainerSupport -XX:+UseG1GC -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30 -Xms512m -Xmx2500m"
     RE_ACTIONS_EXCLUDED_FROM_SAVE: "GET_ALL_FDR,INTERNAL_CREATE_FLOW,INTERNAL_ADD_PAYMENT,INTERNAL_DELETE_PAYMENT,INTERNAL_PUBLISH,INTERNAL_DELETE_FLOW"
+    HIBERNATE_BATCH_SIZE: "500"
+    RE_EVENTS_THREAD_POOL_SIZE: "4"
   envFieldRef: &envFieldRef
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
@@ -139,7 +137,7 @@ core:
           timezone: Europe/Rome
           start: 0 1 * * *
           end: 30 10 * * *
-          desiredReplicas: "8"
+          desiredReplicas: "5"
       - type: cpu
         metadata:
           type: Utilization
@@ -151,10 +149,19 @@ core:
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "off"
+    QUARKUS_HIBERNATE_ORM_LOG_SQL: "false"
   envFieldRef:
     !!merge <<: *envFieldRef
   envSecret:
     !!merge <<: *envSecret
+  serviceMonitor:
+    !!merge <<: *serviceMonitor
+    create: true
+    prometheusManaged: true
+    endpoints:
+      - interval: 5s
+        targetPort: 8080
+        path: /q/metrics
 # Configuration for CronJob scheduler
 scheduler:
   !!merge <<: *microservice-chart
@@ -173,7 +180,7 @@ scheduler:
       cpu: "200m"
     limits:
       memory: "2Gi"
-      cpu: "800m"
+      cpu: "600m"
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "0 */5 * * * ?"
