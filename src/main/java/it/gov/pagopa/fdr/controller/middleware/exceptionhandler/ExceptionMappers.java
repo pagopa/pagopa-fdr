@@ -126,8 +126,7 @@ public class ExceptionMappers {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapInvalidFormatException(
       InvalidFormatException invalidFormatException) {
-    // quando jackson riesce a parsare il messaggio per popolare il bean ma i valori NON sono
-    // corretti
+    // quando jackson riesce a parsare il messaggio per popolare il bean ma i valori NON sono corretti
     String field =
         invalidFormatException.getPath().stream()
             .map(Reference::getFieldName)
