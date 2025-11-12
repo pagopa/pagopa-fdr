@@ -245,22 +245,26 @@ public class ExceptionMappers {
         switch (violatedConstraint) {
 
           // violating flow_revision_idx: trying to create two time the same flow
-          case "flow_revision_idx" ->
-              appEx =
-                  new AppException(
-                      trxRollbackException,
-                      AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
-                      flowId,
-                      "CREATED");
+          case "flow_revision_idx":
+            log.error("An error occurred while executing flow creation: violated index 'flow_revision_idx'.");
+            appEx =
+              new AppException(
+                trxRollbackException,
+                AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
+                flowId,
+                "CREATED");
+            break;
 
           // violating flow_to_historicization_idx: trying to publish two time the same flow
-          case "flow_to_historicization_idx" ->
-              appEx =
-                  new AppException(
-                      trxRollbackException,
-                      AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
-                      flowId);
-        }
+          case "flow_to_historicization_idx":
+            log.error("An error occurred while executing flow historicization: violated index 'flow_to_historicization_idx'.");
+            appEx =
+              new AppException(
+                trxRollbackException,
+                AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND,
+                flowId);
+            break;
+          }
         log.errorf(logErrorMessage(trxRollbackException.getMessage()));
       }
     }
