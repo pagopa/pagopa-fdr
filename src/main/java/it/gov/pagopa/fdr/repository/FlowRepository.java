@@ -258,8 +258,8 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     String queryString = String.join(AND, queryBuilder);
 
     Page page = Page.of(pageNumber - 1, pageSize);
-    // Sorting by ID ensures that the sorting is deterministic in cases where multiple records have the same date.
-    Sort sort = getSort(SortField.of("date", Direction.Ascending), SortField.of("id", Direction.Ascending));
+    // Sorting by name ensures that the sorting is deterministic in cases where multiple records have the same date.
+    Sort sort = getSort(SortField.of("date", Direction.Ascending), SortField.of("name", Direction.Ascending));
 
     PanacheQuery<FlowEntity> resultPage =
         FlowEntity.findPageByQuery(queryString, sort, parameters).page(page);
