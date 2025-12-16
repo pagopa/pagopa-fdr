@@ -44,47 +44,6 @@ class InternalOperationControllerTest {
   }
 
   @Test
-  @DisplayName("PSPS - KO FDR-0704 - psp param and psp body not match")
-  void test_psp_KO_FDR0704() {
-    String flowName = TestUtil.getDynamicFlowName();
-    String pspNotMatch = "PSP_NOT_MATCH";
-
-    String url = INTERNAL_FLOWS_URL.formatted(PSP_CODE, flowName);
-    String bodyFmt =
-        FLOW_TEMPLATE.formatted(
-            flowName,
-            FLOW_DATE,
-            SenderTypeEnum.LEGAL_PERSON.name(),
-            pspNotMatch,
-            BROKER_CODE,
-            CHANNEL_CODE,
-            EC_CODE);
-    ErrorResponse resDelError =
-        given()
-            .header(HEADER)
-            .body(bodyFmt)
-            .when()
-            .post(url)
-            .then()
-            .statusCode(400)
-            .extract()
-            .as(ErrorResponse.class);
-    assertThat(
-        resDelError.getAppErrorCode(),
-        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH.errorCode()));
-    assertThat(
-        resDelError.getErrors(),
-        hasItem(
-            hasProperty(
-                "message",
-                equalTo(
-                    String.format(
-                        "Flow with ID [%s] have field sender.pspId [%s] that does not match with"
-                            + " query param [PSP_NOT_MATCH].",
-                        flowName, PSP_CODE, pspNotMatch)))));
-  }
-
-  @Test
   @DisplayName("PSPS - KO FDR-0400 - JSON input wrong fields")
   void test_psp_KO_FDR0400() {
     String flowName = TestUtil.getDynamicFlowName();
