@@ -133,7 +133,6 @@ public class PaymentService {
   }
 
   @WithSpan(kind = SERVER)
-  @Transactional(rollbackOn = Exception.class)
   @Timed(value = "paymentService.addPaymentToExistingFlow.task", description = "Time taken to perform addPaymentToExistingFlow", percentiles = 0.95, histogram = true)
   public GenericResponse addPaymentToExistingFlow(String pspId, String flowName, AddPaymentRequest request) {
 
@@ -144,6 +143,31 @@ public class PaymentService {
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateAddPaymentRequest(configData, pspId, flowName, request);
+
+    return addPaymentToExistingFlowAfterValidation(pspId, flowName, request);
+  }
+
+  @WithSpan(kind = SERVER)
+  public GenericResponse deletePaymentFromExistingFlow(
+      String pspId, String flowName, DeletePaymentRequest request) {
+
+    log.debugf(
+        "Deleting [%s] payments on flow [%s], pspId [%s]",
+        request.getIndexList().size(), flowName, pspId);
+
+    ConfigDataV1 configData = cachedConfig.getClonedCache();
+    SemanticValidator.validateDeletePaymentRequest(configData, pspId, flowName, request);
+
+    return deletePaymentFromExistingFlowAfterValidation(pspId, flowName, request);
+  }
+
+  @Transactional(rollbackOn = Exception.class)
+  public GenericResponse addPaymentToExistingFlowAfterValidation(String pspId, String flowName, AddPaymentRequest request) {
+
+    log.debugf(
+        "Adding [%s] new payments on flow [%s], pspId [%s]",
+        request.getPayments().size(), flowName, pspId
+    );
 
     // check if there is an unpublished flow on which is possible to add payments
     Optional<FlowEntity> optPublishingFlow = flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
@@ -160,9 +184,9 @@ public class PaymentService {
     if (!indexesAlreadyAdded.isEmpty()) {
       List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
       throw new AppException(
-              AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
-              conflictingIndexes,
-              flowName
+          AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
+          conflictingIndexes,
+          flowName
       );
     }
 
@@ -179,17 +203,9 @@ public class PaymentService {
         .build();
   }
 
-  @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
-  public GenericResponse deletePaymentFromExistingFlow(
+  public GenericResponse deletePaymentFromExistingFlowAfterValidation(
       String pspId, String flowName, DeletePaymentRequest request) {
-
-    log.debugf(
-        "Deleting [%s] payments on flow [%s], pspId [%s]",
-        request.getIndexList().size(), flowName, pspId);
-
-    ConfigDataV1 configData = cachedConfig.getClonedCache();
-    SemanticValidator.validateDeletePaymentRequest(configData, pspId, flowName, request);
 
     // check if there is an unpublished flow on which is possible to add payments
     Optional<FlowEntity> optPublishingFlow =

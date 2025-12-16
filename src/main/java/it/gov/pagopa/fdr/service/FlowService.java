@@ -188,6 +188,11 @@ public class FlowService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
+    return getSingleFlowNotInPublishedStatusAfterValidation(organizationId, pspId, flowName);
+  }
+
+  public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusAfterValidation(String organizationId, String pspId, String flowName) {
+
     Optional<FlowEntity> result =
         this.flowRepository.findUnpublishedByOrganizationIdAndPspIdAndName(
             organizationId, pspId, flowName);
@@ -249,6 +254,42 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
+  @Timed(value = "paymentService.createEmptyFlowInternal.task", description = "Time taken to perform createEmptyFlow", percentiles = 0.95, histogram = true)
+  public GenericResponse createEmptyFlowInternalUse(String pspId, String flowName, CreateFlowRequest request) {
+
+    log.debugf(
+        "Saving new flows by organizationId [%s], pspId [%s], flowName [%s]",
+        request.getReceiver().getOrganizationId(), pspId, flowName);
+
+    // check if there is already another unpublished flow that is in progress
+    Optional<FlowEntity> optPublishingFlow =
+        flowRepository.findUnpublishedByPspIdAndNameReadOnly(pspId, flowName);
+    if (optPublishingFlow.isPresent()) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_ALREADY_EXIST,
+          flowName,
+          optPublishingFlow.get().getStatus());
+    }
+
+    // retrieve the last published flow, in order to take its revision and increment it
+    Optional<FlowEntity> lastPublishedFlow =
+        flowRepository.findLastPublishedByPspIdAndName(pspId, flowName);
+
+    // incrementing revision value using the revision of the last flow
+    Long revision = lastPublishedFlow.map(flowEntity -> (flowEntity.getRevision() + 1)).orElse(1L);
+
+    // finally, persist the newly generated entity
+    FlowEntity entity = flowMapper.toEntity(request, revision);
+    this.flowRepository.createEntity(entity);
+
+    // Send event to Registro Eventi for internal operation
+    storeInternalREEvent(entity, FdrStatusEnum.CREATED, FdrActionEnum.CREATE_FLOW);
+
+    return GenericResponse.builder().message(String.format("Fdr [%s] saved", flowName)).build();
+  }
+
+  @WithSpan(kind = SERVER)
+  @Transactional(rollbackOn = Exception.class)
   @Timed(value = "paymentService.publishFlow.task", description = "Time taken to perform publishFlow", percentiles = 0.95, histogram = true)
   public GenericResponse publishFlow(String pspId, String flowName, boolean isInternalCall) {
 
@@ -287,12 +328,51 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
+  @Timed(value = "paymentService.publishFlowInternal.task", description = "Time taken to perform publishFlow", percentiles = 0.95, histogram = true)
+  public GenericResponse publishFlowInternalUse(String pspId, String flowName, boolean isInternalCall) {
+
+    log.debugf("Publishing existing flows by pspId [%s], flowName [%s]", pspId, flowName);
+
+    // check if there is an unpublished flow that is in progress
+    Optional<FlowEntity> optPublishingFlow =
+        flowRepository.findUnpublishedByPspIdAndName(pspId, flowName);
+    if (optPublishingFlow.isEmpty()) {
+      throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
+    }
+    FlowEntity publishingFlow = optPublishingFlow.get();
+    if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+          flowName,
+          publishingFlow.getStatus());
+    }
+
+    // publish flow
+    publishNewRevision(pspId, flowName, publishingFlow);
+
+    FlowToHistoryEntity flowToHistoryEntity =
+        flowToHistoryMapper.toEntity(publishingFlow, isInternalCall);
+    this.flowToHistoryRepository.createEntity(flowToHistoryEntity);
+
+    // Send event to Registro Eventi for internal operation
+    storeInternalREEvent(publishingFlow, FdrStatusEnum.PUBLISHED, FdrActionEnum.PUBLISH);
+
+    return GenericResponse.builder().message(String.format("Fdr [%s] published", flowName)).build();
+  }
+
+  @WithSpan(kind = SERVER)
   public GenericResponse deleteExistingFlow(String pspId, String flowName) {
 
     log.debugf("Deleting existing flows by pspId [%s], flowName [%s]", pspId, flowName);
 
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
+
+    return deleteExistingFlowAfterValidation(pspId, flowName);
+  }
+
+  @Transactional(rollbackOn = Exception.class)
+  public GenericResponse deleteExistingFlowAfterValidation(String pspId, String flowName) {
 
     // check if there is already another unpublished flow that is in progress
     Optional<FlowEntity> optPublishingFlow =

@@ -17,11 +17,14 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 public class InternalOperationsController implements IInternalOperationsController {
 
-  private final InternalService internalService;
+  private final FlowService flowService;
 
-  protected InternalOperationsController(InternalService internalService) {
+  private final PaymentService paymentService;
 
-    this.internalService = internalService;
+  protected InternalOperationsController(FlowService flowService, PaymentService paymentService) {
+
+    this.flowService = flowService;
+    this.paymentService = paymentService;
   }
 
   @Override
@@ -29,7 +32,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   public RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       String pspId, String flowName, CreateFlowRequest request) {
 
-    GenericResponse response = this.internalService.createEmptyFlow(pspId, flowName, request);
+    GenericResponse response = this.flowService.createEmptyFlowInternalUse(pspId, flowName, request);
     return RestResponse.status(Status.CREATED, response);
   }
 
@@ -38,7 +41,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   public GenericResponse addPaymentToExistingFlowForInternalUse(
       String pspId, String flowName, AddPaymentRequest request) {
 
-    return this.internalService.addPaymentToExistingFlow(pspId, flowName, request);
+    return this.paymentService.addPaymentToExistingFlowAfterValidation(pspId, flowName, request);
   }
 
   @Override
@@ -46,32 +49,28 @@ public class InternalOperationsController implements IInternalOperationsControll
   public GenericResponse deletePaymentFromExistingFlowForInternalUse(
       String pspId, String flowName, DeletePaymentRequest request) {
 
-    return this.internalService.deletePaymentFromExistingFlow(pspId, flowName, request);
+    return this.paymentService.deletePaymentFromExistingFlowAfterValidation(pspId, flowName, request);
   }
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_PUBLISH)
   public GenericResponse publishFlowForInternalUse(String pspId, String flowName) {
 
-    return this.internalService.publishFlow(pspId, flowName, true);
+    return this.flowService.publishFlowInternalUse(pspId, flowName, true);
   }
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_DELETE_FLOW)
   public GenericResponse deleteExistingFlowForInternalUse(String pspId, String flowName) {
 
-    return this.internalService.deleteExistingFlow(pspId, flowName);
+    return this.flowService.deleteExistingFlowAfterValidation(pspId, flowName);
   }
 
   @Override
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
       String pspId, String flowName, String organizationId) {
 
-    return this.internalService.getSingleFlowNotInPublishedStatus(
-        FindFlowsByFiltersArgs.builder()
-            .pspId(pspId)
-            .flowName(flowName)
-            .organizationId(organizationId)
-            .build());
+    return this.flowService.getSingleFlowNotInPublishedStatusAfterValidation(organizationId, pspId, flowName);
+
   }
 }
