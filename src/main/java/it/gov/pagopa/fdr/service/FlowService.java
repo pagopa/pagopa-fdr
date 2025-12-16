@@ -1,6 +1,7 @@
 package it.gov.pagopa.fdr.service;
 
 import static io.opentelemetry.api.trace.SpanKind.SERVER;
+import static it.gov.pagopa.fdr.util.common.StringUtil.sanitize;
 import static it.gov.pagopa.fdr.util.constant.MDCKeys.IS_RE_ENABLED_FOR_THIS_CALL;
 
 import io.micrometer.core.annotation.Timed;
@@ -259,7 +260,7 @@ public class FlowService {
 
     log.debugf(
         "Saving new flows by organizationId [%s], pspId [%s], flowName [%s]",
-        request.getReceiver().getOrganizationId(), pspId, flowName);
+        sanitize(request.getReceiver().getOrganizationId()), sanitize(pspId), sanitize(flowName));
 
     // check if there is already another unpublished flow that is in progress
     Optional<FlowEntity> optPublishingFlow =
@@ -331,7 +332,7 @@ public class FlowService {
   @Timed(value = "paymentService.publishFlowInternal.task", description = "Time taken to perform publishFlow", percentiles = 0.95, histogram = true)
   public GenericResponse publishFlowInternalUse(String pspId, String flowName, boolean isInternalCall) {
 
-    log.debugf("Publishing existing flows by pspId [%s], flowName [%s]", pspId, flowName);
+    log.debugf("Publishing existing flows by pspId [%s], flowName [%s]", sanitize(pspId), (flowName));
 
     // check if there is an unpublished flow that is in progress
     Optional<FlowEntity> optPublishingFlow =
