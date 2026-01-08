@@ -30,7 +30,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   public RestResponse<GenericResponse> createEmptyFlowForInternalUse(
       String pspId, String flowName, CreateFlowRequest request) {
 
-    GenericResponse response = this.flowService.createEmptyFlowInternalUse(pspId, flowName, request);
+    GenericResponse response = this.flowService.createEmptyFlowForInternalUse(pspId, flowName, request);
     return RestResponse.status(Status.CREATED, response);
   }
 
@@ -39,7 +39,7 @@ public class InternalOperationsController implements IInternalOperationsControll
   public GenericResponse addPaymentToExistingFlowForInternalUse(
       String pspId, String flowName, AddPaymentRequest request) {
 
-    return this.paymentService.addPaymentToExistingFlowAfterValidation(pspId, flowName, request);
+    return this.paymentService.addPaymentsToUnpublishedFlow(pspId, flowName, request);
   }
 
   @Override
@@ -47,28 +47,28 @@ public class InternalOperationsController implements IInternalOperationsControll
   public GenericResponse deletePaymentFromExistingFlowForInternalUse(
       String pspId, String flowName, DeletePaymentRequest request) {
 
-    return this.paymentService.deletePaymentFromExistingFlowAfterValidation(pspId, flowName, request);
+    return this.paymentService.deletePaymentFromUnpublishedFlow(pspId, flowName, request);
   }
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_PUBLISH)
   public GenericResponse publishFlowForInternalUse(String pspId, String flowName) {
 
-    return this.flowService.publishFlowInternalUse(pspId, flowName, true);
+    return this.flowService.publishFlowForInternalUse(pspId, flowName, true);
   }
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_DELETE_FLOW)
   public GenericResponse deleteExistingFlowForInternalUse(String pspId, String flowName) {
 
-    return this.flowService.deleteExistingFlowAfterValidation(pspId, flowName);
+    return this.flowService.deleteUnpublishedFlow(pspId, flowName);
   }
 
   @Override
   public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusForInternalUse(
       String pspId, String flowName, String organizationId) {
 
-    return this.flowService.getSingleFlowNotInPublishedStatusAfterValidation(organizationId, pspId, flowName);
+    return this.flowService.retrieveSingleUnpublishedFlow(organizationId, pspId, flowName);
 
   }
 }

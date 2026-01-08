@@ -189,10 +189,10 @@ public class FlowService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateGetSingleFlowFilters(configData, args);
 
-    return getSingleFlowNotInPublishedStatusAfterValidation(organizationId, pspId, flowName);
+    return retrieveSingleUnpublishedFlow(organizationId, pspId, flowName);
   }
 
-  public SingleFlowCreatedResponse getSingleFlowNotInPublishedStatusAfterValidation(String organizationId, String pspId, String flowName) {
+  public SingleFlowCreatedResponse retrieveSingleUnpublishedFlow(String organizationId, String pspId, String flowName) {
 
     Optional<FlowEntity> result =
         this.flowRepository.findUnpublishedByOrganizationIdAndPspIdAndName(
@@ -255,8 +255,8 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
-  @Timed(value = "paymentService.createEmptyFlowInternal.task", description = "Time taken to perform createEmptyFlow", percentiles = 0.95, histogram = true)
-  public GenericResponse createEmptyFlowInternalUse(String pspId, String flowName, CreateFlowRequest request) {
+  @Timed(value = "paymentService.createEmptyFlowForInternalUse.task", description = "Time taken to perform createEmptyFlow", percentiles = 0.95, histogram = true)
+  public GenericResponse createEmptyFlowForInternalUse(String pspId, String flowName, CreateFlowRequest request) {
 
     log.debugf(
         "Saving new flows by organizationId [%s], pspId [%s], flowName [%s]",
@@ -329,8 +329,8 @@ public class FlowService {
 
   @WithSpan(kind = SERVER)
   @Transactional(rollbackOn = Exception.class)
-  @Timed(value = "paymentService.publishFlowInternal.task", description = "Time taken to perform publishFlow", percentiles = 0.95, histogram = true)
-  public GenericResponse publishFlowInternalUse(String pspId, String flowName, boolean isInternalCall) {
+  @Timed(value = "paymentService.publishFlowForInternalUse.task", description = "Time taken to perform publishFlow", percentiles = 0.95, histogram = true)
+  public GenericResponse publishFlowForInternalUse(String pspId, String flowName, boolean isInternalCall) {
 
     log.debugf("Publishing existing flows by pspId [%s], flowName [%s]", sanitize(pspId), (flowName));
 
@@ -369,11 +369,11 @@ public class FlowService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateOnlyFlowFilters(configData, pspId, flowName);
 
-    return deleteExistingFlowAfterValidation(pspId, flowName);
+    return deleteUnpublishedFlow(pspId, flowName);
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public GenericResponse deleteExistingFlowAfterValidation(String pspId, String flowName) {
+  private GenericResponse deleteUnpublishedFlow(String pspId, String flowName) {
 
     // check if there is already another unpublished flow that is in progress
     Optional<FlowEntity> optPublishingFlow =

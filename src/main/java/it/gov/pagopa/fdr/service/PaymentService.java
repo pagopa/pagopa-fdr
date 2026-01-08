@@ -144,7 +144,7 @@ public class PaymentService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateAddPaymentRequest(configData, pspId, flowName, request);
 
-    return addPaymentToExistingFlowAfterValidation(pspId, flowName, request);
+    return addPaymentsToUnpublishedFlow(pspId, flowName, request);
   }
 
   @WithSpan(kind = SERVER)
@@ -158,11 +158,11 @@ public class PaymentService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateDeletePaymentRequest(configData, pspId, flowName, request);
 
-    return deletePaymentFromExistingFlowAfterValidation(pspId, flowName, request);
+    return deletePaymentFromUnpublishedFlow(pspId, flowName, request);
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public GenericResponse addPaymentToExistingFlowAfterValidation(String pspId, String flowName, AddPaymentRequest request) {
+  public GenericResponse addPaymentsToUnpublishedFlow(String pspId, String flowName, AddPaymentRequest request) {
 
     log.debugf(
         "Adding [%s] new payments on flow [%s], pspId [%s]",
@@ -204,7 +204,7 @@ public class PaymentService {
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public GenericResponse deletePaymentFromExistingFlowAfterValidation(
+  public GenericResponse deletePaymentFromUnpublishedFlow(
       String pspId, String flowName, DeletePaymentRequest request) {
 
     // check if there is an unpublished flow on which is possible to add payments
