@@ -373,7 +373,7 @@ public class FlowService {
   }
 
   @Transactional(rollbackOn = Exception.class)
-  private GenericResponse deleteUnpublishedFlow(String pspId, String flowName) {
+  public GenericResponse deleteUnpublishedFlow(String pspId, String flowName) {
 
     // check if there is already another unpublished flow that is in progress
     Optional<FlowEntity> optPublishingFlow =
