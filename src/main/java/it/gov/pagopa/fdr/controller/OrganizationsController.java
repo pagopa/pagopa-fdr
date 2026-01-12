@@ -11,6 +11,8 @@ import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.Optional;
 
 public class OrganizationsController implements IOrganizationsController {
 
@@ -27,14 +29,21 @@ public class OrganizationsController implements IOrganizationsController {
     @Override
     @Re(action = FdrActionEnum.GET_ALL_FDR)
     public PaginatedFlowsResponse getAllPublishedFlows(
-            String organizationId, String pspId, Instant publishedGt, Instant flowDate, long pageNumber, long pageSize) {
+            String organizationId,
+            String pspId,
+            Optional<Instant> publishedGt,
+            Optional<Instant> flowDate,
+            long pageNumber,
+            long pageSize
+    ) {
 
+        Instant defaultDate = Instant.now().atZone(ZoneOffset.UTC).minusMonths(1).toInstant();
         return this.flowService.getPaginatedPublishedFlowsForCI(
                 FindFlowsByFiltersArgs.builder()
                         .organizationId(organizationId)
                         .pspId(pspId)
-                        .publishedGt(publishedGt)
-                        .flowDate(flowDate)
+                        .publishedGt(publishedGt.orElse(defaultDate))
+                        .flowDate(flowDate.orElse(defaultDate))
                         .pageNumber(pageNumber)
                         .pageSize(pageSize)
                         .build());
@@ -43,7 +52,8 @@ public class OrganizationsController implements IOrganizationsController {
     @Override
     @Re(action = FdrActionEnum.GET_FDR)
     public SingleFlowResponse getSinglePublishedFlow(
-            String organizationId, String flowName, Long revision, String pspId) {
+            String organizationId, String flowName, Long revision, String pspId
+    ) {
 
         return this.flowService.getSinglePublishedFlow(
                 FindFlowsByFiltersArgs.builder()
@@ -62,7 +72,8 @@ public class OrganizationsController implements IOrganizationsController {
             Long revision,
             String pspId,
             long pageNumber,
-            long pageSize) {
+            long pageSize
+    ) {
 
         return this.paymentService.getPaymentsFromPublishedFlow(
                 FindFlowsByFiltersArgs.builder()
