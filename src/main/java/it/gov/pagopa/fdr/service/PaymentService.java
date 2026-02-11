@@ -282,7 +282,8 @@ public class PaymentService {
               .map(PaymentEntity::getAmount)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    this.paymentRepository.createEntityInBulk(paymentEntities);
+//    this.paymentRepository.createEntityInBulk(paymentEntities);
+    this.paymentRepository.createEntityInBulkCopy(paymentEntities);
 
     flowRepository.updateComputedValues(
             publishingFlow.getId(),
