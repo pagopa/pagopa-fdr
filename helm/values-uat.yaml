@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.1.62
+    tag: 1.1.62-1-bulk-improvements
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -126,7 +126,7 @@ core:
     !!merge <<: *autoscaling
     enable: true
     minReplica: 5 # TODO set 1
-    maxReplica: 10  # TODO set 3
+    maxReplica: 10 # TODO set 3
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     advanced:
