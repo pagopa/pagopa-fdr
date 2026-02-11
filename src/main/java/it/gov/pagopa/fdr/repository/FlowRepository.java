@@ -281,12 +281,12 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     Session session = entityManager.unwrap(Session.class);
 
     String query =
-        "UPDATE flow SET"
-            + " computed_tot_payments = computed_tot_payments + ?,"
-            + " computed_tot_amount = computed_tot_amount + ?,"
-            + " updated = ?,"
-            + " status = ?"
-            + " WHERE id = ?";
+            "UPDATE flow SET"
+                    + " computed_tot_payments = computed_tot_payments + ?,"
+                    + " computed_tot_amount = computed_tot_amount + ?,"
+                    + " updated = ?,"
+                    + " status = ?"
+                    + " WHERE id = ?";
 
     try (PreparedStatement preparedStatement = session.doReturningWork(connection -> connection.prepareStatement(query))) {
 
@@ -295,6 +295,31 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
       preparedStatement.setTimestamp(3, Timestamp.from(now));
       preparedStatement.setString(4, status.name());
       preparedStatement.setLong(5, flowId);
+      preparedStatement.execute();
+
+    } catch (SQLException e) {
+
+      log.error("An error occurred while executing payments bulk insert", e);
+      throw e;
+    }
+  }
+
+  // TODO analyze
+  public void updateStatus(Long flowId, Instant now, FlowStatusEnum status) throws SQLException {
+
+    Session session = entityManager.unwrap(Session.class);
+
+    String query =
+            "UPDATE flow SET"
+                    + " updated = ?,"
+                    + " status = ?"
+                    + " WHERE id = ?";
+
+    try (PreparedStatement preparedStatement = session.doReturningWork(connection -> connection.prepareStatement(query))) {
+
+      preparedStatement.setTimestamp(1, Timestamp.from(now));
+      preparedStatement.setString(2, status.name());
+      preparedStatement.setLong(3, flowId);
       preparedStatement.execute();
 
     } catch (SQLException e) {

@@ -271,8 +271,11 @@ public class FlowService {
           publishingFlow.getStatus());
     }
 
+    // TODO update computed payments before publish, in order to have the latest values in the published flow and in the history table
+
     // check if retrieved flow can be published
-    SemanticValidator.validatePublishingFlow(publishingFlow);
+    // TODO remove comment
+//    SemanticValidator.validatePublishingFlow(publishingFlow);
     publishNewRevision(pspId, flowName, publishingFlow);
 
     FlowToHistoryEntity flowToHistoryEntity =

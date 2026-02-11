@@ -269,13 +269,19 @@ public class PaymentService {
 //    this.paymentRepository.createEntityInBulk(paymentEntities);
     this.paymentRepository.createEntityInBulkCopy(paymentEntities);
 
-    flowRepository.updateComputedValues(
-            publishingFlow.getId(),
-            paymentsToAdd,
-            amountToAdd,
-            now,
-            FlowStatusEnum.INSERTED
-    );
+//    flowRepository.updateComputedValues(
+//            publishingFlow.getId(),
+//            paymentsToAdd,
+//            amountToAdd,
+//            now,
+//            FlowStatusEnum.INSERTED
+//    );
+    // TODO uncomment
+//    flowRepository.updateStatus(
+//            publishingFlow.getId(),
+//            now,
+//            FlowStatusEnum.INSERTED
+//    );
   }
 
   @SneakyThrows
