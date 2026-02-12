@@ -12,7 +12,7 @@ public class AppConstant {
   public static final String OK = "OK";
   public static final String KO = "KO";
 
-  public static final int MAX_PAYMENT = 1000;
+  public static final int MAX_PAYMENT = 5000;
 
   private AppConstant() {
     throw new IllegalStateException("Constants class");
