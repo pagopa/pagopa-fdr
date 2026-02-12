@@ -264,19 +264,15 @@ public class FlowService {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
     FlowEntity publishingFlow = optPublishingFlow.get();
-    // TODO remove comment
-//    if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
-//      throw new AppException(
-//          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
-//          flowName,
-//          publishingFlow.getStatus());
-//    }
-
-    // TODO update computed payments before publish, in order to have the latest values in the published flow and in the history table
+    if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
+      throw new AppException(
+          AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
+          flowName,
+          publishingFlow.getStatus());
+    }
 
     // check if retrieved flow can be published
-    // TODO remove comment
-//    SemanticValidator.validatePublishingFlow(publishingFlow);
+    SemanticValidator.validatePublishingFlow(publishingFlow);
     publishNewRevision(pspId, flowName, publishingFlow);
 
     FlowToHistoryEntity flowToHistoryEntity =

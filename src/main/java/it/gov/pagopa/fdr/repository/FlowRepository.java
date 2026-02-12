@@ -304,31 +304,6 @@ public class FlowRepository extends Repository implements PanacheRepository<Flow
     }
   }
 
-  // TODO analyze
-  public void updateStatus(Long flowId, Instant now, FlowStatusEnum status) throws SQLException {
-
-    Session session = entityManager.unwrap(Session.class);
-
-    String query =
-            "UPDATE flow SET"
-                    + " updated = ?,"
-                    + " status = ?"
-                    + " WHERE id = ?";
-
-    try (PreparedStatement preparedStatement = session.doReturningWork(connection -> connection.prepareStatement(query))) {
-
-      preparedStatement.setTimestamp(1, Timestamp.from(now));
-      preparedStatement.setString(2, status.name());
-      preparedStatement.setLong(3, flowId);
-      preparedStatement.execute();
-
-    } catch (SQLException e) {
-
-      log.error("An error occurred while executing payments bulk insert", e);
-      throw e;
-    }
-  }
-
   @Timed(value = "flowRepository.updateLastPublishedAsNotLatest.task", description = "Time taken to perform updateLastPublishedAsNotLatest", percentiles = 0.95, histogram = true)
   public void updateLastPublishedAsNotLatest(String pspId, String flowName) {
 
