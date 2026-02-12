@@ -154,6 +154,7 @@ public class PaymentService {
     // check if there is any payment that uses at least one of passed indexes
     FlowEntity publishingFlow = optPublishingFlow.get();
     List<Payment> paymentsToAdd = request.getPayments();
+    /*
     Set<Long> indexes = paymentsToAdd.stream().map(Payment::getIndex).collect(Collectors.toSet());
     // remove count -> execute only 1 query
     List<PaymentEntity> indexesAlreadyAdded = paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
@@ -165,6 +166,7 @@ public class PaymentService {
               flowName
       );
     }
+       */
 
     // create all entities in batch, from each payment to be added, in transactional way
     Instant now = Instant.now();
