@@ -39,6 +39,9 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
   @ConfigProperty(name = "payments.batch.size")
   Integer batchSize;
 
+  @ConfigProperty(name = "quarkus.datasource.jdbc.additional-jdbc-properties.sendBufferSize")
+  Integer sendBufferSize;
+
   public static final String INDEX = "index";
   private final EntityManager entityManager;
 
@@ -160,7 +163,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
             CopyManager copyManager = pgConnection.getCopyAPI();
             byte[] csvPayload = buildCsvPayload(entityBatch);
             try (ByteArrayInputStream inputStream = new ByteArrayInputStream(csvPayload)) {
-              copyManager.copyIn(COPY_PAYMENT_SQL, inputStream);
+              copyManager.copyIn(COPY_PAYMENT_SQL, inputStream, sendBufferSize);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -219,7 +222,8 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
         writeInt16(out, 10); // 10 columns
 
         // flow_id (NUMERIC) - NOT BIGINT!
-        writeNumericFromLong(out, payment.getFlowId());
+        //writeNumericFromLong(out, payment.getFlowId());
+        writeBigInt(out, payment.getFlowId());
 
         // iuv (TEXT)
         writeText(out, payment.getIuv());
