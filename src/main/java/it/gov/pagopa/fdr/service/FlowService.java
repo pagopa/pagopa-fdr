@@ -264,12 +264,12 @@ public class FlowService {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
     FlowEntity publishingFlow = optPublishingFlow.get();
-    if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
+    /*if (!FlowStatusEnum.INSERTED.name().equals(publishingFlow.getStatus())) {
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_WRONG_ACTION,
           flowName,
           publishingFlow.getStatus());
-    }
+    }*/
 
     // check if retrieved flow can be published
     //SemanticValidator.validatePublishingFlow(publishingFlow);
