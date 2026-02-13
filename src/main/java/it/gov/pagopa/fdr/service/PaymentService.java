@@ -270,7 +270,7 @@ public class PaymentService {
 
 //    this.paymentRepository.createEntityInBulk(paymentEntities);
     this.paymentRepository.createEntityInBulkCopy(paymentEntities);
-
+/*
     flowRepository.updateComputedValues(
             publishingFlow.getId(),
             paymentsToAdd,
@@ -278,6 +278,7 @@ public class PaymentService {
             now,
             FlowStatusEnum.INSERTED
     );
+ */
   }
 
   @SneakyThrows

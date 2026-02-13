@@ -272,7 +272,7 @@ public class FlowService {
     }
 
     // check if retrieved flow can be published
-    SemanticValidator.validatePublishingFlow(publishingFlow);
+    //SemanticValidator.validatePublishingFlow(publishingFlow);
     publishNewRevision(pspId, flowName, publishingFlow);
 
     FlowToHistoryEntity flowToHistoryEntity =
