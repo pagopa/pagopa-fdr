@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-fdr-3-chart
 description: Flussi di rendicontazioni
 type: application
-version: "1.182.0"
-appVersion: "1.1.62-13-bulk-improvements"
+version: "1.183.0"
+appVersion: "1.1.62-14-bulk-improvements"
 dependencies:
   - name: microservice-chart
     version: 8.0.2
