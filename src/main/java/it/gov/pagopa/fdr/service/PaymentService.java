@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.jboss.logging.Logger;
@@ -268,10 +269,17 @@ public class PaymentService {
               .map(PaymentEntity::getAmount)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-//    this.paymentRepository.createEntityInBulk(paymentEntities);
-    this.paymentRepository.createEntityInBulkCopy(paymentEntities);
+    long requestStartTime = System.nanoTime();
+    //this.paymentRepository.createEntityInBulk(paymentEntities);
+    //this.paymentRepository.createEntityInBulkCopy(paymentEntities);
+    //this.paymentRepository.createEntityInBulkCopyStream(paymentEntities);
     //this.paymentRepository.createEntityInBulkCopyBinary(paymentEntities);
-/*
+    this.paymentRepository.createEntityInBulkCopyBinaryStream(paymentEntities);
+    long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - requestStartTime);
+    if (elapsed > 300) {
+        log.warnf("!!!!! [%s] Insert in bulk duration over 300ms! Duration: [%d]", publishingFlow.getName(), elapsed);
+    }
+    /*
     flowRepository.updateComputedValues(
             publishingFlow.getId(),
             paymentsToAdd,
@@ -279,7 +287,7 @@ public class PaymentService {
             now,
             FlowStatusEnum.INSERTED
     );
- */
+    */
   }
 
   @SneakyThrows

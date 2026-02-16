@@ -13,9 +13,8 @@ import it.gov.pagopa.fdr.repository.common.SortField;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+
+import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
@@ -25,6 +24,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import org.jboss.logging.Logger;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
+import org.postgresql.core.BaseConnection;
 
 @ApplicationScoped
 public class PaymentRepository extends Repository implements PanacheRepository<PaymentEntity> {
@@ -174,6 +175,44 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     }
   }
 
+    @Timed(
+            value = "paymentRepository.createEntityInBulkCopyStream.task",
+            description = "Time taken to perform createEntityInBulkCopyStream",
+            percentiles = 0.95,
+            histogram = true)
+    public void createEntityInBulkCopyStream(List<PaymentEntity> entityBatch) throws SQLException {
+        try {
+            // Unwrapping della connessione fisica PostgreSQL
+            BaseConnection pgConn = entityManager.unwrap(Session.class)
+                    .doReturningWork(conn -> conn.unwrap(BaseConnection.class));
+            CopyManager copyManager = new CopyManager(pgConn);
+
+            // Setup del pipe per lo streaming
+            PipedInputStream inputStream = new PipedInputStream(65536); // Buffer di 64KB
+            PipedOutputStream outputStream = new PipedOutputStream(inputStream);
+
+            // Thread separato per la generazione del CSV per evitare deadlock nel pipe
+            ForkJoinPool.commonPool().execute(() -> {
+                try (outputStream) {
+                    for (PaymentEntity entity : entityBatch) {
+                        String row = buildCsvRow(entity);
+                        outputStream.write(row.getBytes(StandardCharsets.UTF_8));
+                    }
+                    outputStream.flush();
+                } catch (Exception e) {
+                    log.error("Errore durante lo streaming CSV", e);
+                }
+            });
+
+            // PostgreSQL inizia a leggere dal pipe non appena i primi byte sono pronti
+            copyManager.copyIn(COPY_PAYMENT_SQL, inputStream);
+
+        } catch (Exception e) {
+            log.error("Errore critico durante COPY bulk load", e);
+            throw new RuntimeException(e);
+        }
+    }
+
   @Timed(
       value = "paymentRepository.createEntityInBulkCopyBinary.task",
       description = "Time taken to perform createEntityInBulkCopyBinary",
@@ -203,6 +242,69 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     }
   }
 
+
+    @Timed(
+            value = "paymentRepository.createEntityInBulkCopyBinaryStream.task",
+            description = "Time taken to perform createEntityInBulkCopyBinaryStream",
+            percentiles = 0.95,
+            histogram = true)
+    public void createEntityInBulkCopyBinaryStream(List<PaymentEntity> entityBatch) {
+
+        log.infof("Starting STREAMING COPY BINARY for %d payments", entityBatch.size());
+
+        try {
+            // Unwrapping della connessione fisica PostgreSQL
+            BaseConnection pgConn = entityManager.unwrap(Session.class)
+                    .doReturningWork(conn -> conn.unwrap(BaseConnection.class));
+            CopyManager copyManager = new CopyManager(pgConn);
+
+            // Setup del pipe per lo streaming binario
+            // Un buffer di 1MB (1048576) è ideale per saturare la banda di rete Azure GP
+            PipedInputStream inputStream = new PipedInputStream(1048576);
+            PipedOutputStream outputStream = new PipedOutputStream(inputStream);
+
+            // Task asincrono per la generazione del payload binario
+            ForkJoinPool.commonPool().execute(() -> {
+                try (OutputStream out = outputStream) {
+                    // 1. Binary header signature
+                    out.write("PGCOPY\n\377\r\n\0".getBytes(StandardCharsets.ISO_8859_1));
+                    // 2. Flags field (32-bit, 0) + Header extension (32-bit, 0)
+                    writeInt32(out, 0);
+                    writeInt32(out, 0);
+
+                    // 3. Write each row
+                    for (PaymentEntity payment : entityBatch) {
+                        writeInt16(out, 10); // 10 columns
+
+                        writeNumericFromLong(out, payment.getFlowId());
+                        writeText(out, payment.getIuv());
+                        writeText(out, payment.getIur());
+                        writeNumericFromLong(out, payment.getIndex());
+                        writeDouble(out, payment.getAmount());
+                        writeTimestamp(out, payment.getPayDate());
+                        writeText(out, payment.getPayStatus());
+                        writeNumericFromLong(out, payment.getTransferId());
+                        writeTimestamp(out, payment.getCreated());
+                        writeTimestamp(out, payment.getUpdated());
+                    }
+
+                    // 4. File trailer (-1 as int16)
+                    writeInt16(out, -1);
+                    out.flush();
+                } catch (Exception e) {
+                    log.error("Errore fatale durante lo streaming BINARY verso DB", e);
+                }
+            });
+
+            // Esecuzione del comando COPY BINARY leggendo dallo stream
+            copyManager.copyIn(COPY_PAYMENT_BINARY_SQL, inputStream);
+
+        } catch (Exception e) {
+            log.error("Errore critico durante COPY BINARY bulk load", e);
+            throw new RuntimeException(e);
+        }
+    }
+
   private byte[] buildBinaryPayload(List<PaymentEntity> entityBatch) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -222,8 +324,8 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
         writeInt16(out, 10); // 10 columns
 
         // flow_id (NUMERIC) - NOT BIGINT!
-        //writeNumericFromLong(out, payment.getFlowId());
-        writeBigInt(out, payment.getFlowId());
+        writeNumericFromLong(out, payment.getFlowId());
+        //writeBigInt(out, payment.getFlowId());
 
         // iuv (TEXT)
         writeText(out, payment.getIuv());
@@ -463,6 +565,204 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     }
   }
 
+    private void writeInt16(OutputStream out, int value) throws IOException {
+        out.write((value >> 8) & 0xFF);
+        out.write(value & 0xFF);
+    }
+
+    private void writeInt32(OutputStream out, int value) throws IOException {
+        out.write((value >> 24) & 0xFF);
+        out.write((value >> 16) & 0xFF);
+        out.write((value >> 8) & 0xFF);
+        out.write(value & 0xFF);
+    }
+
+    private void writeInt64(OutputStream out, long value) throws IOException {
+        out.write((int) ((value >> 56) & 0xFF));
+        out.write((int) ((value >> 48) & 0xFF));
+        out.write((int) ((value >> 40) & 0xFF));
+        out.write((int) ((value >> 32) & 0xFF));
+        out.write((int) ((value >> 24) & 0xFF));
+        out.write((int) ((value >> 16) & 0xFF));
+        out.write((int) ((value >> 8) & 0xFF));
+        out.write((int) (value & 0xFF));
+    }
+
+    private void writeBigInt(OutputStream out, Long value) throws IOException {
+        if (value == null) {
+            writeInt32(out, -1); // NULL indicator
+        } else {
+            writeInt32(out, 8); // Length of BIGINT (8 bytes)
+            writeInt64(out, value);
+        }
+    }
+
+    private void writeText(OutputStream out, String value) throws IOException {
+        if (value == null) {
+            writeInt32(out, -1); // NULL indicator
+        } else {
+            byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+            writeInt32(out, bytes.length); // Length of data
+            out.write(bytes);
+        }
+    }
+
+    private void writeDouble(OutputStream out, BigDecimal value) throws IOException {
+        if (value == null) {
+            writeInt32(out, -1); // NULL indicator
+        } else {
+            writeInt32(out, 8); // Length of DOUBLE PRECISION (8 bytes)
+            double doubleValue = value.doubleValue();
+            long bits = Double.doubleToLongBits(doubleValue);
+            writeInt64(out, bits);
+        }
+    }
+
+    private void writeNumericFromLong(OutputStream out, Long value) throws IOException {
+        if (value == null) {
+            writeInt32(out, -1); // NULL indicator
+        } else {
+            // Convert Long to BigDecimal and use writePostgreSQLNumeric
+            BigDecimal decimal = new BigDecimal(value);
+            writePostgreSQLNumeric(out, decimal);
+        }
+    }
+
+    private void writeNumeric(OutputStream out, BigDecimal value) throws IOException {
+        if (value == null) {
+            writeInt32(out, -1); // NULL indicator
+        } else {
+            // PostgreSQL NUMERIC binary format is complex (ndigits, weight, sign, dscale, digits)
+            // For simplicity and compatibility, we implement the full NUMERIC format
+            writePostgreSQLNumeric(out, value);
+        }
+    }
+
+    private void writePostgreSQLNumeric(OutputStream out, BigDecimal value) throws IOException {
+        // PostgreSQL NUMERIC binary format:
+        // - ndigits (int16): number of base-10000 digits
+        // - weight (int16): weight of first digit (can be negative for pure fractional values)
+        // - sign (int16): NUMERIC_POS=0x0000, NUMERIC_NEG=0x4000, NUMERIC_NAN=0xC000
+        // - dscale (int16): display scale
+        // - digits (int16[]): base-10000 digits
+
+        // Handle special case of zero
+        if (value.compareTo(BigDecimal.ZERO) == 0) {
+            writeInt32(out, 8); // Size: 4 int16s, no digits
+            writeInt16(out, 0); // ndigits
+            writeInt16(out, 0); // weight
+            writeInt16(out, 0x0000); // sign (positive)
+            writeInt16(out, 0); // dscale
+            return;
+        }
+
+        String strValue = value.toPlainString();
+        boolean isNegative = value.signum() < 0;
+        if (isNegative) {
+            strValue = strValue.substring(1); // Remove minus sign
+        }
+
+        String[] parts = strValue.split("\\.");
+        String integerPart = parts[0];
+        String fractionalPart = parts.length > 1 ? parts[1] : "";
+        int dscale = fractionalPart.length();
+
+        // Pad integer part to groups of 4 from the left
+        while (integerPart.length() % 4 != 0) {
+            integerPart = "0" + integerPart;
+        }
+
+        // Pad fractional part to groups of 4 from the right
+        while (fractionalPart.length() % 4 != 0) {
+            fractionalPart = fractionalPart + "0";
+        }
+
+        // Convert to base-10000 digits
+        int[] intDigits = new int[integerPart.length() / 4];
+        for (int i = 0; i < intDigits.length; i++) {
+            intDigits[i] = Integer.parseInt(integerPart.substring(i * 4, (i + 1) * 4));
+        }
+
+        int[] fracDigits = new int[fractionalPart.length() / 4];
+        for (int i = 0; i < fracDigits.length; i++) {
+            fracDigits[i] = Integer.parseInt(fractionalPart.substring(i * 4, (i + 1) * 4));
+        }
+
+        // Remove leading zeros from integer part
+        int intStartIdx = 0;
+        while (intStartIdx < intDigits.length && intDigits[intStartIdx] == 0) {
+            intStartIdx++;
+        }
+
+        // Remove trailing zeros from fractional part
+        int fracEndIdx = fracDigits.length;
+        while (fracEndIdx > 0 && fracDigits[fracEndIdx - 1] == 0) {
+            fracEndIdx--;
+        }
+
+        // Calculate number of significant digits
+        int intDigitCount = intDigits.length - intStartIdx;
+        int ndigits = intDigitCount + fracEndIdx;
+
+        // Calculate weight: position of first significant digit (can be negative)
+        int weight;
+        if (intDigitCount > 0) {
+            // Has integer part: weight is number of integer digit groups - 1
+            weight = intDigitCount - 1;
+        } else {
+            // Only fractional part: weight is -(position of first digit group + 1)
+            // For 0.01: first group is at position 0, so weight = -1
+            // For 0.0001: first group is at position 0, so weight = -1
+            weight = -1;
+        }
+
+        // Calculate total size: 4 * int16 (8 bytes) + ndigits * int16
+        int totalSize = 8 + (ndigits * 2);
+
+        writeInt32(out, totalSize);
+
+        // Write ndigits
+        writeInt16(out, ndigits);
+
+        // Write weight
+        writeInt16(out, weight);
+
+        // Write sign (0x0000 = positive, 0x4000 = negative)
+        writeInt16(out, isNegative ? 0x4000 : 0x0000);
+
+        // Write dscale
+        writeInt16(out, dscale);
+
+        // Write integer digits (skip leading zeros)
+        StringBuilder digitsStr = new StringBuilder("[");
+        for (int i = intStartIdx; i < intDigits.length; i++) {
+            if (digitsStr.length() > 1) digitsStr.append(", ");
+            digitsStr.append(intDigits[i]);
+            writeInt16(out, intDigits[i]);
+        }
+
+        // Write fractional digits (skip trailing zeros, but keep ALL digits up to fracEndIdx)
+        for (int i = 0; i < fracEndIdx; i++) {
+            if (digitsStr.length() > 1) digitsStr.append(", ");
+            digitsStr.append(fracDigits[i]);
+            writeInt16(out, fracDigits[i]);
+        }
+        digitsStr.append("]");
+    }
+
+    private void writeTimestamp(OutputStream out, Instant instant) throws IOException {
+        if (instant == null) {
+            writeInt32(out, -1); // NULL indicator
+        } else {
+            writeInt32(out, 8); // Length of TIMESTAMP (8 bytes)
+            // PostgreSQL epoch: 2000-01-01 00:00:00 UTC
+            long pgEpoch = Instant.parse("2000-01-01T00:00:00Z").getEpochSecond();
+            long microseconds = (instant.getEpochSecond() - pgEpoch) * 1_000_000L
+                    + instant.getNano() / 1000L;
+            writeInt64(out, microseconds);
+        }
+    }
+
   private byte[] buildCsvPayload(List<PaymentEntity> entityBatch) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     for (PaymentEntity payment : entityBatch) {
@@ -483,6 +783,21 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
     }
     return out.toByteArray();
   }
+
+  private String buildCsvRow(PaymentEntity entity) {
+        return String.join(",",
+                toCsvField(entity.getFlowId()),
+                escapeCsv(entity.getIuv()),
+                escapeCsv(entity.getIur()),
+                toCsvField(entity.getIndex()),
+                toCsvField(entity.getAmount()),
+                formatInstant(entity.getPayDate()),
+                escapeCsv(entity.getPayStatus()),
+                toCsvField(entity.getTransferId()),
+                formatInstant(entity.getCreated()),
+                formatInstant(entity.getUpdated())
+        ) + "\n";
+    }
 
   private String toCsvField(Object value) {
     if (value == null) {
