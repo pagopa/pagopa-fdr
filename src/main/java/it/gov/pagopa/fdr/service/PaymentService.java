@@ -270,11 +270,11 @@ public class PaymentService {
               .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     long requestStartTime = System.nanoTime();
-    //this.paymentRepository.createEntityInBulk(paymentEntities);
+    this.paymentRepository.createEntityInBulk(paymentEntities);
     //this.paymentRepository.createEntityInBulkCopy(paymentEntities);
     //this.paymentRepository.createEntityInBulkCopyStream(paymentEntities);
     //this.paymentRepository.createEntityInBulkCopyBinary(paymentEntities);
-    this.paymentRepository.createEntityInBulkCopyBinaryStream(paymentEntities);
+//    this.paymentRepository.createEntityInBulkCopyBinaryStream(paymentEntities);
     long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - requestStartTime);
     if (elapsed > 300) {
         log.warnf("!!!!! [%s] Insert in bulk duration over 300ms! Duration: [%d]", publishingFlow.getName(), elapsed);
