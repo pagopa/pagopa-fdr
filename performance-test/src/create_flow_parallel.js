@@ -1,5 +1,6 @@
 import http from "k6/http";
 import { check } from 'k6';
+import { Trend } from 'k6/metrics';
 import { SharedArray } from 'k6/data';
 import { generateFlowNameAndDate, generatePartitionIndexes } from './modules/helper.js';
 import { buildCreateFlowRequest, buildAddPaymentsRequest } from './modules/request_builder.js';
@@ -36,6 +37,9 @@ const numberOfPartitions = 1 + (paymentsInFlow / maxPaymentsInCall);
 const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY_PSP}`;
 console.log(`Defining max [${maxParallelCalls}] parallel calls with max [${paymentsInFlow}] payments.`);
 
+const createFlowWorkflowDuration = new Trend('createflow_workflow_duration');
+const addPaymentsWorkflowDuration = new Trend('addpayments_workflow_duration');
+const publishFlowWorkflowDuration = new Trend('publishflow_workflow_duration');
 
 var params = {};
 var data = {};
@@ -105,6 +109,7 @@ export default function () {
     let responses = http.batch(batch);
     responses.forEach((res, index) => {
       check(res, { 'Check if payments were added to flow [HTTP Code: 200]': (r) => r.status === 200 });
+      addPaymentsWorkflowDuration.add(res.timings.duration);
       if (res.status !== 200) {
         console.log(`Add Payments in error: ${batch[index].url} => response: ${res.status} - ${res.body}`);
       }
