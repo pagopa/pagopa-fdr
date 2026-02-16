@@ -54,10 +54,10 @@ microservice-chart: &microservice-chart
   resources: &resources
     requests:
       memory: "1250Mi"
-      cpu: "300m"
+      cpu: "500m"
     limits:
       memory: "2.5Gi"
-      cpu: '550m'
+      cpu: '1000m'
   autoscaling: &autoscaling
     enable: false
   envConfig: &envConfig
@@ -75,10 +75,10 @@ microservice-chart: &microservice-chart
     DATASOURCE_URL: "jdbc:postgresql://fdr-db.u.internal.postgresql.pagopa.it:5432/fdr3?sslmode=require&prepareThreshold=0"
     DATASOURCE_USERNAME: "fdr3"
     DATASOURCE_POOL_SIZE: "50"
-    DATASOURCE_RECEIVE_BUFFER_SIZE: "131072"
-    DATASOURCE_SEND_BUFFER_SIZE: "131072"
+    DATASOURCE_RECEIVE_BUFFER_SIZE: "1638400" # TODO standard 131072
+    DATASOURCE_SEND_BUFFER_SIZE: "1638400" # TODO standard 131072
     CUSTOM_JAVA_OPTS: "-XX:+UnlockExperimentalVMOptions -XshowSettings:vm -XX:+UseContainerSupport -XX:+UseG1GC -XX:InitialRAMPercentage=30 -XX:MaxRAMPercentage=80 -XX:MinHeapFreeRatio=30 -XX:MaxHeapFreeRatio=30"
-    RE_ACTIONS_EXCLUDED_FROM_SAVE: "GET_ALL_FDR,INTERNAL_CREATE_FLOW,INTERNAL_ADD_PAYMENT,INTERNAL_DELETE_PAYMENT,INTERNAL_PUBLISH,INTERNAL_DELETE_FLOW"
+    RE_ACTIONS_EXCLUDED_FROM_SAVE: "GET_ALL_FDR,INTERNAL_CREATE_FLOW,INTERNAL_ADD_PAYMENT,INTERNAL_DELETE_PAYMENT,INTERNAL_PUBLISH,INTERNAL_DELETE_FLOW,CREATE_FLOW,ADD_PAYMENT,PUBLISH"
     HIBERNATE_BATCH_SIZE: "500"
     RE_EVENTS_THREAD_POOL_SIZE: "4"
     QUARKUS_DATASOURCE_JDBC_MAX_SIZE: "50"
@@ -128,7 +128,7 @@ core:
   autoscaling:
     !!merge <<: *autoscaling
     enable: true
-    minReplica: 3 # TODO set 1
+    minReplica: 10 # TODO set 1
     maxReplica: 10 # TODO set 3
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds

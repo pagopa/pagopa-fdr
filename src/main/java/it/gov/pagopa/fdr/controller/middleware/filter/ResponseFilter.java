@@ -52,10 +52,6 @@ public class ResponseFilter implements ContainerResponseFilter {
   public void filter(
       ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 
-    boolean canBeWrittenAsREEvent =
-        "1".equals(Optional.ofNullable(MDC.get(IS_RE_ENABLED_FOR_THIS_CALL)).orElse("0"));
-    if (canBeWrittenAsREEvent && requestContext.getPropertyNames().contains("fdrAction")) {
-
       //
       long requestStartTime = (long) requestContext.getProperty("requestStartTime");
       long requestFinishTime = System.nanoTime();
@@ -75,23 +71,26 @@ public class ResponseFilter implements ContainerResponseFilter {
       putResponseInfoInMDC(fdrAction, requestPath, elapsed, httpStatus, responseContextEntity);
 
       // Extracting request and response payloads
-      String requestPayload = (String) requestContext.getProperty("parsedRequest");
+      boolean canBeWrittenAsREEvent =
+              "1".equals(Optional.ofNullable(MDC.get(IS_RE_ENABLED_FOR_THIS_CALL)).orElse("0"));
+      if (canBeWrittenAsREEvent && requestContext.getPropertyNames().contains("fdrAction")) {
 
-      String responsePayload;
-      try {
-        responsePayload = objectMapper.writeValueAsString(responseContextEntity);
-      } catch (JsonProcessingException e) {
-        throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
+          String requestPayload = (String) requestContext.getProperty("parsedRequest");
+          String responsePayload;
+          try {
+              responsePayload = objectMapper.writeValueAsString(responseContextEntity);
+          } catch (JsonProcessingException e) {
+              throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
+          }
+
+          // Generate events on Registro Eventi and also store on BLOB storage
+          generateAndSendREEvent(
+                  requestContext, fdrAction, requestPayload, responsePayload, requestMethod, requestPath);
       }
-
-      // Generate events on Registro Eventi and also store on BLOB storage
-      generateAndSendREEvent(
-          requestContext, fdrAction, requestPayload, responsePayload, requestMethod, requestPath);
 
       // Finally, log all response info with also MDC values, then clear MDC context
       logResponse(responseContext, requestMethod, requestPath, requestSubject, elapsed, httpStatus);
       MDC.clear();
-    }
   }
 
   private void generateAndSendREEvent(
