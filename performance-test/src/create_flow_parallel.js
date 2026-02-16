@@ -84,6 +84,7 @@ export default function () {
   check(createFlowResponse, {
     'Check if empty flow was created [HTTP Code: 201]': (_r) => createFlowResponse.status === 201,
   });
+  createFlowWorkflowDuration.add(createFlowResponse.timings.duration);
   if (createFlowResponse.status !== 201) {
     console.log(`Create flow in error: ${createFlowUrl} => response: ${createFlowResponse.status} - ${createFlowResponse.body}`);
     return;
@@ -123,6 +124,7 @@ export default function () {
   check(publishFlowResponse, {
     'Check if flow was published [HTTP Code: 200]': (_r) => publishFlowResponse.status === 200,
   });
+  publishFlowWorkflowDuration.add(publishFlowResponse.timings.duration);
   if (publishFlowResponse.status !== 200) {
     console.log(`Publish flow in error: ${publishFlowUrl} =>  response: ${publishFlowResponse.status} - ${publishFlowResponse.body}`);
   }
