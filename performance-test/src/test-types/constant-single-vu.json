@@ -1,0 +1,9 @@
+{
+  "scenarios": {
+    "single_vu": {
+      "executor": "constant-vus",
+      "vus": 1,
+      "duration": "5m"
+    }
+  }
+}
