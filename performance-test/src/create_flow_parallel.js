@@ -30,7 +30,7 @@ const requestValues = {
 
 const paymentsInFlow = `${__ENV.PAYMENTS_IN_FLOW}`;
 const maxParallelCalls = __ENV.MAX_PARALLEL_CALLS && Number(__ENV.MAX_PARALLEL_CALLS) > 0 ? Number(__ENV.MAX_PARALLEL_CALLS) : 5;
-const maxPaymentsInCall = 1000;
+const maxPaymentsInCall = __ENV.MAX_PAYMENTS_PER_CALLS && Number(__ENV.MAX_PAYMENTS_PER_CALLS) > 0 ? Number(__ENV.MAX_PAYMENTS_PER_CALLS) : 1000;
 const totalAmount = paymentsInFlow * 100.00;
 const numberOfPartitions = 1 + (paymentsInFlow / maxPaymentsInCall);
 
