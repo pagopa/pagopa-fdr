@@ -21,6 +21,7 @@ on:
         options:
           - constant
           - constant-discard-bodies
+          - constant-single-vu
           - load
           - ramping
           - smoke
