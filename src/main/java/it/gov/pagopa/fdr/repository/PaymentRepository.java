@@ -297,7 +297,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
             });
 
             // Esecuzione del comando COPY BINARY leggendo dallo stream
-            copyManager.copyIn(COPY_PAYMENT_BINARY_SQL, inputStream);
+            copyManager.copyIn(COPY_PAYMENT_BINARY_SQL, inputStream, sendBufferSize);
 
         } catch (Exception e) {
             log.error("Errore critico durante COPY BINARY bulk load", e);
