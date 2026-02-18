@@ -54,10 +54,10 @@ microservice-chart: &microservice-chart
   resources: &resources
     requests:
       memory: "1250Mi"
-      cpu: "300m"
+      cpu: "500m"
     limits:
       memory: "2.5Gi"
-      cpu: '550m'
+      cpu: '1000m'
   autoscaling: &autoscaling
     enable: false
   envConfig: &envConfig
