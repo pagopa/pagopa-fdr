@@ -37,9 +37,9 @@ const numberOfPartitions = 1 + (paymentsInFlow / maxPaymentsInCall);
 const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY_PSP}`;
 console.log(`Defining max [${maxParallelCalls}] parallel ADD_PAYMENTS calls (with [${maxPaymentsInCall}] payments each), with a total of [${paymentsInFlow}] payments per flow.`);
 
-const createFlowWorkflowDuration = new Trend('workflow.create_flow.duration');
-const addPaymentsWorkflowDuration = new Trend('workflow.add_payments.duration');
-const publishFlowWorkflowDuration = new Trend('workflow.publish_flow.duration');
+const createFlowWorkflowDuration = new Trend('http_workflow_create_flow');
+const addPaymentsWorkflowDuration = new Trend('http_workflow_add_payments');
+const publishFlowWorkflowDuration = new Trend('http_workflow_publish_flow');
 
 var params = {};
 var data = {};
