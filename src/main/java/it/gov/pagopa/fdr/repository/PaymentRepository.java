@@ -11,9 +11,13 @@ import it.gov.pagopa.fdr.repository.common.Repository;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.common.SortField;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
+import it.gov.pagopa.fdr.util.common.BigEndianWriter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
-import java.sql.PreparedStatement;
+
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
@@ -23,12 +27,14 @@ import java.util.stream.Collectors;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hibernate.Session;
 import org.jboss.logging.Logger;
+import org.postgresql.copy.PGCopyOutputStream;
+import org.postgresql.core.BaseConnection;
 
 @ApplicationScoped
 public class PaymentRepository extends Repository implements PanacheRepository<PaymentEntity> {
 
-  @ConfigProperty(name = "payments.batch.size")
-  Integer batchSize;
+  @ConfigProperty(name = "payments.batch-insert.buffer-size")
+  Integer pgCopyBufferSize;
 
   public static final String INDEX = "index";
   private final EntityManager entityManager;
@@ -41,9 +47,10 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
 
   public static final String QUERY_GET_BY_FLOW_ID_AND_INDEXES = "flowId = ?1" + " and index in ?2";
 
-  public static final String INSERT_IN_BULK =
-      "INSERT INTO payment (flow_id, iuv, iur, index, amount, pay_date, pay_status, transfer_id,"
-          + " created, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_IN_BULK =
+            "COPY payment (flow_id, iuv, iur, \"index\", amount, pay_date, pay_status, transfer_id, created, updated) " +
+                    "FROM STDIN WITH (FORMAT BINARY)";
+
 
   public PaymentRepository(Logger log, EntityManager em) {
     this.log = log;
@@ -103,25 +110,53 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
   public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
 
     Session session = entityManager.unwrap(Session.class);
+    session.doWork(connection -> {
+      BaseConnection pgConnection = connection.unwrap(BaseConnection.class);
 
-    try (PreparedStatement preparedStatement =
-                 session.doReturningWork(connection -> connection.prepareStatement(INSERT_IN_BULK))) {
+      try (
+        PGCopyOutputStream outputStream = new PGCopyOutputStream(pgConnection, INSERT_IN_BULK);
+        BufferedOutputStream out = new BufferedOutputStream(outputStream, pgCopyBufferSize)
+      ) {
 
-      int count = 0;
-      for (PaymentEntity payment : entityBatch) {
-        payment.exportInPreparedStatement(preparedStatement);
-        preparedStatement.addBatch();
-        count++;
+        // Header signature
+        out.write("PGCOPY\n\377\r\n\0".getBytes(StandardCharsets.ISO_8859_1));
 
-        if (count % batchSize == 0) {
-          preparedStatement.executeBatch();
+        // Flags field (32-bit, 0)
+        BigEndianWriter.writeInt32(out, 0);
+
+        // Header extension (32-bit, 0)
+        BigEndianWriter.writeInt32(out, 0);
+
+        //
+        for (PaymentEntity entity : entityBatch) {
+
+          // Define a row as 10-columns stream
+          BigEndianWriter.writeInt16(out, 10);
+
+          BigEndianWriter.writeNumericForPositiveLong(out, entity.getFlowId());
+          BigEndianWriter.writeText(out, entity.getIuv());
+          BigEndianWriter.writeText(out, entity.getIur());
+          BigEndianWriter.writeNumericForPositiveLong(out, entity.getIndex());
+          BigEndianWriter.writeDouble(out, entity.getAmount());
+          BigEndianWriter.writeTimestamp(out, entity.getPayDate());
+          BigEndianWriter.writeText(out, entity.getPayStatus());
+          BigEndianWriter.writeNumericForPositiveLong(out, entity.getTransferId());
+          BigEndianWriter.writeTimestamp(out, entity.getCreated());
+          BigEndianWriter.writeTimestamp(out, entity.getUpdated());
         }
+
+        // File trailer, -1 as int16
+        BigEndianWriter.writeInt16(out, -1);
+        out.flush();
+
+      } catch (SQLException e) {
+          log.error("An error occurred while executing payments bulk insert", e);
+          throw e;
+      } catch (IOException e) {
+        log.error("An error occurred while executing payments bulk insert", e);
+        throw new RuntimeException(e);
       }
-      preparedStatement.executeBatch();
-    } catch (SQLException e) {
-      log.error("An error occurred while executing payments bulk insert", e);
-      throw e;
-    }
+    });
   }
 
   public PanacheQuery<PaymentEntity> findPageByFlowId(Long flowId, int pageNumber, int pageSize) {
