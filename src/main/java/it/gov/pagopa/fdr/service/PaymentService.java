@@ -179,6 +179,7 @@ public class PaymentService {
     FlowEntity publishingFlow = optPublishingFlow.get();
     List<Payment> paymentsToAdd = request.getPayments();
     Set<Long> indexes = paymentsToAdd.stream().map(Payment::getIndex).collect(Collectors.toSet());
+
     // remove count -> execute only 1 query
     List<PaymentEntity> indexesAlreadyAdded = paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
     if (!indexesAlreadyAdded.isEmpty()) {
