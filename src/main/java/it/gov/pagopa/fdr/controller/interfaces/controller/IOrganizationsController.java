@@ -11,6 +11,8 @@ import it.gov.pagopa.fdr.util.openapi.APITableMetadata;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISecurityMode;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.APISynchronism;
 import it.gov.pagopa.fdr.util.openapi.APITableMetadata.ReadWrite;
+import it.gov.pagopa.fdr.util.validator.PastDateLimit;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
@@ -22,6 +24,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -43,7 +48,7 @@ public interface IOrganizationsController {
       operationId = "IOrganizationsController_getAllPublishedFlows",
       summary = "Get all published flow related to creditor institution",
       description =
-          """
+"""
 This API permits to search all published flows for a specific creditor institution,
 formatted in a paginated view. The search can be enhanced including the PSP identifier
 in order to filter only the flows for certain PSP. The only flows retrieved are the latest
@@ -116,17 +121,21 @@ The result of the query is paginated and contains all the metadata needed for pa
       @Parameter(
               description =
                   "A date to be used as a lower limit search on publication date. In format"
-                      + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+                      + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses a "
+                      + "dynamic default equal to the start of the previous calendar month at 00:00 UTC",
               example = "2025-01-01T12:00:00Z")
+          @PastDateLimit(value = 1, unit = ChronoUnit.MONTHS)
           @QueryParam(ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN)
-          Instant publishedGt,
+          Optional<Instant> publishedGt,
       @Parameter(
               description =
-                      "A date to be used as a lower limit search on flow date. In format"
-                              + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+                  "A date to be used as a lower limit search on flow date. In format"
+                      + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses"
+                      + " a dynamic default equal to the start of the previous calendar month at 00:00 UTC",
               example = "2025-01-01T12:00:00Z")
-      @QueryParam(ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN)
-      Instant flowDate,
+          @PastDateLimit(value = 1, unit = ChronoUnit.MONTHS)
+          @QueryParam(ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN)
+          Optional<Instant> flowDate,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
           @Min(value = 1)
@@ -135,6 +144,7 @@ The result of the query is paginated and contains all the metadata needed for pa
       @QueryParam(ControllerConstants.PARAMETER_PAGE_SIZE)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_SIZE_DEFAULT)
           @Min(value = 1)
+          @Max(value = 1000)
           @Parameter(
               description = "The number of the elements of the page to be shown in the result",
               example = "50")
@@ -148,7 +158,7 @@ The result of the query is paginated and contains all the metadata needed for pa
           "Get single published flow related to creditor institution, searching by name and"
               + " revision",
       description =
-          """
+"""
 This API permits to search a single published flows for a specific creditor institution.
 In order to do so, it is required to add the following search filters:
  - Creditor institution identifier: for filtering by specific organization
@@ -240,7 +250,7 @@ the name of the flow is validated against a specific standard format.<br>
           "Get all payments of single published flow related to creditor institution, searching by"
               + " name and revision",
       description =
-          """
+"""
 This API permits to search all the payments of a single published flow for a specific creditor institution,
 formatted in a paginated view. In order to do so, it is required to add the following search filters:
  - Creditor institution identifier: for filtering by specific organization
