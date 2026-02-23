@@ -10,6 +10,7 @@ services:
       - API_SUBSCRIPTION_KEY_ORG=${sub_key_org}
       - PAYMENTS_IN_FLOW=${payments_in_flow}
       - MAX_PARALLEL_CALLS=${max_parallel_calls}
+      - MAX_PAYMENTS_PER_CALLS=${max_payments_per_calls}
       - VARS=environments/${env}.environment.json
       - TEST_TYPE=/scripts/test-types/${type}.json
       - K6_OUT=influxdb=http://nginx:8086/${db_name}
