@@ -19,7 +19,23 @@ ALTER TABLE fdr3.payment ALTER COLUMN amount TYPE numeric(19,2);
 --changeset liquibase:202602200003-02
 ALTER TABLE fdr3.payment DROP CONSTRAINT IF EXISTS payment_pk; -- drop primary key constraint
 
-ALTER TABLE fdr3.payment ADD PRIMARY KEY (flow_id, index); -- add new primary key constraint
+--ALTER TABLE fdr3.payment ADD PRIMARY KEY (flow_id, "index"); -- add new primary key constraint
+DO $$
+BEGIN
+    -- check if exists already a primary key for the table
+    IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.table_constraints
+        WHERE table_schema = 'fdr3'
+          AND table_name = 'payment'
+          AND constraint_type = 'PRIMARY KEY'
+    )
+       THEN
+            ALTER TABLE fdr3.payment ADD PRIMARY KEY (flow_id, "index");
+    ELSE
+            RAISE NOTICE 'La Primary Key esiste già, salto l''operazione.';
+    END IF;
+END $$;
 
 ALTER TABLE fdr3.payment DROP COLUMN IF EXISTS id; -- drop the old id column
 
