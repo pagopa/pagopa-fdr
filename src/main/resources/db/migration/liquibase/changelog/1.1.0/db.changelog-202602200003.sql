@@ -22,20 +22,15 @@ ALTER TABLE fdr3.payment DROP CONSTRAINT IF EXISTS payment_pk; -- drop primary k
 --ALTER TABLE fdr3.payment ADD PRIMARY KEY (flow_id, "index"); -- add new primary key constraint
 DO $$
 BEGIN
-    -- check if exists already a primary key for the table
     IF NOT EXISTS (
-        SELECT 1
-        FROM information_schema.table_constraints
-        WHERE table_schema = 'fdr3'
-          AND table_name = 'payment'
-          AND constraint_type = 'PRIMARY KEY'
-    )
-       THEN
-            ALTER TABLE fdr3.payment ADD PRIMARY KEY (flow_id, "index");
-    ELSE
-            RAISE NOTICE 'Primary key already exists... skipping.';
-    END IF;
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_schema = 'fdr3' AND table_name = 'payment'
+        AND constraint_type = 'PRIMARY KEY'
+    ) THEN
+ALTER TABLE fdr3.payment ADD PRIMARY KEY (flow_id, "index");
+END IF;
 END $$;
+GO
 
 ALTER TABLE fdr3.payment DROP COLUMN IF EXISTS id; -- drop the old id column
 
