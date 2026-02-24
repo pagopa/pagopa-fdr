@@ -14,4 +14,5 @@ ALTER TABLE fdr3.flow ALTER COLUMN computed_tot_payments TYPE bigint;
 
 ALTER TABLE fdr3.flow ALTER COLUMN computed_tot_amount TYPE numeric(19,2);
 
+--changeset liquibase:202602200002-02
 ALTER TABLE fdr3.flow SET (fillfactor = 75);
