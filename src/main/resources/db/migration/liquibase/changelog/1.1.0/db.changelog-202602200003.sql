@@ -17,11 +17,11 @@ ALTER TABLE fdr3.payment ALTER COLUMN transfer_id TYPE bigint;
 ALTER TABLE fdr3.payment ALTER COLUMN amount TYPE numeric(19,2);
 
 --changeset liquibase:202602200003-02
-ALTER TABLE fdr3.payment DROP CONSTRAINT payment_pk; -- drop primary key constraint
+ALTER TABLE fdr3.payment DROP CONSTRAINT IF EXISTS payment_pk; -- drop primary key constraint
 
 ALTER TABLE fdr3.payment ADD PRIMARY KEY (flow_id, index); -- add new primary key constraint
 
-ALTER TABLE fdr3.payment DROP COLUMN id; -- drop the old id column
+ALTER TABLE fdr3.payment DROP COLUMN IF EXISTS id; -- drop the old id column
 
 DROP SEQUENCE IF EXISTS fdr3.payment_sequence; -- drop the sequence
 
