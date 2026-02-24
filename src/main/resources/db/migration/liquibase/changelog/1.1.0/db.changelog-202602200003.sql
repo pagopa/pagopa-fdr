@@ -33,7 +33,7 @@ BEGIN
        THEN
             ALTER TABLE fdr3.payment ADD PRIMARY KEY (flow_id, "index");
     ELSE
-            RAISE NOTICE 'La Primary Key esiste già, salto l''operazione.';
+            RAISE NOTICE 'Primary key already exists... skipping.';
     END IF;
 END $$;
 
