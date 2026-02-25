@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hibernate.Session;
@@ -36,16 +35,14 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
   @ConfigProperty(name = "payments.batch-insert.buffer-size")
   Integer pgCopyBufferSize;
 
-  public static final String INDEX = "index";
+  public static final String INDEX = "id.index";
   private final EntityManager entityManager;
 
   private final Logger log;
 
-  public static final String QUERY_GET_BY_FLOW_ID = "flowId = ?1";
+  public static final String QUERY_GET_BY_FLOW_ID = "id.flowId = ?1";
 
-  public static final String QUERY_DELETE_BY_ID = "id in ?1";
-
-  public static final String QUERY_GET_BY_FLOW_ID_AND_INDEXES = "flowId = ?1" + " and index in ?2";
+  public static final String QUERY_GET_BY_FLOW_ID_AND_INDEXES = "id.flowId = ?1" + " and id.index in ?2";
 
     private static final String INSERT_IN_BULK =
             "COPY payment (flow_id, iuv, iur, \"index\", amount, pay_date, pay_status, transfer_id, created, updated) " +
@@ -77,11 +74,11 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
       params.and("orgDomainId", orgDomainId);
     }
     if (iuv != null) {
-      query.append(" and iuv = :iuv");
+      query.append(" and p.iuv = :iuv");
       params.and("iuv", iuv);
     }
     if (iur != null) {
-      query.append(" and iur = :iur");
+      query.append(" and p.iur = :iur");
       params.and("iur", iur);
     }
     if (createdFrom != null) {
@@ -133,14 +130,14 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
           // Define a row as 10-columns stream
           BigEndianWriter.writeInt16(out, 10);
 
-          BigEndianWriter.writeNumericForPositiveLong(out, entity.getFlowId());
+          BigEndianWriter.writeBigInt(out, entity.getId().getFlowId());
           BigEndianWriter.writeText(out, entity.getIuv());
           BigEndianWriter.writeText(out, entity.getIur());
-          BigEndianWriter.writeNumericForPositiveLong(out, entity.getIndex());
-          BigEndianWriter.writeDouble(out, entity.getAmount());
+          BigEndianWriter.writeBigInt(out, entity.getId().getIndex());
+          BigEndianWriter.writeNumeric(out, entity.getAmount());
           BigEndianWriter.writeTimestamp(out, entity.getPayDate());
           BigEndianWriter.writeText(out, entity.getPayStatus());
-          BigEndianWriter.writeNumericForPositiveLong(out, entity.getTransferId());
+          BigEndianWriter.writeBigInt(out, entity.getTransferId());
           BigEndianWriter.writeTimestamp(out, entity.getCreated());
           BigEndianWriter.writeTimestamp(out, entity.getUpdated());
         }
@@ -183,7 +180,8 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
 
   public void deleteEntityInBulk(List<PaymentEntity> entityBatch) {
 
-    Set<Long> ids = entityBatch.stream().map(PaymentEntity::getId).collect(Collectors.toSet());
-    delete(QUERY_DELETE_BY_ID, ids);
+    for (PaymentEntity entity : entityBatch) {
+      delete("id.flowId = ?1 and id.index = ?2", entity.getId().getFlowId(), entity.getId().getIndex());
+    }
   }
 }

@@ -51,6 +51,19 @@ public class BigEndianWriter {
   }
 
   /**
+   * The method writes a Long value as PostgreSQL BIGINT (8-byte integer).
+   * If the value is null, it writes -1 as the length.
+   */
+  public static void writeBigInt(OutputStream out, Long value) throws IOException {
+    if (value == null) {
+      writeInt32(out, -1); // NULL indicator
+    } else {
+      writeInt32(out, 8); // Length of BIGINT (8 bytes)
+      writeInt64(out, value);
+    }
+  }
+
+  /**
    * The method writes a string as UTF-8.
    * Adds a 32-bit length header. If the value is null, it writes -1 as the length.
    */
@@ -74,6 +87,63 @@ public class BigEndianWriter {
     } else {
       writeInt32(out, 8); // Length of DOUBLE PRECISION (8 bytes)
       writeInt64(out, Double.doubleToLongBits(value.doubleValue()));
+    }
+  }
+
+  /**
+   * The method writes a BigDecimal as PostgreSQL NUMERIC.
+   * Handles both integer and decimal parts correctly.
+   */
+  public static void writeNumeric(OutputStream out, BigDecimal value) throws IOException {
+    if (value == null) {
+      writeInt32(out, -1); // NULL indicator
+    } else {
+      // Remove trailing zeros and get the unscaled value
+      BigDecimal normalized = value.stripTrailingZeros();
+      int scale = Math.max(0, normalized.scale()); // dscale: number of decimal digits
+
+      // Convert to unscaled long (multiply by 10^scale to get integer)
+      long unscaled = normalized.movePointRight(scale).longValueExact();
+      boolean isNegative = unscaled < 0;
+      long absValue = Math.abs(unscaled);
+
+      // Handle zero as special case
+      if (absValue == 0) {
+        writeInt32(out, 8);
+        writeInt16(out, 0); // ndigits
+        writeInt16(out, 0); // weight
+        writeInt16(out, 0); // sign (positive)
+        writeInt16(out, 0); // dscale
+        return;
+      }
+
+      // Decompose into base-10000 digits
+      int[] digits = new int[10]; // max digits for a long
+      int ndigits = 0;
+
+      long temp = absValue;
+      while (temp != 0) {
+        digits[ndigits++] = (int) (temp % 10000);
+        temp /= 10000;
+      }
+
+      // Calculate weight: position of the most significant digit
+      // Weight is in base-10000, adjusted for decimal point
+      int decimalDigitsInBase10000 = (scale + 3) / 4; // how many base-10000 digits are after decimal point
+      int weight = ndigits - 1 - decimalDigitsInBase10000;
+
+      int totalSize = 8 + ndigits * 2;
+
+      writeInt32(out, totalSize);
+      writeInt16(out, ndigits);
+      writeInt16(out, weight);
+      writeInt16(out, isNegative ? 0x4000 : 0x0000); // sign: 0x4000 = negative, 0x0000 = positive
+      writeInt16(out, scale); // dscale: number of decimal digits
+
+      // Write digits from MSB to LSB
+      for (int i = ndigits - 1; i >= 0; i--) {
+        writeInt16(out, digits[i]);
+      }
     }
   }
 

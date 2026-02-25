@@ -79,10 +79,9 @@ class PaymentRepositoryTest {
     // Create a single payment
     List<PaymentEntity> payments = new ArrayList<>();
     PaymentEntity payment = new PaymentEntity();
-    payment.setFlowId(flow.getId());
+    payment.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flow.getId(), 850L));
     payment.setIuv("610901167426671");
     payment.setIur("65705570051");
-    payment.setIndex(850L);
     payment.setAmount(new BigDecimal("0.01"));
     payment.setPayDate(Instant.parse("2023-02-03T12:00:30.900000Z"));
     payment.setPayStatus("EXECUTED");
@@ -102,7 +101,7 @@ class PaymentRepositoryTest {
     PaymentEntity inserted = result.get(0);
     assertEquals("610901167426671", inserted.getIuv());
     assertEquals("65705570051", inserted.getIur());
-    assertEquals(850L, inserted.getIndex());
+    assertEquals(850L, inserted.getId().getIndex());
     assertEquals(0, new BigDecimal("0.01").compareTo(inserted.getAmount()));
     assertEquals("EXECUTED", inserted.getPayStatus());
     assertEquals(1L, inserted.getTransferId());
@@ -120,10 +119,9 @@ class PaymentRepositoryTest {
     List<PaymentEntity> payments = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
       PaymentEntity payment = new PaymentEntity();
-      payment.setFlowId(flow.getId());
+      payment.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flow.getId(), (long) i));
       payment.setIuv("IUV" + i);
       payment.setIur("IUR" + i);
-      payment.setIndex((long) i);
       payment.setAmount(new BigDecimal("10.50"));
       payment.setPayDate(Instant.now());
       payment.setPayStatus("EXECUTED");
