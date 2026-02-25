@@ -59,7 +59,7 @@ public interface FlowBlobMapper {
 
   default PaymentBlob toPaymentBlob(PaymentEntity elem) {
     return PaymentBlob.builder()
-        .index(elem.getIndex())
+        .index(elem.getId().getIndex())
         .iur(elem.getIur())
         .iuv(elem.getIuv())
         .idTransfer(elem.getTransferId())

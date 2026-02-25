@@ -27,7 +27,7 @@ public interface PaymentMapper {
     for (PaymentEntity entity : list) {
       converted.add(
           Payment.builder()
-              .index(entity.getIndex())
+              .index(entity.getId().getIndex())
               .iuv(entity.getIuv())
               .iur(entity.getIur())
               .idTransfer(entity.getTransferId())
@@ -58,10 +58,9 @@ public interface PaymentMapper {
     List<PaymentEntity> converted = new LinkedList<>();
     for (Payment payment : payments) {
       PaymentEntity entity = new PaymentEntity();
-      entity.setFlowId(flowEntity.getId());
+      entity.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flowEntity.getId(), payment.getIndex()));
       entity.setIuv(payment.getIuv());
       entity.setIur(payment.getIur());
-      entity.setIndex(payment.getIndex());
       entity.setAmount(BigDecimal.valueOf(payment.getPay()));
       entity.setPayStatus(payment.getPayStatus().name());
       entity.setPayDate(payment.getPayDate());

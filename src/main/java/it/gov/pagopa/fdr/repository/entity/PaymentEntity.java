@@ -5,14 +5,11 @@ import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -28,17 +25,8 @@ import lombok.EqualsAndHashCode;
 @Table(name = "payment")
 public class PaymentEntity extends PanacheEntityBase {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "payment_seq_gen")
-  @SequenceGenerator(
-      name = "payment_seq_gen",
-      sequenceName = "payment_sequence",
-      allocationSize = 1)
-  @Column(name = "id", nullable = false, updatable = false)
-  public Long id;
-
-  @Column(name = "flow_id")
-  public Long flowId;
+  @EmbeddedId
+  private PaymentId id;
 
   @Column(name = "iuv")
   public String iuv;
@@ -46,8 +34,6 @@ public class PaymentEntity extends PanacheEntityBase {
   @Column(name = "iur")
   public String iur;
 
-  @Column(name = "index")
-  public Long index;
 
   @Column(name = "amount")
   public BigDecimal amount;
@@ -78,10 +64,10 @@ public class PaymentEntity extends PanacheEntityBase {
 
   public void exportInPreparedStatement(PreparedStatement preparedStatement) throws SQLException {
 
-    preparedStatement.setLong(1, this.flowId);
+    preparedStatement.setLong(1, this.id.getFlowId());
     preparedStatement.setString(2, this.iuv);
     preparedStatement.setString(3, this.iur);
-    preparedStatement.setLong(4, this.index);
+    preparedStatement.setLong(4, this.id.getIndex());
     preparedStatement.setBigDecimal(5, this.amount);
     preparedStatement.setTimestamp(6, this.payDate != null ? Timestamp.from(this.payDate) : null);
     preparedStatement.setString(7, this.payStatus);
