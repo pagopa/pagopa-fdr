@@ -24,6 +24,8 @@
         <testcontainers.version>1.20.4</testcontainers.version>
         <!-- Docker Java API client version - required for API 1.41+ compatibility -->
         <docker-java.version>3.4.1</docker-java.version>
+        <!-- JVM args per Surefire: in locale senza UseContainerSupport, in CI viene sovrascritto dal profilo ci -->
+        <surefire.argLine>--add-opens java.base/java.lang=ALL-UNNAMED</surefire.argLine>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -382,9 +384,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
-                    <!-- -XX:-UseContainerSupport: evita NPE su CgroupV2 in GitHub Actions -->
-                    <!-- -add-opens: necessario per reflection su ProcessEnvironment -->
-                    <argLine>-XX:-UseContainerSupport --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                    <argLine>${surefire.argLine}</argLine>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
@@ -435,6 +435,19 @@
         </plugins>
     </build>
     <profiles>
+        <!-- Profilo attivato automaticamente in GitHub Actions (env var CI=true) -->
+        <!-- Aggiunge -XX:-UseContainerSupport per evitare NPE su CgroupV2 nei runner CI -->
+        <profile>
+            <id>ci</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire.argLine>-XX:-UseContainerSupport --add-opens java.base/java.lang=ALL-UNNAMED</surefire.argLine>
+            </properties>
+        </profile>
         <profile>
             <id>native</id>
             <activation>
