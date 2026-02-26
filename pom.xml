@@ -382,6 +382,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
+                    <!-- Necessario per evitare problemi di memoria con Testcontainers su GH-Action-->
+                    <argLine>-XX:-UseContainerSupport</argLine>
                     <!-- Necessario per reflection su ProcessEnvironment in RancherDesktopClientProviderStrategy -->
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <systemPropertyVariables>
