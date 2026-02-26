@@ -62,6 +62,11 @@ public class PaymentEntity extends PanacheEntityBase {
     return find(query, sort, parameters.map());
   }
 
+  public static PanacheQuery<PaymentEntity> findPageByQuery(
+      String query, Parameters parameters) {
+    return find(query, parameters.map());
+  }
+
   public void exportInPreparedStatement(PreparedStatement preparedStatement) throws SQLException {
 
     preparedStatement.setLong(1, this.id.getFlowId());

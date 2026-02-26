@@ -28,7 +28,7 @@ import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 public class RequestFilter implements ContainerRequestFilter {
 
   @ConfigProperty(name = "registro-eventi.exclude-from-save.actions")
-  private Set<String> actionsExcludedFromSave;
+  Set<String> actionsExcludedFromSave;
 
   private final Logger log;
 
@@ -69,12 +69,13 @@ public class RequestFilter implements ContainerRequestFilter {
 
     // Extract FdrAction value and store on Registro Eventi IF AND ONLY IF this value
     // (extracted from existing @Re annotation in controller) is set!
-    FdrActionEnum fdrActionEnum =
-        AppReUtil.getFdrActionByAnnotation(
-            ((ContainerRequestContextImpl) containerRequestContext)
-                .getServerRequestContext()
-                .getResteasyReactiveResourceInfo()
-                .getAnnotations());
+    // NOTE: getResteasyReactiveResourceInfo() could be null if resource does not exist
+    var serverRequestContext = ((ContainerRequestContextImpl) containerRequestContext)
+        .getServerRequestContext();
+    var resourceInfo = serverRequestContext.getResteasyReactiveResourceInfo();
+    FdrActionEnum fdrActionEnum = resourceInfo != null
+        ? AppReUtil.getFdrActionByAnnotation(resourceInfo.getAnnotations())
+        : null;
     boolean isActionIncludedForRE = isActionIncludedForRE(fdrActionEnum);
     if (isActionIncludedForRE) {
 
