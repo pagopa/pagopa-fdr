@@ -382,10 +382,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
-                    <!-- Necessario per evitare problemi di memoria con Testcontainers su GH-Action-->
-                    <argLine>-XX:-UseContainerSupport</argLine>
-                    <!-- Necessario per reflection su ProcessEnvironment in RancherDesktopClientProviderStrategy -->
-                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                    <!-- -XX:-UseContainerSupport: evita NPE su CgroupV2 in GitHub Actions -->
+                    <!-- --add-opens: necessario per reflection su ProcessEnvironment -->
+                    <argLine>-XX:-UseContainerSupport --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
@@ -396,20 +395,10 @@
                             it/gov/pagopa/fdr/repository/enums/**,
                             it/gov/pagopa/fdr/util/error/exception/persistence/**
                         </quarkus.jacoco.excludes>
-                        <!-- Configurazione Testcontainers per Rancher Desktop -->
-                        <DOCKER_HOST>unix://${user.home}/.rd/docker.sock</DOCKER_HOST>
-                        <TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>${user.home}/.rd/docker.sock</TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>
-                        <docker.host>unix://${user.home}/.rd/docker.sock</docker.host>
-                        <testcontainers.reuse.enable>true</testcontainers.reuse.enable>
-                        <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
-                        <testcontainers.ryuk.disabled>true</testcontainers.ryuk.disabled>
                     </systemPropertyVariables>
                     <environmentVariables>
-                        <DOCKER_HOST>unix://${user.home}/.rd/docker.sock</DOCKER_HOST>
-                        <TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>${user.home}/.rd/docker.sock</TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>
-                        <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
-                        <testcontainers.ryuk.disabled>true</testcontainers.ryuk.disabled>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+                        <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
                     </environmentVariables>
                 </configuration>
             </plugin>
