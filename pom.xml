@@ -383,7 +383,7 @@
                 <version>${surefire-plugin.version}</version>
                 <configuration>
                     <!-- -XX:-UseContainerSupport: evita NPE su CgroupV2 in GitHub Actions -->
-                    <!-- --add-opens: necessario per reflection su ProcessEnvironment -->
+                    <!-- -add-opens: necessario per reflection su ProcessEnvironment -->
                     <argLine>-XX:-UseContainerSupport --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
