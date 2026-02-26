@@ -20,9 +20,42 @@
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.0.0</surefire-plugin.version>
         <jvm.args>${env.CUSTOM_JAVA_OPTS}</jvm.args>
+        <!-- Testcontainers version compatible with Rancher Desktop (requires Docker API 1.41+) -->
+        <testcontainers.version>1.20.4</testcontainers.version>
+        <!-- Docker Java API client version - required for API 1.41+ compatibility -->
+        <docker-java.version>3.4.1</docker-java.version>
     </properties>
     <dependencyManagement>
         <dependencies>
+            <!-- Force docker-java versions BEFORE any BOM that might override them -->
+            <dependency>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java-api</artifactId>
+                <version>${docker-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java-transport</artifactId>
+                <version>${docker-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java-transport-zerodep</artifactId>
+                <version>${docker-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java-core</artifactId>
+                <version>${docker-java.version}</version>
+            </dependency>
+            <!-- Force docker-java version 3.4.1 globally for Rancher Desktop compatibility -->
+            <dependency>
+                <groupId>com.github.docker-java</groupId>
+                <artifactId>docker-java-bom</artifactId>
+                <version>${docker-java.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>io.quarkus.platform</groupId>
                 <artifactId>quarkus-bom</artifactId>
@@ -162,19 +195,109 @@
             <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-core</artifactId>
+            <version>${docker-java.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-zerodep</artifactId>
+            <version>${docker-java.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.16.0</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-transport</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-transport</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-transport</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Testcontainers core con esclusioni docker-java -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-transport</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-transport-zerodep</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Override docker-java version for Docker API 1.41+ compatibility (required by Rancher Desktop) -->
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-api</artifactId>
+            <version>${docker-java.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport</artifactId>
+            <version>${docker-java.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-zerodep</artifactId>
+            <version>${docker-java.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-core</artifactId>
+            <version>${docker-java.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -259,6 +382,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
+                    <!-- Necessario per reflection su ProcessEnvironment in RancherDesktopClientProviderStrategy -->
+                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
@@ -269,7 +394,21 @@
                             it/gov/pagopa/fdr/repository/enums/**,
                             it/gov/pagopa/fdr/util/error/exception/persistence/**
                         </quarkus.jacoco.excludes>
+                        <!-- Configurazione Testcontainers per Rancher Desktop -->
+                        <DOCKER_HOST>unix://${user.home}/.rd/docker.sock</DOCKER_HOST>
+                        <TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>${user.home}/.rd/docker.sock</TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>
+                        <docker.host>unix://${user.home}/.rd/docker.sock</docker.host>
+                        <testcontainers.reuse.enable>true</testcontainers.reuse.enable>
+                        <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
+                        <testcontainers.ryuk.disabled>true</testcontainers.ryuk.disabled>
                     </systemPropertyVariables>
+                    <environmentVariables>
+                        <DOCKER_HOST>unix://${user.home}/.rd/docker.sock</DOCKER_HOST>
+                        <TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>${user.home}/.rd/docker.sock</TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>
+                        <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
+                        <testcontainers.ryuk.disabled>true</testcontainers.ryuk.disabled>
+                        <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+                    </environmentVariables>
                 </configuration>
             </plugin>
             <plugin>
@@ -288,7 +427,16 @@
                                 <java.util.logging.manager>org.jboss.logmanager.LogManager
                                 </java.util.logging.manager>
                                 <maven.home>${maven.home}</maven.home>
+                                <!-- Configurazione Testcontainers per Rancher Desktop -->
+                                <DOCKER_HOST>unix://${user.home}/.rd/docker.sock</DOCKER_HOST>
+                                <TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>${user.home}/.rd/docker.sock</TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>
+                                <docker.host>unix://${user.home}/.rd/docker.sock</docker.host>
+                                <testcontainers.reuse.enable>true</testcontainers.reuse.enable>
                             </systemPropertyVariables>
+                            <environmentVariables>
+                                <DOCKER_HOST>unix://${user.home}/.rd/docker.sock</DOCKER_HOST>
+                                <TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>${user.home}/.rd/docker.sock</TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                 </executions>

@@ -77,120 +77,85 @@ public class BigEndianWriter {
     }
   }
 
-  /**
-   * The method writes  a BigDecimal as a DOUBLE PRECISION (8-byte float).
-   * Note: This involves a precision loss if the BigDecimal exceeds double capacity.
-   */
-  public static void writeDouble(OutputStream out, BigDecimal value) throws IOException {
-    if (value == null) {
-      writeInt32(out, -1); // NULL indicator
-    } else {
-      writeInt32(out, 8); // Length of DOUBLE PRECISION (8 bytes)
-      writeInt64(out, Double.doubleToLongBits(value.doubleValue()));
-    }
-  }
 
   /**
    * The method writes a BigDecimal as PostgreSQL NUMERIC.
-   * Handles both integer and decimal parts correctly.
+   * Uses the correct PostgreSQL binary NUMERIC format with base-10000 digits.
+   *
+   * PostgreSQL NUMERIC binary format:
+   *   - ndigits: number of base-10000 digits
+   *   - weight: index of the most significant digit (0 = units position in base-10000)
+   *   - sign: 0x0000 positive, 0x4000 negative
+   *   - dscale: number of decimal digits after the decimal point
+   *   - digits[]: array of base-10000 digits, most significant first
+   *
+   * Example: 0.01
+   *   In base-10000: 0.01 = 100 * 10000^(-1)  →  digits=[100], weight=-1, dscale=2
+   *
+   * Example: 123.45
+   *   In base-10000: 123.45 = 123 * 10000^0 + 4500 * 10000^(-1) →  digits=[123,4500], weight=0, dscale=2
    */
   public static void writeNumeric(OutputStream out, BigDecimal value) throws IOException {
     if (value == null) {
       writeInt32(out, -1); // NULL indicator
-    } else {
-      // Remove trailing zeros and get the unscaled value
-      BigDecimal normalized = value.stripTrailingZeros();
-      int scale = Math.max(0, normalized.scale()); // dscale: number of decimal digits
+      return;
+    }
 
-      // Convert to unscaled long (multiply by 10^scale to get integer)
-      long unscaled = normalized.movePointRight(scale).longValueExact();
-      boolean isNegative = unscaled < 0;
-      long absValue = Math.abs(unscaled);
+    // Handle zero as special case
+    if (value.compareTo(BigDecimal.ZERO) == 0) {
+      writeInt32(out, 8);
+      writeInt16(out, 0); // ndigits
+      writeInt16(out, 0); // weight
+      writeInt16(out, 0); // sign (positive)
+      writeInt16(out, Math.max(0, value.scale())); // dscale
+      return;
+    }
 
-      // Handle zero as special case
-      if (absValue == 0) {
-        writeInt32(out, 8);
-        writeInt16(out, 0); // ndigits
-        writeInt16(out, 0); // weight
-        writeInt16(out, 0); // sign (positive)
-        writeInt16(out, 0); // dscale
-        return;
-      }
+    boolean isNegative = value.signum() < 0;
+    BigDecimal absValue = value.abs();
+    int dscale = Math.max(0, absValue.scale()); // decimal digits after point
 
-      // Decompose into base-10000 digits
-      int[] digits = new int[10]; // max digits for a long
-      int ndigits = 0;
+    // Number of base-10000 "fractional" groups needed to represent dscale decimal digits.
+    // e.g. dscale=2 → 1 group (holds up to 4 decimal digits)
+    // e.g. dscale=5 → 2 groups
+    int fracGroups = (dscale + 3) / 4;
 
-      long temp = absValue;
-      while (temp != 0) {
-        digits[ndigits++] = (int) (temp % 10000);
-        temp /= 10000;
-      }
+    // Pad the unscaled integer so it aligns to a base-10000 boundary.
+    // e.g. 0.01 → unscaledInt=1, fracGroups=1, paddingPow=2 → paddedInt=100
+    // e.g. 123.45 → unscaledInt=12345, fracGroups=1, paddingPow=2 → paddedInt=1234500
+    java.math.BigInteger unscaledInt = absValue.unscaledValue();
+    int paddingPow = fracGroups * 4 - dscale;
+    if (paddingPow > 0) {
+      unscaledInt = unscaledInt.multiply(java.math.BigInteger.TEN.pow(paddingPow));
+    }
 
-      // Calculate weight: position of the most significant digit
-      // Weight is in base-10000, adjusted for decimal point
-      int decimalDigitsInBase10000 = (scale + 3) / 4; // how many base-10000 digits are after decimal point
-      int weight = ndigits - 1 - decimalDigitsInBase10000;
+    // Decompose paddedInt into base-10000 digits (LSB first)
+    java.math.BigInteger base = java.math.BigInteger.valueOf(10000);
+    java.util.List<Integer> digitsList = new java.util.ArrayList<>();
+    while (unscaledInt.compareTo(java.math.BigInteger.ZERO) > 0) {
+      java.math.BigInteger[] divRem = unscaledInt.divideAndRemainder(base);
+      digitsList.add(divRem[1].intValue());
+      unscaledInt = divRem[0];
+    }
 
-      int totalSize = 8 + ndigits * 2;
+    int ndigits = digitsList.size();
+    // weight = number of integer base-10000 groups - 1
+    // = (total groups - fractional groups) - 1
+    int weight = ndigits - fracGroups - 1;
 
-      writeInt32(out, totalSize);
-      writeInt16(out, ndigits);
-      writeInt16(out, weight);
-      writeInt16(out, isNegative ? 0x4000 : 0x0000); // sign: 0x4000 = negative, 0x0000 = positive
-      writeInt16(out, scale); // dscale: number of decimal digits
+    int totalSize = 8 + ndigits * 2;
+    writeInt32(out, totalSize);
+    writeInt16(out, ndigits);
+    writeInt16(out, weight);
+    writeInt16(out, isNegative ? 0x4000 : 0x0000);
+    writeInt16(out, dscale);
 
-      // Write digits from MSB to LSB
-      for (int i = ndigits - 1; i >= 0; i--) {
-        writeInt16(out, digits[i]);
-      }
+    // Write digits from MSB to LSB
+    for (int i = ndigits - 1; i >= 0; i--) {
+      writeInt16(out, digitsList.get(i));
     }
   }
 
-  /**
-   * The method writes a positive Long value for NUMERIC.
-   * Decomposes the value into base-10000 digits as required by PostgreSQL.
-   */
-  public static void writeNumericForPositiveLong(OutputStream out, Long value) throws IOException {
-    if (value == null) {
-      writeInt32(out, -1);
-    } else {
-      long rawValue = value;
-
-      // Value is zero: apply a fast-path
-      if (rawValue == 0) {
-        writeInt32(out, 8);
-        writeInt16(out, 0); // ndigits
-        writeInt16(out, 0); // weight
-        writeInt16(out, 0); // sign
-        writeInt16(out, 0); // dscale
-      } else {
-
-        // Base-10000 decomposition (max 5 digits for long)
-        int[] digits = new int[5];
-        int ndigits = 0;
-
-        while (rawValue != 0) {
-          digits[ndigits++] = (int) (rawValue % 10000);
-          rawValue /= 10000;
-        }
-
-        int weight = ndigits - 1;
-        int totalSize = 8 + ndigits * 2;
-
-        writeInt32(out, totalSize);
-        writeInt16(out, ndigits);
-        writeInt16(out, weight);
-        writeInt16(out, 0); // sign = positive
-        writeInt16(out, 0); // dscale = integer
-
-        // Write from MSB to LSB
-        for (int i = ndigits - 1; i >= 0; i--) {
-          writeInt16(out, digits[i]);
-        }
-      }
-    }
-}
 
   /**
    * The method writes an Instant as a PostgreSQL TIMESTAMP.

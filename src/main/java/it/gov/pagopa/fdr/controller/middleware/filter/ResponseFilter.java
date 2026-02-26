@@ -51,8 +51,14 @@ public class ResponseFilter implements ContainerResponseFilter {
   @Override
   public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 
-    //
-    long requestStartTime = (long) requestContext.getProperty("requestStartTime");
+    // if requestStartTime is null, the request did not pass through the RequestFilter
+    // (es: /q/health, /q/metrics, /swagger-ui) → skip
+    Object startTimeProperty = requestContext.getProperty("requestStartTime");
+    if (startTimeProperty == null) {
+      return;
+    }
+
+    long requestStartTime = (long) startTimeProperty;
     long requestFinishTime = System.nanoTime();
     long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
 
@@ -198,7 +204,7 @@ public class ResponseFilter implements ContainerResponseFilter {
       // don't modify error message to be able to trace validation errors too
       MDC.put(
               MDCKeys.MESSAGE,
-              errorResponse.get().getErrors().stream().map(e -> e.getMessage()).collect(Collectors.joining(", ")) );
+              errorResponse.get().getErrors().stream().map(ErrorMessage::getMessage).collect(Collectors.joining(", ")) );
 
     } else {
       MDC.put(MDCKeys.OUTCOME, AppConstant.OK);

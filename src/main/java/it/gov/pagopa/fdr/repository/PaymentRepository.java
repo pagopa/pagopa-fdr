@@ -90,21 +90,22 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
       params.and("createdTo", createdTo);
     }
 
+    // add ORDER BY as qualified alias to avoid ambiguity with the JOIN on flow
+    query.append(" ORDER BY p.id.index ASC");
+
     Page page = Page.of(pageNumber - 1, pageSize);
-    Sort sort = getSort(SortField.of(INDEX, Direction.Ascending));
 
     PanacheQuery<PaymentEntity> resultPage =
-        PaymentEntity.findPageByQuery(query.toString(), sort, params).page(page);
+        PaymentEntity.findPageByQuery(query.toString(), params).page(page);
     return getPagedResult(resultPage);
   }
 
   public long countByFlowIdAndIndexes(Long flowId, Set<Long> indexes) {
-
     return count(QUERY_GET_BY_FLOW_ID_AND_INDEXES, flowId, indexes);
   }
 
   @Timed(value = "paymentRepository.createEntityInBulk.task", description = "Time taken to perform createEntityInBulk", percentiles = 0.95, histogram = true)
-  public void createEntityInBulk(List<PaymentEntity> entityBatch) throws SQLException {
+  public void createEntityInBulk(List<PaymentEntity> entityBatch) {
 
     Session session = entityManager.unwrap(Session.class);
     session.doWork(connection -> {
