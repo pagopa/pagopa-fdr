@@ -58,26 +58,7 @@ public class PaymentEntity extends PanacheEntityBase {
   public FlowEntity flow;
 
   public static PanacheQuery<PaymentEntity> findPageByQuery(
-      String query, Sort sort, Parameters parameters) {
-    return find(query, sort, parameters.map());
-  }
-
-  public static PanacheQuery<PaymentEntity> findPageByQuery(
       String query, Parameters parameters) {
     return find(query, parameters.map());
-  }
-
-  public void exportInPreparedStatement(PreparedStatement preparedStatement) throws SQLException {
-
-    preparedStatement.setLong(1, this.id.getFlowId());
-    preparedStatement.setString(2, this.iuv);
-    preparedStatement.setString(3, this.iur);
-    preparedStatement.setLong(4, this.id.getIndex());
-    preparedStatement.setBigDecimal(5, this.amount);
-    preparedStatement.setTimestamp(6, this.payDate != null ? Timestamp.from(this.payDate) : null);
-    preparedStatement.setString(7, this.payStatus);
-    preparedStatement.setLong(8, this.transferId);
-    preparedStatement.setTimestamp(9, this.created != null ? Timestamp.from(this.created) : null);
-    preparedStatement.setTimestamp(10, this.updated != null ? Timestamp.from(this.updated) : null);
   }
 }
