@@ -49,49 +49,52 @@ public class ResponseFilter implements ContainerResponseFilter {
   }
 
   @Override
-  public void filter(
-      ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+  public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 
-    boolean canBeWrittenAsREEvent =
-        "1".equals(Optional.ofNullable(MDC.get(IS_RE_ENABLED_FOR_THIS_CALL)).orElse("0"));
+    // if requestStartTime is null, the request did not pass through the RequestFilter
+    // (es: /q/health, /q/metrics, /swagger-ui) → skip
+    Object startTimeProperty = requestContext.getProperty("requestStartTime");
+    if (startTimeProperty == null) {
+      return;
+    }
+
+    long requestStartTime = (long) startTimeProperty;
+    long requestFinishTime = System.nanoTime();
+    long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
+
+    // Extracting info from request and response
+    String requestMethod = requestContext.getMethod();
+    String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
+    int httpStatus = responseContext.getStatus();
+
+    // Extracting info from context properties
+    String requestSubject = (String) requestContext.getProperty("subject");
+    String fdrAction = (String) requestContext.getProperty("fdrAction");
+
+    // Populate MDC for include values on logged elements as MDC.<field>
+    Object responseContextEntity = responseContext.getEntity();
+    putResponseInfoInMDC(fdrAction, requestPath, elapsed, httpStatus, responseContextEntity);
+
+    boolean canBeWrittenAsREEvent = "1".equals(Optional.ofNullable(MDC.get(IS_RE_ENABLED_FOR_THIS_CALL)).orElse("0"));
     if (canBeWrittenAsREEvent && requestContext.getPropertyNames().contains("fdrAction")) {
 
-      //
-      long requestStartTime = (long) requestContext.getProperty("requestStartTime");
-      long requestFinishTime = System.nanoTime();
-      long elapsed = TimeUnit.NANOSECONDS.toMillis(requestFinishTime - requestStartTime);
+        // Extracting request and response payloads
+        String requestPayload = (String) requestContext.getProperty("parsedRequest");
+        String responsePayload;
+        try {
+            responsePayload = objectMapper.writeValueAsString(responseContextEntity);
+        } catch (JsonProcessingException e) {
+            throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
+        }
 
-      // Extracting info from request and response
-      String requestMethod = requestContext.getMethod();
-      String requestPath = requestContext.getUriInfo().getAbsolutePath().getPath();
-      int httpStatus = responseContext.getStatus();
-
-      // Extracting info from context properties
-      String requestSubject = (String) requestContext.getProperty("subject");
-      String fdrAction = (String) requestContext.getProperty("fdrAction");
-
-      // Populate MDC for include values on logged elements as MDC.<field>
-      Object responseContextEntity = responseContext.getEntity();
-      putResponseInfoInMDC(fdrAction, requestPath, elapsed, httpStatus, responseContextEntity);
-
-      // Extracting request and response payloads
-      String requestPayload = (String) requestContext.getProperty("parsedRequest");
-
-      String responsePayload;
-      try {
-        responsePayload = objectMapper.writeValueAsString(responseContextEntity);
-      } catch (JsonProcessingException e) {
-        throw new AppException(e, AppErrorCodeMessageEnum.ERROR);
-      }
-
-      // Generate events on Registro Eventi and also store on BLOB storage
-      generateAndSendREEvent(
-          requestContext, fdrAction, requestPayload, responsePayload, requestMethod, requestPath);
-
-      // Finally, log all response info with also MDC values, then clear MDC context
-      logResponse(responseContext, requestMethod, requestPath, requestSubject, elapsed, httpStatus);
-      MDC.clear();
+        // Generate events on Registro Eventi and also store on BLOB storage
+        generateAndSendREEvent(
+                requestContext, fdrAction, requestPayload, responsePayload, requestMethod, requestPath);
     }
+
+    // Finally, log all response info with also MDC values, then clear MDC context
+    logResponse(responseContext, requestMethod, requestPath, requestSubject, elapsed, httpStatus);
+    MDC.clear();
   }
 
   private void generateAndSendREEvent(
@@ -201,7 +204,7 @@ public class ResponseFilter implements ContainerResponseFilter {
       // don't modify error message to be able to trace validation errors too
       MDC.put(
               MDCKeys.MESSAGE,
-              errorResponse.get().getErrors().stream().map(e -> e.getMessage()).collect(Collectors.joining(", ")) );
+              errorResponse.get().getErrors().stream().map(ErrorMessage::getMessage).collect(Collectors.joining(", ")) );
 
     } else {
       MDC.put(MDCKeys.OUTCOME, AppConstant.OK);

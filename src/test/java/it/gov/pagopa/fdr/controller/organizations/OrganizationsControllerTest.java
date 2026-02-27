@@ -4,13 +4,7 @@ import static io.restassured.RestAssured.given;
 import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum.PSP_UNKNOWN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -26,7 +20,9 @@ import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
-
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,12 +33,23 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
 
+  private static final String VALID_FLOW_DATE = Instant.now()
+          .atZone(ZoneOffset.UTC)
+          .minusMonths(1)
+          .truncatedTo(ChronoUnit.SECONDS)
+          .toInstant()
+          .toString();
+  private static final Instant VALID_DATE_FILTER = Instant.now()
+          .atZone(ZoneOffset.UTC)
+          .minusDays(25)
+          .toInstant();
+
   /** ############### getAllPublishedFlow ################ */
   @Test
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow")
   void testOrganization_getAllPublishedFlow_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
+    TestUtil.pspSunnyDay(flowName, VALID_FLOW_DATE);
     String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE);
     PaginatedFlowsResponse res =
         given()
@@ -65,46 +72,67 @@ class OrganizationsControllerTest {
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with published date filter")
   void testOrganization_getAllPublishedFlow_with_published_date_filter_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(EC_CODE, PSP_CODE, PUBLISHED_DATE);
+    TestUtil.pspSunnyDay(flowName, VALID_FLOW_DATE);
+    String url =
+        ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(
+            EC_CODE, PSP_CODE, VALID_DATE_FILTER);
     PaginatedFlowsResponse res =
-            given()
-                    .header(HEADER)
-                    .when()
-                    .get(url)
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .as(PaginatedFlowsResponse.class);
+        given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(
-            res.getData(),
-            hasItem(
-                    anyOf(
-                            hasProperty("name", equalTo(flowName)), hasProperty("pspId", equalTo(PSP_CODE)), hasProperty("published", greaterThan(PUBLISHED_DATE)))));
+        res.getData(),
+        hasItem(
+            anyOf(
+                hasProperty("name", equalTo(flowName)),
+                hasProperty("pspId", equalTo(PSP_CODE)),
+                hasProperty("published", greaterThan(PUBLISHED_DATE)))));
   }
 
   @Test
   @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with flow date filter")
   void testOrganization_getAllPublishedFlow_with_flow_date_filter_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, FLOW_DATE_PARAMETER);
+    TestUtil.pspSunnyDay(flowName, VALID_FLOW_DATE);
+    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, VALID_DATE_FILTER);
     PaginatedFlowsResponse res =
-            given()
-                    .header(HEADER)
-                    .when()
-                    .get(url)
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .as(PaginatedFlowsResponse.class);
+        given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), greaterThan(0L));
     assertThat(
             res.getData(),
             hasItem(
                     anyOf(
-                            hasProperty("name", equalTo(flowName)), hasProperty("pspId", equalTo(PSP_CODE)))));
+                            hasProperty("name", equalTo(flowName)),
+                            hasProperty("pspId", equalTo(PSP_CODE)))));
+  }
+
+  @Test
+  @DisplayName("ORGANIZATIONS - OK - getAllPublishedFlow with wrong flow date filter")
+  void testOrganization_getAllPublishedFlow_with_flow_date_filter_Ko() {
+    String flowName = TestUtil.getDynamicFlowName();
+
+    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
+
+    String url =
+        ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(
+            EC_CODE,
+            PSP_CODE,
+            Instant.now().atZone(ZoneOffset.UTC).minusMonths(2).toString());
+
+    given().header(HEADER).when().get(url).then().statusCode(400).extract().as(ErrorResponse.class);
   }
 
   @Test
@@ -114,14 +142,14 @@ class OrganizationsControllerTest {
     TestUtil.pspSunnyDay(flowName, FLOW_DATE);
     String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL.formatted(EC_CODE, PSP_CODE_2);
     PaginatedFlowsResponse res =
-            given()
-                    .header(HEADER)
-                    .when()
-                    .get(url)
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .as(PaginatedFlowsResponse.class);
+        given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 
@@ -130,16 +158,18 @@ class OrganizationsControllerTest {
   void testOrganization_getAllPublishedFlow_with_published_date_filter_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName, FLOW_DATE);
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(EC_CODE, PSP_CODE, PUBLISHED_DATE_FUTURE);
+    String url =
+        ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_PUBLISHED_FILTER.formatted(
+            EC_CODE, PSP_CODE, PUBLISHED_DATE_FUTURE);
     PaginatedFlowsResponse res =
-            given()
-                    .header(HEADER)
-                    .when()
-                    .get(url)
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .as(PaginatedFlowsResponse.class);
+        given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 
@@ -148,16 +178,18 @@ class OrganizationsControllerTest {
   void testOrganization_getAllPublishedFlow_with_flow_date_filter_OkNoResults() {
     String flowName = TestUtil.getDynamicFlowName();
     TestUtil.pspSunnyDay(flowName, FLOW_DATE);
-    String url = ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(EC_CODE, PSP_CODE, FLOW_DATE_FUTURE);
+    String url =
+        ORGANIZATIONS_GET_ALL_PUBLISHED_FLOW_URL_WITH_FLOW_DATE_FILTER.formatted(
+            EC_CODE, PSP_CODE, FLOW_DATE_FUTURE);
     PaginatedFlowsResponse res =
-            given()
-                    .header(HEADER)
-                    .when()
-                    .get(url)
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .as(PaginatedFlowsResponse.class);
+        given()
+            .header(HEADER)
+            .when()
+            .get(url)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(PaginatedFlowsResponse.class);
     assertThat(res.getCount(), equalTo(0L));
   }
 

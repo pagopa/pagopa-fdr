@@ -1,5 +1,6 @@
 import http from "k6/http";
 import { check } from 'k6';
+import { Trend } from 'k6/metrics';
 import { SharedArray } from 'k6/data';
 import { generateFlowNameAndDate, generatePartitionIndexes } from './modules/helper.js';
 import { buildCreateFlowRequest, buildAddPaymentsRequest } from './modules/request_builder.js';
@@ -29,13 +30,16 @@ const requestValues = {
 
 const paymentsInFlow = `${__ENV.PAYMENTS_IN_FLOW}`;
 const maxParallelCalls = __ENV.MAX_PARALLEL_CALLS && Number(__ENV.MAX_PARALLEL_CALLS) > 0 ? Number(__ENV.MAX_PARALLEL_CALLS) : 5;
-const maxPaymentsInCall = 1000;
+const maxPaymentsInCall = __ENV.MAX_PAYMENTS_PER_CALLS && Number(__ENV.MAX_PAYMENTS_PER_CALLS) > 0 ? Number(__ENV.MAX_PAYMENTS_PER_CALLS) : 1000;
 const totalAmount = paymentsInFlow * 100.00;
 const numberOfPartitions = 1 + (paymentsInFlow / maxPaymentsInCall);
 
 const subscriptionKey = `${__ENV.API_SUBSCRIPTION_KEY_PSP}`;
-console.log(`Defining max [${maxParallelCalls}] parallel calls with max [${paymentsInFlow}] payments.`);
+console.log(`Defining max [${maxParallelCalls}] parallel ADD_PAYMENTS calls (with [${maxPaymentsInCall}] payments each), with a total of [${paymentsInFlow}] payments per flow.`);
 
+const createFlowWorkflowDuration = new Trend('http_workflow_create_flow');
+const addPaymentsWorkflowDuration = new Trend('http_workflow_add_payments');
+const publishFlowWorkflowDuration = new Trend('http_workflow_publish_flow');
 
 var params = {};
 var data = {};
@@ -80,6 +84,7 @@ export default function () {
   check(createFlowResponse, {
     'Check if empty flow was created [HTTP Code: 201]': (_r) => createFlowResponse.status === 201,
   });
+  createFlowWorkflowDuration.add(createFlowResponse.timings.duration);
   if (createFlowResponse.status !== 201) {
     console.log(`Create flow in error: ${createFlowUrl} => response: ${createFlowResponse.status} - ${createFlowResponse.body}`);
     return;
@@ -105,6 +110,7 @@ export default function () {
     let responses = http.batch(batch);
     responses.forEach((res, index) => {
       check(res, { 'Check if payments were added to flow [HTTP Code: 200]': (r) => r.status === 200 });
+      addPaymentsWorkflowDuration.add(res.timings.duration);
       if (res.status !== 200) {
         console.log(`Add Payments in error: ${batch[index].url} => response: ${res.status} - ${res.body}`);
       }
@@ -118,6 +124,7 @@ export default function () {
   check(publishFlowResponse, {
     'Check if flow was published [HTTP Code: 200]': (_r) => publishFlowResponse.status === 200,
   });
+  publishFlowWorkflowDuration.add(publishFlowResponse.timings.duration);
   if (publishFlowResponse.status !== 200) {
     console.log(`Publish flow in error: ${publishFlowUrl} =>  response: ${publishFlowResponse.status} - ${publishFlowResponse.body}`);
   }

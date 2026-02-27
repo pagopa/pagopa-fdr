@@ -179,10 +179,11 @@ public class PaymentService {
     FlowEntity publishingFlow = optPublishingFlow.get();
     List<Payment> paymentsToAdd = request.getPayments();
     Set<Long> indexes = paymentsToAdd.stream().map(Payment::getIndex).collect(Collectors.toSet());
+
     // remove count -> execute only 1 query
     List<PaymentEntity> indexesAlreadyAdded = paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
     if (!indexesAlreadyAdded.isEmpty()) {
-      List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
+      List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(payment -> payment.getId().getIndex()).toList();
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
           conflictingIndexes,
@@ -227,7 +228,7 @@ public class PaymentService {
         this.paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
     boolean containsAllIndexes =
         paymentEntities.stream()
-            .map(PaymentEntity::getIndex)
+            .map(payment -> payment.getId().getIndex())
             .collect(Collectors.toSet())
             .containsAll(indexes);
     if (!containsAllIndexes) {
