@@ -22,7 +22,7 @@ on:
         required: true
         description: Db version (👀 src/main/resources/db/migration/liquibase )
         type: string
-        default: "1.0.0"
+        default: "1.1.0"
         
 permissions:
   id-token: write
@@ -31,7 +31,7 @@ permissions:
 jobs:
   create_runner:
     name: Create Runner
-    runs-on: ubuntu-22.04
+    runs-on: [ self-hosted-job, "${{ inputs.environment }}" ]
     environment:
       name: ${{ inputs.environment }}
     outputs:
