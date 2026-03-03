@@ -113,12 +113,12 @@ jobs:
           echo "
           classpath: ./src/main/resources/db/migration/liquibase/changelog
           liquibase.headless: true
-          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/postgres?prepareThreshold=0&currentSchema=cron
+          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/postgres?prepareThreshold=0
           contexts: ${{ inputs.environment }}
           username: ${{ vars.POSTGRES_DB_ADMIN_USERNAME }}
           password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
-          defaultSchemaName: cron
-          liquibaseSchemaName: cron
+          defaultSchemaName: public
+          liquibaseSchemaName: public
           liquibase.hub.mode: OFF
           log-level: INFO
           " > fdr.properties
