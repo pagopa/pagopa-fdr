@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 -- ## TABLE PAYMENT_STAGING ##
---changeset liquibase:202602200004-01
+--changeset liquibase:202602200004-01 endDelimiter:GO
 DO $$
 DECLARE
     schema_name TEXT := 'fdr3';
@@ -40,7 +40,7 @@ EXECUTE format('
                schema_name, partition_name, schema_name, table_name, modulus_val, i);
 END LOOP;
 END $$;
-
+GO
 
 --changeset liquibase:202602200004-02
 CREATE OR REPLACE VIEW IF NOT EXISTS fdr3.payment_full_view AS
@@ -76,7 +76,7 @@ UNION ALL
         'STAGING'::text AS record_origin
     FROM fdr3.payment_staging;
 
---changeset liquibase:202602200004-03
+--changeset liquibase:202602200004-03 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE IF NOT EXISTS fdr3.move_published_payments(
     p_start_date timestamp,
     p_end_date timestamp
@@ -117,3 +117,4 @@ AS $$
             RAISE EXCEPTION 'Error during moving items: %', SQLERRM;
     END;
 $$;
+GO
