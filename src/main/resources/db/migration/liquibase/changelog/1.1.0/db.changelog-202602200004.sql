@@ -124,3 +124,5 @@ AS $$
     END;
 $$;
 GO
+
+GRANT EXECUTE ON PROCEDURE fdr3.move_published_payments(integer) TO azureuser;
