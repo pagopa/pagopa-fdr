@@ -83,6 +83,8 @@ CREATE OR REPLACE PROCEDURE fdr3.move_published_payments(
 LANGUAGE plpgsql
 AS $$
     DECLARE
+        v_start_date timestamp;
+        v_end_date timestamp;
         rows_moved integer;
     BEGIN
     v_end_date := date_trunc('minute', now());
