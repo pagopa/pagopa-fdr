@@ -113,12 +113,12 @@ jobs:
           echo "
           classpath: ./src/main/resources/db/migration/liquibase/admin-changelog
           liquibase.headless: true
-          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/postgres?prepareThreshold=0
+          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/fdr3?prepareThreshold=0
           contexts: ${{ inputs.environment }}
           username: ${{ vars.POSTGRES_DB_ADMIN_USERNAME }}
           password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
-          defaultSchemaName: public
-          liquibaseSchemaName: public
+          defaultSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
+          liquibaseSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
           liquibase.hub.mode: OFF
           log-level: INFO
           " > fdr.properties
