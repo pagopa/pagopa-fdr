@@ -81,6 +81,8 @@ CREATE OR REPLACE PROCEDURE fdr3.move_published_payments(
     p_lookback_minutes integer DEFAULT 1
 )
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = fdr3, pg_temp
 AS $$
     DECLARE
         v_start_date timestamp;
@@ -118,7 +120,7 @@ AS $$
     RAISE NOTICE 'Move completed: % payments moved to payment table in range between % and %', rows_moved, v_start_date, v_end_date;
     EXCEPTION
         WHEN OTHERS THEN
-            RAISE EXCEPTION 'Error during moving items: %', SQLERRM;
+            RAISE WARNING 'Error during moving items: %', SQLERRM;
     END;
 $$;
 GO
