@@ -77,7 +77,7 @@ UNION ALL
     FROM fdr3.payment_staging;
 
 --changeset liquibase:202602200004-03 endDelimiter:GO
-CREATE OR REPLACE PROCEDURE IF NOT EXISTS fdr3.move_published_payments(
+CREATE OR REPLACE PROCEDURE fdr3.move_published_payments(
     p_start_date timestamp,
     p_end_date timestamp
 )
