@@ -45,7 +45,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
   public static final String QUERY_GET_BY_FLOW_ID_AND_INDEXES = "id.flowId = ?1" + " and id.index in ?2";
 
     private static final String INSERT_IN_BULK =
-            "COPY payment (flow_id, iuv, iur, \"index\", amount, pay_date, pay_status, transfer_id, created, updated) " +
+            "COPY payment_staging (org_id, flow_id, iuv, iur, \"index\", amount, pay_date, pay_status, transfer_id, created, updated) " +
                     "FROM STDIN WITH (FORMAT BINARY)";
 
 
@@ -105,7 +105,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
   }
 
   @Timed(value = "paymentRepository.createEntityInBulk.task", description = "Time taken to perform createEntityInBulk", percentiles = 0.95, histogram = true)
-  public void createEntityInBulk(List<PaymentEntity> entityBatch) {
+  public void createEntityInBulk(List<PaymentEntity> entityBatch, String orgDomainId) {
 
     Session session = entityManager.unwrap(Session.class);
     session.doWork(connection -> {
@@ -129,8 +129,9 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
         for (PaymentEntity entity : entityBatch) {
 
           // Define a row as 10-columns stream
-          BigEndianWriter.writeInt16(out, 10);
+          BigEndianWriter.writeInt16(out, 11);
 
+          BigEndianWriter.writeText(out, orgDomainId);
           BigEndianWriter.writeBigInt(out, entity.getId().getFlowId());
           BigEndianWriter.writeText(out, entity.getIuv());
           BigEndianWriter.writeText(out, entity.getIur());
