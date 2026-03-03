@@ -43,7 +43,7 @@ END $$;
 GO
 
 --changeset liquibase:202602200004-02
-CREATE OR REPLACE VIEW IF NOT EXISTS fdr3.payment_full_view AS
+CREATE OR REPLACE VIEW fdr3.payment_full_view AS
     -- 1. extract data from payment
     SELECT
         flow_id,
