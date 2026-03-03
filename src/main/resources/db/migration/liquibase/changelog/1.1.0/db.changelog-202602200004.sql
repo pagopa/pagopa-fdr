@@ -78,40 +78,42 @@ UNION ALL
 
 --changeset liquibase:202602200004-03 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE fdr3.move_published_payments(
-    p_start_date timestamp,
-    p_end_date timestamp
+    p_lookback_minutes integer DEFAULT 1
 )
 LANGUAGE plpgsql
 AS $$
     DECLARE
         rows_moved integer;
     BEGIN
+    v_end_date := date_trunc('minute', now());
+    v_start_date := v_end_date - (p_lookback_minutes * interval '1 minute');
+    RAISE NOTICE 'Move start: moving payments in range between % and %', v_start_date, v_end_date;
     -- use CTE to identify, delete and insert in one shot
     WITH
         target_flows AS (
             -- identify flow ids published in a specified temporal range
             SELECT id FROM fdr3.flow
             WHERE status = 'PUBLISHED'
-                AND published >= p_start_date
-                AND published <= p_end_date
+                AND published >= v_start_date
+                AND published < v_end_date
         ),
         deleted_rows AS (
             -- delete from payment_staging rows belonging to published flows
             DELETE FROM fdr3.payment_staging
                 WHERE flow_id IN (SELECT id FROM target_flows)
             RETURNING
-                flow_id, iuv, iur, index, amount,
+                flow_id, iuv, iur, "index", amount,
                 pay_date, pay_status, transfer_id, created, updated
         )
     -- insert row in the payment table
     INSERT INTO fdr3.payment (
-        flow_id, iuv, iur, index, amount,
+        flow_id, iuv, iur, "index", amount,
         pay_date, pay_status, transfer_id, created, updated
     )
     SELECT * FROM deleted_rows;
 
     GET DIAGNOSTICS rows_moved = ROW_COUNT;
-    RAISE NOTICE 'Move completed: % payments moved to payment table in range between % and %', rows_moved, p_start_date, p_end_date;
+    RAISE NOTICE 'Move completed: % payments moved to payment table in range between % and %', rows_moved, v_start_date, v_end_date;
     EXCEPTION
         WHEN OTHERS THEN
             RAISE EXCEPTION 'Error during moving items: %', SQLERRM;
