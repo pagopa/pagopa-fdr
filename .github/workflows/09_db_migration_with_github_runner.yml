@@ -111,7 +111,7 @@ jobs:
           export PATH="$PATH:./liquibase-app"
 
           echo "
-          classpath: ./src/main/resources/db/migration/liquibase/changelog
+          classpath: ./src/main/resources/db/migration/liquibase/admin-changelog
           liquibase.headless: true
           url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/postgres?prepareThreshold=0
           contexts: ${{ inputs.environment }}
