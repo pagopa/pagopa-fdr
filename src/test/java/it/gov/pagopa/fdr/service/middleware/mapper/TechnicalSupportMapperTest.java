@@ -5,9 +5,10 @@
 //
 //import it.gov.pagopa.fdr.controller.model.flow.FlowBySenderAndReceiver;
 //import it.gov.pagopa.fdr.repository.entity.FlowEntity;
-//import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
 //import java.util.Collections;
 //import java.util.List;
+//
+//import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.mapstruct.factory.Mappers;
@@ -15,7 +16,7 @@
 //class TechnicalSupportMapperTest {
 //
 //  private final TechnicalSupportMapper mapper = Mappers.getMapper(TechnicalSupportMapper.class);
-//  private final PaymentEntity paymentEntity = new PaymentEntity();
+//  private final PaymentFullViewEntity paymentEntity = new PaymentFullViewEntity();
 //
 //  @BeforeEach
 //  void setUp() {

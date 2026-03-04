@@ -13,8 +13,6 @@ import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Set;
 
 @ApplicationScoped
 public class PaymentFullViewRepository extends Repository implements PanacheRepository<PaymentFullViewEntity> {
@@ -22,8 +20,6 @@ public class PaymentFullViewRepository extends Repository implements PanacheRepo
   public static final String INDEX = "id.index";
 
   public static final String QUERY_GET_BY_FLOW_ID = "id.flowId = ?1";
-
-  public static final String QUERY_GET_BY_FLOW_ID_AND_INDEXES = "id.flowId = ?1" + " and id.index in ?2";
 
   public PaymentFullViewRepository() {
   }
@@ -92,7 +88,4 @@ public class PaymentFullViewRepository extends Repository implements PanacheRepo
     return getPagedResult(resultPage);
   }
 
-  public List<PaymentFullViewEntity> findByFlowIdAndIndexes(Long flowId, Set<Long> indexes) {
-    return find(QUERY_GET_BY_FLOW_ID_AND_INDEXES, flowId, indexes).list();
-  }
 }
