@@ -12,6 +12,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
@@ -21,10 +23,10 @@ public interface PaymentMapper {
 
   PaymentMapper INSTANCE = Mappers.getMapper(PaymentMapper.class);
 
-  default List<Payment> toPayment(List<PaymentEntity> list) {
+  default List<Payment> toPayment(List<PaymentFullViewEntity> list) {
 
     List<Payment> converted = new ArrayList<>();
-    for (PaymentEntity entity : list) {
+    for (PaymentFullViewEntity entity : list) {
       converted.add(
           Payment.builder()
               .index(entity.getId().getIndex())
@@ -40,7 +42,7 @@ public interface PaymentMapper {
   }
 
   default PaginatedPaymentsResponse toPaginatedPaymentsResponse(
-      RepositoryPagedResult<PaymentEntity> paginatedResult, long pageSize, long pageNumber) {
+          RepositoryPagedResult<PaymentFullViewEntity> paginatedResult, long pageSize, long pageNumber) {
 
     return PaginatedPaymentsResponse.builder()
         .metadata(

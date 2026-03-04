@@ -15,7 +15,7 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 public class PaymentFullViewEntity extends AbstractPaymentEntity {
 
-  public static PanacheQuery<PaymentEntity> findPageByQuery(
+  public static PanacheQuery<PaymentFullViewEntity> findPageByQuery(
           String query, Parameters parameters) {
     return find(query, parameters.map());
   }

@@ -3,6 +3,8 @@ package it.gov.pagopa.fdr.service.middleware.mapper;
 import it.gov.pagopa.fdr.controller.model.flow.FlowBySenderAndReceiver;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
 import java.util.List;
+
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants.ComponentModel;
@@ -13,7 +15,7 @@ public interface TechnicalSupportMapper {
 
   TechnicalSupportMapper INSTANCE = Mappers.getMapper(TechnicalSupportMapper.class);
 
-  List<FlowBySenderAndReceiver> toFlowBySenderAndReceiver(List<PaymentEntity> list);
+  List<FlowBySenderAndReceiver> toFlowBySenderAndReceiver(List<PaymentFullViewEntity> list);
 
   @Mapping(source = "flow.pspDomainId", target = "pspId")
   @Mapping(source = "flow.orgDomainId", target = "organizationId")
