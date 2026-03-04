@@ -21,5 +21,11 @@ public interface TechnicalSupportMapper {
   @Mapping(source = "flow.orgDomainId", target = "organizationId")
   @Mapping(source = "flow.name", target = "fdr")
   @Mapping(source = "flow.revision", target = "revision")
+  FlowBySenderAndReceiver toFlowBySenderAndReceiver(PaymentFullViewEntity entity);
+
+  @Mapping(source = "flow.pspDomainId", target = "pspId")
+  @Mapping(source = "flow.orgDomainId", target = "organizationId")
+  @Mapping(source = "flow.name", target = "fdr")
+  @Mapping(source = "flow.revision", target = "revision")
   FlowBySenderAndReceiver toFlowBySenderAndReceiver(PaymentEntity list);
 }

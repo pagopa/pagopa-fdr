@@ -1,57 +1,57 @@
-//package it.gov.pagopa.fdr.service.middleware.mapper;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertNotNull;
-//
-//import it.gov.pagopa.fdr.controller.model.flow.FlowBySenderAndReceiver;
-//import it.gov.pagopa.fdr.repository.entity.FlowEntity;
-//import java.util.Collections;
-//import java.util.List;
-//
-//import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mapstruct.factory.Mappers;
-//
-//class TechnicalSupportMapperTest {
-//
-//  private final TechnicalSupportMapper mapper = Mappers.getMapper(TechnicalSupportMapper.class);
-//  private final PaymentFullViewEntity paymentEntity = new PaymentFullViewEntity();
-//
-//  @BeforeEach
-//  void setUp() {
-//    paymentEntity.setFlow(new FlowEntity());
-//    paymentEntity.getFlow().setPspDomainId("psp123");
-//    paymentEntity.getFlow().setOrgDomainId("org123");
-//    paymentEntity.getFlow().setName("flowName");
-//    paymentEntity.getFlow().setRevision(1L);
-//  }
-//
-//  @Test
-//  void testToFlowBySenderAndReceiverList() {
-//
-//    List<FlowBySenderAndReceiver> result =
-//        mapper.toFlowBySenderAndReceiver(Collections.singletonList(paymentEntity));
-//
-//    assertNotNull(result);
-//    assertEquals(1, result.size());
-//    FlowBySenderAndReceiver elem = result.get(0);
-//    assertNotNull(elem);
-//    assertEquals("psp123", elem.getPspId());
-//    assertEquals("org123", elem.getOrganizationId());
-//    assertEquals("flowName", elem.getFdr());
-//    assertEquals(1, elem.getRevision());
-//  }
-//
-//  @Test
-//  void testToFlowBySenderAndReceiver() {
-//
-//    FlowBySenderAndReceiver result = mapper.toFlowBySenderAndReceiver(paymentEntity);
-//
-//    assertNotNull(result);
-//    assertEquals("psp123", result.getPspId());
-//    assertEquals("org123", result.getOrganizationId());
-//    assertEquals("flowName", result.getFdr());
-//    assertEquals(1, result.getRevision());
-//  }
-//}
+package it.gov.pagopa.fdr.service.middleware.mapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import it.gov.pagopa.fdr.controller.model.flow.FlowBySenderAndReceiver;
+import it.gov.pagopa.fdr.repository.entity.FlowEntity;
+import java.util.Collections;
+import java.util.List;
+
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
+
+class TechnicalSupportMapperTest {
+
+  private final TechnicalSupportMapper mapper = Mappers.getMapper(TechnicalSupportMapper.class);
+  private final PaymentFullViewEntity paymentEntity = new PaymentFullViewEntity();
+
+  @BeforeEach
+  void setUp() {
+    paymentEntity.flow = new FlowEntity();
+    paymentEntity.flow.setPspDomainId("psp123");
+    paymentEntity.flow.setOrgDomainId("org123");
+    paymentEntity.flow.setName("flowName");
+    paymentEntity.flow.setRevision(1L);
+  }
+
+  @Test
+  void testToFlowBySenderAndReceiverList() {
+
+    List<FlowBySenderAndReceiver> result =
+        mapper.toFlowBySenderAndReceiver(Collections.singletonList(paymentEntity));
+
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    FlowBySenderAndReceiver elem = result.get(0);
+    assertNotNull(elem);
+    assertEquals("psp123", elem.getPspId());
+    assertEquals("org123", elem.getOrganizationId());
+    assertEquals("flowName", elem.getFdr());
+    assertEquals(1, elem.getRevision());
+  }
+
+  @Test
+  void testToFlowBySenderAndReceiver() {
+
+    FlowBySenderAndReceiver result = mapper.toFlowBySenderAndReceiver(paymentEntity);
+
+    assertNotNull(result);
+    assertEquals("psp123", result.getPspId());
+    assertEquals("org123", result.getOrganizationId());
+    assertEquals("flowName", result.getFdr());
+    assertEquals(1, result.getRevision());
+  }
+}
