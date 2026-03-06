@@ -31,7 +31,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
   private final Logger log;
 
   private static final String INSERT_IN_BULK =
-          "COPY payment_staging (org_id, flow_id, iuv, iur, \"index\", amount, pay_date, pay_status, transfer_id, created, updated) " +
+          "COPY payment_staging (flow_id, \"index\", org_id, iuv, iur, amount, pay_date, pay_status, transfer_id, created, updated) " +
                   "FROM STDIN WITH (FORMAT BINARY)";
 
 
@@ -64,14 +64,14 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
         //
         for (PaymentEntity entity : entityBatch) {
 
-          // Define a row as 10-columns stream
+          // Define a row as 11-columns stream
           BigEndianWriter.writeInt16(out, 11);
 
-          BigEndianWriter.writeText(out, orgDomainId);
           BigEndianWriter.writeBigInt(out, entity.getId().getFlowId());
+          BigEndianWriter.writeBigInt(out, entity.getId().getIndex());
+          BigEndianWriter.writeText(out, orgDomainId);
           BigEndianWriter.writeText(out, entity.getIuv());
           BigEndianWriter.writeText(out, entity.getIur());
-          BigEndianWriter.writeBigInt(out, entity.getId().getIndex());
           BigEndianWriter.writeNumeric(out, entity.getAmount());
           BigEndianWriter.writeTimestamp(out, entity.getPayDate());
           BigEndianWriter.writeText(out, entity.getPayStatus());
