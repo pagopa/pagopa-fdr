@@ -53,8 +53,8 @@ class PaymentRepositoryTest {
     assertNotNull(flow.getId());
     Long flowId = flow.getId();
 
-    List<PaymentEntity> payments = new ArrayList<>();
-    PaymentEntity payment = new PaymentEntity();
+    List<PaymentStagingEntity> payments = new ArrayList<>();
+    PaymentStagingEntity payment = new PaymentStagingEntity();
     payment.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flowId, 850L));
     payment.setIuv("610901167426671");
     payment.setIur("65705570051");
@@ -97,9 +97,9 @@ class PaymentRepositoryTest {
     assertNotNull(flow.getId());
     Long flowId = flow.getId();
 
-    List<PaymentEntity> payments = new ArrayList<>();
+    List<PaymentStagingEntity> payments = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      PaymentEntity payment = new PaymentEntity();
+      PaymentStagingEntity payment = new PaymentStagingEntity();
       payment.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flowId, (long) i));
       payment.setIuv("IUV" + i);
       payment.setIur("IUR" + i);

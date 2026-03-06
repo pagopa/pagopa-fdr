@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentStagingEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
@@ -56,10 +57,10 @@ public interface PaymentMapper {
         .build();
   }
 
-  default List<PaymentEntity> toEntity(FlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
-    List<PaymentEntity> converted = new LinkedList<>();
+  default List<PaymentStagingEntity> toEntity(FlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
+    List<PaymentStagingEntity> converted = new LinkedList<>();
     for (Payment payment : payments) {
-      PaymentEntity entity = new PaymentEntity();
+      PaymentStagingEntity entity = new PaymentStagingEntity();
       entity.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flowEntity.getId(), payment.getIndex()));
       entity.setIuv(payment.getIuv());
       entity.setIur(payment.getIur());

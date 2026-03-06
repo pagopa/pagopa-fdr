@@ -203,7 +203,7 @@ public class PaymentService {
 
     // create all entities in batch, from each payment to be added, in transactional way
     Instant now = Instant.now();
-    List<PaymentEntity> paymentEntities = paymentMapper.toEntity(publishingFlow, paymentsToAdd, now);
+    List<PaymentStagingEntity> paymentEntities = paymentMapper.toEntity(publishingFlow, paymentsToAdd, now);
     addPaymentToExistingFlowInTransaction(publishingFlow, paymentEntities, now);
 
     // Send event to Registro Eventi for internal operation
@@ -285,12 +285,12 @@ public class PaymentService {
   }
 
   @SneakyThrows
-  private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
+  private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentStagingEntity> paymentEntities, Instant now) {
 
     long paymentsToAdd = paymentEntities.size();
 
     BigDecimal amountToAdd = paymentEntities.stream()
-              .map(PaymentEntity::getAmount)
+              .map(PaymentStagingEntity::getAmount)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     this.paymentRepository.createEntityInBulk(paymentEntities, publishingFlow.orgDomainId);

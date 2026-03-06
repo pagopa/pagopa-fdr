@@ -4,6 +4,7 @@ import io.micrometer.core.annotation.Timed;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import it.gov.pagopa.fdr.repository.common.Repository;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentStagingEntity;
 import it.gov.pagopa.fdr.util.common.BigEndianWriter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -41,7 +42,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
   }
 
   @Timed(value = "paymentRepository.createEntityInBulk.task", description = "Time taken to perform createEntityInBulk", percentiles = 0.95, histogram = true)
-  public void createEntityInBulk(List<PaymentEntity> entityBatch, String orgDomainId) {
+  public void createEntityInBulk(List<PaymentStagingEntity> entityBatch, String orgDomainId) {
 
     Session session = entityManager.unwrap(Session.class);
     session.doWork(connection -> {
@@ -61,8 +62,7 @@ public class PaymentRepository extends Repository implements PanacheRepository<P
         // Header extension (32-bit, 0)
         BigEndianWriter.writeInt32(out, 0);
 
-        //
-        for (PaymentEntity entity : entityBatch) {
+        for (PaymentStagingEntity entity : entityBatch) {
 
           // Define a row as 11-columns stream
           BigEndianWriter.writeInt16(out, 11);
