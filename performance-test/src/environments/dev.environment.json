@@ -4,6 +4,7 @@
       "env": "dev",
       "base_path": "https://api.dev.platform.pagopa.it/fdr-psp/service/v1",
       "base_path_org": "https://api.dev.platform.pagopa.it/fdr-org/service/v1",
+      "apicfg_service_path": "https://api.dev.platform.pagopa.it/api-config-cache/p/v1/cache?keys=creditorInstitutions",
       "psp_type": "BIC_CODE",
       "psp_id": "SELBIT2B",
       "psp_domain_id": "88888888888",
@@ -12,7 +13,8 @@
       "channel_id": "88888888888_01",
       "creditor_institution_id": "15376371009",
       "creditor_institution_domain_id": "15376371009",
-      "creditor_institution_name": "PagoPA"
+      "creditor_institution_name": "PagoPA",
+      "creditor_institution_keyword": "test"
     }
   ]
 }
