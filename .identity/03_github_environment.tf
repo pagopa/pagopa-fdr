@@ -30,6 +30,7 @@ locals {
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
     "PSP_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value : ""
     "ORG_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value : "",
+    "APICFG_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_apicfg_subscription_key[0].value : "",
     "POSTGRES_DB_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_password.value,
     "POSTGRES_DB_ADMIN_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_admin_password.value
   }

@@ -25,7 +25,7 @@ sh run_test.sh
 ℹ️ Set in your environment:
 - `PSP_SUBSCRIPTION_KEY` to set the subscription-key for `fdr-psp`;
 - `ORG_SUBSCRIPTION_KEY` to set the subscription-key for `fdr-org`;
-- `TAGS` to customize test you want execute. Default `runnable`;
+- `TAGS` to customize test you want to execute. Default `runnable`;
 - `JUNIT=true` to execute _behave_ with the junit option;
 
 

@@ -5,9 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import it.gov.pagopa.fdr.controller.model.flow.FlowBySenderAndReceiver;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
-import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
 import java.util.Collections;
 import java.util.List;
+
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -15,15 +16,15 @@ import org.mapstruct.factory.Mappers;
 class TechnicalSupportMapperTest {
 
   private final TechnicalSupportMapper mapper = Mappers.getMapper(TechnicalSupportMapper.class);
-  private final PaymentEntity paymentEntity = new PaymentEntity();
+  private final PaymentFullViewEntity paymentEntity = new PaymentFullViewEntity();
 
   @BeforeEach
   void setUp() {
-    paymentEntity.setFlow(new FlowEntity());
-    paymentEntity.getFlow().setPspDomainId("psp123");
-    paymentEntity.getFlow().setOrgDomainId("org123");
-    paymentEntity.getFlow().setName("flowName");
-    paymentEntity.getFlow().setRevision(1L);
+    paymentEntity.flow = new FlowEntity();
+    paymentEntity.flow.setPspDomainId("psp123");
+    paymentEntity.flow.setOrgDomainId("org123");
+    paymentEntity.flow.setName("flowName");
+    paymentEntity.flow.setRevision(1L);
   }
 
   @Test

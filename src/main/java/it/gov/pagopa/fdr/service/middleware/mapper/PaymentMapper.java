@@ -12,6 +12,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentStagingEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.factory.Mappers;
@@ -21,10 +24,10 @@ public interface PaymentMapper {
 
   PaymentMapper INSTANCE = Mappers.getMapper(PaymentMapper.class);
 
-  default List<Payment> toPayment(List<PaymentEntity> list) {
+  default List<Payment> toPayment(List<PaymentFullViewEntity> list) {
 
     List<Payment> converted = new ArrayList<>();
-    for (PaymentEntity entity : list) {
+    for (PaymentFullViewEntity entity : list) {
       converted.add(
           Payment.builder()
               .index(entity.getId().getIndex())
@@ -40,7 +43,7 @@ public interface PaymentMapper {
   }
 
   default PaginatedPaymentsResponse toPaginatedPaymentsResponse(
-      RepositoryPagedResult<PaymentEntity> paginatedResult, long pageSize, long pageNumber) {
+          RepositoryPagedResult<PaymentFullViewEntity> paginatedResult, long pageSize, long pageNumber) {
 
     return PaginatedPaymentsResponse.builder()
         .metadata(
@@ -54,10 +57,10 @@ public interface PaymentMapper {
         .build();
   }
 
-  default List<PaymentEntity> toEntity(FlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
-    List<PaymentEntity> converted = new LinkedList<>();
+  default List<PaymentStagingEntity> toEntity(FlowEntity flowEntity, List<Payment> payments, Instant operationTime) {
+    List<PaymentStagingEntity> converted = new LinkedList<>();
     for (Payment payment : payments) {
-      PaymentEntity entity = new PaymentEntity();
+      PaymentStagingEntity entity = new PaymentStagingEntity();
       entity.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flowEntity.getId(), payment.getIndex()));
       entity.setIuv(payment.getIuv());
       entity.setIur(payment.getIur());

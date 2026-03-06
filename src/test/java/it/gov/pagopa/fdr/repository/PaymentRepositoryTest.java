@@ -1,19 +1,17 @@
 package it.gov.pagopa.fdr.repository;
 
-import static io.smallrye.common.constraint.Assert.assertTrue;
-import static it.gov.pagopa.fdr.test.util.AppConstantTestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentStagingEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.test.util.MongoResource;
 import it.gov.pagopa.fdr.test.util.PostgresResource;
-import it.gov.pagopa.fdr.test.util.TestUtil;
 import jakarta.inject.Inject;
 import jakarta.transaction.UserTransaction;
 
@@ -29,48 +27,16 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(MongoResource.class)
 class PaymentRepositoryTest {
-    
+
   @Inject FlowRepository flowRepository;
-  
+
   @Inject PaymentRepository paymentRepository;
 
+  @Inject PaymentStagingRepository paymentStagingRepository;
+
+  @Inject PaymentFullViewRepository paymentFullViewRepository;
+
   @Inject UserTransaction userTransaction;
-
-  @Test
-  @DisplayName("PaymentRepositoryTest OK - findByPspAndIuvAndIur")
-  void testFindByPspAndIuvAndIur() {
-    String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
-
-    RepositoryPagedResult<PaymentEntity> result =
-        paymentRepository.findByPspAndIuvAndIur(
-            PSP_CODE, IUV_CODE_A, IUR_CODE, null, null, null, 1, 10);
-
-    assertNotNull(result);
-    List<PaymentEntity> payments = result.getData();
-    assertNotNull(payments);
-    PaymentEntity payment = payments.get(0);
-    assertNotNull(payment);
-    assertEquals(PSP_CODE, payment.getFlow().getPspDomainId());
-    assertEquals(IUV_CODE_A, payment.getIuv());
-    assertEquals(IUR_CODE, payment.getIur());
-  }
-
-  @Test
-  @DisplayName("PaymentRepositoryTest OK - findByFlowId")
-  void findByFlowId() {
-
-    String flowName = TestUtil.getDynamicFlowName();
-    TestUtil.pspSunnyDay(flowName, FLOW_DATE);
-
-    RepositoryPagedResult<PaymentEntity> result = paymentRepository.findByFlowId(1L, 1, 10);
-
-    assertNotNull(result);
-    List<PaymentEntity> payments = result.getData();
-    assertNotNull(payments);
-
-    assertTrue(payments.stream().allMatch(item -> item.getFlow().getId().equals(1L)));
-  }
 
   @Test
   @DisplayName("Test CreateEntityInBulk - Single Payment")
@@ -87,8 +53,8 @@ class PaymentRepositoryTest {
     assertNotNull(flow.getId());
     Long flowId = flow.getId();
 
-    List<PaymentEntity> payments = new ArrayList<>();
-    PaymentEntity payment = new PaymentEntity();
+    List<PaymentStagingEntity> payments = new ArrayList<>();
+    PaymentStagingEntity payment = new PaymentStagingEntity();
     payment.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flowId, 850L));
     payment.setIuv("610901167426671");
     payment.setIur("65705570051");
@@ -100,17 +66,17 @@ class PaymentRepositoryTest {
     payment.setUpdated(Instant.now());
     payments.add(payment);
 
-    paymentRepository.createEntityInBulk(payments);
+    paymentRepository.createEntityInBulk(payments, flow.getOrgDomainId());
 
     // Verifica con una nuova transazione
     userTransaction.begin();
-    List<PaymentEntity> result = paymentRepository.findByFlowIdAndIndexes(flowId, java.util.Set.of(850L));
+    List<PaymentStagingEntity> result = paymentStagingRepository.findByFlowIdAndIndexes(flowId, java.util.Set.of(850L));
     userTransaction.commit();
 
     assertNotNull(result);
     assertEquals(1, result.size());
 
-    PaymentEntity inserted = result.get(0);
+    PaymentStagingEntity inserted = result.get(0);
     assertEquals("610901167426671", inserted.getIuv());
     assertEquals("65705570051", inserted.getIur());
     assertEquals(850L, inserted.getId().getIndex());
@@ -131,9 +97,9 @@ class PaymentRepositoryTest {
     assertNotNull(flow.getId());
     Long flowId = flow.getId();
 
-    List<PaymentEntity> payments = new ArrayList<>();
+    List<PaymentStagingEntity> payments = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      PaymentEntity payment = new PaymentEntity();
+      PaymentStagingEntity payment = new PaymentStagingEntity();
       payment.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flowId, (long) i));
       payment.setIuv("IUV" + i);
       payment.setIur("IUR" + i);
@@ -147,11 +113,11 @@ class PaymentRepositoryTest {
     }
 
     // createEntityInBulk è annotato @Transactional(REQUIRES_NEW)
-    paymentRepository.createEntityInBulk(payments);
+    paymentRepository.createEntityInBulk(payments, flow.getOrgDomainId());
 
     // Verifica con una nuova transazione
     userTransaction.begin();
-    List<PaymentEntity> result = paymentRepository.findByFlowId(flowId, 1, 20).getData();
+    List<PaymentFullViewEntity> result = paymentFullViewRepository.findByFlowId(flowId, 1, 20).getData();
     userTransaction.commit();
 
     assertNotNull(result);

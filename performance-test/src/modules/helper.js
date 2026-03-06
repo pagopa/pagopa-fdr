@@ -11,6 +11,22 @@ export function generateFlowNameAndDate(pspId, virtualUser) {
     return [fdrName, fdrDate];
 }
 
+export function generateFlowNameDateOrgs(pspId, creditorInstitutions, virtualUser) {
+    const fdrNameDate = generateFlowNameAndDate(pspId, virtualUser);
+    // pseudo-random number (Mulberry32)
+    const prng = (s) => {
+        return function() {
+            let t = s += 0x6D2B79F5;
+            t = Math.imul(t ^ t >>> 15, t | 1);
+            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+    };
+    const random = prng(virtualUser)(); // generate a random number between 0 and 1
+    const index = Math.floor(random * creditorInstitutions.length);
+    return [fdrNameDate[0], fdrNameDate[1], creditorInstitutions[index]];
+}
+
 export function generatePartitionIndexes(totalElements, partitionSize) {    
     const partitions = [];
     let startIndex = 1;
@@ -36,6 +52,7 @@ export function createInsertAndPublishFlowSetup(requestValues, paymentsInFlow, t
     var createFlowResponse = http.post(createFlowUrl, createFlowRequest, params);
     if (createFlowResponse.status !== 201) {
       console.log(`Create flow in error: ${createFlowUrl} => response: ${createFlowResponse.status} - ${createFlowResponse.body}`);
+      console.log("CREATED FLOW REQ --> " + createFlowRequest)
       return;
     }
   
@@ -64,4 +81,26 @@ export function createInsertAndPublishFlowSetup(requestValues, paymentsInFlow, t
 export function randomIntFromInterval(min, max) {
     // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+export function getOrganizations(apiCfgService, apiCfgSubscriptionKey, companyName) {
+    var params = {
+        tags: { 'api_name': '' },
+        headers: {
+            'Content-Type': 'application/json',
+            'Ocp-Apim-Subscription-Key': apiCfgSubscriptionKey
+        },
+    };
+    // pass params (headers/tags) as second argument to http.get and return the response
+    const response = http.get(apiCfgService, params);
+    const body = JSON.parse(response.body);
+    return Object.values(body.creditorInstitutions).filter(ci =>
+        //console.log("ci", ci.business_name)
+        ci.creditor_institution_code.length <= 15 && ci.business_name != null ? ci.business_name.toLowerCase().includes(companyName.toLowerCase()): false
+    ).map(ci => {
+        return {
+            'code': ci.creditor_institution_code,
+            'name': ci.business_name
+        }
+    });
 }
