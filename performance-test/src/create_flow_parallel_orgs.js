@@ -58,6 +58,7 @@ export function setup() {
   // Before All
   if (creditorInstitutions.length === 0) {
     creditorInstitutions = getOrganizations(apicfgServiceUrl, apiCfgSubscriptionKey, requestValues["creditorInstitutionKeyword"]);
+    console.log("CreditorInstitutions size: " + creditorInstitutions.length);
   }
 
   params = {

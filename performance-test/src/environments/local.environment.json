@@ -3,6 +3,8 @@
     {
       "env": "local",
       "base_path": "http://localhost:8080",
+      "base_path_org": "http://localhost:8080",
+      "apicfg_service_path": "https://api.dev.platform.pagopa.it/api-config-cache/p/v1/cache?keys=creditorInstitutions",
       "psp_type": "BIC_CODE",
       "psp_id": "SELBIT2B",
       "psp_domain_id": "88888888888",
@@ -11,7 +13,8 @@
       "channel_id": "88888888888_01",
       "creditor_institution_id": "15376371009",
       "creditor_institution_domain_id": "15376371009",
-      "creditor_institution_name": "PagoPA"
+      "creditor_institution_name": "PagoPA",
+      "creditor_institution_keyword": "test"
     }
   ]
 }
