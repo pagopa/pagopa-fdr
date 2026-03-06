@@ -36,6 +36,7 @@ on:
           - random_flow_parallel
           - create_flow_sequential
           - create_flow_parallel
+          - create_flow_parallel_orgs
           - get_flow
       flow-size:
         required: true
