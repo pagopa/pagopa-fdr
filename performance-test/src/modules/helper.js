@@ -96,7 +96,7 @@ export function getOrganizations(apiCfgService, apiCfgSubscriptionKey, companyNa
     const body = JSON.parse(response.body);
     return Object.values(body.creditorInstitutions).filter(ci =>
         //console.log("ci", ci.business_name)
-        ci.business_name != null ? ci.business_name.toLowerCase().includes(companyName.toLowerCase()): false
+        ci.creditor_institution_code.length <= 15 && ci.business_name != null ? ci.business_name.toLowerCase().includes(companyName.toLowerCase()): false
     ).map(ci => {
         return {
             'code': ci.creditor_institution_code,
