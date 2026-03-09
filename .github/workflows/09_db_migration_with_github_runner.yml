@@ -18,6 +18,14 @@ on:
           - dev
           - uat
           - prod
+      user:
+        required: true
+        type: choice
+        description: Select the user
+        options:
+          - fdr3
+          - admin
+        default: "fdr3"
       db_version:
         required: true
         description: Db version (👀 src/main/resources/db/migration/liquibase )
@@ -69,7 +77,8 @@ jobs:
           rm -rf liquibase-4.17.1.tar.gz
           ls -la liquibase-app
 
-      - name: Run liquibase::migrate
+      - name: Run liquibase::migrate [${{ vars.POSTGRES_DB_USERNAME }} user]
+        if: ${{ inputs.user == 'fdr3' }}
         shell: bash
         run: |
           export PATH="$PATH:./liquibase-app"
@@ -94,6 +103,29 @@ jobs:
           liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
 
           rm fdr.properties
+
+      - name: Run liquibase::migrate [${{ vars.POSTGRES_DB_ADMIN_USERNAME }} user]
+        if: ${{ inputs.user == 'admin' }}
+        shell: bash
+        run: |
+          export PATH="$PATH:./liquibase-app"
+
+          echo "
+          classpath: ./src/main/resources/db/migration/liquibase/admin-changelog
+          liquibase.headless: true
+          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/postgres?prepareThreshold=0
+          contexts: ${{ inputs.environment }}
+          username: ${{ vars.POSTGRES_DB_ADMIN_USERNAME }}
+          password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
+          defaultSchemaName: public
+          liquibaseSchemaName: public
+          liquibase.hub.mode: OFF
+          log-level: INFO
+          " > fdr.properties
+
+          liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
+
+          rm fdr.properties      
 
   cleanup_runner:
     name: Cleanup Runner
