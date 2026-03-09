@@ -52,7 +52,6 @@ export function createInsertAndPublishFlowSetup(requestValues, paymentsInFlow, t
     var createFlowResponse = http.post(createFlowUrl, createFlowRequest, params);
     if (createFlowResponse.status !== 201) {
       console.log(`Create flow in error: ${createFlowUrl} => response: ${createFlowResponse.status} - ${createFlowResponse.body}`);
-      console.log("CREATED FLOW REQ --> " + createFlowRequest)
       return;
     }
   
