@@ -25,6 +25,9 @@ import lombok.EqualsAndHashCode;
 @Table(name = "payment")
 public class PaymentEntity extends AbstractPaymentEntity {
 
+  @EmbeddedId
+  private PaymentId id;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "flow_id", referencedColumnName = "id", insertable = false, updatable = false)
   public FlowEntity flow;

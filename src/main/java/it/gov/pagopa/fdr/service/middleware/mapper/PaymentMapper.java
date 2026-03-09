@@ -61,7 +61,7 @@ public interface PaymentMapper {
     List<PaymentStagingEntity> converted = new LinkedList<>();
     for (Payment payment : payments) {
       PaymentStagingEntity entity = new PaymentStagingEntity();
-      entity.setId(new it.gov.pagopa.fdr.repository.entity.PaymentId(flowEntity.getId(), payment.getIndex()));
+      entity.setId(new it.gov.pagopa.fdr.repository.entity.PaymentStagingId(flowEntity.getId(), payment.getIndex(), flowEntity.getOrgDomainId()));
       entity.setIuv(payment.getIuv());
       entity.setIur(payment.getIur());
       entity.setAmount(BigDecimal.valueOf(payment.getPay()));

@@ -13,11 +13,9 @@ import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.repository.FlowRepository;
 import it.gov.pagopa.fdr.repository.PaymentFullViewRepository;
-import it.gov.pagopa.fdr.repository.PaymentRepository;
 import it.gov.pagopa.fdr.repository.PaymentStagingRepository;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
-import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
 import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 import it.gov.pagopa.fdr.repository.entity.PaymentStagingEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
@@ -54,8 +52,6 @@ public class PaymentService {
 
   private final FlowRepository flowRepository;
 
-  private final PaymentRepository paymentRepository;
-
   private final PaymentFullViewRepository paymentFullViewRepository;
 
   private final PaymentStagingRepository paymentStagingRepository;
@@ -66,14 +62,14 @@ public class PaymentService {
           Logger log,
           Config cachedConfig,
           FlowRepository flowRepository,
-          PaymentRepository paymentRepository,
-          ReService reService, PaymentFullViewRepository paymentFullViewRepository, PaymentStagingRepository paymentStagingRepository,
+          ReService reService,
+          PaymentFullViewRepository paymentFullViewRepository,
+          PaymentStagingRepository paymentStagingRepository,
           PaymentMapper paymentMapper) {
 
     this.log = log;
     this.cachedConfig = cachedConfig;
     this.flowRepository = flowRepository;
-    this.paymentRepository = paymentRepository;
     this.reService = reService;
     this.paymentFullViewRepository = paymentFullViewRepository;
     this.paymentStagingRepository = paymentStagingRepository;
@@ -191,7 +187,7 @@ public class PaymentService {
     Set<Long> indexes = paymentsToAdd.stream().map(Payment::getIndex).collect(Collectors.toSet());
 
     // remove count -> execute only 1 query
-    List<PaymentStagingEntity> indexesAlreadyAdded = paymentStagingRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+    List<PaymentStagingEntity> indexesAlreadyAdded = paymentStagingRepository.findByFlowIdIndexesAndOrgId(publishingFlow.getId(), indexes, publishingFlow.orgDomainId);
     if (!indexesAlreadyAdded.isEmpty()) {
       List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(payment -> payment.getId().getIndex()).toList();
       throw new AppException(
@@ -235,7 +231,7 @@ public class PaymentService {
     // check if each passed index refers to an existing payment
     Set<Long> indexes = new HashSet<>(request.getIndexList());
     List<PaymentStagingEntity> paymentEntities =
-        this.paymentStagingRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+        this.paymentStagingRepository.findByFlowIdIndexesAndOrgId(publishingFlow.getId(), indexes, publishingFlow.orgDomainId);
     boolean containsAllIndexes =
         paymentEntities.stream()
             .map(payment -> payment.getId().getIndex())
@@ -293,7 +289,7 @@ public class PaymentService {
               .map(PaymentStagingEntity::getAmount)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    this.paymentRepository.createEntityInBulk(paymentEntities, publishingFlow.orgDomainId);
+    this.paymentStagingRepository.createEntityInBulk(paymentEntities, publishingFlow.orgDomainId);
 
     flowRepository.updateComputedValues(
             publishingFlow.getId(),

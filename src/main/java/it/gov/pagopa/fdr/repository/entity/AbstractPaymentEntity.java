@@ -13,9 +13,6 @@ import java.time.Instant;
 @EqualsAndHashCode(callSuper = false)
 public class AbstractPaymentEntity extends PanacheEntityBase {
 
-  @EmbeddedId
-  private PaymentId id;
-
   @Column(name = "iuv")
   public String iuv;
 
