@@ -26,6 +26,13 @@ on:
           - fdr3
           - admin
         default: "fdr3"
+      db_type:
+        required: true
+        type: choice
+        description: Select the DB type
+        options:
+          - online
+          - archive
       db_version:
         required: true
         description: Db version (👀 src/main/resources/db/migration/liquibase )
@@ -77,12 +84,11 @@ jobs:
           rm -rf liquibase-4.17.1.tar.gz
           ls -la liquibase-app
 
-      - name: Run liquibase::migrate [${{ vars.POSTGRES_DB_USERNAME }} user]
-        if: ${{ inputs.user == 'fdr3' }}
+      - name: Run liquibase::migrate on Online DB [${{ vars.POSTGRES_DB_USERNAME }} user]
+        if: ${{ inputs.db_type == 'online' && inputs.user == 'fdr3' }}
         shell: bash
         run: |
           export PATH="$PATH:./liquibase-app"
-
           echo "
           classpath: ./src/main/resources/db/migration/liquibase/changelog
           liquibase.headless: true
@@ -95,21 +101,17 @@ jobs:
           liquibase.hub.mode: OFF
           log-level: INFO
           " > fdr.properties
-
           #liquibase --defaultsFile=fdr.properties drop-all
           #liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-1.0.0.xml"
           #liquibase --defaultsFile=fdr.properties clear-checksums #--changelogFile="db.changelog-master-1.0.0.xml"
-
           liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
-
           rm fdr.properties
 
-      - name: Run liquibase::migrate [${{ vars.POSTGRES_DB_ADMIN_USERNAME }} user]
-        if: ${{ inputs.user == 'admin' }}
+      - name: Run liquibase::migrate on Online DB [${{ vars.POSTGRES_DB_ADMIN_USERNAME }} user]
+        if: ${{ inputs.db_type == 'online' && inputs.user == 'admin' }}
         shell: bash
         run: |
           export PATH="$PATH:./liquibase-app"
-
           echo "
           classpath: ./src/main/resources/db/migration/liquibase/admin-changelog
           liquibase.headless: true
@@ -122,10 +124,51 @@ jobs:
           liquibase.hub.mode: OFF
           log-level: INFO
           " > fdr.properties
-
           liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
-
           rm fdr.properties      
+
+      - name: Run liquibase::migrate on Archive DB [${{ vars.POSTGRES_DB_USERNAME }} user]
+        if: ${{ inputs.db_type == 'archive' && inputs.user == 'fdr3' }}
+        shell: bash
+        run: |
+          export PATH="$PATH:./liquibase-app"
+          echo "
+          classpath: ./src/main/resources/db/migration/liquibase/archive-changelog
+          liquibase.headless: true
+          url: jdbc:postgresql://${{ vars.POSTGRES_ARCHIVE_DB_HOST }}:${{ vars.POSTGRES_ARCHIVE_DB_PORT }}/${{ vars.POSTGRES_DB_NAME }}?prepareThreshold=0&currentSchema=${{ vars.POSTGRES_DB_SCHEMA }}
+          contexts: ${{ inputs.environment }}
+          username: ${{ vars.POSTGRES_DB_USERNAME }}
+          password: ${{ secrets.POSTGRES_DB_PASSWORD }}
+          defaultSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
+          liquibaseSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
+          liquibase.hub.mode: OFF
+          log-level: INFO
+          " > fdr-archive.properties
+          #liquibase --defaultsFile=fdr-archive.properties drop-all
+          #liquibase --defaultsFile=fdr-archive.properties update --changelogFile="db.changelog-master-1.0.0.xml"
+          #liquibase --defaultsFile=fdr-archive.properties clear-checksums #--changelogFile="db.changelog-master-1.0.0.xml"
+          liquibase --defaultsFile=fdr-archive.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
+          rm fdr-archive.properties
+
+      - name: Run liquibase::migrate on Archive DB [${{ vars.POSTGRES_DB_ADMIN_USERNAME }} user]
+        if: ${{ inputs.db_type == 'archive' && inputs.user == 'admin' }}
+        shell: bash
+        run: |
+          export PATH="$PATH:./liquibase-app"
+          echo "
+          classpath: ./src/main/resources/db/migration/liquibase/admin-archive-changelog
+          liquibase.headless: true
+          url: jdbc:postgresql://${{ vars.POSTGRES_ARCHIVE_DB_HOST }}:${{ vars.POSTGRES_ARCHIVE_DB_PORT }}/postgres?prepareThreshold=0
+          contexts: ${{ inputs.environment }}
+          username: ${{ vars.POSTGRES_DB_ADMIN_USERNAME }}
+          password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
+          defaultSchemaName: public
+          liquibaseSchemaName: public
+          liquibase.hub.mode: OFF
+          log-level: INFO
+          " > fdr-archive.properties
+          liquibase --defaultsFile=fdr-archive.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
+          rm fdr-archive.properties  
 
   cleanup_runner:
     name: Cleanup Runner
