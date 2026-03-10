@@ -36,6 +36,11 @@ locals {
     admin_username = "azureuser"
   }
 
+  postgres_archive_db = {
+    host           = "fdr-archive-db.${var.env_short}.internal.postgresql.pagopa.it"
+    port           = 5432
+  }
+
   terraform_version = "1.11.2"
 }
 
