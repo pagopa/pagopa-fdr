@@ -7,7 +7,6 @@ import io.quarkus.panache.common.Sort;
 import it.gov.pagopa.fdr.repository.common.Repository;
 import it.gov.pagopa.fdr.repository.common.SortField;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
-import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
