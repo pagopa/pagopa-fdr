@@ -23,35 +23,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "payment")
-public class PaymentEntity extends PanacheEntityBase {
+public class PaymentEntity extends AbstractPaymentEntity {
 
   @EmbeddedId
   private PaymentId id;
-
-  @Column(name = "iuv")
-  public String iuv;
-
-  @Column(name = "iur")
-  public String iur;
-
-
-  @Column(name = "amount")
-  public BigDecimal amount;
-
-  @Column(name = "pay_date")
-  public Instant payDate;
-
-  @Column(name = "pay_status")
-  public String payStatus;
-
-  @Column(name = "transfer_id")
-  public Long transferId;
-
-  @Column(name = "created")
-  public Instant created;
-
-  @Column(name = "updated")
-  public Instant updated;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "flow_id", referencedColumnName = "id", insertable = false, updatable = false)

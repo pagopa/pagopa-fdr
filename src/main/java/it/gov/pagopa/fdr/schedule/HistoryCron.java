@@ -53,18 +53,18 @@ public class HistoryCron {
 
   @Inject
   public HistoryCron(
-      Logger log,
-      FlowToHistoryRepository flowToHistoryRepository,
-      FlowRepository flowRepository,
-      PaymentRepository paymentRepository,
-      HistoryBlobStorageService historyBlobStorageService,
-      FlowBlobMapper flowBlobMapper) {
+          Logger log,
+          FlowToHistoryRepository flowToHistoryRepository,
+          FlowRepository flowRepository,
+          HistoryBlobStorageService historyBlobStorageService,
+          PaymentRepository paymentRepository,
+          FlowBlobMapper flowBlobMapper) {
 
     this.log = log;
     this.flowToHistoryRepository = flowToHistoryRepository;
     this.flowRepository = flowRepository;
-    this.paymentRepository = paymentRepository;
     this.historyBlobStorageService = historyBlobStorageService;
+    this.paymentRepository = paymentRepository;
     this.flowBlobMapper = flowBlobMapper;
   }
 

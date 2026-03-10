@@ -1,5 +1,4 @@
 CREATE SEQUENCE IF NOT EXISTS flow_sequence START WITH 1 INCREMENT BY 1;
--- CREATE SEQUENCE IF NOT EXISTS payment_sequence START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE IF NOT EXISTS flow_to_history_sequence START WITH 1 INCREMENT BY 1;
 
 
@@ -68,9 +67,6 @@ CREATE INDEX IF NOT EXISTS published_flow_by_psp_idx
     (psp_domain_id COLLATE pg_catalog."default" ASC NULLS LAST, org_domain_id COLLATE pg_catalog."default" ASC NULLS LAST, published ASC NULLS LAST)
     WITH (fillfactor=100, deduplicate_items=True)
     TABLESPACE pg_default;
--- CREATE UNIQUE INDEX flow_revision_idx ON flow USING btree (psp_domain_id, name, revision);
--- CREATE INDEX published_flow_by_organization_idx ON flow USING btree (org_domain_id, psp_domain_id, published);
--- CREATE INDEX published_flow_by_psp_idx ON flow USING btree (psp_domain_id, org_domain_id, published);
 
 CREATE TABLE flow_to_history (
                                  id bigint NOT NULL DEFAULT nextval('flow_to_history_sequence'::regclass),
@@ -84,7 +80,6 @@ CREATE TABLE flow_to_history (
                                  lock_until timestamp(6) without time zone,
                                  CONSTRAINT flow_to_history_pk PRIMARY KEY (id)
 );
--- CREATE UNIQUE INDEX flow_to_historicization_idx ON flow_to_history USING btree (psp_id, name, revision);
 CREATE UNIQUE INDEX IF NOT EXISTS flow_to_historicization_idx
     ON flow_to_history USING btree
     (psp_id COLLATE pg_catalog."default" ASC NULLS LAST, name COLLATE pg_catalog."default" ASC NULLS LAST, revision ASC NULLS LAST)
@@ -109,7 +104,6 @@ CREATE TABLE payment (
                              ON UPDATE CASCADE
                              ON DELETE CASCADE
 );
--- CREATE UNIQUE INDEX payment_by_fdr_idx ON payment USING btree (flow_id, index);
 CREATE INDEX IF NOT EXISTS payment_by_iur_idx
     ON payment USING btree
     (iur COLLATE pg_catalog."default" ASC NULLS LAST)
@@ -120,3 +114,47 @@ CREATE INDEX IF NOT EXISTS payment_by_iuv_idx
     (iuv COLLATE pg_catalog."default" ASC NULLS LAST)
     WITH (fillfactor=100, deduplicate_items=True)
     TABLESPACE pg_default;
+
+CREATE TABLE IF NOT EXISTS payment_staging
+(
+    flow_id bigint NOT NULL,
+    index bigint NOT NULL,
+    org_id character varying(15) COLLATE pg_catalog."default" NOT NULL,
+    iuv character varying(35) COLLATE pg_catalog."default" NOT NULL,
+    iur character varying(35) COLLATE pg_catalog."default" NOT NULL,
+    amount numeric(19,2) NOT NULL,
+    pay_date timestamp(6) without time zone NOT NULL,
+    pay_status character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    transfer_id bigint NOT NULL,
+    created timestamp(6) without time zone,
+    updated timestamp(6) without time zone,
+    CONSTRAINT payment_pk PRIMARY KEY (flow_id, index, org_id)
+    );
+
+CREATE OR REPLACE VIEW payment_full_view
+ AS
+SELECT payment.flow_id,
+       payment.index,
+       payment.iuv,
+       payment.iur,
+       payment.amount,
+       payment.pay_date,
+       payment.pay_status,
+       payment.transfer_id,
+       payment.created,
+       payment.updated,
+       'FINAL'::text AS record_origin
+FROM payment
+UNION ALL
+SELECT payment_staging.flow_id,
+       payment_staging.index,
+       payment_staging.iuv,
+       payment_staging.iur,
+       payment_staging.amount,
+       payment_staging.pay_date,
+       payment_staging.pay_status,
+       payment_staging.transfer_id,
+       payment_staging.created,
+       payment_staging.updated,
+       'STAGING'::text AS record_origin
+FROM payment_staging;
