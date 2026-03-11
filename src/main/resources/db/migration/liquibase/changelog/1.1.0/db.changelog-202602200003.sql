@@ -16,12 +16,19 @@ ALTER TABLE fdr3.payment ALTER COLUMN transfer_id TYPE bigint;
 
 ALTER TABLE fdr3.payment ALTER COLUMN amount TYPE numeric(19,2);
 
-ALTER TABLE fdr3.payment ADD CONSTRAINT payment_flow_fk FOREIGN KEY (flow_id) REFERENCES fdr3.flow(id);
-
 --changeset liquibase:202602200003-02
+ALTER TABLE fdr3.payment
+  ADD CONSTRAINT payment_flow_fk
+      FOREIGN KEY (flow_id)
+      REFERENCES fdr3.flow(id)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+      NOT VALID; -- add FK but not validate against old data
+
+--changeset liquibase:202602200003-03
 ALTER TABLE fdr3.payment DROP CONSTRAINT IF EXISTS payment_pk; -- drop primary key constraint
 
---changeset liquibase:202602200003-03 endDelimiter:GO
+--changeset liquibase:202602200003-04 endDelimiter:GO
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -34,7 +41,7 @@ END IF;
 END $$;
 GO
 
---changeset liquibase:202602200003-04
+--changeset liquibase:202602200003-05
 ALTER TABLE fdr3.payment DROP COLUMN IF EXISTS id; -- drop the old id column
 
 DROP SEQUENCE IF EXISTS fdr3.payment_sequence; -- drop the sequence
