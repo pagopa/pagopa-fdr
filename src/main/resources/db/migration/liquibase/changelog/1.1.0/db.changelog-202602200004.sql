@@ -76,7 +76,7 @@ UNION ALL
         'STAGING'::text AS record_origin
     FROM fdr3.payment_staging;
 
---changeset liquibase:202602200004-02-01
+--changeset liquibase:202602200004-03
 CREATE SEQUENCE maintenance.cron_aux_sequence
     INCREMENT BY 1
     MINVALUE 1
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS maintenance.cron_aux
     CONSTRAINT cron_aux_pk PRIMARY KEY (id)
 )
 
---changeset liquibase:202602200004-03 endDelimiter:GO
+--changeset liquibase:202602200004-04 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE fdr3.move_published_payments(
     IN p_lookback_minutes integer DEFAULT 1)
 LANGUAGE 'plpgsql'
