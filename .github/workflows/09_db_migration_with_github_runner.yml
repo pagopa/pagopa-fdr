@@ -162,6 +162,9 @@ jobs:
           contexts: ${{ inputs.environment }}
           username: ${{ vars.POSTGRES_DB_ADMIN_USERNAME }}
           password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
+          fdr3-online-host: ${{ vars.POSTGRES_DB_HOST }}
+          fdr3-online-port: ${{ vars.POSTGRES_DB_PORT }}
+          fdr3-online-password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
           defaultSchemaName: public
           liquibaseSchemaName: public
           liquibase.hub.mode: OFF
