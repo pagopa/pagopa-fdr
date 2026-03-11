@@ -2,6 +2,8 @@
 
 -- ## ALTER TABLE FLOW ##
 --changeset liquibase:202602200002-01
+ALTER TABLE fdr3.payment DROP CONSTRAINT payment_flow_fk;
+
 ALTER TABLE fdr3.flow ALTER COLUMN id TYPE bigint;
 
 ALTER TABLE fdr3.flow ALTER COLUMN revision TYPE bigint;

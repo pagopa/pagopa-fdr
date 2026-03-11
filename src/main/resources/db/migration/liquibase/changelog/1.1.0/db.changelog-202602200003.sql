@@ -16,6 +16,8 @@ ALTER TABLE fdr3.payment ALTER COLUMN transfer_id TYPE bigint;
 
 ALTER TABLE fdr3.payment ALTER COLUMN amount TYPE numeric(19,2);
 
+ALTER TABLE fdr3.payment ADD CONSTRAINT payment_flow_fk FOREIGN KEY (flow_id) REFERENCES fdr3.flow(id);
+
 --changeset liquibase:202602200003-02
 ALTER TABLE fdr3.payment DROP CONSTRAINT IF EXISTS payment_pk; -- drop primary key constraint
 
