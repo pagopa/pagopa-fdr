@@ -13,8 +13,6 @@ parameters:
     default: dev
     values:
       - dev
-      - it
-      - prf
       - uat
       - prd
 
@@ -41,6 +39,7 @@ variables:
   FDR3_USERNAME: fdr3
   FDR3_SCHEMA: fdr3
   FDR3_USERNAME_READ: fdr3r
+  MAINTENANCE_SCHEMA: maintenance
 
 stages:
   - stage: initialization_jobs
@@ -83,6 +82,13 @@ stages:
                 ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on tables to $FDR3_USERNAME;
                 ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on sequences to $FDR3_USERNAME;
                 ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on functions to $FDR3_USERNAME;
+                
+                CREATE SCHEMA IF NOT EXISTS $MAINTENANCE_SCHEMA AUTHORIZATION $FDR3_USERNAME;
+
+                GRANT ALL ON SCHEMA $MAINTENANCE_SCHEMA TO $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $MAINTENANCE_SCHEMA GRANT SELECT, INSERT, UPDATE ON tables TO $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $MAINTENANCE_SCHEMA GRANT SELECT, USAGE, UPDATE on sequences to $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $MAINTENANCE_SCHEMA GRANT ALL ON functions TO $FDR3_USERNAME;
                 END
                 \$\$;
                 "
