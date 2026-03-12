@@ -1,13 +1,13 @@
 --liquibase formatted sql
 
---changeset liquibase:202603090004-01 endDelimiter:GO
+--changeset liquibase:admin-archive-202603090004-01 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.create_partition_on_next_month()
 AS $function$
 DECLARE
 
-    execution_user TEXT := USER;
-    process_name TEXT := 'create_partition_on_month';
-    execution_id TEXT := Gen_random_uuid()::TEXT;
+    l_execution_user TEXT := SESSION_USER;
+    l_process_name TEXT := 'create_partition_on_month';
+    l_execution_id TEXT := Gen_random_uuid()::TEXT;
 
     l_schema_name TEXT;
     l_table_name TEXT;
@@ -39,16 +39,16 @@ BEGIN
     -- Log start process
     INSERT INTO maintenance.process_log(
                  "date"
-                 ,execution_id
+                 ,l_execution_id
                  ,"user"
                  ,process
                  ,step
                  ,outcome
                  ,note)
          VALUES (Clock_timestamp()
-                 ,execution_id
-                 ,execution_user
-                 ,process_name
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
                  ,l_step
                  ,'OK'
                  ,NULL);
@@ -103,16 +103,16 @@ BEGIN
             -- Log generated partition step
             INSERT INTO maintenance.process_log(
                          "date"
-                         ,execution_id
+                         ,l_execution_id
                          ,"user"
                          ,process
                          ,step
                          ,outcome
                          ,note)
                  VALUES (Clock_timestamp()
-                         ,execution_id
-                         ,execution_user
-                         ,process_name
+                         ,l_execution_id
+                         ,l_execution_user
+                         ,l_process_name
                          ,l_step
                          ,'OK'
                          ,Concat('Table: ', l_schema_name, '.', l_table_name, ', Partition: ', l_partition_name));
@@ -126,16 +126,16 @@ BEGIN
     l_step := 'END';
     INSERT INTO maintenance.process_log(
                  "date"
-                 ,execution_id
+                 ,l_execution_id
                  ,"user"
                  ,process
                  ,step
                  ,outcome
                  ,note)
          VALUES (Clock_timestamp()
-                 ,execution_id
-                 ,execution_user
-                 ,process_name
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
                  ,l_step
                  ,'OK'
                  ,NULL);
@@ -145,16 +145,16 @@ EXCEPTION WHEN OTHERS THEN
     -- Log end process in exception
     INSERT INTO maintenance.process_log(
                  "date"
-                 ,execution_id
+                 ,l_execution_id
                  ,"user"
                  ,process
                  ,step
                  ,outcome
                  ,note)
          VALUES (Clock_timestamp()
-                 ,execution_id
-                 ,execution_user
-                 ,process_name
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
                  ,'END'
                  ,'KO'
                  ,Concat('Step: ', l_step,' , Error: ', SQLERRM));
@@ -162,9 +162,10 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $function$ LANGUAGE 'plpgsql'
 SECURITY DEFINER
-SET search_path = fdr3, pg_temp;
+         SET search_path = fdr3, pg_temp;
 GO
 
+--changeset liquibase:admin-archive-202603090004-02
 GRANT EXECUTE
-      ON PROCEDURE fdr3.create_partition_on_next_month()
-      TO azureuser;
+      ON PROCEDURE maintenance.create_partition_on_next_month()
+      TO fdr3;
