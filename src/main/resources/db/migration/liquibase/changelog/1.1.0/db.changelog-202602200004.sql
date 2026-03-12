@@ -77,7 +77,7 @@ UNION ALL
     FROM fdr3.payment_staging;
 
 --changeset liquibase:202602200004-03
-CREATE SEQUENCE maintenance.cron_aux_sequence
+CREATE SEQUENCE IF NOT EXISTS maintenance.cron_aux_sequence
     INCREMENT BY 1
     MINVALUE 1
     MAXVALUE 9223372036854775807
