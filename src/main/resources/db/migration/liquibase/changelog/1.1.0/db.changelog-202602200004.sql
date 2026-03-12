@@ -76,53 +76,98 @@ UNION ALL
         'STAGING'::text AS record_origin
     FROM fdr3.payment_staging;
 
---changeset liquibase:202602200004-03 endDelimiter:GO
-CREATE OR REPLACE PROCEDURE fdr3.move_published_payments(
-    p_lookback_minutes integer DEFAULT 1
+--changeset liquibase:202602200004-03
+CREATE SEQUENCE maintenance.cron_aux_sequence
+    INCREMENT BY 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    START 1
+	CACHE 1
+	NO CYCLE;
+CREATE TABLE IF NOT EXISTS maintenance.cron_aux
+(
+    id bigint DEFAULT nextval('maintenance.cron_aux_sequence'::regclass) NOT NULL,
+    procedure_name character varying(100) COLLATE pg_catalog."default",
+    start_time timestamp with time zone,
+    end_time timestamp with time zone,
+    status character varying(20),
+    return_message text COLLATE pg_catalog."default",
+    CONSTRAINT cron_aux_pk PRIMARY KEY (id)
 )
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = fdr3, pg_temp
-AS $$
+
+--changeset liquibase:202602200004-04 endDelimiter:GO
+CREATE OR REPLACE PROCEDURE fdr3.move_published_payments(
+    IN p_lookback_minutes integer DEFAULT 1)
+LANGUAGE 'plpgsql'
+    SECURITY DEFINER
+    SET search_path=fdr3, public, pg_temp
+AS $BODY$
     DECLARE
         v_start_date timestamp;
         v_end_date timestamp;
+        v_job_start_time timestamp;
         rows_moved integer;
     BEGIN
-    v_end_date := date_trunc('minute', now());
-    v_start_date := v_end_date - (p_lookback_minutes * interval '1 minute');
-    RAISE NOTICE 'Move start: moving payments in range between % and %', v_start_date, v_end_date;
-    -- use CTE to identify, delete and insert in one shot
-    WITH
-        target_flows AS (
-            -- identify flow ids published in a specified temporal range
-            SELECT id FROM fdr3.flow
-            WHERE status = 'PUBLISHED'
-                AND published >= v_start_date
-                AND published < v_end_date
-        ),
-        deleted_rows AS (
-            -- delete from payment_staging rows belonging to published flows
-            DELETE FROM fdr3.payment_staging
-                WHERE flow_id IN (SELECT id FROM target_flows)
-            RETURNING
-                flow_id, iuv, iur, "index", amount,
-                pay_date, pay_status, transfer_id, created, updated
-        )
-    -- insert row in the payment table
-    INSERT INTO fdr3.payment (
-        flow_id, iuv, iur, "index", amount,
-        pay_date, pay_status, transfer_id, created, updated
-    )
-    SELECT * FROM deleted_rows;
+        -- 1. Retrieve last execution time from cron_aux for this procedure
+        SELECT end_time
+        INTO v_job_start_time
+        FROM maintenance.cron_aux
+        WHERE procedure_name = 'move_published_payments' AND status = 'COMPLETED'
+        ORDER BY id DESC LIMIT 1;
 
-    GET DIAGNOSTICS rows_moved = ROW_COUNT;
-    RAISE NOTICE 'Move completed: % payments moved to payment table in range between % and %', rows_moved, v_start_date, v_end_date;
+        -- 2. Check start and end time
+        IF v_job_start_time IS NOT NULL THEN
+            -- if entry exists and start_time is not null, use it as reference for the new window
+            v_start_date := v_job_start_time;
+            v_end_date := v_job_start_time + (p_lookback_minutes * interval '1 minute');
+			IF v_end_date > now() THEN
+			   -- if end_date is in the future, raise an exception to avoid processing incomplete data
+			   RAISE EXCEPTION 'v_end_date > now()';
+            END IF;
+            RAISE NOTICE 'Time retrieved from cron_aux: % - %', v_start_date, v_end_date;
+        ELSE
+            -- fallback if no entry exitst or start_time is null, use now as reference for the new window
+            v_end_date := date_trunc('minute', now());
+            v_start_date := v_end_date - (p_lookback_minutes * interval '1 minute');
+            RAISE NOTICE 'No entry in cron_aux. Time based on now: % - %', v_start_date, v_end_date;
+        END IF;
+
+        -- 3. Move data (Staging -> Payment)
+        WITH
+            target_flows AS (
+                SELECT id FROM fdr3.flow
+                WHERE status = 'PUBLISHED'
+                  AND published >= v_start_date
+                  AND published < v_end_date
+            ),
+            deleted_rows AS (
+        DELETE FROM fdr3.payment_staging
+        WHERE flow_id IN (SELECT id FROM target_flows)
+            RETURNING
+                            flow_id, iuv, iur, "index", amount,
+                            pay_date, pay_status, transfer_id, created, updated
+                    )
+        INSERT INTO fdr3.payment (
+            flow_id, iuv, iur, "index", amount,
+            pay_date, pay_status, transfer_id, created, updated
+        )
+        SELECT * FROM deleted_rows;
+
+        GET DIAGNOSTICS rows_moved = ROW_COUNT;
+
+        -- 4. Add execution into cron_aux
+        INSERT INTO maintenance.cron_aux(procedure_name, start_time, end_time, status, return_message)
+            VALUES ('move_published_payments', v_start_date, v_end_date, 'COMPLETED', concat('payment moved from staging: ',rows_moved));
+
+        RAISE NOTICE 'Move completed: % record moved from staging in the range % - %', rows_moved, v_start_date, v_end_date;
+
     EXCEPTION
-        WHEN OTHERS THEN
-            RAISE WARNING 'Error during moving items: %', SQLERRM;
+		WHEN OTHERS THEN
+			INSERT INTO maintenance.cron_aux(procedure_name, start_time, end_time, status, return_message)
+			    VALUES ('move_published_payments', v_start_date, v_end_date, 'ERROR', SQLERRM);
+            RAISE WARNING 'Error occurred during moving data: %', SQLERRM;
     END;
-$$;
+$BODY$;
 GO
 
 GRANT EXECUTE ON PROCEDURE fdr3.move_published_payments(integer) TO azureuser;
