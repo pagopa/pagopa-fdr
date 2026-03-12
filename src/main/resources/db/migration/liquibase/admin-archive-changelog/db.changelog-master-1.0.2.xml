@@ -5,7 +5,7 @@
 
   <property name="version" value="1.0.2" global="false"/>
 
-  <include file="./db.changelog-master-1.0.1.xml"/>
+  <include file="./db.changelog-master-1.0.0.xml"/>
   <include file="./${version}/db.changelog-202603110001.sql" labels="${version}"/>
 
 </databaseChangeLog>
