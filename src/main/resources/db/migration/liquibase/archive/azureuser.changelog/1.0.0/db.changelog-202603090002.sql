@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 -- ## SEQUENCES ##
---changeset liquibase:admin-archive-202603090002-01
+--changeset liquibase:archive-azureuser-202603090002-01
 CREATE SEQUENCE IF NOT EXISTS maintenance.log_sequence
        INCREMENT 1
        START 1
@@ -10,7 +10,7 @@ CREATE SEQUENCE IF NOT EXISTS maintenance.log_sequence
        CACHE 1;
 
 -- ## TABLES ##
---changeset liquibase:admin-archive-202603090002-02
+--changeset liquibase:archive-azureuser-202603090002-02
 CREATE TABLE IF NOT EXISTS maintenance.process_log (
     id BIGINT DEFAULT nextval('log_sequence'::regclass) NOT NULL,
     date TIMESTAMP without time zone NOT NULL,

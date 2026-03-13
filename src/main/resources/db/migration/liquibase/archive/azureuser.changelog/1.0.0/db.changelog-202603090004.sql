@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset liquibase:admin-archive-202603090004-01 endDelimiter:GO
+--changeset liquibase:archive-azureuser-202603090004-01 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.create_partition_on_next_month()
 AS $function$
 DECLARE
@@ -165,7 +165,7 @@ SECURITY DEFINER
          SET search_path = fdr3, pg_temp;
 GO
 
---changeset liquibase:admin-archive-202603090004-02
+--changeset liquibase:archive-azureuser-202603090004-02
 GRANT EXECUTE
       ON PROCEDURE maintenance.create_partition_on_next_month()
       TO fdr3;

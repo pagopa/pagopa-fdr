@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset liquibase:admin-archive-202603090005-01 endDelimiter:GO
+--changeset liquibase:archive-azureuser-202603090005-01 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.delete_partition(
     IN  p_schema_name TEXT,
     IN  p_table_name TEXT,
@@ -175,7 +175,7 @@ SECURITY DEFINER
 GO
 
 
---changeset liquibase:admin-archive-202603090005-02 endDelimiter:GO
+--changeset liquibase:archive-azureuser-202603090005-02 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.delete_expired_partitions()
 AS $function$
 DECLARE
@@ -304,7 +304,7 @@ SECURITY DEFINER
 GO
 
 
---changeset liquibase:admin-archive-202603090005-03
+--changeset liquibase:archive-azureuser-202603090005-03
 GRANT EXECUTE
       ON PROCEDURE maintenance.delete_partition(TEXT,TEXT,TEXT,TEXT,TEXT)
       TO fdr3;

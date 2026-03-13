@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 -- ## SEQUENCES ##
---changeset liquibase:202603091000-01
+--changeset liquibase:archive-fdr3-202603091000-01
 CREATE SEQUENCE fdr3.flow_sequence
        INCREMENT BY 1
        MINVALUE 1
@@ -10,7 +10,6 @@ CREATE SEQUENCE fdr3.flow_sequence
        CACHE 1
        NO CYCLE;
 
---changeset liquibase:202603091000-02
 CREATE SEQUENCE fdr3.payment_sequence
        INCREMENT BY 1
        MINVALUE 1
@@ -20,7 +19,7 @@ CREATE SEQUENCE fdr3.payment_sequence
        NO CYCLE;
 	
 -- ## TABLES ##
---changeset liquibase:202603091000-03
+--changeset liquibase:archive-fdr3-202603091000-02
 CREATE TABLE IF NOT EXISTS fdr3.flow (
     id BIGINT NOT NULL DEFAULT nextval('flow_sequence'::regclass),
     name CHARACTER VARYING(255) NOT NULL,
@@ -52,7 +51,6 @@ CREATE TABLE IF NOT EXISTS fdr3.flow (
 )
 PARTITION BY RANGE ("date");
 
---changeset liquibase:202603091000-04
 CREATE TABLE IF NOT EXISTS fdr3.payment (
     flow_id BIGINT NOT NULL,
     index BIGINT NOT NULL,
@@ -70,7 +68,7 @@ CREATE TABLE IF NOT EXISTS fdr3.payment (
 PARTITION BY RANGE (flow_date);
 
 -- ## FOREIGN KEYS ##
---changeset liquibase:202603091000-05
+--changeset liquibase:archive-fdr3-202603091000-03
 ALTER TABLE fdr3.payment
   ADD CONSTRAINT payment_flow_fk
       FOREIGN KEY (flow_id)
@@ -79,42 +77,35 @@ ALTER TABLE fdr3.payment
       ON DELETE CASCADE;
 
 -- ## INDEXES ##
---changeset liquibase:202603091000-06
+--changeset liquibase:archive-fdr3-202603091000-04
 CREATE UNIQUE INDEX IF NOT EXISTS flow_revision_idx
     ON fdr3.flow
  USING btree (psp_domain_id, "name", revision);
 
---changeset liquibase:202603091000-07
 CREATE INDEX IF NOT EXISTS flow_date_idx
     ON fdr3.flow
  USING btree ("date");
 
---changeset liquibase:202603091000-08
 CREATE INDEX IF NOT EXISTS published_flow_by_organization_idx
     ON fdr3.flow
  USING btree (org_domain_id, psp_domain_id, published);
 
---changeset liquibase:202603091000-09
 CREATE INDEX IF NOT EXISTS published_flow_by_psp_idx
     ON fdr3.flow
  USING btree (psp_domain_id, org_domain_id, published);
 
---changeset liquibase:202603091000-10
 CREATE INDEX IF NOT EXISTS psp_flow_index
     ON fdr3.flow
  USING btree ("name", "status");
 
---changeset liquibase:202603091000-11
 CREATE INDEX IF NOT EXISTS orgid_by_status_latest_idx
     ON fdr3.flow
  USING btree (org_domain_id, status, is_latest, "date");
 
---changeset liquibase:202603091000-12
 CREATE INDEX IF NOT EXISTS payment_by_iur_idx
     ON fdr3.payment
  USING btree (iur);
 
---changeset liquibase:202603091000-13
 CREATE INDEX IF NOT EXISTS payment_by_iuv_idx
     ON fdr3.payment
  USING btree (iuv);
