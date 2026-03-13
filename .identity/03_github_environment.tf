@@ -49,6 +49,8 @@ locals {
     "POSTGRES_DB_NAME" : local.postgres_db.name,
     "POSTGRES_DB_USERNAME" : local.postgres_db.username,
     "POSTGRES_DB_ADMIN_USERNAME" : local.postgres_db.admin_username,
+    "POSTGRES_ARCHIVE_DB_HOST" : local.postgres_archive_db.host,
+    "POSTGRES_ARCHIVE_DB_PORT" : local.postgres_archive_db.port,
     "WORKLOAD_IDENTITY_ID" : data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
     "TERRAFORM_VERSION" : local.terraform_version
   }
