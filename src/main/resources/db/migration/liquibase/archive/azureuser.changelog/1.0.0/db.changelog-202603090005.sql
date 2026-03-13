@@ -11,11 +11,9 @@ CREATE OR REPLACE PROCEDURE maintenance.delete_partition(
 AS $function$
 DECLARE
 
-    l_execution_user TEXT;
+    l_execution_user TEXT := COALESCE(p_partition_name, SESSION_USER);
     l_process_name TEXT := 'delete_partition';
-    l_execution_id TEXT;
-
-    l_delete_partition_stmt TEXT;
+    l_execution_id TEXT := COALESCE(p_execution_id, Gen_random_uuid()::TEXT);
     l_step TEXT := 'START';
 
 BEGIN
@@ -25,21 +23,7 @@ BEGIN
        OR p_table_name IS NULL
        OR p_partition_name IS NULL
     THEN
-        RAISE EXCEPTION 'p_schema_name, p_table_name and p_partition_name must not be NULL';
-    END IF;
-
-    -- Setting execution user
-    l_execution_user := p_execution_user;
-    IF l_execution_user IS NULL
-    THEN
-        l_execution_user := SESSION_USER;
-    END IF;
-
-    -- Setting execution trace ID
-    l_execution_id := p_execution_id;
-    IF l_execution_id IS NULL
-    THEN
-        l_execution_id := Gen_random_uuid()::TEXT;
+        RAISE EXCEPTION 'p_schema_name, p_table_name and p_partition_name cannot be NULL';
     END IF;
 
     -- Log start process
@@ -58,6 +42,7 @@ BEGIN
                  ,l_step
                  ,'OK'
                  ,NULL);
+    COMMIT;
 
     IF EXISTS (
         SELECT 1
@@ -73,10 +58,16 @@ BEGIN
         l_step := 'DELETE_PARTITION';
 
         -- Delete the partition from the database
-        l_delete_partition_stmt := Format('
-            DROP TABLE IF EXISTS %I.%I
-        ', p_schema_name, p_partition_name);
-        EXECUTE l_delete_partition_stmt;
+        EXECUTE Format(
+                    'ALTER TABLE %I.%I DETACH PARTITION %I.%I CONCURRENTLY'
+                    ,p_schema_name
+                    ,p_table_name
+                    ,p_schema_name
+                    ,p_partition_name)
+        EXECUTE Format(
+                    'DROP TABLE IF EXISTS %I.%I'
+                    ,p_schema_name
+                    ,p_partition_name);
 
         -- Update the record on partition_status setting status to (D)eleted
         UPDATE maintenance.partition_status
@@ -101,7 +92,8 @@ BEGIN
                      ,l_process_name
                      ,l_step
                      ,'OK'
-                     ,CONCAT('Table: [', p_schema_name, '.', p_table_name, '], Partition: [', p_partition_name, ']'));
+                     ,Concat('Table: [', p_schema_name, '.', p_table_name, '], Partition: [', p_partition_name, ']'));
+        COMMIT;
 
     ELSE
         RAISE WARNING 'No valid partition [%] found for parent table [%.%]', p_partition_name, p_schema_name, p_table_name;
@@ -128,6 +120,7 @@ BEGIN
                          p_partition_name,
                          ']'
                      ));
+        COMMIT;
     END IF;
 
     -- Log end process
@@ -150,6 +143,9 @@ BEGIN
 
 EXCEPTION WHEN OTHERS THEN
 
+    -- Rollback all changes not applied on the current partition
+    ROLLBACK;
+
     -- Log end process in exception
     INSERT INTO maintenance.process_log(
                  "date"
@@ -165,8 +161,9 @@ EXCEPTION WHEN OTHERS THEN
                  ,l_process_name
                  ,'END'
                  ,'KO'
-                 ,CONCAT('Step: ', l_step,' , Error: ', SQLERRM));
-    RAISE;
+                 ,Concat('Step: ', l_step,' , Error: ', SQLERRM));
+    COMMIT;
+    RAISE WARNING 'An error occurred during delete partition [%] for parent table [%.%]: %', p_partition_name, p_schema_name, p_table_name, SQLERRM;
 
 END;
 $function$ LANGUAGE 'plpgsql'
@@ -189,34 +186,7 @@ DECLARE
     l_partition_name TEXT;
 
     l_step TEXT := 'START';
-
-    partition_cfg_cursor CURSOR FOR
-        SELECT child_schema.nspname  AS schema_name
-               ,cfg.table_name       AS table_name
-               ,child.relname        AS partition_name
-          FROM pg_inherits
-               JOIN pg_class child
-                 ON pg_inherits.inhrelid = child.oid
-               JOIN pg_namespace child_schema
-                 ON child.relnamespace = child_schema.oid
-               JOIN pg_class parent
-                 ON pg_inherits.inhparent = parent.oid
-               JOIN pg_namespace parent_schema
-                 ON parent.relnamespace = parent_schema.oid
-               JOIN maintenance.partition_config cfg
-                 ON Lower(cfg.schema_name) = Lower(parent_schema.nspname)
-                AND Lower(cfg.table_name) = Lower(parent.relname)
-         WHERE child.relname ~ '_p[0-9]{6}$'
-               AND cfg.status IS TRUE
-               AND Lower(cfg.retention_type) = 'month'
-               AND (
-                     Substr(child.relname, Length(child.relname)-5, 6)::INT
-                     <
-                     To_char(
-                         Date_trunc('month', CURRENT_DATE) - (cfg.retention || ' month')::INT,
-                         'YYYYMM'
-                     )::INT
-                   );
+    l_record RECORD;
 
 BEGIN
 
@@ -236,29 +206,44 @@ BEGIN
                  ,l_step
                  ,'OK'
                  ,NULL);
+    COMMIT;
 
-    OPEN partition_cfg_cursor;
+    FOR l_record IN
+        SELECT child_schema.nspname  AS schema_name
+               ,cfg.table_name       AS table_name
+               ,child.relname        AS partition_name
+          FROM pg_inherits
+               JOIN pg_class child
+                 ON pg_inherits.inhrelid = child.oid
+               JOIN pg_namespace child_schema
+                 ON child.relnamespace = child_schema.oid
+               JOIN pg_class parent
+                 ON pg_inherits.inhparent = parent.oid
+               JOIN pg_namespace parent_schema
+                 ON parent.relnamespace = parent_schema.oid
+               JOIN maintenance.partition_config cfg
+                 ON Lower(cfg.schema_name) = Lower(parent_schema.nspname)
+                AND Lower(cfg.table_name) = Lower(parent.relname)
+         WHERE child.relname ~ '_p[0-9]{6}$'
+               AND cfg.status IS TRUE
+               AND Lower(cfg.retention_type) = 'month'
+               AND (
+                     To_date(Substring(child.relname FROM Length(child.relname)-5 FOR 6), 'YYYYMM')
+                     <
+                     Date_trunc('month', CURRENT_DATE) - (cfg.retention || ' months')::INTERVAL
+                   )
     LOOP
 
-        -- Retrieve partition configuration from cursor
-        FETCH NEXT
-              FROM partition_cfg_cursor
-              INTO l_schema_name
-                   ,l_table_name
-                   ,l_partition_name;
-        EXIT WHEN NOT FOUND;
-
-        RAISE NOTICE 'Analyzing expired partition to delete for [%s.%s] table (partition name [%s])', l_schema_name, l_table_name, l_partition_name;
+        RAISE NOTICE 'Analyzing expired partition [%] to delete for [%s.%s] table', l_record.partition_name, l_record.schema_name, l_record.table_name;
         CALL maintenance.delete_partition(
-            p_schema_name => l_schema_name,
-            p_table_name => l_table_name,
-            p_partition_name => l_partition_name,
+            p_schema_name => l_record.schema_name,
+            p_table_name => l_record.table_name,
+            p_partition_name => l_record.partition_name,
             p_execution_user => l_execution_user,
             p_execution_id => l_execution_id
         );
 
     END LOOP;
-    CLOSE partition_cfg_cursor;
 
     -- Log end process
     l_step := 'END';
@@ -277,8 +262,12 @@ BEGIN
                  ,l_step
                  ,'OK'
                  ,NULL);
+    COMMIT;
 
 EXCEPTION WHEN OTHERS THEN
+
+    -- Rollback all changes not applied on the current partition
+    ROLLBACK;
 
     -- Log end process in exception
     INSERT INTO maintenance.process_log(
@@ -295,7 +284,9 @@ EXCEPTION WHEN OTHERS THEN
                  ,l_process_name
                  ,'END'
                  ,'KO'
-                 ,CONCAT('Step: ', l_step,' , Error: ', SQLERRM));
+                 ,Concat('Step: ', l_step,' , Error: ', SQLERRM));
+    COMMIT;
+    RAISE WARNING 'An error occurred during delete expired partitions: %', SQLERRM;
 
 END;
 $function$ LANGUAGE 'plpgsql'
