@@ -290,8 +290,6 @@ EXCEPTION WHEN OTHERS THEN
 
 END;
 $function$ LANGUAGE 'plpgsql'
-SECURITY DEFINER
-         SET search_path = fdr3, pg_temp;
 GO
 
 
