@@ -1,16 +1,14 @@
 import re
-import os
 import requests
 import logging
 import datetime
-import contextlib
 import string
 import random
 from http.client import HTTPConnection
 
 
 def debug_requests_on():
-    '''Switches on logging of the requests module.'''
+    '''Switches on logging of the request module.'''
     HTTPConnection.debuglevel = 1
 
     logging.basicConfig()
@@ -21,7 +19,7 @@ def debug_requests_on():
 
 
 def debug_requests_off():
-    '''Switches off logging of the requests module, might be some side-effects'''
+    '''Switches off logging of the requests module, might be some side effect'''
     HTTPConnection.debuglevel = 0
 
     root_logger = logging.getLogger()

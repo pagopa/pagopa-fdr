@@ -3,23 +3,23 @@
   "startVUs": 0,
   "stages": [
     {
-      "duration": "1m",
+      "duration": "6m",
       "target": 10
     },
     {
-      "duration": "1m",
+      "duration": "6m",
       "target": 15
     },
     {
-      "duration": "1m",
+      "duration": "6m",
       "target": 20
     },
     {
-      "duration": "1m",
+      "duration": "6m",
       "target": 15
     },
     {
-      "duration": "1m",
+      "duration": "6m",
       "target": 30
     }
   ],
