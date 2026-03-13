@@ -24,3 +24,9 @@ CREATE UNIQUE INDEX flows_published_last_day_idx
        USING btree (id ASC)
        INCLUDE (date)
        WITH (fillfactor=100, deduplicate_items=True);
+
+ CREATE UNIQUE INDEX payments_published_last_day_idx
+        ON fdr3.mview_payments_published_last_day
+        USING btree (flow_id ASC, index ASC)
+        INCLUDE (flow_date)
+        WITH (fillfactor=100, deduplicate_items=True);
