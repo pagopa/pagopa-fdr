@@ -11,7 +11,7 @@ CREATE OR REPLACE PROCEDURE maintenance.delete_partition(
 AS $function$
 DECLARE
 
-    l_execution_user TEXT := COALESCE(p_partition_name, SESSION_USER);
+    l_execution_user TEXT := COALESCE(p_execution_user, SESSION_USER);
     l_process_name TEXT := 'delete_partition';
     l_execution_id TEXT := COALESCE(p_execution_id, Gen_random_uuid()::TEXT);
     l_step TEXT := 'START';
