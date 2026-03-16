@@ -200,7 +200,7 @@ BEGIN
 
         IF l_has_error THEN
         
-            RAISE WARNING 'Error on partition [%] for [%s.%s] table: %', l_record.partition_name, l_record.schema_name, l_record.table_name, l_error_msg; 
+            RAISE WARNING 'Error on partition [%] for [%.%] table: %', l_record.partition_name, l_record.schema_name, l_record.table_name, l_error_msg;
             INSERT INTO maintenance.process_log(
                              "date"
                              ,execution_id
