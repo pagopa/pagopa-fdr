@@ -2,15 +2,7 @@
 
 -- ## SEQUENCES ##
 --changeset liquibase:archive-fdr3-202603091000-01
-CREATE SEQUENCE fdr3.flow_sequence
-       INCREMENT BY 1
-       MINVALUE 1
-       MAXVALUE 9223372036854775807
-       START 1
-       CACHE 1
-       NO CYCLE;
-
-CREATE SEQUENCE fdr3.payment_sequence
+CREATE SEQUENCE IF NOT EXISTS fdr3.flow_sequence
        INCREMENT BY 1
        MINVALUE 1
        MAXVALUE 9223372036854775807
@@ -21,7 +13,7 @@ CREATE SEQUENCE fdr3.payment_sequence
 -- ## TABLES ##
 --changeset liquibase:archive-fdr3-202603091000-02
 CREATE TABLE IF NOT EXISTS fdr3.flow (
-    id BIGINT NOT NULL DEFAULT nextval('flow_sequence'::regclass),
+    id BIGINT NOT NULL DEFAULT nextval('fdr3.flow_sequence'::regclass),
     name CHARACTER VARYING(255) NOT NULL,
     "date" TIMESTAMP(6) WITHOUT TIME ZONE NOT NULL,
     revision BIGINT NOT NULL,
@@ -47,7 +39,7 @@ CREATE TABLE IF NOT EXISTS fdr3.flow (
     created TIMESTAMP(6) WITHOUT TIME ZONE NOT NULL,
     updated TIMESTAMP(6) WITHOUT TIME ZONE,
     published TIMESTAMP(6) WITHOUT TIME ZONE,
-    CONSTRAINT flow_pk PRIMARY KEY (id)
+    CONSTRAINT flow_pk PRIMARY KEY (id, "date")
 )
 PARTITION BY RANGE ("date");
 
@@ -71,41 +63,41 @@ PARTITION BY RANGE (flow_date);
 --changeset liquibase:archive-fdr3-202603091000-03
 ALTER TABLE fdr3.payment
   ADD CONSTRAINT payment_flow_fk
-      FOREIGN KEY (flow_id)
-      REFERENCES fdr3.flow (id) MATCH SIMPLE
+      FOREIGN KEY (flow_id, flow_date)
+      REFERENCES fdr3.flow (id, "date") MATCH SIMPLE
       ON UPDATE CASCADE
       ON DELETE CASCADE;
 
 -- ## INDEXES ##
 --changeset liquibase:archive-fdr3-202603091000-04
-CREATE UNIQUE INDEX IF NOT EXISTS flow_revision_idx
-    ON fdr3.flow
- USING btree (psp_domain_id, "name", revision);
-
 CREATE INDEX IF NOT EXISTS flow_date_idx
     ON fdr3.flow
  USING btree ("date");
 
+CREATE UNIQUE INDEX IF NOT EXISTS flow_revision_idx
+    ON fdr3.flow
+ USING btree ("date", psp_domain_id, "name", revision);
+
 CREATE INDEX IF NOT EXISTS published_flow_by_organization_idx
     ON fdr3.flow
- USING btree (org_domain_id, psp_domain_id, published);
+ USING btree ("date", org_domain_id, psp_domain_id, published);
 
 CREATE INDEX IF NOT EXISTS published_flow_by_psp_idx
     ON fdr3.flow
- USING btree (psp_domain_id, org_domain_id, published);
+ USING btree ("date", psp_domain_id, org_domain_id, published);
 
 CREATE INDEX IF NOT EXISTS psp_flow_index
     ON fdr3.flow
- USING btree ("name", "status");
+ USING btree ("date", "name", "status");
 
 CREATE INDEX IF NOT EXISTS orgid_by_status_latest_idx
     ON fdr3.flow
- USING btree (org_domain_id, status, is_latest, "date");
+ USING btree ("date", org_domain_id, status, is_latest);
 
 CREATE INDEX IF NOT EXISTS payment_by_iur_idx
     ON fdr3.payment
- USING btree (iur);
+ USING btree ("flow_date", iur);
 
 CREATE INDEX IF NOT EXISTS payment_by_iuv_idx
     ON fdr3.payment
- USING btree (iuv);
+ USING btree ("flow_date", iuv);
