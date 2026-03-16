@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import it.gov.pagopa.fdr.controller.middleware.serialization.MonetarySerializer;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
-import it.gov.pagopa.fdr.util.common.IgnoreOffsetInstantDeserializer;
 import it.gov.pagopa.fdr.util.serialization.InstantWithoutOffsetDeserializer;
 import jakarta.validation.constraints.*;
 import java.time.Instant;
