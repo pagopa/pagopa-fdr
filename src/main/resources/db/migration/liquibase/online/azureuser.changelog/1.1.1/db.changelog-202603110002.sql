@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset liquibase:archive-azureuser-202603110002-01 endDelimiter:GO
-CREATE OR REPLACE PROCEDURE fdr3.execute_data_cleansing()
+CREATE OR REPLACE PROCEDURE maintenance.execute_data_cleansing()
 AS $function$
 DECLARE
 
