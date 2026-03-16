@@ -1,8 +1,11 @@
 package it.gov.pagopa.fdr.controller.model.payment;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import it.gov.pagopa.fdr.controller.middleware.serialization.MonetarySerializer;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
+import it.gov.pagopa.fdr.util.common.IgnoreOffsetInstantDeserializer;
+import it.gov.pagopa.fdr.util.serialization.InstantWithoutOffsetDeserializer;
 import jakarta.validation.constraints.*;
 import java.time.Instant;
 import lombok.Builder;
@@ -78,6 +81,7 @@ public class Payment {
               + " 8</li><li>NO_RPT -> 9</li></ul>")
   private PaymentStatusEnum payStatus;
 
+  @JsonDeserialize(using = InstantWithoutOffsetDeserializer.class)
   @NotNull
   @Schema(
       example = "2025-01-01T12:30:50.900000Z",
