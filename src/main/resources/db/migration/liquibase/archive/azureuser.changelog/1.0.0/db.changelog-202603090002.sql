@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS maintenance.process_log (
     step CHARACTER VARYING(50) NOT NULL,
     outcome CHARACTER VARYING(16),
     note CHARACTER VARYING,
+    statement CHARACTER VARYING,
     CONSTRAINT process_log_pk PRIMARY KEY (id)
 );
 COMMENT ON TABLE maintenance.partition_status
@@ -34,7 +35,7 @@ CREATE TABLE IF NOT EXISTS maintenance.partition_config (
     CONSTRAINT partition_config_pk PRIMARY KEY (schema_name, table_name)
 );
 COMMENT ON TABLE maintenance.partition_config
-        IS 'Table containing all information about partition configuration';
+        IS 'Table containing all information about data retention (based on partitions) configuration';
 
 CREATE TABLE IF NOT EXISTS maintenance.partition_status (
     schema_name CHARACTER VARYING(50) NOT NULL,
