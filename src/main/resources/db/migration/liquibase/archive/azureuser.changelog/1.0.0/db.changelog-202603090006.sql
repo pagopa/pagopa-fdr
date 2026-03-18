@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset liquibase:archive-azureuser-202603090006-01 endDelimiter:GO
-CREATE OR REPLACE PROCEDURE maintenance.execute_daily_archive_on_table(
+CREATE OR REPLACE PROCEDURE maintenance.execute_daily_copy_on_table(
     IN p_schema_name TEXT,
     IN p_table_name TEXT,
     IN p_batch_size BIGINT DEFAULT NULL,
@@ -16,13 +16,19 @@ AS $function$
 DECLARE
 
     l_execution_user TEXT := COALESCE(p_execution_user, SESSION_USER);
-    l_process_name TEXT := 'execute_daily_archive_on_table';
+    l_process_name TEXT := 'execute_daily_copy_on_table';
     l_execution_id TEXT := COALESCE(p_execution_id, Gen_random_uuid()::TEXT);
 
     l_step TEXT := 'START';
     l_status TEXT := 'OK';
     l_record RECORD;
     l_process_log_id BIGINT;
+
+    l_stmt TEXT;
+    l_min_id BIGINT;
+    l_max_id BIGINT;
+    l_batch_size BIGINT;
+    l_partition_names TEXT[];
 
     l_current_start_id BIGINT;
     l_current_end_id BIGINT;
@@ -108,18 +114,13 @@ BEGIN
         -- Setting batch column boundaries, choosing by the one passed on CALL instruction or the ones found by query
         l_min_id := COALESCE(p_min_id, l_min_id);
         l_max_id := COALESCE(p_max_id, l_max_id);
+        l_batch_size := COALESCE(p_batch_size, l_record.batch_size);
+        l_current_start_id := l_min_id;
         RAISE NOTICE 'Scanning through table [%.%] on column [%] from [%] to [%], with batches of size [%]',
-                l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_min_id, l_max_id, l_record.batch_size;
+                l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_min_id, l_max_id, l_batch_size;
 
         -- Retrieve (possible) partition names using the value defined by the partition_date_column column
-        l_current_end_id := l_current_start_id + l_record.batch_size;
-        l_stmt := Format('
-            SELECT Array_agg(DISTINCT %L || ''_p'' || To_char(Date_trunc(''month'', "%I"), ''YYYYMM''))
-              FROM %I.%I
-             WHERE %I >= $1
-                   AND %I < $2
-        ', l_record.dst_table_name, l_record.partition_date_column, l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_record.batch_column);
-        EXECUTE l_stmt INTO l_partition_names USING l_current_start_id, l_current_end_id;
+        l_current_end_id := l_current_start_id + l_batch_size;
 
         -- Creating process_log record and using the generated ID in order to update the same record
         BEGIN
@@ -134,9 +135,9 @@ BEGIN
                          ,outcome
                          ,note)
                  VALUES (Clock_timestamp()
-                         ,execution_id
-                         ,execution_user
-                         ,process_name
+                         ,l_execution_id
+                         ,l_execution_user
+                         ,l_process_name
                          ,l_step
                          ,l_status
                          ,Concat('Table: [', l_record.src_schema_name, '.', l_record.src_table_name, ']'))
@@ -145,11 +146,19 @@ BEGIN
         END;
 
         l_archived_records := 0;
-        l_current_start_id := l_min_id;
         l_step := 'ARCHIVING_DATA';
 
         WHILE l_current_start_id <= l_max_id
         LOOP
+
+            -- Retrieve the name of the partitions that will be updated
+            l_stmt := Format('
+                SELECT Array_agg(DISTINCT %L || ''_p'' || To_char(Date_trunc(''month'', "%I"), ''YYYYMM''))
+                  FROM %I.%I
+                 WHERE %I >= $1
+                       AND %I < $2
+            ', l_record.dst_table_name, l_record.partition_date_column, l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_record.batch_column);
+            EXECUTE l_stmt INTO l_partition_names USING l_current_start_id, l_current_end_id;
 
             -- Archiving data in batches from source table to destination table
             l_stmt := Format('
@@ -168,7 +177,6 @@ BEGIN
             l_archived_batches := l_archived_batches + 1;
 
             --
-            l_current_start_id := l_current_end_id;
             UPDATE maintenance.partition_status
                SET "status" = 'U'
                    ,updated_at = Clock_timestamp()
@@ -193,7 +201,6 @@ BEGIN
             EXECUTE Format('
                 ANALYZE %I.%I
             ', l_record.dst_schema_name, l_record.dst_table_name);
-            COMMIT;
         END IF;
 
         -- Update the same process_log record one last time with final info
@@ -202,32 +209,36 @@ BEGIN
         UPDATE maintenance.process_log
            SET "date" = Clock_timestamp()
                ,step = l_step
-               ,status = l_status
+               ,outcome = l_status
                ,note = Concat(
                    'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
                    '], Archived batches: [', l_archived_batches,
                    '], Archived records: [', l_archived_records, ']')
          WHERE id = l_process_log_id;
 
+        -- Updating query boundaries
+        l_current_start_id := l_current_end_id;
+        l_current_end_id := l_current_start_id + l_batch_size;
+
     END IF;
 
      -- Log end process
      BEGIN
-        l_step := 'END';
-        l_status := 'OK';
-        INSERT INTO maintenance.process_log(
-                     "date"
-                     ,execution_id
-                     ,"user"
-                     ,process
-                     ,step
-                     ,outcome)
-             VALUES (Clock_timestamp()
-                     ,execution_id
-                     ,execution_user
-                     ,process_name
-                     ,l_step
-                     ,l_status);
+         l_step := 'END';
+         l_status := 'OK';
+         INSERT INTO maintenance.process_log(
+                      "date"
+                      ,execution_id
+                      ,"user"
+                      ,process
+                      ,step
+                      ,outcome)
+              VALUES (Clock_timestamp()
+                      ,l_execution_id
+                      ,l_execution_user
+                      ,l_process_name
+                      ,l_step
+                      ,l_status);
      END;
 
 EXCEPTION WHEN OTHERS THEN
@@ -238,7 +249,7 @@ EXCEPTION WHEN OTHERS THEN
     UPDATE maintenance.process_log
        SET "date" = Clock_timestamp()
            ,step = l_step
-           ,status = l_status
+           ,outcome = l_status
            ,note = Concat(
                'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
                '], Archived batches: [', l_archived_batches,
@@ -256,9 +267,9 @@ EXCEPTION WHEN OTHERS THEN
                  ,step
                  ,outcome)
          VALUES (Clock_timestamp()
-                 ,execution_id
-                 ,execution_user
-                 ,process_name
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
                  ,l_step
                  ,l_status);
 
@@ -268,12 +279,12 @@ GO
 
 
 --changeset liquibase:archive-azureuser-202603090006-02 endDelimiter:GO
-CREATE OR REPLACE PROCEDURE maintenance.execute_daily_archive()
+CREATE OR REPLACE PROCEDURE maintenance.execute_daily_copy()
 AS $function$
 DECLARE
 
     l_execution_user TEXT := SESSION_USER;
-    l_process_name TEXT := 'execute_daily_archive';
+    l_process_name TEXT := 'execute_daily_copy';
     l_execution_id TEXT := Gen_random_uuid()::TEXT;
 
     l_step TEXT := 'START';
@@ -313,16 +324,15 @@ BEGIN
     LOOP
 
         RAISE NOTICE 'Archiving data from [%.%] to [%.%]', l_record.src_schema_name, l_record.src_table_name, l_record.dst_schema_name, l_record.dst_table_name;
-        CALL maintenance.xx(
+        CALL maintenance.execute_daily_copy_on_table(
             p_schema_name => l_record.src_schema_name,
-            p_table_name => l_record.table_name,
-            p_batch_size => l_batch_size,
+            p_table_name => l_record.src_table_name,
+            p_batch_size => l_record.batch_size,
             p_execution_user => l_execution_user,
             p_execution_id => l_execution_id
         );
 
     END LOOP;
-
 
     -- Log end process
     l_step := 'END';
@@ -360,7 +370,6 @@ EXCEPTION WHEN OTHERS THEN
                  ,l_step
                  ,l_status
                  ,Concat('Step: [', l_step,'] , Error: ', SQLERRM));
-    COMMIT;
     RAISE WARNING 'An error occurred during archiving data: %', SQLERRM;
 
 END;
@@ -369,8 +378,8 @@ GO
 
 --changeset liquibase:archive-azureuser-202603090006-03
 GRANT EXECUTE
-      ON PROCEDURE maintenance.execute_daily_archive_on_table(TEXT, TEXT, BIGINT, BIGINT, BIGINT, DATE, DATE, TEXT, TEXT)
+      ON PROCEDURE maintenance.execute_daily_copy_on_table(TEXT, TEXT, BIGINT, BIGINT, BIGINT, DATE, DATE, TEXT, TEXT)
       TO fdr3;
 GRANT EXECUTE
-      ON PROCEDURE maintenance.execute_daily_archive()
+      ON PROCEDURE maintenance.execute_daily_copy()
       TO fdr3;
