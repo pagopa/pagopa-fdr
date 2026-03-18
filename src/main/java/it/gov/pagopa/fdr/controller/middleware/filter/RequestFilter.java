@@ -78,7 +78,7 @@ public class RequestFilter implements ContainerRequestFilter {
         ? AppReUtil.getFdrActionByAnnotation(resourceInfo.getAnnotations())
         : null;
     boolean isActionIncludedForRE = isActionIncludedForRE(fdrActionEnum);
-    if (isActionIncludedForRE) {
+    if (isActionIncludedForRE && fdrActionEnum != null) {
 
       // Extracting request body in order to be lately stored in BLOB Storage
       String fdrAction = fdrActionEnum.name();
