@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 -- ## SEQUENCES ##
---changeset liquibase:admin-202603110001-01
+--changeset liquibase:azureuser-202603110001-01
 CREATE SEQUENCE IF NOT EXISTS maintenance.log_sequence
        INCREMENT 1
        START 1
@@ -10,7 +10,7 @@ CREATE SEQUENCE IF NOT EXISTS maintenance.log_sequence
        CACHE 1;
 
 -- ## TABLES ##
---changeset liquibase:admin-202603110001-02
+--changeset liquibase:azureuser-202603110001-02
 CREATE TABLE IF NOT EXISTS maintenance.process_log (
     id BIGINT DEFAULT nextval('maintenance.log_sequence'::regclass) NOT NULL,
     date TIMESTAMP without time zone NOT NULL,
@@ -39,4 +39,4 @@ CREATE TABLE IF NOT EXISTS maintenance.retention_config (
     CONSTRAINT retention_config_pk PRIMARY KEY (schema_name, table_name)
 );
 COMMENT ON TABLE maintenance.retention_config
-        IS 'Table containing all information about data retention (based on date) configuration';
+        IS 'Table containing all information about configuration for data retention based on date';
