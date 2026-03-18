@@ -2,11 +2,11 @@
 
 --changeset liquibase:archive-azureuser-202603090005-01 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.delete_partition(
-    IN  p_schema_name TEXT,
-    IN  p_table_name TEXT,
-    IN  p_partition_name TEXT,
-    IN  p_execution_user TEXT DEFAULT NULL,
-    IN  p_execution_id TEXT DEFAULT NULL
+    IN p_schema_name TEXT,
+    IN p_table_name TEXT,
+    IN p_partition_name TEXT,
+    IN p_execution_user TEXT DEFAULT NULL,
+    IN p_execution_id TEXT DEFAULT NULL
 )
 AS $function$
 DECLARE
@@ -167,8 +167,6 @@ EXCEPTION WHEN OTHERS THEN
 
 END;
 $function$ LANGUAGE 'plpgsql'
-SECURITY DEFINER
-         SET search_path = fdr3, pg_temp;
 GO
 
 
