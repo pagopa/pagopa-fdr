@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset liquibase:archive-azureuser-202603110002-01 endDelimiter:GO
+--changeset liquibase:azureuser-202603110002-01 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.execute_data_cleansing()
 AS $function$
 DECLARE
@@ -62,6 +62,7 @@ BEGIN
 
         BEGIN
 
+            --
             RAISE NOTICE 'Analyzing [%.%] table for data cleansing', l_record.schema_name, l_record.table_name;
             l_step := 'PRUNE_DATA';
             l_status := 'OK';
