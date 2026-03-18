@@ -35,7 +35,22 @@ CREATE TABLE IF NOT EXISTS maintenance.partition_config (
     CONSTRAINT partition_config_pk PRIMARY KEY (schema_name, table_name)
 );
 COMMENT ON TABLE maintenance.partition_config
-        IS 'Table containing all information about data retention (based on partitions) configuration';
+        IS 'Table containing all information about configuration for data retention based on partitions';
+
+CREATE TABLE IF NOT EXISTS maintenance.retention_config (
+    schema_name CHARACTER VARYING(50) NOT NULL,
+    table_name CHARACTER VARYING(50) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT false,
+    retention_type CHARACTER VARYING(10) NOT NULL DEFAULT 'day',
+    retention INTEGER NOT NULL,
+    batch_column VARCHAR(50) NOT NULL DEFAULT 'id',
+    batch_size INTEGER NOT NULL DEFAULT 50000,
+    retention_date_column VARCHAR(50) NOT NULL DEFAULT 'date',
+    execution_order INTEGER NOT NULL DEFAULT 1,
+    CONSTRAINT retention_config_pk PRIMARY KEY (schema_name, table_name)
+);
+COMMENT ON TABLE maintenance.retention_config
+        IS 'Table containing all information about configuration for data retention based on date';
 
 CREATE TABLE IF NOT EXISTS maintenance.partition_status (
     schema_name CHARACTER VARYING(50) NOT NULL,
