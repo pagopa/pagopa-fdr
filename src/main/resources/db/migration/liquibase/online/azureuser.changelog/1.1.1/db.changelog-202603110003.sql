@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset liquibase:azureuser-202603110002-01 endDelimiter:GO
+--changeset liquibase:azureuser-202603110003-01 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.execute_data_cleansing()
 AS $function$
 DECLARE
@@ -245,7 +245,7 @@ END;
 $function$ LANGUAGE 'plpgsql'
 GO
 
---changeset liquibase:archive-azureuser-202603110002-02
+--changeset liquibase:archive-azureuser-202603110003-02
 GRANT EXECUTE
       ON PROCEDURE maintenance.execute_data_cleansing()
       TO fdr3;
