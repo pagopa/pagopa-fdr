@@ -13,8 +13,6 @@ DECLARE
     l_process_name TEXT := 'delete_unpublished_flows';
     l_execution_id TEXT := Gen_random_uuid()::TEXT;
 
-    l_step TEXT := 'START';
-    l_status TEXT := 'OK';
     l_operation_process_log_id BIGINT;
     l_end_process_log_id BIGINT;
 
@@ -42,7 +40,7 @@ BEGIN
                  ,'OK');
     COMMIT;
 
-    -- Log end process (pre-written with incomplete status)
+    -- Log end process, pre-written with incomplete status
     INSERT INTO maintenance.process_log(
                  "date"
                  ,execution_id
@@ -110,7 +108,6 @@ BEGIN
             l_deleted_batches := l_deleted_batches + 1;
 
             -- Update the same process_log record with updated info, setting date with current timestamp
-            l_status := 'OK';
             UPDATE maintenance.process_log
                SET "date" = Clock_timestamp()
                    ,outcome = 'ONGOING'
