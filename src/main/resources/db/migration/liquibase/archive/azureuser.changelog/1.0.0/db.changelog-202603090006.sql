@@ -124,8 +124,8 @@ BEGIN
 
         -- Creating process_log record and using the generated ID in order to update the same record
         BEGIN
-            l_step := 'START_DATA_ARCHIVING';
-            l_status := 'ONGOING';
+            l_step := 'ARCHIVING_DATA';
+            l_status := 'START';
             INSERT INTO maintenance.process_log(
                          "date"
                          ,execution_id
@@ -146,7 +146,7 @@ BEGIN
         END;
 
         l_archived_records := 0;
-        l_step := 'ARCHIVING_DATA';
+        l_status := 'ONGOING';
 
         WHILE l_current_start_id <= l_max_id
         LOOP
@@ -187,6 +187,7 @@ BEGIN
             -- Update the same process_log record with updated info, setting date with current timestamp
             UPDATE maintenance.process_log
                SET "date" = Clock_timestamp()
+                   ,outcome = l_status
                    ,note = Concat(
                        'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
                        '], Archived batches: [', l_archived_batches,
@@ -204,7 +205,6 @@ BEGIN
         END IF;
 
         -- Update the same process_log record one last time with final info
-        l_step := 'DATA_ARCHIVED';
         l_status := 'OK';
         UPDATE maintenance.process_log
            SET "date" = Clock_timestamp()
@@ -245,7 +245,7 @@ EXCEPTION WHEN OTHERS THEN
 
     -- Update the same process_log record one last time with error info
     l_status := 'KO';
-    l_step := 'DATA_ARCHIVED';
+    l_step := 'ARCHIVING_DATA';
     UPDATE maintenance.process_log
        SET "date" = Clock_timestamp()
            ,step = l_step
