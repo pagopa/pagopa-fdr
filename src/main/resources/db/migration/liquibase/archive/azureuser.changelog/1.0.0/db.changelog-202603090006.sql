@@ -19,10 +19,16 @@ DECLARE
     l_process_name TEXT := 'execute_daily_copy_on_table';
     l_execution_id TEXT := COALESCE(p_execution_id, Gen_random_uuid()::TEXT);
 
+    l_operation_process_log_id BIGINT;
+    l_end_process_log_id BIGINT;
+    
     l_step TEXT := 'START';
     l_status TEXT := 'OK';
     l_record RECORD;
-    l_process_log_id BIGINT;
+
+    l_is_failed BOOLEAN := false;
+    l_has_error BOOLEAN;
+    l_error_msg TEXT;
 
     l_stmt TEXT;
     l_min_id BIGINT;
@@ -39,21 +45,40 @@ DECLARE
 BEGIN
 
     -- Log start process
-    BEGIN
-        INSERT INTO maintenance.process_log(
-                     "date"
-                     ,execution_id
-                     ,"user"
-                     ,process
-                     ,step
-                     ,outcome)
-             VALUES (Clock_timestamp()
-                     ,execution_id
-                     ,execution_user
-                     ,process_name
-                     ,l_step
-                     ,l_status);
-    END;
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,l_execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,l_step
+                 ,l_status);
+    COMMIT;
+
+    -- Log end process, pre-written with incomplete status
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,'END'
+                 ,'KO')
+      RETURNING id
+                INTO l_end_process_log_id;
+    COMMIT;
+
+    l_step := 'ARCHIVING_DATA';
 
     -- Retrieve archiving configuration for required table
     SELECT src_schema_name
@@ -75,7 +100,6 @@ BEGIN
     THEN
 
         RAISE NOTICE 'No data found to archive for table [%.%]', l_record.src_schema_name, l_record.src_table_name;
-        l_step := 'ARCHIVING_DATA';
         l_status := 'SKIPPED';
         INSERT INTO maintenance.process_log(
                      "date"
@@ -92,6 +116,8 @@ BEGIN
                      ,l_step
                      ,l_status
                      ,Concat('Table: [', l_record.src_schema_name, '.', l_record.src_table_name, '], Total records moved: [0]'));
+        COMMIT;
+
     ELSE
 
         -- Defining main section for "retrieve boundaries on batch columns" query
@@ -123,27 +149,25 @@ BEGIN
         l_current_end_id := l_current_start_id + l_batch_size;
 
         -- Creating process_log record and using the generated ID in order to update the same record
-        BEGIN
-            l_step := 'ARCHIVING_DATA';
-            l_status := 'START';
-            INSERT INTO maintenance.process_log(
-                         "date"
-                         ,execution_id
-                         ,"user"
-                         ,process
-                         ,step
-                         ,outcome
-                         ,note)
-                 VALUES (Clock_timestamp()
-                         ,l_execution_id
-                         ,l_execution_user
-                         ,l_process_name
-                         ,l_step
-                         ,l_status
-                         ,Concat('Table: [', l_record.src_schema_name, '.', l_record.src_table_name, ']'))
-              RETURNING id
-                        INTO l_process_log_id;
-        END;
+        l_status := 'START';
+        INSERT INTO maintenance.process_log(
+                     "date"
+                     ,execution_id
+                     ,"user"
+                     ,process
+                     ,step
+                     ,outcome
+                     ,note)
+             VALUES (Clock_timestamp()
+                     ,l_execution_id
+                     ,l_execution_user
+                     ,l_process_name
+                     ,l_step
+                     ,l_status
+                     ,Concat('Table: [', l_record.src_schema_name, '.', l_record.src_table_name, ']'))
+          RETURNING id
+                    INTO l_operation_process_log_id;
+        COMMIT;
 
         l_archived_records := 0;
         l_status := 'ONGOING';
@@ -151,48 +175,80 @@ BEGIN
         WHILE l_current_start_id <= l_max_id
         LOOP
 
-            -- Retrieve the name of the partitions that will be updated
-            l_stmt := Format('
-                SELECT Array_agg(DISTINCT %L || ''_p'' || To_char(Date_trunc(''month'', "%I"), ''YYYYMM''))
-                  FROM %I.%I
-                 WHERE %I >= $1
-                       AND %I < $2
-            ', l_record.dst_table_name, l_record.partition_date_column, l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_record.batch_column);
-            EXECUTE l_stmt INTO l_partition_names USING l_current_start_id, l_current_end_id;
+            -- Starting a sub-transaction in order to generate process_log record about the error
+            BEGIN
+                -- Retrieve the name of the partitions that will be updated
+                l_stmt := Format('
+                    SELECT Array_agg(DISTINCT %L || ''_p'' || To_char(Date_trunc(''month'', "%I"), ''YYYYMM''))
+                      FROM %I.%I
+                     WHERE %I >= $1
+                           AND %I < $2
+                ', l_record.dst_table_name, l_record.partition_date_column, l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_record.batch_column);
+                EXECUTE l_stmt INTO l_partition_names USING l_current_start_id, l_current_end_id;
 
-            -- Archiving data in batches from source table to destination table
-            l_stmt := Format('
-                INSERT INTO %I.%I
-                SELECT *
-                  FROM %I.%I
-                 WHERE %I >= $1
-                       AND %I < $2
-                    ON CONFLICT DO NOTHING
-            ', l_record.dst_schema_name, l_record.dst_table_name, l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_record.batch_column);
-            EXECUTE l_stmt USING l_current_start_id, l_current_end_id;
+                -- Archiving data in batches from source table to destination table
+                l_stmt := Format('
+                    INSERT INTO %I.%I
+                    SELECT *
+                      FROM %I.%I
+                     WHERE %I >= $1
+                           AND %I < $2
+                        ON CONFLICT DO NOTHING
+                ', l_record.dst_schema_name, l_record.dst_table_name, l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_record.batch_column);
+                EXECUTE l_stmt USING l_current_start_id, l_current_end_id;
 
-            -- Calculating statistics
-            GET DIAGNOSTICS l_batch_rows = ROW_COUNT;
-            l_archived_records := l_archived_records + l_batch_rows;
-            l_archived_batches := l_archived_batches + 1;
+                -- Calculating statistics
+                GET DIAGNOSTICS l_batch_rows = ROW_COUNT;
+                l_archived_records := l_archived_records + l_batch_rows;
+                l_archived_batches := l_archived_batches + 1;
 
-            --
-            UPDATE maintenance.partition_status
-               SET "status" = 'U'
-                   ,updated_at = Clock_timestamp()
-             WHERE schema_name = l_record.dst_schema_name
-                   AND table_name = l_record.dst_table_name
-                   AND partition_name = ANY(l_partition_names);
+                --
+                UPDATE maintenance.partition_status
+                   SET "status" = 'U'
+                       ,updated_at = Clock_timestamp()
+                 WHERE schema_name = l_record.dst_schema_name
+                       AND table_name = l_record.dst_table_name
+                       AND partition_name = ANY(l_partition_names);
 
-            -- Update the same process_log record with updated info, setting date with current timestamp
-            UPDATE maintenance.process_log
-               SET "date" = Clock_timestamp()
-                   ,outcome = l_status
-                   ,note = Concat(
-                       'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
-                       '], Archived batches: [', l_archived_batches,
-                       '], Archived records: [', l_archived_records, ']')
-             WHERE id = l_process_log_id;
+                -- Update the same process_log record with updated info, setting date with current timestamp
+                UPDATE maintenance.process_log
+                   SET "date" = Clock_timestamp()
+                       ,outcome = l_status
+                       ,note = Concat(
+                           'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
+                           '], Archived batches: [', l_archived_batches,
+                           '], Archived records: [', l_archived_records, ']')
+                 WHERE id = l_operation_process_log_id;
+
+            -- Catch SQLERRM and separately handle errors (in order to commit process_log record)
+            EXCEPTION WHEN OTHERS THEN
+                l_status := 'KO';
+                l_is_failed := true;
+                l_has_error := true;
+                l_error_msg := SQLERRM;
+            END;
+
+            -- Handle errors if an exception is found
+            IF l_has_error THEN
+
+                -- Update the operation process_log record with error
+                UPDATE maintenance.process_log
+                   SET "date" = Clock_timestamp()
+                       ,outcome = l_status
+                       ,note = Concat(
+                           'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
+                           '], Archived batches: [', l_archived_batches,
+                           '], Archived records: [', l_archived_records,
+                           '], Error: ', SQLERRM);
+                 WHERE id = l_operation_process_log_id;
+                 RAISE WARNING 'An error occurred during delete partition [%] for parent table [%.%]: %', p_partition_name, p_schema_name, p_table_name, l_error_msg;
+            END IF;
+            EXIT WHEN l_has_error = true;
+
+            -- Updating query boundaries
+            l_current_start_id := l_current_end_id;
+            l_current_end_id := l_current_start_id + l_batch_size;
+            COMMIT;
 
         END LOOP;
 
@@ -214,64 +270,24 @@ BEGIN
                    'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
                    '], Archived batches: [', l_archived_batches,
                    '], Archived records: [', l_archived_records, ']')
-         WHERE id = l_process_log_id;
-
-        -- Updating query boundaries
-        l_current_start_id := l_current_end_id;
-        l_current_end_id := l_current_start_id + l_batch_size;
+         WHERE id = l_operation_process_log_id;
+        COMMIT;
 
     END IF;
 
-     -- Log end process
-     BEGIN
-         l_step := 'END';
-         l_status := 'OK';
-         INSERT INTO maintenance.process_log(
-                      "date"
-                      ,execution_id
-                      ,"user"
-                      ,process
-                      ,step
-                      ,outcome)
-              VALUES (Clock_timestamp()
-                      ,l_execution_id
-                      ,l_execution_user
-                      ,l_process_name
-                      ,l_step
-                      ,l_status);
-     END;
-
-EXCEPTION WHEN OTHERS THEN
-
-    -- Update the same process_log record one last time with error info
-    l_status := 'KO';
-    l_step := 'ARCHIVING_DATA';
+    -- Update the end process_log record with final info
+    IF l_is_failed = true THEN
+        l_status := 'KO';
+    ELSE
+        l_status := 'OK';
+    END IF;
+    l_step := 'END';
     UPDATE maintenance.process_log
        SET "date" = Clock_timestamp()
            ,step = l_step
            ,outcome = l_status
-           ,note = Concat(
-               'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
-               '], Archived batches: [', l_archived_batches,
-               '], Archived records: [', l_archived_records,
-               '], Error: ', SQLERRM)
-     WHERE id = l_process_log_id;
-
-    -- Log end process
-    l_step := 'END';
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,l_status);
+     WHERE id = l_end_process_log_id;
+    COMMIT;
 
 END;
 $function$ LANGUAGE 'plpgsql'
@@ -294,21 +310,38 @@ DECLARE
 BEGIN
 
     -- Log start process
-    BEGIN
-        INSERT INTO maintenance.process_log(
-                     "date"
-                     ,execution_id
-                     ,"user"
-                     ,process
-                     ,step
-                     ,outcome)
-             VALUES (Clock_timestamp()
-                     ,l_execution_id
-                     ,l_execution_user
-                     ,l_process_name
-                     ,l_step
-                     ,l_status);
-    END;
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,l_execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,l_step
+                 ,l_status);
+    COMMIT;
+
+    -- Log end process, pre-written with incomplete status
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,'END'
+                 ,'KO')
+      RETURNING id
+                INTO l_end_process_log_id;
+    COMMIT;
 
     FOR l_record IN
            SELECT src_schema_name
@@ -323,54 +356,48 @@ BEGIN
             ORDER BY execution_order ASC
     LOOP
 
-        RAISE NOTICE 'Archiving data from [%.%] to [%.%]', l_record.src_schema_name, l_record.src_table_name, l_record.dst_schema_name, l_record.dst_table_name;
-        CALL maintenance.execute_daily_copy_on_table(
-            p_schema_name => l_record.src_schema_name,
-            p_table_name => l_record.src_table_name,
-            p_batch_size => l_record.batch_size,
-            p_execution_user => l_execution_user,
-            p_execution_id => l_execution_id
-        );
+        -- Starting a sub-transaction in order to generate process_log record about the error
+        BEGIN
+
+            RAISE NOTICE 'Archiving data from [%.%] to [%.%]', l_record.src_schema_name, l_record.src_table_name, l_record.dst_schema_name, l_record.dst_table_name;
+            CALL maintenance.execute_daily_copy_on_table(
+                p_schema_name => l_record.src_schema_name,
+                p_table_name => l_record.src_table_name,
+                p_batch_size => l_record.batch_size,
+                p_execution_user => l_execution_user,
+                p_execution_id => l_execution_id
+            );
+
+        -- Catch SQLERRM and separately handle errors (in order to commit process_log record)
+        EXCEPTION WHEN OTHERS THEN
+            l_status := 'KO';
+            l_is_failed := true;
+            l_has_error := true;
+            l_error_msg := SQLERRM;
+        END;
+
+        -- Handle errors if an exception is found
+        IF l_has_error THEN
+            RAISE WARNING 'An error occurred during archiving data: %', l_error_msg;
+        END IF;
+
+        COMMIT;
 
     END LOOP;
 
-    -- Log end process
+    -- Update the end process_log record with final info
+    IF l_is_failed = true THEN
+        l_status := 'KO';
+    ELSE
+        l_status := 'OK';
+    END IF;
     l_step := 'END';
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,l_status);
-
-EXCEPTION WHEN OTHERS THEN
-
-    -- Log end process in exception
-    l_status := 'KO';
-    l_step := 'END';
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome
-                 ,note)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,l_status
-                 ,Concat('Step: [', l_step,'] , Error: ', SQLERRM));
-    RAISE WARNING 'An error occurred during archiving data: %', SQLERRM;
+    UPDATE maintenance.process_log
+       SET "date" = Clock_timestamp()
+           ,step = l_step
+           ,outcome = l_status
+     WHERE id = l_end_process_log_id;
+    COMMIT;
 
 END;
 $function$ LANGUAGE 'plpgsql'

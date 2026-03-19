@@ -161,7 +161,7 @@ BEGIN
                                '], Partition: [', l_record.partition_name,
                                '], Step: [', l_step,
                                '], Error: ', l_error_msg));
-             WHERE id = l_end_process_log_id;
+             WHERE id = l_operation_process_log_id;
              RAISE WARNING 'An error occurred during delete partition [%] for parent table [%.%]: %', p_partition_name, p_schema_name, p_table_name, l_error_msg;
         END IF;
 
