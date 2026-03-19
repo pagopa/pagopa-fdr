@@ -9,6 +9,8 @@ DECLARE
     l_process_name TEXT := 'create_partition_on_month';
     l_execution_id TEXT := Gen_random_uuid()::TEXT;
 
+    l_end_process_log_id BIGINT;
+
     l_partition_from TIMESTAMP;
     l_partition_to TIMESTAMP;
 
@@ -23,23 +25,38 @@ DECLARE
 BEGIN
 
     -- Log start process
-    BEGIN
-        INSERT INTO maintenance.process_log(
-                     "date"
-                     ,execution_id
-                     ,"user"
-                     ,process
-                     ,step
-                     ,outcome
-                     ,note)
-            VALUES (Clock_timestamp()
-                    ,l_execution_id
-                    ,l_execution_user
-                    ,l_process_name
-                    ,l_step
-                    ,l_status
-                    ,NULL);
-    END;
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+        VALUES (Clock_timestamp()
+                ,l_execution_id
+                ,l_execution_user
+                ,l_process_name
+                 ,l_step
+                 ,l_status);
+    COMMIT;
+
+    -- Log end process, pre-written with incomplete status
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,'END'
+                 ,'KO')
+      RETURNING id
+                INTO l_end_process_log_id;
+    COMMIT;
 
     -- Generate partition's date boundaries
     l_partition_from := Date_trunc('month', CURRENT_DATE) + ('1 month')::INTERVAL;
@@ -57,6 +74,7 @@ BEGIN
          WHERE cfg.is_active IS TRUE
                AND cfg.retention_type = 'month'
     LOOP
+        -- Starting a sub-transaction in order to generate process_log record about the error
         BEGIN
         
             RAISE NOTICE 'Analyzing new partition [%] for [%s.%s] table', l_record.partition_name, l_record.schema_name, l_record.table_name;
@@ -75,8 +93,9 @@ BEGIN
                        AND partition_class.relname = l_record.partition_name
             ) THEN
 
+                -- If executing this branch, the partition generation is automatically skipped
                 l_status := 'SKIPPED';
-                
+
                 -- Check for partition on logical catalog
                 IF EXISTS (
                     SELECT 1
@@ -217,32 +236,23 @@ BEGIN
                              ,l_status
                              ,Concat('Table: ', l_record.schema_name, '.', l_record.table_name, ', Partition: ', l_record.partition_name, ', Step: ', l_step,' , Error: ', l_error_msg));
         END IF;
+
         COMMIT;
         
     END LOOP;
 
-    -- Log end process
+    -- Update the end process_log record with final info
     IF l_is_failed = true THEN
         l_status := 'KO';
     ELSE
         l_status := 'OK';
     END IF;
     l_step := 'END';
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome
-                 ,note)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,l_status
-                 ,NULL);
+    UPDATE maintenance.process_log
+       SET "date" = Clock_timestamp()
+           ,step = l_step
+           ,outcome = l_status
+     WHERE id = l_end_process_log_id;
     COMMIT;
 
 END;
