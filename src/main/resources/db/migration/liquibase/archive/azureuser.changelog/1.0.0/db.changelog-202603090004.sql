@@ -165,9 +165,8 @@ BEGIN
                 
             ELSE
 
-                RAISE NOTICE 'Creating new partition [%] for parent table [%.%]', l_record.partition_name, l_record.schema_name, l_record.table_name;
-
                 -- Generate the partition from the master table
+                RAISE NOTICE 'Creating new partition [%] for parent table [%.%]', l_record.partition_name, l_record.schema_name, l_record.table_name;
                 EXECUTE Format('
                     CREATE TABLE IF NOT EXISTS %I.%I
                     PARTITION OF %I.%I
@@ -210,6 +209,7 @@ BEGIN
                              ,Concat('Table: ', l_record.schema_name, '.', l_record.table_name, ', Partition: ', l_record.partition_name));
             END IF;
 
+        -- Catch SQLERRM and separately handle errors (in order to commit process_log record)
         EXCEPTION WHEN OTHERS THEN
             l_status := 'KO';
             l_is_failed := true;
@@ -217,8 +217,10 @@ BEGIN
             l_error_msg := SQLERRM;
         END;
 
+        -- Handle errors if an exception is found
         IF l_has_error THEN
-        
+
+            -- Update the operation process_log record with error
             RAISE WARNING 'Error on partition [%] for [%.%] table: %', l_record.partition_name, l_record.schema_name, l_record.table_name, l_error_msg;
             INSERT INTO maintenance.process_log(
                              "date"
