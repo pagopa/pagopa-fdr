@@ -6,19 +6,19 @@ CREATE OR REPLACE PROCEDURE maintenance.delete_unpublished_flows(
     IN p_batch_size BIGINT DEFAULT 1000,
 	IN p_start_date TIMESTAMP DEFAULT NULL,
 	IN p_end_date TIMESTAMP DEFAULT NULL)
+AS $function$
 DECLARE
 
-    l_execution_user TEXT := COALESCE(p_execution_user, SESSION_USER);
+    l_execution_user TEXT := SESSION_USER;
     l_process_name TEXT := 'delete_unpublished_flows';
-    l_execution_id TEXT := COALESCE(p_execution_id, Gen_random_uuid()::TEXT);
+    l_execution_id TEXT := Gen_random_uuid()::TEXT;
 
     l_step TEXT := 'START';
     l_status TEXT := 'OK';
+    l_operation_process_log_id BIGINT;
+    l_end_process_log_id BIGINT;
 
-    l_stmt TEXT;
-    l_min_id BIGINT;
-    l_max_id BIGINT;
-    l_upper_limit BIGINT;
+    l_upper_limit TIMESTAMP;
 
     l_count BIGINT := -1;
     l_deleted_records BIGINT := 0;
@@ -27,25 +27,41 @@ DECLARE
 BEGIN
 
     -- Log start process
-    BEGIN
-        INSERT INTO maintenance.process_log(
-                     "date"
-                     ,execution_id
-                     ,"user"
-                     ,process
-                     ,step
-                     ,outcome)
-             VALUES (Clock_timestamp()
-                     ,execution_id
-                     ,execution_user
-                     ,process_name
-                     ,l_step
-                     ,l_status);
-    END;
-    l_step := 'CLEANING_DATA';
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,'START'
+                 ,'OK');
+    COMMIT;
+
+    -- Log end process (pre-written with incomplete status)
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,'END'
+                 ,'KO')
+      RETURNING id
+                INTO l_end_process_log_id;
+    COMMIT;
 
     -- Defining upper limit for search
-    l_upper_limit := CURRENT_DATE - ('INTERVAL \'' || p_retention_days || ' day \'')
+    l_upper_limit := CURRENT_DATE - (p_retention_days || ' days')::INTERVAL;
 
     IF EXISTS (
         SELECT 1
@@ -56,29 +72,27 @@ BEGIN
     THEN
 
         -- Creating process_log record and using the generated ID in order to update the same record
-        BEGIN
-            l_status := 'START';
-            INSERT INTO maintenance.process_log(
-                         "date"
-                         ,execution_id
-                         ,"user"
-                         ,process
-                         ,step
-                         ,outcome
-                         ,note)
-                 VALUES (Clock_timestamp()
-                         ,l_execution_id
-                         ,l_execution_user
-                         ,l_process_name
-                         ,l_step
-                         ,l_status
-                         ,Concat('Table: [fdr3.flow]'))
-              RETURNING id
-                        INTO l_process_log_id;
-        END;
+        INSERT INTO maintenance.process_log(
+                     "date"
+                     ,execution_id
+                     ,"user"
+                     ,process
+                     ,step
+                     ,outcome
+                     ,note)
+             VALUES (Clock_timestamp()
+                     ,l_execution_id
+                     ,l_execution_user
+                     ,l_process_name
+                     ,'CLEANING_DATA'
+                     ,'START'
+                     ,Concat('Table: [fdr3.flow]'))
+          RETURNING id
+                    INTO l_operation_process_log_id;
+        COMMIT;
 
-        l_status := 'ONGOING';
-        WHILE l_count > 0 LOOP
+        WHILE l_count != 0
+        LOOP
 
             -- Deleting records from table in sized batch
             RAISE NOTICE 'Cleaning batch [%] with size [%]...', l_deleted_batches, p_batch_size;
@@ -96,28 +110,26 @@ BEGIN
             l_deleted_batches := l_deleted_batches + 1;
 
             -- Update the same process_log record with updated info, setting date with current timestamp
-            BEGIN
-                l_status := 'OK';
-                UPDATE maintenance.process_log
-                   SET "date" = Clock_timestamp()
-                       ,outcome = l_status,
-                       ,note = Concat('Table: [fdr3.flow], Deleted batches: [', l_deleted_batches, '], Deleted records: [', l_deleted_records, ']')
-                 WHERE id = l_process_log_id;
-            END;
-    
+            l_status := 'OK';
+            UPDATE maintenance.process_log
+               SET "date" = Clock_timestamp()
+                   ,outcome = 'ONGOING'
+                   ,note = Concat('Table: [fdr3.flow], Deleted batches: [', l_deleted_batches, '], Deleted records: [', l_deleted_records, ']')
+             WHERE id = l_operation_process_log_id;
+            COMMIT;
+
         END LOOP;
         
         -- Update the same process_log record one last time with final info
-        l_status := 'OK';
         UPDATE maintenance.process_log
            SET "date" = Clock_timestamp()
-               ,outcome = l_status)
-         WHERE id = l_process_log_id;
+               ,outcome = 'OK'
+         WHERE id = l_operation_process_log_id;
+        COMMIT;
 
     ELSE
 
         RAISE NOTICE 'No data to delete for table [fdr3.flow]!';
-        l_status := 'SKIPPED';
         INSERT INTO maintenance.process_log(
                      "date"
                      ,execution_id
@@ -130,62 +142,19 @@ BEGIN
                      ,l_execution_id
                      ,l_execution_user
                      ,l_process_name
-                     ,l_step
-                     ,l_status
+                     ,'CLEANING_DATA'
+                     ,'SKIPPED'
                      ,Concat('Table: [fdr3.flow]'));
+        COMMIT;
 
     END IF;
 
-     -- Log end process
-     BEGIN
-         l_step := 'END';
-         l_status := 'OK';
-         INSERT INTO maintenance.process_log(
-                      "date"
-                      ,execution_id
-                      ,"user"
-                      ,process
-                      ,step
-                      ,outcome)
-              VALUES (Clock_timestamp()
-                      ,l_execution_id
-                      ,l_execution_user
-                      ,l_process_name
-                      ,l_step
-                      ,l_status);
-     END;
-
-EXCEPTION WHEN OTHERS THEN
-
-    -- Update the same process_log record one last time with error info
-    l_status := 'KO';
-    l_step := 'CLEANING_DATA';
+    -- Update the end process_log record with final info
     UPDATE maintenance.process_log
        SET "date" = Clock_timestamp()
-           ,step = l_step
-           ,outcome = l_status
-           ,note = Concat('Table: [fdr3.flow], Deleted batches: [', l_deleted_batches,
-               '], Deleted records: [', l_deleted_records,
-               '], Error: ', SQLERRM)
-     WHERE id = l_process_log_id;
-
-    -- Log end process
-    l_step := 'END';
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,l_status);
-
-    RAISE WARNING 'Error on cleaning operation for [fdr3.flow] table: %', l_error_msg;
+           ,outcome = 'OK'
+     WHERE id = l_end_process_log_id;
+    COMMIT;
 
 END;
 $function$ LANGUAGE 'plpgsql'
