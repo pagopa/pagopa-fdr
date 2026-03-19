@@ -159,3 +159,8 @@ BEGIN
 END;
 $function$ LANGUAGE 'plpgsql'
 GO
+
+--changeset liquibase:fdr3-202603110002-02 endDelimiter:GO
+GRANT EXECUTE
+   ON PROCEDURE maintenance.delete_unpublished_flows(INTEGER, BIGINT, TIMESTAMP, TIMESTAMP)
+   TO azureuser;
