@@ -3,6 +3,7 @@ package it.gov.pagopa.fdr.util.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -24,9 +25,11 @@ public class PastLimitValidator implements ConstraintValidator<PastDateLimit, Op
       return true;
     }
     Instant flowDate = optionalFlowDate.get();
-    Instant limitDate = Instant.now().atZone(ZoneOffset.UTC).minus(relativeValue, relativeUnit).toInstant();
+    Instant limitDate = Instant.now().atZone(ZoneOffset.UTC).minus(relativeValue, relativeUnit)
+            .toLocalDate()
+            .atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
 
-    boolean isValid = !flowDate.isBefore(limitDate);
+    boolean isValid = flowDate.compareTo(limitDate) <= 0;
 
     if (!isValid) {
       context.disableDefaultConstraintViolation();
