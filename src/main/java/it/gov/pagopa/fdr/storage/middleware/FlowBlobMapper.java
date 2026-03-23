@@ -5,6 +5,7 @@ import it.gov.pagopa.fdr.controller.model.flow.Sender;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.storage.model.PaymentBlob;
 import java.math.RoundingMode;
@@ -57,7 +58,7 @@ public interface FlowBlobMapper {
         .build();
   }
 
-  default PaymentBlob toPaymentBlob(PaymentEntity elem) {
+  default PaymentBlob toPaymentBlob(PaymentFullViewEntity elem) {
     return PaymentBlob.builder()
         .index(elem.getId().getIndex())
         .iur(elem.getIur())

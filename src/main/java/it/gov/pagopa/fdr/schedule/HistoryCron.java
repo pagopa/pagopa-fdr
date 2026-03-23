@@ -6,10 +6,12 @@ import io.quarkus.runtime.configuration.DurationConverter;
 import io.quarkus.scheduler.Scheduled;
 import it.gov.pagopa.fdr.repository.FlowRepository;
 import it.gov.pagopa.fdr.repository.FlowToHistoryRepository;
+import it.gov.pagopa.fdr.repository.PaymentFullViewRepository;
 import it.gov.pagopa.fdr.repository.PaymentRepository;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
 import it.gov.pagopa.fdr.repository.entity.FlowToHistoryEntity;
 import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
 import it.gov.pagopa.fdr.storage.HistoryBlobStorageService;
 import it.gov.pagopa.fdr.storage.middleware.FlowBlobMapper;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
@@ -36,7 +38,7 @@ public class HistoryCron {
   private final HistoryBlobStorageService historyBlobStorageService;
   private final FlowToHistoryRepository flowToHistoryRepository;
   private final FlowRepository flowRepository;
-  private final PaymentRepository paymentRepository;
+  private final PaymentFullViewRepository paymentRepository;
   private final FlowBlobMapper flowBlobMapper;
 
   @ConfigProperty(name = "schedule.history.size")
@@ -57,7 +59,7 @@ public class HistoryCron {
           FlowToHistoryRepository flowToHistoryRepository,
           FlowRepository flowRepository,
           HistoryBlobStorageService historyBlobStorageService,
-          PaymentRepository paymentRepository,
+          PaymentFullViewRepository paymentRepository,
           FlowBlobMapper flowBlobMapper) {
 
     this.log = log;
@@ -182,7 +184,7 @@ public class HistoryCron {
   private List<PaymentBlob> handlePage(Long flowId) {
     int page = 0;
     List<PaymentBlob> result = new ArrayList<>();
-    PanacheQuery<PaymentEntity> payments;
+    PanacheQuery<PaymentFullViewEntity> payments;
     do {
       payments = paymentRepository.findPageByFlowId(flowId, page, paymentPageSize);
       List<PaymentBlob> paymentsBlob =
