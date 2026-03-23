@@ -27,9 +27,15 @@ public class PastLimitValidator implements ConstraintValidator<PastDateLimit, Op
     Instant flowDate = optionalFlowDate.get();
     Instant limitDate = Instant.now().atZone(ZoneOffset.UTC).minus(relativeValue, relativeUnit)
             .toLocalDate()
-            .atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
+            .atTime(LocalTime.MIN).atZone(ZoneOffset.UTC).toInstant();
 
-    boolean isValid = flowDate.compareTo(limitDate) <= 0;
+    // flowDate must be after or equal to 30th days from now at 00:00
+    // ex:
+    // flowDate: 2026-01-31 00:00:00Z
+    // now: 2026-03-23 06:37:00Z
+    // then limitDate: 2026-02-21 00:00:00Z
+    // so flowDate must be after 2026-02-21 00:00:00Z to be valid
+    boolean isValid = flowDate.compareTo(limitDate) >= 0;
 
     if (!isValid) {
       context.disableDefaultConstraintViolation();
