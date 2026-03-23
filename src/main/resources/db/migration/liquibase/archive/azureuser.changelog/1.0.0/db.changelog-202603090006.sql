@@ -219,6 +219,7 @@ BEGIN
                            '], Archived batches: [', l_archived_batches,
                            '], Archived records: [', l_archived_records, ']')
                  WHERE id = l_operation_process_log_id;
+                COMMIT;
 
             -- Catch SQLERRM and separately handle errors (in order to commit process_log record)
             EXCEPTION WHEN OTHERS THEN
