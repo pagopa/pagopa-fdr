@@ -2,7 +2,7 @@
 
 -- ## SCHEMAS ##
 --changeset liquibase:archive-azureuser-202603090003-01
-CREATE SCHEMA remote_fdr3;
+CREATE SCHEMA IF NOT EXISTS remote_fdr3;
 
 -- ## MODULES ##
 --changeset liquibase:archive-azureuser-202603090003-02
