@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS maintenance.process_log (
     statement CHARACTER VARYING,
     CONSTRAINT process_log_pk PRIMARY KEY (id)
 );
-COMMENT ON TABLE maintenance.partition_status
+COMMENT ON TABLE maintenance.process_log
         IS 'Table containing all log entries generated during maintenance processes';
 
 CREATE TABLE IF NOT EXISTS maintenance.partition_config (
