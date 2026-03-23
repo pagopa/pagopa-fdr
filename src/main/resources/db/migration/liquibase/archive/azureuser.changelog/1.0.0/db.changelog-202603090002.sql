@@ -12,7 +12,7 @@ CREATE SEQUENCE IF NOT EXISTS maintenance.log_sequence
 -- ## TABLES ##
 --changeset liquibase:archive-azureuser-202603090002-02
 CREATE TABLE IF NOT EXISTS maintenance.process_log (
-    id BIGINT DEFAULT nextval('log_sequence'::regclass) NOT NULL,
+    id BIGINT DEFAULT nextval('maintenance.log_sequence'::regclass) NOT NULL,
     date TIMESTAMP without time zone NOT NULL,
     execution_id CHARACTER VARYING(50) NOT NULL,
     "user" CHARACTER VARYING(50) NOT NULL,
