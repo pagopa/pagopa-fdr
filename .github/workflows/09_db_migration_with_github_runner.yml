@@ -117,6 +117,10 @@ jobs:
             liquibaseSchemaName: $LIQUIBASE_SCHEMA
             liquibase.hub.mode: OFF
             log-level: INFO
+            fdr3-online-host: ${{ vars.POSTGRES_DB_HOST }}
+            fdr3-online-port: ${{ vars.POSTGRES_DB_PORT }}
+            fdr3-online-password: ${{ secrets.POSTGRES_DB_PASSWORD }}
+            azureuser-online-password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
           EOF
           liquibase --defaultsFile=$PROPS_FILE update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
           rm $PROPS_FILE
