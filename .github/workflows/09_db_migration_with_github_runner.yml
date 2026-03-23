@@ -118,7 +118,6 @@ jobs:
             liquibase.hub.mode: OFF
             log-level: INFO
           EOF
-          liquibase --defaultsFile=$PROPS_FILE update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
           liquibase \
             --defaultsFile=$PROPS_FILE \
             -Dfdr3-online-host="${{ vars.POSTGRES_DB_HOST }}" \
