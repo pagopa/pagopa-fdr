@@ -80,4 +80,12 @@ public class PaymentFullViewRepository extends Repository implements PanacheRepo
     return getPagedResult(resultPage);
   }
 
+  public PanacheQuery<PaymentFullViewEntity> findPageByFlowId(Long flowId, int pageNumber, int pageSize) {
+
+    Page page = Page.of(pageNumber, pageSize);
+    Sort sort = getSort(SortField.of(INDEX, Sort.Direction.Ascending));
+
+    return find(QUERY_GET_BY_FLOW_ID, sort, flowId).page(page);
+  }
+
 }

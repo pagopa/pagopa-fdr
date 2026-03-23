@@ -10,7 +10,7 @@ COPY src /code/src
 ARG QUARKUS_PROFILE
 ARG APP_NAME
 
-RUN ./mvnw package -DskipTests=true -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE
+RUN ./mvnw package -DskipTests=true -DskipOpenAPI=true -Dquarkus.application.name=$APP_NAME -Dquarkus.profile=$QUARKUS_PROFILE
 
 FROM registry.access.redhat.com/ubi8/openjdk-17:1.14@sha256:79585ca02551ecff9d368905d7ce387232b9fd328256e7a715ae3c4ec7b086d3
 
