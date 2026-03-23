@@ -13,7 +13,7 @@ CREATE SERVER IF NOT EXISTS remote_fdr3
 CREATE USER MAPPING IF NOT EXISTS
        FOR azureuser
        SERVER remote_fdr3
-       OPTIONS (user 'azureuser', password '${fdr3-online-password}');
+       OPTIONS (user 'azureuser', password '${azureuser-online-password}');
 
 --changeset liquibase:archive-azureuser-202603090003-03
 CREATE SERVER IF NOT EXISTS remote_postgres
