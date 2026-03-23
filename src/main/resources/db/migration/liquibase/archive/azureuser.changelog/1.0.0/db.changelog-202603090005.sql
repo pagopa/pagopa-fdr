@@ -120,7 +120,7 @@ BEGIN
                         ,p_schema_name
                         ,p_table_name
                         ,p_schema_name
-                        ,p_partition_name)
+                        ,p_partition_name);
             EXECUTE Format(
                         'DROP TABLE IF EXISTS %I.%I'
                         ,p_schema_name
