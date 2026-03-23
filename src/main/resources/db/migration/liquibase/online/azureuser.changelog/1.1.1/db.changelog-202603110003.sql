@@ -9,6 +9,9 @@ DECLARE
     l_process_name TEXT := 'execute_data_cleansing';
     l_execution_id TEXT := Gen_random_uuid()::TEXT;
 
+    l_operation_process_log_id BIGINT;
+    l_end_process_log_id BIGINT;
+
     l_step TEXT := 'START';
     l_status TEXT := 'OK';
     l_record RECORD;
@@ -29,24 +32,41 @@ DECLARE
 BEGIN
 
     -- Log start process
-    BEGIN
-        INSERT INTO maintenance.process_log(
-                     "date"
-                     ,execution_id
-                     ,"user"
-                     ,process
-                     ,step
-                     ,outcome
-                     ,note)
-            VALUES (Clock_timestamp()
-                    ,l_execution_id
-                    ,l_execution_user
-                    ,l_process_name
-                    ,l_step
-                    ,l_status
-                    ,NULL);
-    END;
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,l_execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,l_step
+                 ,l_status);
+    COMMIT;
 
+    -- Log end process, pre-written with incomplete status
+    INSERT INTO maintenance.process_log(
+                 "date"
+                 ,execution_id
+                 ,"user"
+                 ,process
+                 ,step
+                 ,outcome)
+         VALUES (Clock_timestamp()
+                 ,l_execution_id
+                 ,l_execution_user
+                 ,l_process_name
+                 ,'END'
+                 ,'KO')
+      RETURNING id
+                INTO l_end_process_log_id;
+    COMMIT;
+
+
+    -- Retrieve retention configuration for required table
     FOR l_record IN
         SELECT cfg.schema_name
                ,cfg.table_name
@@ -60,17 +80,38 @@ BEGIN
          ORDER BY cfg.execution_order ASC
     LOOP
 
+        -- Creating process_log record and using the generated ID in order to update the same record
+        l_step := 'PRUNING_DATA';
+        INSERT INTO maintenance.process_log(
+                     "date"
+                     ,execution_id
+                     ,"user"
+                     ,process
+                     ,step
+                     ,outcome
+                     ,note)
+              VALUES (Clock_timestamp()
+                      ,l_execution_id
+                      ,l_execution_user
+                      ,l_process_name
+                      ,l_step
+                      ,l_status
+                      ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'));
+           RETURNING id
+                     INTO l_operation_process_log_id;
+        COMMIT;
+
         BEGIN
 
             --
             RAISE NOTICE 'Analyzing [%.%] table for data cleansing', l_record.schema_name, l_record.table_name;
-            l_step := 'PRUNE_DATA';
+
             l_status := 'OK';
             l_has_error := false;
             l_error_msg := NULL;
             l_stmt := NULL;
 
-            --
+            -- Check for partition on physical catalog
             IF NOT EXISTS (
                 SELECT 1
                   FROM pg_class rel
@@ -81,56 +122,38 @@ BEGIN
             ) THEN
 
                 -- Log skipped data cleansing step on non-existing table
-                l_status := 'SKIPPED';
-                INSERT INTO maintenance.process_log(
-                             "date"
-                             ,execution_id
-                             ,"user"
-                             ,process
-                             ,step
-                             ,outcome
-                             ,note)
-                     VALUES (Clock_timestamp()
-                             ,l_execution_id
-                             ,l_execution_user
-                             ,l_process_name
-                             ,l_step
-                             ,l_status
-                             ,Concat('No table [', l_record.schema_name, '.', l_record.table_name, '] found in physical catalog.'));
                 RAISE NOTICE 'Skipping cleansing for table [%.%] because not existent in [pg_class] table.',  l_record.schema_name,  l_record.table_name;
+                UPDATE maintenance.process_log
+                   SET "date" = Clock_timestamp()
+                       ,outcome = 'SKIPPED'
+                       ,note = Concat('No table [', l_record.schema_name, '.', l_record.table_name, '] found in physical catalog.')
+                 WHERE id = l_operation_process_log_id;
+                COMMIT;
 
             ELSE
 
+                -- Retrieve batch boundaries
                 l_stmt := Format('
                     SELECT Min(%I), Max(%I)
                       FROM %I.%I
-                     WHERE %I < Date_trunc(%L, Now()::DATE - (''INTERVAL '' || %L || '' '' || %L))
+                     WHERE %I < Date_trunc(%L, Now()::DATE - (%L * 'INTERVAL 1 ' || %L))
                 ', l_record.batch_column, l_record.batch_column, l_record.schema_name, l_record.table_name, l_record.retention_date_column
                  , l_record.retention_type, l_record.retention, l_record.retention_type);
                 EXECUTE l_stmt INTO l_min_id, l_max_id;
 
+                -- If no boundaries are found, no data is required to being cleaned
                 IF l_min_id IS NULL OR l_max_id IS NULL
                 THEN
 
-                    l_status := 'SKIPPED';
-                    INSERT INTO maintenance.process_log(
-                                    "date"
-                                    ,execution_id
-                                    ,"user"
-                                    ,process
-                                    ,step
-                                    ,outcome
-                                    ,note
-                                    ,statement)
-                        VALUES (Clock_timestamp()
-                                ,l_execution_id
-                                ,l_execution_user
-                                ,l_process_name
-                                ,l_step
-                                ,l_status
-                                ,Concat('No data found in table [', l_record.schema_name, '.', l_record.table_name, '].')
-                                ,l_stmt);
+                    -- Update the same process_log record with updated info, setting date with current timestamp
                     RAISE NOTICE 'No data to clean found for table [%.%]', l_record.schema_name, l_record.table_name;
+                    UPDATE maintenance.process_log
+                       SET "date" = Clock_timestamp()
+                           ,outcome = 'SKIPPED'
+                           ,note = Concat('No data found in table [', l_record.schema_name, '.', l_record.table_name, '].')
+                           ,statement = l_stmt
+                     WHERE id = l_operation_process_log_id;
+                    COMMIT;
 
                 ELSE
 
@@ -138,7 +161,7 @@ BEGIN
                     WHILE l_current_start_id <= l_max_id
                     LOOP
 
-                        --
+                        -- Delete records in batch using the
                         l_current_end_id := l_current_start_id + l_record.batch_size;
                         l_stmt := Format('
                             DELETE FROM %I.%I
@@ -151,24 +174,15 @@ BEGIN
                         GET DIAGNOSTICS l_batch_rows = ROW_COUNT;
                         l_cleaned_rows := l_cleaned_rows + l_batch_rows;
 
-                        --
-                        INSERT INTO maintenance.process_log(
-                                        "date"
-                                        ,execution_id
-                                        ,"user"
-                                        ,process
-                                        ,step
-                                        ,outcome
-                                        ,note
-                                        ,statement)
-                              VALUES (Clock_timestamp()
-                                      ,l_execution_id
-                                      ,l_execution_user
-                                      ,l_process_name
-                                      ,l_step
-                                      ,l_status
-                                      ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']')
-                                      ,Concat(l_stmt, ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']'));
+                        -- Update the same process_log record with updated info, setting date with current timestamp
+                        UPDATE maintenance.process_log
+                           SET "date" = Clock_timestamp()
+                               ,outcome = l_status
+                               ,note = ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']')
+                               ,statement = Concat(l_stmt, ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']')
+                         WHERE id = l_operation_process_log_id;
+                        COMMIT;
+
                     END LOOP;
 
                     IF l_cleaned_rows > 0
