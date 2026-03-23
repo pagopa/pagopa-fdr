@@ -46,7 +46,7 @@ IMPORT FOREIGN SCHEMA fdr3
        FROM SERVER remote_fdr3
        INTO remote_fdr3;
 
---changeset liquibase:archive-azureuser-202603110002-06
+--changeset liquibase:archive-azureuser-202603090003-06
 IMPORT FOREIGN SCHEMA cron
        LIMIT TO (job_run_details)
        FROM SERVER remote_postgres
