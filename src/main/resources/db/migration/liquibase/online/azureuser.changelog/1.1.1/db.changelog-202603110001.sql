@@ -1,7 +1,11 @@
 --liquibase formatted sql
 
--- ## SEQUENCES ##
+-- ## EXTENSIONS ##
 --changeset liquibase:azureuser-202603110001-01
+CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+
+-- ## SEQUENCES ##
+--changeset liquibase:azureuser-202603110001-02
 CREATE SEQUENCE IF NOT EXISTS maintenance.log_sequence
        INCREMENT 1
        START 1
@@ -10,7 +14,7 @@ CREATE SEQUENCE IF NOT EXISTS maintenance.log_sequence
        CACHE 1;
 
 -- ## TABLES ##
---changeset liquibase:azureuser-202603110001-02
+--changeset liquibase:azureuser-202603110001-03
 CREATE TABLE IF NOT EXISTS maintenance.process_log (
     id BIGINT DEFAULT nextval('maintenance.log_sequence'::regclass) NOT NULL,
     date TIMESTAMP without time zone NOT NULL,
