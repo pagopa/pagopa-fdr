@@ -240,7 +240,7 @@ BEGIN
                            'Table: [', l_record.src_schema_name, '.', l_record.src_table_name,
                            '], Archived batches: [', l_archived_batches,
                            '], Archived records: [', l_archived_records,
-                           '], Error: ', SQLERRM);
+                           '], Error: ', SQLERRM)
                  WHERE id = l_operation_process_log_id;
                  RAISE WARNING 'An error occurred during delete partition [%] for parent table [%.%]: %', p_partition_name, p_schema_name, p_table_name, l_error_msg;
             END IF;
@@ -304,9 +304,15 @@ DECLARE
     l_process_name TEXT := 'execute_daily_copy';
     l_execution_id TEXT := Gen_random_uuid()::TEXT;
 
+    l_end_process_log_id BIGINT;
+
     l_step TEXT := 'START';
     l_status TEXT := 'OK';
     l_record RECORD;
+
+    l_is_failed BOOLEAN := false;
+    l_has_error BOOLEAN;
+    l_error_msg TEXT;
 
 BEGIN
 
