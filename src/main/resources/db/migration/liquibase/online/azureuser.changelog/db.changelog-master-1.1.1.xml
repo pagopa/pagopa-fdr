@@ -7,7 +7,7 @@
 
   <property name="version" value="1.1.1" global="false"/>
 
-  <include file="./db.changelog-master-1.0.0.xml"/>
+  <!-- Not including 1.0.0 changelog because it MUST tbe executed on "postgres" DB instead of "fdr3" DB -->
   <include file="./${version}/db.changelog-202603110001.sql" labels="${version}"/>
   <include file="./${version}/db.changelog-202603110002.sql" labels="${version}"/>
   <include file="./${version}/db.changelog-202603110003.sql" labels="${version}"/>
