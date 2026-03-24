@@ -18,7 +18,7 @@ CREATE USER MAPPING IF NOT EXISTS
 --changeset liquibase:archive-azureuser-202603090003-03
 CREATE SERVER IF NOT EXISTS remote_postgres
        FOREIGN DATA WRAPPER postgres_fdw
-       OPTIONS (host '${fdr3-online-host}', port '${fdr3-online-port}', dbname 'postgres', sslmode 'require');
+       OPTIONS (host 'localhost', port '${fdr3-online-port}', dbname 'postgres', sslmode 'require');
 
 CREATE USER MAPPING IF NOT EXISTS
        FOR azureuser
