@@ -160,7 +160,7 @@ BEGIN
                    ,note = Concat('Table: [', l_record.schema_name, '.', l_record.table_name,
                                '], Partition: [', l_record.partition_name,
                                '], Step: [', l_step,
-                               '], Error: ', l_error_msg));
+                               '], Error: ', l_error_msg)
              WHERE id = l_operation_process_log_id;
              RAISE WARNING 'An error occurred during delete partition [%] for parent table [%.%]: %', p_partition_name, p_schema_name, p_table_name, l_error_msg;
         END IF;
@@ -173,7 +173,7 @@ BEGIN
         UPDATE maintenance.process_log
            SET "date" = Clock_timestamp()
                ,outcome = 'SKIPPED'
-               ,note = Concat('Partition not found or already deleted. Parent table: [', p_schema_name, '.', p_table_name, '], Partition: [', p_partition_name, ']'));
+               ,note = Concat('Partition not found or already deleted. Parent table: [', p_schema_name, '.', p_table_name, '], Partition: [', p_partition_name, ']')
           WHERE id = l_end_process_log_id;
         COMMIT;
     END IF;
@@ -210,8 +210,15 @@ DECLARE
     l_table_name TEXT;
     l_partition_name TEXT;
 
+    l_end_process_log_id BIGINT;
+
     l_step TEXT := 'START';
+    l_status TEXT := 'OK';
     l_record RECORD;
+
+    l_is_failed BOOLEAN := false;
+    l_has_error BOOLEAN;
+    l_error_msg TEXT;
 
 BEGIN
 
@@ -301,7 +308,7 @@ BEGIN
             UPDATE maintenance.process_log
                SET "date" = Clock_timestamp()
                    ,outcome = l_status
-                   ,note = Concat('Step: [', l_step, '], Error: ', l_error_msg));
+                   ,note = Concat('Step: [', l_step, '], Error: ', l_error_msg)
              WHERE id = l_end_process_log_id;
             RAISE WARNING 'An error occurred during delete expired partitions: %', SQLERRM;
 
