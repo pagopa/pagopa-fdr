@@ -29,13 +29,21 @@ on:
       db_type:
         required: true
         type: choice
-        description: Select the DB type
+        description: Select the DB type (from different PGFlex servers)
         options:
           - online
           - archive
+      db_name:
+        required: true
+        type: choice
+        description: Select the DB name (from same PGFlex server)
+        options:
+          - fdr3
+          - postgres
+        default: "fdr3"
       db_version:
         required: true
-        description: Db version (👀 src/main/resources/db/migration/liquibase )
+        description: DB version (👀 src/main/resources/db/migration/liquibase)
         type: string
         default: "1.1.0"
         
@@ -91,9 +99,9 @@ jobs:
           CLASSPATH="./src/main/resources/db/migration/liquibase/${{ inputs.db_type }}/${{ inputs.user }}.changelog"
           PROPS_FILE="liquibase.properties"
           if [[ "${{ inputs.db_type }}" == "online" ]]; then
-            URL="jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/${{ vars.POSTGRES_DB_NAME }}?prepareThreshold=0&currentSchema=${{ vars.POSTGRES_DB_SCHEMA }}"
+            URL="jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/${{ inputs.db_name }}?prepareThreshold=0"
           elif [[ "${{ inputs.db_type }}" == "archive" ]]; then
-            URL="jdbc:postgresql://${{ vars.POSTGRES_ARCHIVE_DB_HOST }}:${{ vars.POSTGRES_ARCHIVE_DB_PORT }}/${{ vars.POSTGRES_DB_NAME }}?prepareThreshold=0&currentSchema=${{ vars.POSTGRES_DB_SCHEMA }}"
+            URL="jdbc:postgresql://${{ vars.POSTGRES_ARCHIVE_DB_HOST }}:${{ vars.POSTGRES_ARCHIVE_DB_PORT }}/${{ inputs.db_name }}?prepareThreshold=0"
           fi
           if [[ "${{ inputs.user }}" == "azureuser" ]]; then
             USERNAME="${{ vars.POSTGRES_DB_ADMIN_USERNAME }}"
