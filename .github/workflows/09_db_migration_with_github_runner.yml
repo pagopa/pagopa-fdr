@@ -79,6 +79,11 @@ jobs:
     name: DB migration
     environment: ${{ inputs.environment }}
     steps:
+      - name: Print execution variables
+        run: |
+          echo "Executing DB migration with Liquibase, using the following variables:"
+          echo "User: [${{ inputs.user }}], DB Type: [${{ inputs.db_type }}], DB Name: [${{ inputs.db_name }}], Version: [${{ inputs.db_version }}]"
+
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
