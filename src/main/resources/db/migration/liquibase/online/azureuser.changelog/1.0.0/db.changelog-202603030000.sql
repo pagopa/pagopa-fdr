@@ -1,5 +1,11 @@
 --liquibase formatted sql
 
+-- =============================================
+--                    NOTE
+-- This script MUST be executed on "postgres"
+--  database in "online" PGFlex server.
+-- =============================================
+
 -- ## SEQUENCES ##
 --changeset liquibase:admin-202603030000-01
 CREATE EXTENSION IF NOT EXISTS pg_cron;
