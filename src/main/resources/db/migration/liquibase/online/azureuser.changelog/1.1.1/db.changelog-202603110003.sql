@@ -15,6 +15,7 @@ DECLARE
     l_step TEXT := 'START';
     l_status TEXT := 'OK';
     l_record RECORD;
+    l_boundaries RECORD;
     l_stmt TEXT;
 
     l_min_id BIGINT;
@@ -96,14 +97,12 @@ BEGIN
                       ,l_process_name
                       ,l_step
                       ,l_status
-                      ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'));
+                      ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'))
            RETURNING id
                      INTO l_operation_process_log_id;
         COMMIT;
 
         BEGIN
-
-            --
             RAISE NOTICE 'Analyzing [%.%] table for data cleansing', l_record.schema_name, l_record.table_name;
 
             l_status := 'OK';
@@ -132,19 +131,25 @@ BEGIN
 
             ELSE
 
-                -- Retrieve batch boundaries
+                -- Build dynamic SQL for min/max boundaries
                 l_stmt := Format('
-                    SELECT Min(%I), Max(%I)
-                      FROM %I.%I
-                     WHERE %I < Date_trunc(%L, Now()::DATE - (%L * 'INTERVAL 1 ' || %L))
-                ', l_record.batch_column, l_record.batch_column, l_record.schema_name, l_record.table_name, l_record.retention_date_column
-                 , l_record.retention_type, l_record.retention, l_record.retention_type);
-                EXECUTE l_stmt INTO l_min_id, l_max_id;
+                    SELECT Min(%I) AS min_id, Max(%I) AS max_id
+                    FROM %I.%I
+                    WHERE %I < Now()::DATE - (%L * interval ''1 %s'')
+                ', l_record.batch_column, l_record.batch_column, l_record.schema_name, l_record.table_name
+                 , l_record.retention_date_column, l_record.retention, l_record.retention_type);
 
-                -- If no boundaries are found, no data is required to being cleaned
+                -- Use FOR ... IN EXECUTE to fetch into variables
+                l_min_id := NULL;
+                l_max_id := NULL;
+                FOR l_boundaries IN EXECUTE l_stmt
+				LOOP
+                    l_min_id := l_boundaries.min_id;
+                    l_max_id := l_boundaries.max_id;
+                END LOOP;
+
                 IF l_min_id IS NULL OR l_max_id IS NULL
                 THEN
-
                     -- Update the same process_log record with updated info, setting date with current timestamp
                     RAISE NOTICE 'No data to clean found for table [%.%]', l_record.schema_name, l_record.table_name;
                     UPDATE maintenance.process_log
@@ -156,12 +161,11 @@ BEGIN
                     COMMIT;
 
                 ELSE
-
                     l_current_start_id := l_min_id;
                     WHILE l_current_start_id <= l_max_id
                     LOOP
 
-                        -- Delete records in batch using the
+                        -- Delete records in batch using
                         l_current_end_id := l_current_start_id + l_record.batch_size;
                         l_stmt := Format('
                             DELETE FROM %I.%I
@@ -178,23 +182,20 @@ BEGIN
                         UPDATE maintenance.process_log
                            SET "date" = Clock_timestamp()
                                ,outcome = l_status
-                               ,note = ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']')
+                               ,note = Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']')
                                ,statement = Concat(l_stmt, ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']')
                          WHERE id = l_operation_process_log_id;
                         COMMIT;
 
+                        l_current_start_id := l_current_end_id;
                     END LOOP;
 
-                    IF l_cleaned_rows > 0
-                    THEN
-                        EXECUTE Format('
-                            ANALYZE %I.%I
-                        ', l_record.schema_name, l_record.table_name);
+                    IF l_cleaned_rows > 0 THEN
+                        EXECUTE Format('ANALYZE %I.%I', l_record.schema_name, l_record.table_name);
                         COMMIT;
                     END IF;
 
                 END IF;
-
             END IF;
 
         EXCEPTION WHEN OTHERS THEN
@@ -230,7 +231,7 @@ BEGIN
     END LOOP;
 
     -- Log end process
-    IF l_is_failed = true THEN
+    IF l_is_failed THEN
         l_status := 'KO';
     ELSE
         l_status := 'OK';
