@@ -1,7 +1,10 @@
 package it.gov.pagopa.fdr;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import it.gov.pagopa.fdr.test.util.MongoResource;
+import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +15,8 @@ import java.nio.file.Paths;
 import static io.restassured.RestAssured.given;
 
 @QuarkusTest
+@QuarkusTestResource(PostgresResource.class)
+@QuarkusTestResource(MongoResource.class)
 class OpenApiGenerationTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();

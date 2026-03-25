@@ -404,7 +404,45 @@
       },
       "Instant": {
         "type": "string",
-        "format": "date-time"
+        "format": "date-time",
+        "example": [
+          "2022-03-10T16:15:50Z"
+        ]
+      },
+      "InternalAddPaymentRequest": {
+        "type": "object",
+        "required": [
+          "payments"
+        ],
+        "properties": {
+          "payments": {
+            "type": "array",
+            "maxItems": 5000,
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/Payment"
+            },
+            "description": "The list of payments to be added on the draft flow (internal use)"
+          }
+        }
+      },
+      "InternalDeletePaymentRequest": {
+        "type": "object",
+        "required": [
+          "indexList"
+        ],
+        "properties": {
+          "indexList": {
+            "type": "array",
+            "maxItems": 5000,
+            "minItems": 1,
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "The list of payments indexes to be removed on the draft flow"
+          }
+        }
       },
       "LocalDate": {
         "type": "string",
@@ -1491,7 +1529,7 @@
   "info": {
     "title": "FDR - Flussi di Rendicontazione (ORGs)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.60"
+    "version": "1.2.1"
   },
   "servers": [
     {

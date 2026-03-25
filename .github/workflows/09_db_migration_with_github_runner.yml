@@ -80,6 +80,8 @@ jobs:
       - name: Run liquibase::migrate [${{ vars.POSTGRES_DB_USERNAME }} user]
         if: ${{ inputs.user == 'fdr3' }}
         shell: bash
+        env:
+            POSTGRES_DB_PASSWORD: ${{ secrets.POSTGRES_DB_PASSWORD }}
         run: |
           export PATH="$PATH:./liquibase-app"
 
@@ -89,7 +91,7 @@ jobs:
           url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/${{ vars.POSTGRES_DB_NAME }}?prepareThreshold=0&currentSchema=${{ vars.POSTGRES_DB_SCHEMA }}
           contexts: ${{ inputs.environment }}
           username: ${{ vars.POSTGRES_DB_USERNAME }}
-          password: ${{ secrets.POSTGRES_DB_PASSWORD }}
+          password: "$POSTGRES_DB_PASSWORD"
           defaultSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
           liquibaseSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
           liquibase.hub.mode: OFF
@@ -107,6 +109,8 @@ jobs:
       - name: Run liquibase::migrate [${{ vars.POSTGRES_DB_ADMIN_USERNAME }} user]
         if: ${{ inputs.user == 'admin' }}
         shell: bash
+        env:
+          POSTGRES_DB_ADMIN_PASSWORD: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
         run: |
           export PATH="$PATH:./liquibase-app"
 
@@ -116,7 +120,7 @@ jobs:
           url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/postgres?prepareThreshold=0
           contexts: ${{ inputs.environment }}
           username: ${{ vars.POSTGRES_DB_ADMIN_USERNAME }}
-          password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
+          password: "$POSTGRES_DB_ADMIN_PASSWORD"
           defaultSchemaName: public
           liquibaseSchemaName: public
           liquibase.hub.mode: OFF

@@ -9,24 +9,43 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import it.gov.pagopa.fdr.controller.InternalOrganizationsOperationsController;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
+import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
+import it.gov.pagopa.fdr.service.FlowService;
+import it.gov.pagopa.fdr.service.model.arguments.FindFlowsByFiltersArgs;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 import it.gov.pagopa.fdr.test.util.PostgresResource;
 import it.gov.pagopa.fdr.test.util.TestUtil;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
+import java.lang.reflect.Constructor;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 @Slf4j
 @QuarkusTest
@@ -1025,5 +1044,195 @@ class InternalOperationControllerTest {
         hasItem(
             hasProperty(
                 "message", equalTo("Bad request. The format of JSON request is not valid."))));
+  }
+
+  // ==================== getAllPublishedFlowsForInternalUse - Unit Tests ====================
+
+  @Nested
+  @DisplayName("getAllPublishedFlowsForInternalUse")
+  class GetAllPublishedFlowsForInternalUseTest {
+
+    private static final String ORGANIZATION_ID = "15376371009";
+    private static final String PSP_ID = "88888888888";
+    private static final long PAGE_NUMBER = 1L;
+    private static final long PAGE_SIZE = 50L;
+
+    private FlowService flowServiceMock;
+    private InternalOrganizationsOperationsController controller;
+
+    @BeforeEach
+    void setUpUnit() throws Exception {
+      flowServiceMock = mock(FlowService.class);
+      Constructor<InternalOrganizationsOperationsController> ctor =
+          InternalOrganizationsOperationsController.class.getDeclaredConstructor(FlowService.class);
+      ctor.setAccessible(true);
+      controller = ctor.newInstance(flowServiceMock);
+
+      when(flowServiceMock.getPaginatedPublishedFlowsForCI(any(FindFlowsByFiltersArgs.class)))
+          .thenReturn(PaginatedFlowsResponse.builder().count(0).data(List.of()).build());
+    }
+
+    @Test
+    @DisplayName("OK - date esplicite passate al service invariate")
+    void withExplicitDates_passesThemToService() {
+      Instant explicitPublishedGt = Instant.parse("2026-01-15T08:00:00Z");
+      Instant explicitFlowDate = Instant.parse("2026-01-10T00:00:00Z");
+
+      controller.getAllPublishedFlowsForInternalUse(
+          ORGANIZATION_ID,
+          PSP_ID,
+          Optional.of(explicitPublishedGt),
+          Optional.of(explicitFlowDate),
+          PAGE_NUMBER,
+          PAGE_SIZE);
+
+      ArgumentCaptor<FindFlowsByFiltersArgs> captor =
+          ArgumentCaptor.forClass(FindFlowsByFiltersArgs.class);
+      verify(flowServiceMock).getPaginatedPublishedFlowsForCI(captor.capture());
+
+      FindFlowsByFiltersArgs args = captor.getValue();
+      assertEquals(ORGANIZATION_ID, args.getOrganizationId());
+      assertEquals(PSP_ID, args.getPspId());
+      assertEquals(explicitPublishedGt, args.getPublishedGt());
+      assertEquals(explicitFlowDate, args.getFlowDate());
+      assertEquals(PAGE_NUMBER, args.getPageNumber());
+      assertEquals(PAGE_SIZE, args.getPageSize());
+    }
+
+    @Test
+    @DisplayName("OK - Optional vuoti usano la data di default (30gg fa mezzanotte UTC)")
+    void withEmptyOptionals_usesDefaultDate() {
+      Instant beforeCall = Instant.now();
+
+      controller.getAllPublishedFlowsForInternalUse(
+          ORGANIZATION_ID, PSP_ID, Optional.empty(), Optional.empty(), PAGE_NUMBER, PAGE_SIZE);
+
+      Instant afterCall = Instant.now();
+
+      ArgumentCaptor<FindFlowsByFiltersArgs> captor =
+          ArgumentCaptor.forClass(FindFlowsByFiltersArgs.class);
+      verify(flowServiceMock).getPaginatedPublishedFlowsForCI(captor.capture());
+
+      FindFlowsByFiltersArgs args = captor.getValue();
+
+      Instant expectedLower =
+          beforeCall.atZone(ZoneOffset.UTC).minusDays(30).toLocalDate()
+              .atTime(LocalTime.MIN).atZone(ZoneOffset.UTC).toInstant();
+      Instant expectedUpper =
+          afterCall.atZone(ZoneOffset.UTC).minusDays(30).toLocalDate()
+              .atTime(LocalTime.MIN).atZone(ZoneOffset.UTC).toInstant();
+
+      assertTrue(
+          !args.getPublishedGt().isBefore(expectedLower)
+              && !args.getPublishedGt().isAfter(expectedUpper),
+          "publishedGt default fuori range atteso");
+      assertTrue(
+          !args.getFlowDate().isBefore(expectedLower)
+              && !args.getFlowDate().isAfter(expectedUpper),
+          "flowDate default fuori range atteso");
+    }
+
+    @Test
+    @DisplayName("OK - publishedGt esplicito, flowDate di default")
+    void withOnlyPublishedGtPresent_usesDefaultForFlowDate() {
+      Instant explicitPublishedGt = Instant.parse("2026-02-01T10:00:00Z");
+      Instant beforeCall = Instant.now();
+
+      controller.getAllPublishedFlowsForInternalUse(
+          ORGANIZATION_ID,
+          PSP_ID,
+          Optional.of(explicitPublishedGt),
+          Optional.empty(),
+          PAGE_NUMBER,
+          PAGE_SIZE);
+
+      Instant afterCall = Instant.now();
+
+      ArgumentCaptor<FindFlowsByFiltersArgs> captor =
+          ArgumentCaptor.forClass(FindFlowsByFiltersArgs.class);
+      verify(flowServiceMock).getPaginatedPublishedFlowsForCI(captor.capture());
+
+      FindFlowsByFiltersArgs args = captor.getValue();
+      assertEquals(explicitPublishedGt, args.getPublishedGt());
+
+      Instant expectedLower =
+          beforeCall.atZone(ZoneOffset.UTC).minusDays(30).toLocalDate()
+              .atTime(LocalTime.MIN).atZone(ZoneOffset.UTC).toInstant();
+      Instant expectedUpper =
+          afterCall.atZone(ZoneOffset.UTC).minusDays(30).toLocalDate()
+              .atTime(LocalTime.MIN).atZone(ZoneOffset.UTC).toInstant();
+
+      assertTrue(
+          !args.getFlowDate().isBefore(expectedLower) && !args.getFlowDate().isAfter(expectedUpper),
+          "flowDate default fuori range atteso");
+    }
+
+    @Test
+    @DisplayName("OK - flowDate esplicito, publishedGt di default")
+    void withOnlyFlowDatePresent_usesDefaultForPublishedGt() {
+      Instant explicitFlowDate = Instant.parse("2026-02-10T00:00:00Z");
+      Instant beforeCall = Instant.now();
+
+      controller.getAllPublishedFlowsForInternalUse(
+          ORGANIZATION_ID,
+          PSP_ID,
+          Optional.empty(),
+          Optional.of(explicitFlowDate),
+          PAGE_NUMBER,
+          PAGE_SIZE);
+
+      Instant afterCall = Instant.now();
+
+      ArgumentCaptor<FindFlowsByFiltersArgs> captor =
+          ArgumentCaptor.forClass(FindFlowsByFiltersArgs.class);
+      verify(flowServiceMock).getPaginatedPublishedFlowsForCI(captor.capture());
+
+      FindFlowsByFiltersArgs args = captor.getValue();
+      assertEquals(explicitFlowDate, args.getFlowDate());
+
+      Instant expectedLower =
+          beforeCall.atZone(ZoneOffset.UTC).minusDays(30).toLocalDate()
+              .atTime(LocalTime.MIN).atZone(ZoneOffset.UTC).toInstant();
+      Instant expectedUpper =
+          afterCall.atZone(ZoneOffset.UTC).minusDays(30).toLocalDate()
+              .atTime(LocalTime.MIN).atZone(ZoneOffset.UTC).toInstant();
+
+      assertTrue(
+          !args.getPublishedGt().isBefore(expectedLower)
+              && !args.getPublishedGt().isAfter(expectedUpper),
+          "publishedGt default fuori range atteso");
+    }
+
+    @Test
+    @DisplayName("OK - la risposta del service viene restituita invariata")
+    void returnsServiceResponse() {
+      PaginatedFlowsResponse expected =
+          PaginatedFlowsResponse.builder().count(5L).data(List.of()).build();
+      when(flowServiceMock.getPaginatedPublishedFlowsForCI(any(FindFlowsByFiltersArgs.class)))
+          .thenReturn(expected);
+
+      PaginatedFlowsResponse actual =
+          controller.getAllPublishedFlowsForInternalUse(
+              ORGANIZATION_ID, PSP_ID, Optional.empty(), Optional.empty(), PAGE_NUMBER, PAGE_SIZE);
+
+      assertNotNull(actual);
+      assertEquals(expected, actual);
+      assertEquals(5L, actual.getCount());
+    }
+
+    @Test
+    @DisplayName("OK - pspId nullo passato al service invariato")
+    void withNullPspId_passesNullToService() {
+      controller.getAllPublishedFlowsForInternalUse(
+          ORGANIZATION_ID, null, Optional.empty(), Optional.empty(), PAGE_NUMBER, PAGE_SIZE);
+
+      ArgumentCaptor<FindFlowsByFiltersArgs> captor =
+          ArgumentCaptor.forClass(FindFlowsByFiltersArgs.class);
+      verify(flowServiceMock).getPaginatedPublishedFlowsForCI(captor.capture());
+
+      FindFlowsByFiltersArgs args = captor.getValue();
+      assertEquals(ORGANIZATION_ID, args.getOrganizationId());
+      assertNull(args.getPspId());
+    }
   }
 }
