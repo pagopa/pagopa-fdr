@@ -21,5 +21,5 @@ SELECT cron.schedule_in_database
 SELECT cron.schedule_in_database
        ('execute_data_cleansing'
         ,'00 02 * * *'
-        ,$$CALL maintenance.execute_data_cleansing();$$
+        ,$$CALL maintenance.execute_data_cleansing()$$
         ,'fdr3');
