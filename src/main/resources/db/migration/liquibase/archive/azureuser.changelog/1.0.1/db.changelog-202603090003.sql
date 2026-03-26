@@ -2,17 +2,17 @@
 
 -- ## SCHEMAS ##
 --changeset liquibase:archive-azureuser-202603090003-01
-CREATE SCHEMA IF NOT EXISTS remote_fdr3;
+CREATE SCHEMA IF NOT EXISTS remote_online_db;
 
 -- ## MODULES ##
 --changeset liquibase:archive-azureuser-202603090003-02
-CREATE SERVER IF NOT EXISTS remote_fdr3
+CREATE SERVER IF NOT EXISTS remote_online_db
        FOREIGN DATA WRAPPER postgres_fdw
        OPTIONS (host '${fdr3-online-host}', port '${fdr3-online-port}', dbname 'fdr3', sslmode 'require');
 
 CREATE USER MAPPING IF NOT EXISTS
        FOR azureuser
-       SERVER remote_fdr3
+       SERVER remote_online_db
        OPTIONS (user 'azureuser', password '${azureuser-online-password}');
 
 --changeset liquibase:archive-azureuser-202603090003-03
@@ -28,11 +28,11 @@ CREATE USER MAPPING IF NOT EXISTS
 -- ## GRANTS ##
 --changeset liquibase:archive-azureuser-202603090003-04
 GRANT USAGE
-      ON FOREIGN SERVER remote_fdr3
+      ON FOREIGN SERVER remote_online_db
       TO azureuser;
 
 GRANT USAGE
-      ON FOREIGN SERVER remote_fdr3
+      ON FOREIGN SERVER remote_online_db
       TO fdr3;
 
 GRANT USAGE
@@ -43,8 +43,8 @@ GRANT USAGE
 --changeset liquibase:archive-azureuser-202603090003-05
 IMPORT FOREIGN SCHEMA fdr3
        LIMIT TO (mview_flows_published_last_day, mview_payments_published_last_day)
-       FROM SERVER remote_fdr3
-       INTO remote_fdr3;
+       FROM SERVER remote_online_db
+       INTO remote_online_db;
 
 --changeset liquibase:archive-azureuser-202603090003-06
 IMPORT FOREIGN SCHEMA cron
