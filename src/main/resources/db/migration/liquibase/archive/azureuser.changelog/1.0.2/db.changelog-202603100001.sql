@@ -24,8 +24,3 @@ SELECT cron.schedule_in_database
         ,'0 2 * * *'
         ,$$CALL maintenance.archive_daily();$$
         ,'fdr3');
-SELECT cron.schedule_in_database
-       ('job_execute_data_cleansing'
-        ,'0 2 * * *'
-        ,$$CALL maintenance.execute_data_cleansing();$$
-        ,'fdr3');
