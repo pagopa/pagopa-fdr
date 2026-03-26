@@ -20,9 +20,9 @@ SELECT cron.schedule_in_database
         ,$$CALL maintenance.delete_expired_partitions();$$
         ,'fdr3');
 SELECT cron.schedule_in_database
-       ('job_archive_daily'
+       ('job_execute_daily_copy'
         ,'0 2 * * *'
-        ,$$CALL maintenance.archive_daily();$$
+        ,$$CALL maintenance.execute_daily_copy();$$
         ,'fdr3');
 SELECT cron.schedule_in_database
        ('job_execute_data_cleansing'
