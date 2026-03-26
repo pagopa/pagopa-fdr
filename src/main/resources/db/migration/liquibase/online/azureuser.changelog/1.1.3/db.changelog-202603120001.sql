@@ -10,16 +10,16 @@
 --changeset liquibase:azureuser-202603120001-01
 SELECT cron.schedule_in_database
        ('update_flows_published_last_day'
-        ,'00 01 * * *'
+        ,'0 1 * * *'
         ,$$REFRESH MATERIALIZED VIEW fdr3.mview_flows_published_last_day$$
         ,'fdr3');
 SELECT cron.schedule_in_database
        ('update_payments_published_last_day'
-        ,'03 01 * * *'
+        ,'30 1 * * *'
         ,$$REFRESH MATERIALIZED VIEW fdr3.mview_payments_published_last_day$$
         ,'fdr3');
 SELECT cron.schedule_in_database
        ('execute_data_cleansing'
-        ,'00 02 * * *'
+        ,'0 2 * * *'
         ,$$CALL maintenance.execute_data_cleansing()$$
         ,'fdr3');

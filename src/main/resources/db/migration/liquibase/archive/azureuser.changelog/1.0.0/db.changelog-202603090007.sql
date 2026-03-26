@@ -15,12 +15,12 @@ SELECT cron.schedule_in_database
         ,'fdr3');
 SELECT cron.schedule_in_database
        ('archive_daily'
-        ,'00 02 * * *'
+        ,'0 2 * * *'
         ,$$CALL maintenance.archive_daily();$$
         ,'fdr3');
 SELECT cron.schedule_in_database
        ('execute_data_cleansing'
-        ,'00 02 * * *'
+        ,'0 2 * * *'
         ,$$CALL maintenance.execute_data_cleansing();$$
         ,'fdr3');
 
