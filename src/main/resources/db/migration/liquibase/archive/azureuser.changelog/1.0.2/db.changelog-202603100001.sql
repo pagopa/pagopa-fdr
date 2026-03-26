@@ -7,7 +7,7 @@
 -- =============================================
 
 -- ## CRON SCHEDULES ##
---changeset liquibase:archive-azureuser-202603100001-01 endDelimiter:GO
+--changeset liquibase:archive-azureuser-202603100002-01 endDelimiter:GO
 -- cron.schedule_in_database(job_name, schedule, command, database, username, active)
 SELECT cron.schedule_in_database
        ('job_create_partition_on_next_month'
@@ -23,4 +23,9 @@ SELECT cron.schedule_in_database
        ('job_archive_daily'
         ,'0 2 * * *'
         ,$$CALL maintenance.archive_daily();$$
+        ,'fdr3');
+SELECT cron.schedule_in_database
+       ('job_execute_data_cleansing'
+        ,'0 3 * * *'
+        ,$$CALL maintenance.execute_data_cleansing();$$
         ,'fdr3');
