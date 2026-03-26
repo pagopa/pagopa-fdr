@@ -17,5 +17,6 @@
   <include file="./${version}/db.changelog-202603090005.sql" labels="${version}"/>
   <include file="./${version}/db.changelog-202603090006.sql" labels="${version}"/>
   <include file="./${version}/db.changelog-202603090007.sql" labels="${version}"/>
+  <include file="./${version}/db.changelog-202603090008.sql" labels="${version}"/>
 
 </databaseChangeLog>
