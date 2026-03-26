@@ -7,7 +7,7 @@
 -- =============================================
 
 -- ## CRON SCHEDULES ##
---changeset liquibase:admin-archive-202603100001-01 endDelimiter:GO
+--changeset liquibase:archive-azureuser-202603100001-01 endDelimiter:GO
 -- cron.schedule_in_database(job_name, schedule, command, database, username, active)
 SELECT cron.schedule_in_database
        ('job_create_partition_on_next_month'
