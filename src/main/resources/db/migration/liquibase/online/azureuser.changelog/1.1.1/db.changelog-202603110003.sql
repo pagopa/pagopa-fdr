@@ -35,7 +35,7 @@ BEGIN
     -- Log start process
     INSERT INTO maintenance.process_log(
                  "date"
-                 ,l_execution_id
+                 ,execution_id
                  ,"user"
                  ,process
                  ,step
@@ -81,28 +81,27 @@ BEGIN
          ORDER BY cfg.execution_order ASC
     LOOP
 
-        -- Creating process_log record and using the generated ID in order to update the same record
-        l_step := 'PRUNING_DATA';
-        INSERT INTO maintenance.process_log(
-                     "date"
-                     ,execution_id
-                     ,"user"
-                     ,process
-                     ,step
-                     ,outcome
-                     ,note)
-              VALUES (Clock_timestamp()
-                      ,l_execution_id
-                      ,l_execution_user
-                      ,l_process_name
-                      ,l_step
-                      ,l_status
-                      ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'))
-           RETURNING id
-                     INTO l_operation_process_log_id;
-        COMMIT;
-
         BEGIN
+	        -- Creating process_log record and using the generated ID in order to update the same record
+	        l_step := 'PRUNING_DATA';
+	        INSERT INTO maintenance.process_log(
+	                     "date"
+	                     ,execution_id
+	                     ,"user"
+	                     ,process
+	                     ,step
+	                     ,outcome
+	                     ,note)
+	              VALUES (Clock_timestamp()
+	                      ,l_execution_id
+	                      ,l_execution_user
+	                      ,l_process_name
+	                      ,l_step
+	                      ,l_status
+	                      ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'))
+	           RETURNING id
+	                     INTO l_operation_process_log_id;
+
             RAISE NOTICE 'Analyzing [%.%] table for data cleansing', l_record.schema_name, l_record.table_name;
 
             l_status := 'OK';
@@ -127,7 +126,6 @@ BEGIN
                        ,outcome = 'SKIPPED'
                        ,note = Concat('No table [', l_record.schema_name, '.', l_record.table_name, '] found in physical catalog.')
                  WHERE id = l_operation_process_log_id;
-                COMMIT;
 
             ELSE
 
@@ -156,17 +154,18 @@ BEGIN
                        SET "date" = Clock_timestamp()
                            ,outcome = 'SKIPPED'
                            ,note = Concat('No data found in table [', l_record.schema_name, '.', l_record.table_name, '].')
-                           ,statement = l_stmt
+                           ,statement = regexp_replace(l_stmt, '\s+', ' ', 'g')
                      WHERE id = l_operation_process_log_id;
-                    COMMIT;
 
                 ELSE
+                    RAISE NOTICE 'Analyzing [%.%] table for data cleansing in bulk [%s - %s]', l_record.schema_name, l_record.table_name, l_min_id, l_max_id;
                     l_current_start_id := l_min_id;
                     WHILE l_current_start_id <= l_max_id
                     LOOP
 
-                        -- Delete records in batch using
+                        -- Delete records in batch
                         l_current_end_id := l_current_start_id + l_record.batch_size;
+						RAISE NOTICE 'No data to clean found for table [%.%]', l_record.schema_name, l_record.table_name;
                         l_stmt := Format('
                             DELETE FROM %I.%I
                              WHERE %I >= $1
@@ -183,16 +182,14 @@ BEGIN
                            SET "date" = Clock_timestamp()
                                ,outcome = l_status
                                ,note = Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']')
-                               ,statement = Concat(l_stmt, ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']')
+                               ,statement = Concat(regexp_replace(l_stmt, '\s+', ' ', 'g'), ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']')
                          WHERE id = l_operation_process_log_id;
-                        COMMIT;
 
                         l_current_start_id := l_current_end_id;
                     END LOOP;
 
                     IF l_cleaned_rows > 0 THEN
                         EXECUTE Format('ANALYZE %I.%I', l_record.schema_name, l_record.table_name);
-                        COMMIT;
                     END IF;
 
                 END IF;
@@ -224,7 +221,7 @@ BEGIN
                         ,l_step
                         ,l_status
                         ,Concat('Table: ', l_record.schema_name, '.', l_record.table_name, ', Step: ', l_step,' , Error: ', l_error_msg)
-                        ,l_stmt);
+                        ,regexp_replace(l_stmt, '\s+', ' ', 'g'));
         END IF;
         COMMIT;
 
@@ -237,23 +234,11 @@ BEGIN
         l_status := 'OK';
     END IF;
     l_step := 'END';
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome
-                 ,note
-                 ,statement)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,l_status
-                 ,NULL
-                 ,l_stmt);
+	UPDATE maintenance.process_log
+       SET "date" = Clock_timestamp()
+           ,step = l_step
+           ,outcome = l_status
+     WHERE id = l_end_process_log_id;
     COMMIT;
 
 END;
