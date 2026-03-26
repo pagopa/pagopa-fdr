@@ -3,8 +3,9 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-  <property name="version" value="1.0.0" global="false"/>
+  <property name="version" value="1.0.2" global="false"/>
 
-  <include file="./${version}/db.changelog-202603080001.sql" labels="${version}"/>
+  <!-- Not including 1.0.1 changelog because this MUST be executed on "postgres" DB instead of "fdr3" DB -->
+  <include file="./${version}/db.changelog-202603100001.sql" labels="${version}"/>
 
 </databaseChangeLog>
