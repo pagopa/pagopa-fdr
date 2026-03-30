@@ -4,8 +4,8 @@
 CREATE OR REPLACE PROCEDURE maintenance.delete_unpublished_flows(
     IN p_retention_days INTEGER DEFAULT 1,
     IN p_batch_size BIGINT DEFAULT 1000,
-	IN p_start_date TIMESTAMP DEFAULT NULL,
-	IN p_end_date TIMESTAMP DEFAULT NULL)
+    IN p_start_date TIMESTAMP DEFAULT NULL,
+    IN p_end_date TIMESTAMP DEFAULT NULL)
 AS $function$
 DECLARE
 

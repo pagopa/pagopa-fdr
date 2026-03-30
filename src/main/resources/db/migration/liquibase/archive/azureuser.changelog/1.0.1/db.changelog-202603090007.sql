@@ -82,21 +82,21 @@ BEGIN
     LOOP
 
         BEGIN
-	        -- Creating process_log record and using the generated ID in order to update the same record
-	        l_step := 'PRUNING_DATA';
-	        INSERT INTO maintenance.process_log(
-	                     "date"
-	                     ,execution_id
-	                     ,"user"
-	                     ,process
-	                     ,step
-	                     ,outcome
-	                     ,note)
-	              VALUES (Clock_timestamp()
-	                      ,l_execution_id
-	                      ,l_execution_user
-	                      ,l_process_name
-	                      ,l_step
+            -- Creating process_log record and using the generated ID in order to update the same record
+            l_step := 'PRUNING_DATA';
+            INSERT INTO maintenance.process_log(
+                         "date"
+                         ,execution_id
+                         ,"user"
+                         ,process
+                         ,step
+                         ,outcome
+                         ,note)
+                  VALUES (Clock_timestamp()
+                          ,l_execution_id
+                          ,l_execution_user
+                          ,l_process_name
+                          ,l_step
 	                      ,l_status
 	                      ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'))
 	           RETURNING id

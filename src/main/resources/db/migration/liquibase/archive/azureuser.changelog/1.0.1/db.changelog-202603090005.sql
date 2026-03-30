@@ -26,39 +26,42 @@ DECLARE
     l_error_msg TEXT;
 
 BEGIN
-    -- Log start process
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,l_execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,l_status);
-    COMMIT;
 
-    -- Log end process, pre-written with incomplete status
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,'END'
-                 ,'KO')
-      RETURNING id
-                INTO l_end_process_log_id;
-    COMMIT;
+    -- Log start and end process in a separate subtransaction, always logging them
+    BEGIN
+
+        -- Log start process
+        INSERT INTO maintenance.process_log(
+                     "date"
+                     ,execution_id
+                     ,"user"
+                     ,process
+                     ,step
+                     ,outcome)
+             VALUES (Clock_timestamp()
+                     ,l_execution_id
+                     ,l_execution_user
+                     ,l_process_name
+                     ,l_step
+                     ,l_status);
+
+        -- Log end process, pre-written with incomplete status
+        INSERT INTO maintenance.process_log(
+                     "date"
+                     ,execution_id
+                     ,"user"
+                     ,process
+                     ,step
+                     ,outcome)
+             VALUES (Clock_timestamp()
+                     ,l_execution_id
+                     ,l_execution_user
+                     ,l_process_name
+                     ,'END'
+                     ,'KO')
+          RETURNING id
+                    INTO l_end_process_log_id;
+    END;
 
     -- Checking required parameters
     IF p_schema_name IS NULL
@@ -67,38 +70,41 @@ BEGIN
     THEN
 
         -- Update the end process_log record with error
-        UPDATE maintenance.process_log
-           SET "date" = Clock_timestamp()
-               ,step = l_step
-               ,outcome = l_status
-               ,note = 'p_schema_name, p_table_name and p_partition_name cannot be NULL'
-         WHERE id = l_end_process_log_id;
-        COMMIT;
+        BEGIN
+            l_status := 'KO';
+            UPDATE maintenance.process_log
+               SET "date" = Clock_timestamp()
+	               ,outcome = l_status
+	               ,note = 'p_schema_name, p_table_name and p_partition_name parameters cannot be NULL'
+	         WHERE id = l_end_process_log_id;
+		END;
 
+        -- Update the end process_log record with error
         RAISE EXCEPTION 'p_schema_name, p_table_name and p_partition_name cannot be NULL';
 
     END IF;
 
     -- Log deleted partition step, pre-written with incomplete status
-    l_step := 'DELETE_PARTITION';
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,l_execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome
-                 ,note)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,'ONGOING'
-                 ,Concat('Table: [', p_schema_name, '.', p_table_name, '], Partition: [', p_partition_name, ']'))
-       RETURNING id
-                 INTO l_operation_process_log_id;
-    COMMIT;
+	BEGIN
+	    l_step := 'DELETE_PARTITION';
+	    INSERT INTO maintenance.process_log(
+	                 "date"
+	                 ,execution_id
+	                 ,"user"
+	                 ,process
+	                 ,step
+	                 ,outcome
+	                 ,note)
+	         VALUES (Clock_timestamp()
+	                 ,l_execution_id
+	                 ,l_execution_user
+	                 ,l_process_name
+	                 ,l_step
+	                 ,'ONGOING'
+	                 ,Concat('Table: [', p_schema_name, '.', p_table_name, '], Partition: [', p_partition_name, ']'))
+	       RETURNING id
+	                 INTO l_operation_process_log_id;
+	END;
 
     -- Check for partition on logical catalog
     IF EXISTS (
@@ -116,7 +122,7 @@ BEGIN
             -- Detach and delete the partition from the database
             RAISE NOTICE 'Deleting partition [%] from [%.%] parent table', p_partition_name, p_schema_name, p_table_name;
             EXECUTE Format(
-                        'ALTER TABLE %I.%I DETACH PARTITION %I.%I CONCURRENTLY'
+                        'ALTER TABLE %I.%I DETACH PARTITION %I.%I'
                         ,p_schema_name
                         ,p_table_name
                         ,p_schema_name
@@ -139,8 +145,8 @@ BEGIN
                SET "date" = Clock_timestamp()
                    ,step = l_step
                    ,outcome = l_status
-             WHERE id = l_end_process_log_id;
-            COMMIT;
+                   ,note = Concat('Table: [', p_schema_name, '.', p_table_name, '], Partition: [', p_partition_name, ']')
+             WHERE id = l_operation_process_log_id;
 
         -- Catch SQLERRM and separately handle errors (in order to commit process_log record)
         EXCEPTION WHEN OTHERS THEN
@@ -157,15 +163,13 @@ BEGIN
             UPDATE maintenance.process_log
                SET "date" = Clock_timestamp()
                    ,outcome = l_status
-                   ,note = Concat('Table: [', l_record.schema_name, '.', l_record.table_name,
-                               '], Partition: [', l_record.partition_name,
+                   ,note = Concat('Table: [', p_schema_name, '.', p_table_name,
+                               '], Partition: [', p_partition_name,
                                '], Step: [', l_step,
                                '], Error: ', l_error_msg)
              WHERE id = l_operation_process_log_id;
              RAISE WARNING 'An error occurred during delete partition [%] for parent table [%.%]: %', p_partition_name, p_schema_name, p_table_name, l_error_msg;
         END IF;
-
-        COMMIT;
 
     ELSE
         -- Update the operation process_log record with error
@@ -174,23 +178,23 @@ BEGIN
            SET "date" = Clock_timestamp()
                ,outcome = 'SKIPPED'
                ,note = Concat('Partition not found or already deleted. Parent table: [', p_schema_name, '.', p_table_name, '], Partition: [', p_partition_name, ']')
-          WHERE id = l_end_process_log_id;
-        COMMIT;
+          WHERE id = l_operation_process_log_id;
     END IF;
 
-    -- Update the end process_log record with final info
+    -- Using correct status checking for error
     IF l_is_failed = true THEN
         l_status := 'KO';
     ELSE
         l_status := 'OK';
     END IF;
+
+    -- Update the end process_log record with final info
     l_step := 'END';
     UPDATE maintenance.process_log
        SET "date" = Clock_timestamp()
            ,step = l_step
            ,outcome = l_status
      WHERE id = l_end_process_log_id;
-    COMMIT;
 
 END;
 $function$ LANGUAGE 'plpgsql'
@@ -222,40 +226,44 @@ DECLARE
 
 BEGIN
 
-    -- Log start process
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,l_execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,l_step
-                 ,l_status);
-    COMMIT;
+    -- Log start and end process in a separate subtransaction, always logging them
+	BEGIN
 
-    -- Log end process, pre-written with incomplete status
-    INSERT INTO maintenance.process_log(
-                 "date"
-                 ,execution_id
-                 ,"user"
-                 ,process
-                 ,step
-                 ,outcome)
-         VALUES (Clock_timestamp()
-                 ,l_execution_id
-                 ,l_execution_user
-                 ,l_process_name
-                 ,'END'
-                 ,'KO')
-      RETURNING id
-                INTO l_end_process_log_id;
-    COMMIT;
+	    -- Log start process
+	    INSERT INTO maintenance.process_log(
+	                 "date"
+	                 ,execution_id
+	                 ,"user"
+	                 ,process
+	                 ,step
+	                 ,outcome)
+	         VALUES (Clock_timestamp()
+	                 ,l_execution_id
+	                 ,l_execution_user
+	                 ,l_process_name
+	                 ,l_step
+	                 ,l_status);
 
+	    -- Log end process, pre-written with incomplete status
+	    INSERT INTO maintenance.process_log(
+	                 "date"
+	                 ,execution_id
+	                 ,"user"
+	                 ,process
+	                 ,step
+	                 ,outcome)
+	         VALUES (Clock_timestamp()
+	                 ,l_execution_id
+	                 ,l_execution_user
+	                 ,l_process_name
+	                 ,'END'
+	                 ,'KO')
+	      RETURNING id
+	                INTO l_end_process_log_id;
+	    COMMIT;
+	END;
+
+    -- Search through information about partition in physical catalog
     FOR l_record IN
         SELECT child_schema.nspname  AS schema_name
                ,cfg.table_name       AS table_name
@@ -273,7 +281,7 @@ BEGIN
                  ON Lower(cfg.schema_name) = Lower(parent_schema.nspname)
                 AND Lower(cfg.table_name) = Lower(parent.relname)
          WHERE child.relname ~ '_p[0-9]{6}$'
-               AND cfg.status IS TRUE
+               AND cfg.is_active IS TRUE
                AND Lower(cfg.retention_type) = 'month'
                AND (
                      To_date(Substring(child.relname FROM Length(child.relname)-5 FOR 6), 'YYYYMM')
@@ -310,9 +318,11 @@ BEGIN
                    ,outcome = l_status
                    ,note = Concat('Step: [', l_step, '], Error: ', l_error_msg)
              WHERE id = l_end_process_log_id;
-            RAISE WARNING 'An error occurred during delete expired partitions: %', SQLERRM;
+            RAISE WARNING 'An error occurred during delete expired partitions: %', l_error_msg;
 
         END IF;
+
+        COMMIT;
 
     END LOOP;
 

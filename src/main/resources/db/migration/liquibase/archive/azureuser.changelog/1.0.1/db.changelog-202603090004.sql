@@ -1,7 +1,10 @@
 --liquibase formatted sql
 
 --changeset liquibase:archive-azureuser-202603090004-01 endDelimiter:GO
-CREATE OR REPLACE PROCEDURE maintenance.create_partition_on_next_month()
+CREATE OR REPLACE PROCEDURE maintenance.create_partition_on_month(
+    IN p_start_date DATE DEFAULT NULL,
+    IN p_end_date DATE DEFAULT NULL
+)
 AS $function$
 DECLARE
 
@@ -11,8 +14,8 @@ DECLARE
 
     l_end_process_log_id BIGINT;
 
-    l_partition_from TIMESTAMP;
-    l_partition_to TIMESTAMP;
+    l_partition_from DATE;
+    l_partition_to DATE;
 
     l_step TEXT := 'START';
     l_status TEXT := 'OK';
@@ -59,8 +62,8 @@ BEGIN
     COMMIT;
 
     -- Generate partition's date boundaries
-    l_partition_from := Date_trunc('month', CURRENT_DATE) + ('1 month')::INTERVAL;
-    l_partition_to := Date_trunc('month', CURRENT_DATE) + ('2 month')::INTERVAL;
+    l_partition_from := COALESCE(p_start_date, Date_trunc('month', CURRENT_DATE) + ('1 month')::INTERVAL);
+    l_partition_to := COALESCE(p_end_date, Date_trunc('month', CURRENT_DATE) + ('2 month')::INTERVAL);
 
     FOR l_record IN
         SELECT cfg.schema_name AS schema_name
@@ -68,7 +71,7 @@ BEGIN
                ,Concat(
                    cfg.table_name
                    ,'_p'
-                   ,To_char(Date_trunc('month', CURRENT_DATE) + ('1 month')::INTERVAL ,'YYYYMM')
+                   ,To_char(l_partition_from, 'YYYYMM')
                )               AS partition_name
           FROM maintenance.partition_config cfg
          WHERE cfg.is_active IS TRUE
@@ -206,7 +209,7 @@ BEGIN
                              ,l_process_name
                              ,l_step
                              ,l_status
-                             ,Concat('Table: ', l_record.schema_name, '.', l_record.table_name, ', Partition: ', l_record.partition_name));
+                             ,Concat('Table: [', l_record.schema_name, '.', l_record.table_name, '], Partition: [', l_record.partition_name, "]"));
             END IF;
 
         -- Catch SQLERRM and separately handle errors (in order to commit process_log record)
@@ -236,7 +239,7 @@ BEGIN
                              ,l_process_name
                              ,l_step
                              ,l_status
-                             ,Concat('Table: ', l_record.schema_name, '.', l_record.table_name, ', Partition: ', l_record.partition_name, ', Step: ', l_step,' , Error: ', l_error_msg));
+                             ,Concat('Table: [', l_record.schema_name, '.', l_record.table_name, '], Partition: [', l_record.partition_name, '], Step: [', l_step, '], Error: ', l_error_msg));
         END IF;
 
         COMMIT;
@@ -263,5 +266,5 @@ GO
 
 --changeset liquibase:archive-azureuser-202603090004-02
 GRANT EXECUTE
-      ON PROCEDURE maintenance.create_partition_on_next_month()
+      ON PROCEDURE maintenance.create_partition_on_month(DATE, DATE)
       TO fdr3;

@@ -10,9 +10,9 @@
 --changeset liquibase:archive-azureuser-202603100002-01 endDelimiter:GO
 -- cron.schedule_in_database(job_name, schedule, command, database, username, active)
 SELECT cron.schedule_in_database
-       ('job_create_partition_on_next_month'
+       ('job_create_partition_on_month'
         ,'0 0 1 * *'
-        ,$$CALL maintenance.create_partition_on_next_month();$$
+        ,$$CALL maintenance.create_partition_on_month();$$
         ,'fdr3');
 SELECT cron.schedule_in_database
        ('job_delete_expired_partitions'
