@@ -2,8 +2,7 @@
 
 --changeset liquibase:archive-azureuser-202603090004-01 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.create_partition_on_month(
-    IN p_start_date DATE DEFAULT NULL,
-    IN p_end_date DATE DEFAULT NULL
+    IN p_month DATE DEFAULT NULL
 )
 AS $function$
 DECLARE
@@ -62,8 +61,8 @@ BEGIN
     COMMIT;
 
     -- Generate partition's date boundaries
-    l_partition_from := COALESCE(p_start_date, Date_trunc('month', CURRENT_DATE) + ('1 month')::INTERVAL);
-    l_partition_to := COALESCE(p_end_date, Date_trunc('month', CURRENT_DATE) + ('2 month')::INTERVAL);
+    l_partition_from := COALESCE(p_month, Date_trunc('month', CURRENT_DATE) + ('1 month')::INTERVAL);
+    l_partition_to := l_partition_from + ('1 month')::INTERVAL;
 
     FOR l_record IN
         SELECT cfg.schema_name AS schema_name
@@ -79,7 +78,7 @@ BEGIN
     LOOP
         -- Starting a sub-transaction in order to generate process_log record about the error
         BEGIN
-        
+
             RAISE NOTICE 'Analyzing new partition [%] for [%s.%s] table', l_record.partition_name, l_record.schema_name, l_record.table_name;
             l_step := 'CREATE_PARTITION';
             l_status := 'OK';
@@ -124,7 +123,7 @@ BEGIN
                                 ,l_process_name
                                 ,l_step
                                 ,l_status
-                                ,Concat('Partition already created. Table: ', l_record.schema_name, '.', l_record.table_name, ', Partition: ', l_record.partition_name));
+                                ,Concat('Partition already created. Table: [', l_record.schema_name, '.', l_record.table_name, '], Partition: [', l_record.partition_name, ']'));
                     RAISE NOTICE 'Skipping creation of partition [%] for parent table [%.%] because already in [partition_status] table.', l_record.partition_name,  l_record.schema_name,  l_record.table_name;
 
                 ELSE
@@ -163,9 +162,9 @@ BEGIN
                                  ,l_process_name
                                  ,l_step
                                  ,l_status
-                                 ,Concat('Partition status aligned with database catalog. Table: ', l_record.schema_name, '.', l_record.table_name, ', Partition: ', l_record.partition_name));
+                                 ,Concat('Partition status aligned with database catalog. Table: [', l_record.schema_name, '.', l_record.table_name, '], Partition: [', l_record.partition_name, ']'));
                 END IF;
-                
+
             ELSE
 
                 -- Generate the partition from the master table
@@ -209,7 +208,7 @@ BEGIN
                              ,l_process_name
                              ,l_step
                              ,l_status
-                             ,Concat('Table: [', l_record.schema_name, '.', l_record.table_name, '], Partition: [', l_record.partition_name, "]"));
+                             ,Concat('Table: [', l_record.schema_name, '.', l_record.table_name, '], Partition: [', l_record.partition_name, ']'));
             END IF;
 
         -- Catch SQLERRM and separately handle errors (in order to commit process_log record)
@@ -243,7 +242,7 @@ BEGIN
         END IF;
 
         COMMIT;
-        
+
     END LOOP;
 
     -- Update the end process_log record with final info
@@ -266,5 +265,5 @@ GO
 
 --changeset liquibase:archive-azureuser-202603090004-02
 GRANT EXECUTE
-      ON PROCEDURE maintenance.create_partition_on_month(DATE, DATE)
+      ON PROCEDURE maintenance.create_partition_on_month(DATE)
       TO fdr3;
