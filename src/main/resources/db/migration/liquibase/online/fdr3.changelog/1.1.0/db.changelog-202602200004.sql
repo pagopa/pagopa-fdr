@@ -42,7 +42,7 @@ END LOOP;
 END $$;
 GO
 
---changeset liquibase:202602200004-01-alter delimiter:GO
+--changeset liquibase:202602200004-01-alter endDelimiter:GO
 DO $$
     DECLARE
         schema_name TEXT := 'fdr3';
