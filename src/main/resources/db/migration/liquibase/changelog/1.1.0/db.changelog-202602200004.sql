@@ -42,7 +42,7 @@ END LOOP;
 END $$;
 GO
 
---changeset liquibase:202602200004-01-alter delimiter:GO
+--changeset liquibase:202602200004-01-alter endDelimiter:GO
 DO $$
     DECLARE
         schema_name TEXT := 'fdr3';
@@ -212,4 +212,4 @@ AS $BODY$
 $BODY$;
 GO
 
-GRANT EXECUTE ON PROCEDURE fdr3.move_published_payments(integer) TO azureuser;
+GRANT EXECUTE ON PROCEDURE fdr3.move_published_payments(integer, integer, timestamp, timestamp) TO azureuser;
