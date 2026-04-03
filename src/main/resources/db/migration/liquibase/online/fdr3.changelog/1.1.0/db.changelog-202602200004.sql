@@ -212,4 +212,4 @@ AS $BODY$
 $BODY$;
 GO
 
-GRANT EXECUTE ON PROCEDURE fdr3.move_published_payments(integer) TO azureuser;
+GRANT EXECUTE ON PROCEDURE fdr3.move_published_payments(integer, integer, timestamp, timestamp) TO azureuser;
