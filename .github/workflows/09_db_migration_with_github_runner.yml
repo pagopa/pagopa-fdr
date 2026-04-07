@@ -18,14 +18,6 @@ on:
           - dev
           - uat
           - prod
-      user:
-        required: true
-        type: choice
-        description: Select the user
-        options:
-          - fdr3
-          - azureuser
-        default: "fdr3"
       db_type:
         required: true
         type: choice
@@ -41,9 +33,17 @@ on:
           - fdr3
           - postgres
         default: "fdr3"
+      user:
+        required: true
+        type: choice
+        description: Select the user
+        options:
+          - fdr3
+          - azureuser
+        default: "fdr3"
       db_version:
         required: true
-        description: DB version (👀 src/main/resources/db/migration/liquibase)
+        description: Version (see [migration's README.md](https://github.com/pagopa/pagopa-fdr/blob/main/src/main/resources/db/README.md) for details)
         type: string
         default: "1.1.0"
         
