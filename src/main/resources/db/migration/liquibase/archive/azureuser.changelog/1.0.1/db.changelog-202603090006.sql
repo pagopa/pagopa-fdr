@@ -42,6 +42,10 @@ DECLARE
     l_batch_rows BIGINT;
     l_archived_batches BIGINT := 0;
     l_archived_records BIGINT := 0;
+    l_retention INT;
+    l_retention_type TEXT;
+    l_partition_lower_bound DATE;
+    l_partition_upper_bound DATE;
 
 BEGIN
 
@@ -122,6 +126,18 @@ BEGIN
 
     ELSE
 
+        -- Extracting partitions boundaries, in order to avoid trying to insert on unexisting partition
+        SELECT retention
+               ,retention_type
+          INTO l_retention, l_retention_type
+          FROM maintenance.partition_config
+         WHERE schema_name = l_record.dst_schema_name
+               AND table_name = l_record.dst_table_name
+               AND is_active = 'Y'
+         LIMIT 1;
+        l_partition_lower_bound := date_trunc(l_retention_type, CURRENT_DATE) - (l_retention || ' ' || l_retention_type)::INTERVAL;
+        l_partition_upper_bound := date_trunc(l_retention_type, CURRENT_DATE) + ('1 ' || l_retention_type)::INTERVAL;
+
         -- Defining main section for "retrieve boundaries on batch columns" query
         l_stmt := Format('
             SELECT MIN(%I), MAX(%I)
@@ -144,8 +160,6 @@ BEGIN
         l_max_id := COALESCE(p_max_id, l_max_id);
         l_batch_size := COALESCE(p_batch_size, l_record.batch_size);
         l_current_start_id := l_min_id;
-        RAISE NOTICE 'Scanning through table [%.%] on column [%] from [%] to [%], with batches of size [%]',
-                l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_min_id, l_max_id, l_batch_size;
 
         -- Retrieve (possible) partition names using the value defined by the partition_date_column column
         l_current_end_id := l_current_start_id + l_batch_size;
@@ -177,6 +191,8 @@ BEGIN
 
         WHILE l_current_start_id <= l_max_id
         LOOP
+            RAISE NOTICE 'Scanning through table [%.%] on column [%] from [%] to [%], with batches of size [%]',
+                l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_current_start_id, l_current_end_id, l_batch_size;
 
             -- Starting a sub-transaction in order to generate process_log record about the error
             BEGIN
@@ -203,9 +219,12 @@ BEGIN
                       FROM %I.%I
                      WHERE %I >= $1
                            AND %I < $2
+                           AND %I >= $3
+                           AND %I < $4
                         ON CONFLICT DO NOTHING
-                ', l_record.dst_schema_name, l_record.dst_table_name, l_column_list, l_column_list, l_record.src_schema_name, l_record.src_table_name, l_record.batch_column, l_record.batch_column);
-                EXECUTE l_stmt USING l_current_start_id, l_current_end_id;
+                ', l_record.dst_schema_name, l_record.dst_table_name, l_column_list, l_column_list, l_record.src_schema_name, l_record.src_table_name
+                 , l_record.batch_column, l_record.batch_column, l_record.partition_date_column, l_record.partition_date_column);
+                EXECUTE l_stmt USING l_current_start_id, l_current_end_id, l_partition_lower_bound, l_partition_upper_bound;
 
                 -- Calculating statistics
                 GET DIAGNOSTICS l_batch_rows = ROW_COUNT;
@@ -221,6 +240,7 @@ BEGIN
                        AND partition_name = ANY(l_partition_names);
 
                 -- Update the same process_log record with updated info, setting date with current timestamp
+                BEGIN
                 UPDATE maintenance.process_log
                    SET "date" = Clock_timestamp()
                        ,outcome = l_status
@@ -229,6 +249,7 @@ BEGIN
                            '], Archived batches: [', l_archived_batches,
                            '], Archived records: [', l_archived_records, ']')
                  WHERE id = l_operation_process_log_id;
+                END;
 
             -- Catch SQLERRM and separately handle errors (in order to commit process_log record)
             EXCEPTION WHEN OTHERS THEN
