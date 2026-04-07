@@ -17,6 +17,7 @@ DECLARE
     l_record RECORD;
     l_boundaries RECORD;
     l_stmt TEXT;
+    l_logged_stmts TEXT;
 
     l_min_id BIGINT;
     l_max_id BIGINT;
@@ -97,10 +98,10 @@ BEGIN
                           ,l_execution_user
                           ,l_process_name
                           ,l_step
-	                      ,l_status
-	                      ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'))
-	           RETURNING id
-	                     INTO l_operation_process_log_id;
+                          ,l_status
+                          ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'))
+               RETURNING id
+                         INTO l_operation_process_log_id;
 
             RAISE NOTICE 'Analyzing [%.%] table for data cleansing', l_record.schema_name, l_record.table_name;
 
@@ -108,6 +109,7 @@ BEGIN
             l_has_error := false;
             l_error_msg := NULL;
             l_stmt := NULL;
+            l_logged_stmts := NULL;
 
             -- Check for partition on physical catalog
             IF NOT EXISTS (
@@ -136,12 +138,13 @@ BEGIN
                     WHERE %I < Now()::DATE - (%L * interval ''1 %s'')
                 ', l_record.batch_column, l_record.batch_column, l_record.schema_name, l_record.table_name
                  , l_record.retention_date_column, l_record.retention, l_record.retention_type);
+                 l_logged_stmts := regexp_replace(l_stmt, '\s+', ' ', 'g');
 
                 -- Use FOR ... IN EXECUTE to fetch into variables
                 l_min_id := NULL;
                 l_max_id := NULL;
                 FOR l_boundaries IN EXECUTE l_stmt
-				LOOP
+                LOOP
                     l_min_id := l_boundaries.min_id;
                     l_max_id := l_boundaries.max_id;
                 END LOOP;
@@ -154,7 +157,7 @@ BEGIN
                        SET "date" = Clock_timestamp()
                            ,outcome = 'SKIPPED'
                            ,note = Concat('No data found in table [', l_record.schema_name, '.', l_record.table_name, '].')
-                           ,statement = regexp_replace(l_stmt, '\s+', ' ', 'g')
+                           ,statement = l_logged_stmts
                      WHERE id = l_operation_process_log_id;
 
                 ELSE
@@ -165,7 +168,7 @@ BEGIN
 
                         -- Delete records in batch
                         l_current_end_id := l_current_start_id + l_record.batch_size;
-						RAISE NOTICE 'No data to clean found for table [%.%]', l_record.schema_name, l_record.table_name;
+        				RAISE NOTICE 'No data to clean found for table [%.%]', l_record.schema_name, l_record.table_name;
                         l_stmt := Format('
                             DELETE FROM %I.%I
                              WHERE %I >= $1
@@ -178,11 +181,12 @@ BEGIN
                         l_cleaned_rows := l_cleaned_rows + l_batch_rows;
 
                         -- Update the same process_log record with updated info, setting date with current timestamp
+                        l_logged_stmts := l_logged_stmts || ' ||| ' || Concat(regexp_replace(l_stmt, '\s+', ' ', 'g'), ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']');
                         UPDATE maintenance.process_log
                            SET "date" = Clock_timestamp()
                                ,outcome = l_status
                                ,note = Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']')
-                               ,statement = Concat(regexp_replace(l_stmt, '\s+', ' ', 'g'), ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']')
+                               ,statement = l_logged_stmts
                          WHERE id = l_operation_process_log_id;
 
                         l_current_start_id := l_current_end_id;
@@ -205,6 +209,7 @@ BEGIN
         IF l_has_error THEN
 
             RAISE WARNING 'Error on data cleansing operation for [%.%] table: %', l_record.schema_name, l_record.table_name, l_error_msg;
+            l_logged_stmts := l_logged_stmts || ' ||| ' || Concat(regexp_replace(l_stmt, '\s+', ' ', 'g'), ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']');
             INSERT INTO maintenance.process_log(
                             "date"
                             ,execution_id
@@ -221,7 +226,7 @@ BEGIN
                         ,l_step
                         ,l_status
                         ,Concat('Table: ', l_record.schema_name, '.', l_record.table_name, ', Step: ', l_step,' , Error: ', l_error_msg)
-                        ,regexp_replace(l_stmt, '\s+', ' ', 'g'));
+                        ,l_logged_stmts);
         END IF;
         COMMIT;
 
