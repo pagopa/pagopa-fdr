@@ -43,7 +43,7 @@ on:
         default: "fdr3"
       db_version:
         required: true
-        description: Version (see [migration's README.md](https://github.com/pagopa/pagopa-fdr/blob/main/src/main/resources/db/README.md) for details)
+        description: Version (details on src/main/resources/db/README.md)
         type: string
         default: "1.1.0"
         
