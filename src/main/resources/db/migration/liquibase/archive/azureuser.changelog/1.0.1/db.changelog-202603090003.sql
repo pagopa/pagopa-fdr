@@ -42,7 +42,7 @@ GRANT USAGE
 -- ## TABLES ##
 --changeset liquibase:archive-azureuser-202603090003-05
 IMPORT FOREIGN SCHEMA fdr3
-       LIMIT TO (mview_flows_published_last_day, mview_payments_published_last_day)
+       LIMIT TO (flow, payment, mview_flows_published_last_day, mview_payments_published_last_day)
        FROM SERVER remote_online_db
        INTO remote_online_db;
 
