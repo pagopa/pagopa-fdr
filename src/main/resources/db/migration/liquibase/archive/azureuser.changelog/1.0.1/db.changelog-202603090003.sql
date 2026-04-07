@@ -51,3 +51,6 @@ IMPORT FOREIGN SCHEMA cron
        LIMIT TO (job_run_details)
        FROM SERVER remote_postgres
        INTO maintenance;
+
+--changeset liquibase:archive-azureuser-202603090003-07
+ ALTER SERVER remote_online_db OPTIONS (SET fetch_size '50000');
