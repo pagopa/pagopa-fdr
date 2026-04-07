@@ -53,4 +53,4 @@ IMPORT FOREIGN SCHEMA cron
        INTO maintenance;
 
 --changeset liquibase:archive-azureuser-202603090003-07
- ALTER SERVER remote_online_db OPTIONS (SET fetch_size '50000');
+ ALTER SERVER remote_online_db OPTIONS (ADD fetch_size '50000');
