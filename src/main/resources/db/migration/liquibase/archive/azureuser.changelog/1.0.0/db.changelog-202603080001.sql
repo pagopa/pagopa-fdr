@@ -3,7 +3,7 @@
 -- =============================================
 --                    NOTE
 -- This script MUST be executed on "postgres"
---  database in "online" PGFlex server.
+--  database in "archive" PGFlex server.
 -- =============================================
 
 -- ## EXTENSIONS ##
