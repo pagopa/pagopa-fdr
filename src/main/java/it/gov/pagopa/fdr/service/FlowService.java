@@ -49,6 +49,8 @@ public class FlowService {
 
   private final FlowToHistoryMapper flowToHistoryMapper;
 
+  private final PaymentService paymentService;
+
   public FlowService(
       Logger log,
       ReService reService,
@@ -56,7 +58,8 @@ public class FlowService {
       FlowRepository flowRepository,
       FlowToHistoryRepository flowToHistoryRepository,
       FlowMapper flowMapper,
-      FlowToHistoryMapper flowToHistoryMapper) {
+      FlowToHistoryMapper flowToHistoryMapper,
+      PaymentService paymentService) {
 
     this.log = log;
     this.reService = reService;
@@ -65,6 +68,7 @@ public class FlowService {
     this.flowToHistoryRepository = flowToHistoryRepository;
     this.flowMapper = flowMapper;
     this.flowToHistoryMapper = flowToHistoryMapper;
+    this.paymentService = paymentService;
   }
 
   @WithSpan(kind = SERVER)
@@ -385,6 +389,8 @@ public class FlowService {
     // delete flow and if there are multiple payments related to it yet, delete them in async mode
     FlowEntity publishingFlow = optPublishingFlow.get();
     this.flowRepository.deleteEntity(publishingFlow);
+
+    paymentService.deleteAllPaymentsFromUnpublishedFlow(publishingFlow.getId());
 
     // Send event to Registro Eventi for internal operation
     storeInternalREEvent(publishingFlow, FdrStatusEnum.DELETED, FdrActionEnum.DELETE_FLOW);

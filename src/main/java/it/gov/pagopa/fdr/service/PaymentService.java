@@ -257,6 +257,10 @@ public class PaymentService {
         .build();
   }
 
+  public void deleteAllPaymentsFromUnpublishedFlow(Long flowId) {
+    this.paymentStagingRepository.deleteEntitiesByFlowId(flowId);
+  }
+
   private void storeInternalREEvent(
       FlowEntity publishingFlow, FdrStatusEnum status, FdrActionEnum action) {
 
