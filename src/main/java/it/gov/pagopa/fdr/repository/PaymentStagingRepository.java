@@ -51,6 +51,10 @@ public class PaymentStagingRepository extends Repository implements PanacheRepos
     }
   }
 
+  public void deleteEntitiesByFlowId(Long flowId) {
+      delete("id.flowId = ?1", flowId);
+  }
+
   @Timed(value = "paymentRepository.createEntityInBulk.task", description = "Time taken to perform createEntityInBulk", percentiles = 0.95, histogram = true)
   public void createEntityInBulk(List<PaymentStagingEntity> entityBatch, String orgDomainId) {
     Session session = entityManager.unwrap(Session.class);
