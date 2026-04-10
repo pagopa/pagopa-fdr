@@ -18,17 +18,32 @@ on:
           - dev
           - uat
           - prod
+      db_type:
+        required: true
+        type: choice
+        description: Select the DB type (from different PGFlex servers)
+        options:
+          - online
+          - archive
+      db_name:
+        required: true
+        type: choice
+        description: Select the DB name (from same PGFlex server)
+        options:
+          - fdr3
+          - postgres
+        default: "fdr3"
       user:
         required: true
         type: choice
         description: Select the user
         options:
           - fdr3
-          - admin
+          - azureuser
         default: "fdr3"
       db_version:
         required: true
-        description: Db version (👀 src/main/resources/db/migration/liquibase )
+        description: Version (details on src/main/resources/db/README.md)
         type: string
         default: "1.1.0"
         
@@ -64,6 +79,11 @@ jobs:
     name: DB migration
     environment: ${{ inputs.environment }}
     steps:
+      - name: Print execution variables
+        run: |
+          echo "Executing DB migration with Liquibase, using the following variables:"
+          echo "User: [${{ inputs.user }}], DB Type: [${{ inputs.db_type }}], DB Name: [${{ inputs.db_name }}], Version: [${{ inputs.db_version }}]"
+
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
@@ -77,59 +97,48 @@ jobs:
           rm -rf liquibase-4.17.1.tar.gz
           ls -la liquibase-app
 
-      - name: Run liquibase::migrate [${{ vars.POSTGRES_DB_USERNAME }} user]
-        if: ${{ inputs.user == 'fdr3' }}
-        shell: bash
-        env:
-            POSTGRES_DB_PASSWORD: ${{ secrets.POSTGRES_DB_PASSWORD }}
-        run: |
-          export PATH="$PATH:./liquibase-app"
-
-          echo "
-          classpath: ./src/main/resources/db/migration/liquibase/changelog
-          liquibase.headless: true
-          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/${{ vars.POSTGRES_DB_NAME }}?prepareThreshold=0&currentSchema=${{ vars.POSTGRES_DB_SCHEMA }}
-          contexts: ${{ inputs.environment }}
-          username: ${{ vars.POSTGRES_DB_USERNAME }}
-          password: "$POSTGRES_DB_PASSWORD"
-          defaultSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
-          liquibaseSchemaName: ${{ vars.POSTGRES_DB_SCHEMA }}
-          liquibase.hub.mode: OFF
-          log-level: INFO
-          " > fdr.properties
-
-          #liquibase --defaultsFile=fdr.properties drop-all
-          #liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-1.0.0.xml"
-          #liquibase --defaultsFile=fdr.properties clear-checksums #--changelogFile="db.changelog-master-1.0.0.xml"
-
-          liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
-
-          rm fdr.properties
-
-      - name: Run liquibase::migrate [${{ vars.POSTGRES_DB_ADMIN_USERNAME }} user]
-        if: ${{ inputs.user == 'admin' }}
+      - name: Run liquibase::migrate
         shell: bash
         env:
           POSTGRES_DB_ADMIN_PASSWORD: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
         run: |
           export PATH="$PATH:./liquibase-app"
-
-          echo "
-          classpath: ./src/main/resources/db/migration/liquibase/admin-changelog
-          liquibase.headless: true
-          url: jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/postgres?prepareThreshold=0
-          contexts: ${{ inputs.environment }}
-          username: ${{ vars.POSTGRES_DB_ADMIN_USERNAME }}
-          password: "$POSTGRES_DB_ADMIN_PASSWORD"
-          defaultSchemaName: public
-          liquibaseSchemaName: public
-          liquibase.hub.mode: OFF
-          log-level: INFO
-          " > fdr.properties
-
-          liquibase --defaultsFile=fdr.properties update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
-
-          rm fdr.properties      
+          CLASSPATH="./src/main/resources/db/migration/liquibase/${{ inputs.db_type }}/${{ inputs.user }}.changelog"
+          PROPS_FILE="liquibase.properties"
+          if [[ "${{ inputs.db_type }}" == "online" ]]; then
+            URL="jdbc:postgresql://${{ vars.POSTGRES_DB_HOST }}:${{ vars.POSTGRES_DB_PORT }}/${{ inputs.db_name }}?prepareThreshold=0"
+          elif [[ "${{ inputs.db_type }}" == "archive" ]]; then
+            URL="jdbc:postgresql://${{ vars.POSTGRES_ARCHIVE_DB_HOST }}:${{ vars.POSTGRES_ARCHIVE_DB_PORT }}/${{ inputs.db_name }}?prepareThreshold=0"
+          fi
+          if [[ "${{ inputs.user }}" == "azureuser" ]]; then
+            USERNAME="${{ vars.POSTGRES_DB_ADMIN_USERNAME }}"
+            PASSWORD="${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}"
+            DEFAULT_SCHEMA="public"
+            LIQUIBASE_SCHEMA="public"
+          elif [[ "${{ inputs.user }}" == "fdr3" ]]; then
+            USERNAME="${{ vars.POSTGRES_DB_USERNAME }}"
+            PASSWORD="${{ secrets.POSTGRES_DB_PASSWORD }}"
+            DEFAULT_SCHEMA="${{ vars.POSTGRES_DB_SCHEMA }}"
+            LIQUIBASE_SCHEMA="${{ vars.POSTGRES_DB_SCHEMA }}"
+          fi
+          cat <<EOF > $PROPS_FILE
+            classpath: $CLASSPATH
+            liquibase.headless: true
+            url: $URL
+            contexts: ${{ inputs.environment }}
+            username: $USERNAME
+            password: $PASSWORD
+            defaultSchemaName: $DEFAULT_SCHEMA
+            liquibaseSchemaName: $LIQUIBASE_SCHEMA
+            liquibase.hub.mode: OFF
+            log-level: INFO
+            parameter.fdr3-online-host: ${{ vars.POSTGRES_DB_HOST }}
+            parameter.fdr3-online-port: ${{ vars.POSTGRES_DB_PORT }}
+            parameter.fdr3-online-password: ${{ secrets.POSTGRES_DB_PASSWORD }}
+            parameter.azureuser-online-password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
+          EOF
+          liquibase --defaultsFile=$PROPS_FILE update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
+          rm $PROPS_FILE
 
   cleanup_runner:
     name: Cleanup Runner

@@ -18,19 +18,19 @@ parameters:
 
 variables:
   ${{ if eq(parameters.k8sEnv, 'dev') }}:
-    DB_RESOURCE_NAME: pagopa-d-weu-fdr-flexible-postgresql
+    DB_RESOURCE_NAME: pagopa-d-itn-fdr-archive-pgflex
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_DEV)'
     KEY_VAULT_NAME: 'pagopa-d-fdr-kv'
     DATABASE_NAME: fdr3
     poolImage: 'pagopa-dev-linux-infra'
   ${{ elseif eq(parameters.k8sEnv, 'uat') }}:
-    DB_RESOURCE_NAME: pagopa-u-weu-fdr-flexible-postgresql
+    DB_RESOURCE_NAME: pagopa-u-itn-fdr-archive-pgflex
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_UAT)'
     KEY_VAULT_NAME: 'pagopa-u-fdr-kv'
     DATABASE_NAME: fdr3
     poolImage: 'pagopa-uat-linux-infra'
   ${{ elseif eq(parameters.k8sEnv, 'prd') }}:
-    DB_RESOURCE_NAME: pagopa-p-weu-fdr-flexible-postgresql
+    DB_RESOURCE_NAME: pagopa-p-itn-fdr-archive-pgflex
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_PROD)'
     KEY_VAULT_NAME: 'pagopa-p-fdr-kv'
     DATABASE_NAME: fdr3
@@ -76,7 +76,7 @@ stages:
                 GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $FDR3_USERNAME;
 
                 GRANT $FDR3_USERNAME to $ADMIN_USERNAME;
-                
+                  
                 CREATE SCHEMA IF NOT EXISTS $FDR3_SCHEMA AUTHORIZATION $FDR3_USERNAME;
 
                 GRANT ALL ON SCHEMA $FDR3_SCHEMA TO $FDR3_USERNAME;

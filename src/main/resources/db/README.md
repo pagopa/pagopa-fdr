@@ -1,5 +1,34 @@
-# Note
-DB should be already created.
+# Database migration via Liquibase
 
+## Preconditions
+The essential prerequisite for running the database schema update pipelines is that the PGFlex servers must already be 
+installed and operational. Once these servers are up and running, it is possible to create the schemas required for the 
+system to function correctly and define the service accounts by running the following pipelines:
+ - [for online server](https://dev.azure.com/pagopaspa/pagoPA-iac/_build?definitionId=2207)
+ - [for archive server](https://dev.azure.com/pagopaspa/pagoPA-iac/_build?definitionId=2520)
 
- 
+## Changelogs
+The following section outlines the changelog for the versioned releases of the databases on the online and archive servers.  
+For each version, it describes how to apply the schema changes and also provides a list of the changes that version would 
+introduce to the current structure.
+
+### Online server
+| Version | Database | User      | Description                                                                                                                                                                                                                                 |
+|---------|----------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0       | fdr3     | fdr3      | <ul><li>Initialization for schema and tables;</li></ul>                                                                                                                                                                                     |
+| 1.0.0   | postgres | azureuser | <ul><li>Installing PGCron;</li><li>Scheduling move_published_payment procedure;</li></ul>                                                                                                                                                   |
+| 1.0.1   | fdr3     | fdr3      | <ul><li>Altering tables with monetary amounts from numeric to float;</li></ul>                                                                                                                                                              |
+| 1.0.2   | fdr3     | fdr3      | <ul><li>Adding indexes on IUV and IUR fields;</li></ul>                                                                                                                                                                                     |
+| 1.0.3   | fdr3     | fdr3      | <ul><li>Adding various indexes on flow table;</li></ul>                                                                                                                                                                                     |
+| 1.1.0   | fdr3     | fdr3      | <ul><li>Introducing move_published_payments procedure;</li><li>Replacing numeric types with bigint;</li><li>Set reduced size for varchars;</li><li>Manipulating old indexes</li></ul>                                                       |
+| 1.1.1   | fdr3     | azureuser | <ul><li>Introducing execute_data_cleansing procedure;</li><li>Installing postgres_fdw;</li><li>Creating maintenance tables;</li><li>Configuring remote servers for maintenance purpose;</li><li>Configuring retention strategies;</li></ul> |
+| 1.1.2   | fdr3     | fdr3      | <ul><li>Introducing delete_unpublished_flows procedure;</li><li>Introducing materialized views for daily grouping data for archive processes;</li></ul>                                                                                     |
+| 1.1.3   | postgres | azureuser | <ul><li>Scheduling execute_data_cleansing procedure;</li><li>Scheduling materialized views refresh;</li></ul>                                                                                                                               |
+
+### Archive server
+| Version | Database | User      | Description                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|---------|----------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0       | fdr3     | fdr3      | <ul><li>Initialization for schema and tables;</li></ul>                                                                                                                                                                                                                                                                                                                                                                       |
+| 1.0.0   | postgres | azureuser | <ul><li>Installing PGCron;</li></ul>                                                                                                                                                                                                                                                                                                                                                                                          |
+| 1.0.1   | fdr3     | azureuser | <ul><li>Installing postgres_fdw;</li><li>Creating maintenance tables;</li><li>Configuring remote servers for maintenance purpose;</li><li>Introducing create_partition_on_month procedure;</li><li>Introducing delete_expired_partitions procedure;</li><li>Introducing execute_daily_copy procedure;</li><li>Introducing execute_data_cleansing procedure;</li><li>Configuring retention and archiving strategies;</li></ul> |
+| 1.0.2   | postgres | azureuzer | <ul><li>Scheduling create_partition_on_month procedure;</li><li>Scheduling delete_expired_partitions procedure;</li><li>Scheduling execute_daily_copy procedure;</li><li>Scheduling execute_data_cleansing procedure;</li></ul>                                                                                                                                                                                               |
