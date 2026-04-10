@@ -1,25 +1,25 @@
 package it.gov.pagopa.fdr.controller;
 
 import it.gov.pagopa.fdr.controller.interfaces.annotation.Re;
-import it.gov.pagopa.fdr.controller.interfaces.controller.IInternalOperationsController;
+import it.gov.pagopa.fdr.controller.interfaces.controller.IInternalPspsOperationsController;
 import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
-import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.request.InternalAddPaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.request.InternalDeletePaymentRequest;
 import it.gov.pagopa.fdr.service.FlowService;
 import it.gov.pagopa.fdr.service.PaymentService;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import jakarta.ws.rs.core.Response.Status;
 import org.jboss.resteasy.reactive.RestResponse;
 
-public class InternalOperationsController implements IInternalOperationsController {
+public class InternalPspsOperationsController implements IInternalPspsOperationsController {
 
   private final FlowService flowService;
 
   private final PaymentService paymentService;
 
-  protected InternalOperationsController(FlowService flowService, PaymentService paymentService) {
+  protected InternalPspsOperationsController(FlowService flowService, PaymentService paymentService) {
 
     this.flowService = flowService;
     this.paymentService = paymentService;
@@ -37,17 +37,17 @@ public class InternalOperationsController implements IInternalOperationsControll
   @Override
   @Re(action = FdrActionEnum.INTERNAL_ADD_PAYMENT)
   public GenericResponse addPaymentToExistingFlowForInternalUse(
-      String pspId, String flowName, AddPaymentRequest request) {
+      String pspId, String flowName, InternalAddPaymentRequest request) {
 
-    return this.paymentService.addPaymentsToUnpublishedFlow(pspId, flowName, request);
+    return this.paymentService.addPaymentsToUnpublishedFlow(pspId, flowName, request.getPayments());
   }
 
   @Override
   @Re(action = FdrActionEnum.INTERNAL_DELETE_PAYMENT)
   public GenericResponse deletePaymentFromExistingFlowForInternalUse(
-      String pspId, String flowName, DeletePaymentRequest request) {
+      String pspId, String flowName, InternalDeletePaymentRequest request) {
 
-    return this.paymentService.deletePaymentFromUnpublishedFlow(pspId, flowName, request);
+    return this.paymentService.deletePaymentFromUnpublishedFlow(pspId, flowName, request.getIndexList());
   }
 
   @Override
@@ -69,6 +69,5 @@ public class InternalOperationsController implements IInternalOperationsControll
       String pspId, String flowName, String organizationId) {
 
     return this.flowService.retrieveSingleUnpublishedFlow(organizationId, pspId, flowName);
-
   }
 }

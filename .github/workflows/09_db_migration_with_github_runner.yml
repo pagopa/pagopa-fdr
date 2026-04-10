@@ -99,6 +99,8 @@ jobs:
 
       - name: Run liquibase::migrate
         shell: bash
+        env:
+          POSTGRES_DB_ADMIN_PASSWORD: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
         run: |
           export PATH="$PATH:./liquibase-app"
           CLASSPATH="./src/main/resources/db/migration/liquibase/${{ inputs.db_type }}/${{ inputs.user }}.changelog"

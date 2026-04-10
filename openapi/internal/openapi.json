@@ -404,7 +404,45 @@
       },
       "Instant": {
         "type": "string",
-        "format": "date-time"
+        "format": "date-time",
+        "example": [
+          "2022-03-10T16:15:50Z"
+        ]
+      },
+      "InternalAddPaymentRequest": {
+        "type": "object",
+        "required": [
+          "payments"
+        ],
+        "properties": {
+          "payments": {
+            "type": "array",
+            "maxItems": 5000,
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/Payment"
+            },
+            "description": "The list of payments to be added on the draft flow (internal use)"
+          }
+        }
+      },
+      "InternalDeletePaymentRequest": {
+        "type": "object",
+        "required": [
+          "indexList"
+        ],
+        "properties": {
+          "indexList": {
+            "type": "array",
+            "maxItems": 5000,
+            "minItems": 1,
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "The list of payments indexes to be removed on the draft flow"
+          }
+        }
       },
       "LocalDate": {
         "type": "string",
@@ -1058,10 +1096,160 @@
         }
       }
     },
+    "/internal/organizations/{organizationId}/fdrs": {
+      "get": {
+        "summary": "Get all published flow related to creditor institution (for internal processes)",
+        "operationId": "IInternalOperationsController_getAllPublishedFlowsForInternalUse",
+        "tags": [
+          "Internal Operations"
+        ],
+        "parameters": [
+          {
+            "description": "The creditor institution identifier, used as a search filter",
+            "example": "15376371009",
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(.{1,35})$"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on flow date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses a dynamic default equal to the start of the previous calendar month at 00:00 UTC",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "flowDate",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            },
+            "required": false
+          },
+          {
+            "description": "The index of the page to be shown in the result",
+            "example": 1,
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "The PSP identifier, used as a search filter",
+            "example": "88888888888",
+            "name": "pspId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^(.{1,35})$"
+            }
+          },
+          {
+            "description": "A date to be used as a lower limit search on publication date. In format ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses a dynamic default equal to the start of the previous calendar month at 00:00 UTC",
+            "example": "2025-01-01T12:00:00Z",
+            "name": "publishedGt",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Instant"
+            },
+            "required": false
+          },
+          {
+            "description": "The number of the elements of the page to be shown in the result",
+            "example": 50,
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1000,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedFlowsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 400,
+                  "httpStatusDescription": "Bad Request",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "path": "<detail.path.if-exist>",
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatusCode": 404,
+                  "httpStatusDescription": "Not Found",
+                  "appErrorCode": "FDR-XXXX",
+                  "errors": [
+                    {
+                      "message": "<detail.message>"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errorId": "50905466-1881-457b-b42f-fb7b2bfb1610",
+                  "httpStatusCode": 500,
+                  "httpStatusDescription": "Internal Server Error",
+                  "appErrorCode": "FDR-0500",
+                  "errors": [
+                    {
+                      "message": "An unexpected error has occurred. Please contact support."
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal/psps/{pspId}/created/fdrs/{fdr}/organizations/{organizationId}": {
       "get": {
         "summary": "Get single draft flow related to the PSP, searching by name (for internal process)",
-        "operationId": "IInternalOperationsController_getSingleFlowNotInPublishedStatusForInternalUse",
+        "operationId": "IInternalPspsOperationsController_getSingleFlowNotInPublishedStatusForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1176,7 +1364,7 @@
     "/internal/psps/{pspId}/fdrs/{fdr}": {
       "delete": {
         "summary": "Delete an existing draft flow and all related payments (for internal process)",
-        "operationId": "IInternalOperationsController_deleteExistingFlowForInternalUse",
+        "operationId": "IInternalPspsOperationsController_deleteExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1279,7 +1467,7 @@
       },
       "post": {
         "summary": "Create a new flow structure (for internal process)",
-        "operationId": "IInternalOperationsController_createEmptyFlowForInternalUse",
+        "operationId": "IInternalPspsOperationsController_createEmptyFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1394,7 +1582,7 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/payments/add": {
       "put": {
         "summary": "Add one or more payments to an existing flow (for internal process)",
-        "operationId": "IInternalOperationsController_addPaymentToExistingFlowForInternalUse",
+        "operationId": "IInternalPspsOperationsController_addPaymentToExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1424,7 +1612,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AddPaymentRequest"
+                "$ref": "#/components/schemas/InternalAddPaymentRequest"
               }
             }
           }
@@ -1508,7 +1696,7 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/payments/del": {
       "put": {
         "summary": "Delete one or more payments from an existing flow (for internal process)",
-        "operationId": "IInternalOperationsController_deletePaymentFromExistingFlowForInternalUse",
+        "operationId": "IInternalPspsOperationsController_deletePaymentFromExistingFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -1538,7 +1726,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DeletePaymentRequest"
+                "$ref": "#/components/schemas/InternalDeletePaymentRequest"
               }
             }
           }
@@ -1622,7 +1810,7 @@
     "/internal/psps/{pspId}/fdrs/{fdr}/publish": {
       "post": {
         "summary": "Publish an existing flow in draft status (for internal process)",
-        "operationId": "IInternalOperationsController_publishFlowForInternalUse",
+        "operationId": "IInternalPspsOperationsController_publishFlowForInternalUse",
         "tags": [
           "Internal Operations"
         ],
@@ -2034,7 +2222,7 @@
   "info": {
     "title": "FDR - Flussi di Rendicontazione (INTERNAL)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.1.60"
+    "version": "1.2.1"
   },
   "servers": [
     {
