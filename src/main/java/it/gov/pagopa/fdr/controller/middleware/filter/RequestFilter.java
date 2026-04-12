@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ import org.jboss.resteasy.reactive.server.jaxrs.ContainerRequestContextImpl;
 public class RequestFilter implements ContainerRequestFilter {
 
   @ConfigProperty(name = "registro-eventi.exclude-from-save.actions")
-  private Set<String> actionsExcludedFromSave;
+  Optional<Set<String>> actionsExcludedFromSave;
 
   private final Logger log;
 
@@ -69,14 +70,15 @@ public class RequestFilter implements ContainerRequestFilter {
 
     // Extract FdrAction value and store on Registro Eventi IF AND ONLY IF this value
     // (extracted from existing @Re annotation in controller) is set!
-    FdrActionEnum fdrActionEnum =
-        AppReUtil.getFdrActionByAnnotation(
-            ((ContainerRequestContextImpl) containerRequestContext)
-                .getServerRequestContext()
-                .getResteasyReactiveResourceInfo()
-                .getAnnotations());
+    // NOTE: getResteasyReactiveResourceInfo() could be null if resource does not exist
+    var serverRequestContext = ((ContainerRequestContextImpl) containerRequestContext)
+        .getServerRequestContext();
+    var resourceInfo = serverRequestContext.getResteasyReactiveResourceInfo();
+    FdrActionEnum fdrActionEnum = resourceInfo != null
+        ? AppReUtil.getFdrActionByAnnotation(resourceInfo.getAnnotations())
+        : null;
     boolean isActionIncludedForRE = isActionIncludedForRE(fdrActionEnum);
-    if (isActionIncludedForRE) {
+    if (isActionIncludedForRE && fdrActionEnum != null) {
 
       // Extracting request body in order to be lately stored in BLOB Storage
       String fdrAction = fdrActionEnum.name();
@@ -120,6 +122,9 @@ public class RequestFilter implements ContainerRequestFilter {
   }
 
   private boolean isActionIncludedForRE(FdrActionEnum fdrActionEnum) {
-    return fdrActionEnum != null && !actionsExcludedFromSave.contains(fdrActionEnum.name());
+    if (actionsExcludedFromSave.isEmpty()) {
+      return fdrActionEnum != null && !actionsExcludedFromSave.get().contains(fdrActionEnum.name());
+    }
+    return true;
   }
 }

@@ -12,10 +12,12 @@ import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.repository.FlowRepository;
-import it.gov.pagopa.fdr.repository.PaymentRepository;
+import it.gov.pagopa.fdr.repository.PaymentFullViewRepository;
+import it.gov.pagopa.fdr.repository.PaymentStagingRepository;
 import it.gov.pagopa.fdr.repository.common.RepositoryPagedResult;
 import it.gov.pagopa.fdr.repository.entity.FlowEntity;
-import it.gov.pagopa.fdr.repository.entity.PaymentEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentFullViewEntity;
+import it.gov.pagopa.fdr.repository.entity.PaymentStagingEntity;
 import it.gov.pagopa.fdr.repository.enums.FlowStatusEnum;
 import it.gov.pagopa.fdr.service.middleware.mapper.PaymentMapper;
 import it.gov.pagopa.fdr.service.middleware.validator.SemanticValidator;
@@ -50,23 +52,27 @@ public class PaymentService {
 
   private final FlowRepository flowRepository;
 
-  private final PaymentRepository paymentRepository;
+  private final PaymentFullViewRepository paymentFullViewRepository;
+
+  private final PaymentStagingRepository paymentStagingRepository;
 
   private final PaymentMapper paymentMapper;
 
   public PaymentService(
-      Logger log,
-      Config cachedConfig,
-      FlowRepository flowRepository,
-      PaymentRepository paymentRepository,
-      ReService reService,
-      PaymentMapper paymentMapper) {
+          Logger log,
+          Config cachedConfig,
+          FlowRepository flowRepository,
+          ReService reService,
+          PaymentFullViewRepository paymentFullViewRepository,
+          PaymentStagingRepository paymentStagingRepository,
+          PaymentMapper paymentMapper) {
 
     this.log = log;
     this.cachedConfig = cachedConfig;
     this.flowRepository = flowRepository;
-    this.paymentRepository = paymentRepository;
     this.reService = reService;
+    this.paymentFullViewRepository = paymentFullViewRepository;
+    this.paymentStagingRepository = paymentStagingRepository;
     this.paymentMapper = paymentMapper;
   }
 
@@ -96,8 +102,8 @@ public class PaymentService {
     }
 
     Long flowId = optFlowId.get();
-    RepositoryPagedResult<PaymentEntity> paginatedResult =
-        this.paymentRepository.findByFlowId(flowId, (int) pageNumber, (int) pageSize);
+    RepositoryPagedResult<PaymentFullViewEntity> paginatedResult =
+        this.paymentFullViewRepository.findByFlowId(flowId, (int) pageNumber, (int) pageSize);
 
     return paymentMapper.toPaginatedPaymentsResponse(paginatedResult, pageSize, pageNumber);
   }
@@ -126,8 +132,8 @@ public class PaymentService {
       throw new AppException(AppErrorCodeMessageEnum.REPORTING_FLOW_NOT_FOUND, flowName);
     }
 
-    RepositoryPagedResult<PaymentEntity> paginatedResult =
-        this.paymentRepository.findByFlowId(optFlowId.get(), (int) pageNumber, (int) pageSize);
+    RepositoryPagedResult<PaymentFullViewEntity> paginatedResult =
+        this.paymentFullViewRepository.findByFlowId(optFlowId.get(), (int) pageNumber, (int) pageSize);
 
     return paymentMapper.toPaginatedPaymentsResponse(paginatedResult, pageSize, pageNumber);
   }
@@ -144,7 +150,7 @@ public class PaymentService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateAddPaymentRequest(configData, pspId, flowName, request);
 
-    return addPaymentsToUnpublishedFlow(pspId, flowName, request);
+    return addPaymentsToUnpublishedFlow(pspId, flowName, request.getPayments());
   }
 
   @WithSpan(kind = SERVER)
@@ -158,15 +164,15 @@ public class PaymentService {
     ConfigDataV1 configData = cachedConfig.getClonedCache();
     SemanticValidator.validateDeletePaymentRequest(configData, pspId, flowName, request);
 
-    return deletePaymentFromUnpublishedFlow(pspId, flowName, request);
+    return deletePaymentFromUnpublishedFlow(pspId, flowName, request.getIndexList());
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public GenericResponse addPaymentsToUnpublishedFlow(String pspId, String flowName, AddPaymentRequest request) {
+  public GenericResponse addPaymentsToUnpublishedFlow(String pspId, String flowName, List<Payment> payments) {
 
     log.debugf(
         "Adding [%s] new payments on flow [%s], pspId [%s]",
-        request.getPayments().size(), flowName, pspId
+        payments.size(), flowName, pspId
     );
 
     // check if there is an unpublished flow on which is possible to add payments
@@ -177,13 +183,12 @@ public class PaymentService {
 
     // check if there is any payment that uses at least one of passed indexes
     FlowEntity publishingFlow = optPublishingFlow.get();
-    List<Payment> paymentsToAdd = request.getPayments();
-    Set<Long> indexes = paymentsToAdd.stream().map(Payment::getIndex).collect(Collectors.toSet());
+    Set<Long> indexes = payments.stream().map(Payment::getIndex).collect(Collectors.toSet());
 
     // remove count -> execute only 1 query
-    List<PaymentEntity> indexesAlreadyAdded = paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+    List<PaymentStagingEntity> indexesAlreadyAdded = paymentStagingRepository.findByFlowIdIndexesAndOrgId(publishingFlow.getId(), indexes, publishingFlow.orgDomainId);
     if (!indexesAlreadyAdded.isEmpty()) {
-      List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(PaymentEntity::getIndex).toList();
+      List<Long> conflictingIndexes = indexesAlreadyAdded.stream().map(payment -> payment.getId().getIndex()).toList();
       throw new AppException(
           AppErrorCodeMessageEnum.REPORTING_FLOW_PAYMENT_DUPLICATE_INDEX,
           conflictingIndexes,
@@ -193,7 +198,7 @@ public class PaymentService {
 
     // create all entities in batch, from each payment to be added, in transactional way
     Instant now = Instant.now();
-    List<PaymentEntity> paymentEntities = paymentMapper.toEntity(publishingFlow, paymentsToAdd, now);
+    List<PaymentStagingEntity> paymentEntities = paymentMapper.toEntity(publishingFlow, payments, now);
     addPaymentToExistingFlowInTransaction(publishingFlow, paymentEntities, now);
 
     // Send event to Registro Eventi for internal operation
@@ -206,7 +211,7 @@ public class PaymentService {
 
   @Transactional(rollbackOn = Exception.class)
   public GenericResponse deletePaymentFromUnpublishedFlow(
-      String pspId, String flowName, DeletePaymentRequest request) {
+      String pspId, String flowName, List<Long> indexList) {
 
     // check if there is an unpublished flow on which is possible to add payments
     Optional<FlowEntity> optPublishingFlow =
@@ -223,12 +228,12 @@ public class PaymentService {
     }
 
     // check if each passed index refers to an existing payment
-    Set<Long> indexes = new HashSet<>(request.getIndexList());
-    List<PaymentEntity> paymentEntities =
-        this.paymentRepository.findByFlowIdAndIndexes(publishingFlow.getId(), indexes);
+    Set<Long> indexes = new HashSet<>(indexList);
+    List<PaymentStagingEntity> paymentEntities =
+        this.paymentStagingRepository.findByFlowIdIndexesAndOrgId(publishingFlow.getId(), indexes, publishingFlow.orgDomainId);
     boolean containsAllIndexes =
         paymentEntities.stream()
-            .map(PaymentEntity::getIndex)
+            .map(payment -> payment.getId().getIndex())
             .collect(Collectors.toSet())
             .containsAll(indexes);
     if (!containsAllIndexes) {
@@ -250,6 +255,10 @@ public class PaymentService {
     return GenericResponse.builder()
         .message(String.format("Fdr [%s] payment deleted", flowName))
         .build();
+  }
+
+  public void deleteAllPaymentsFromUnpublishedFlow(Long flowId) {
+    this.paymentStagingRepository.deleteEntitiesByFlowId(flowId);
   }
 
   private void storeInternalREEvent(
@@ -275,15 +284,15 @@ public class PaymentService {
   }
 
   @SneakyThrows
-  private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
+  private void addPaymentToExistingFlowInTransaction(FlowEntity publishingFlow, List<PaymentStagingEntity> paymentEntities, Instant now) {
 
     long paymentsToAdd = paymentEntities.size();
 
     BigDecimal amountToAdd = paymentEntities.stream()
-              .map(PaymentEntity::getAmount)
+              .map(PaymentStagingEntity::getAmount)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    this.paymentRepository.createEntityInBulk(paymentEntities);
+    this.paymentStagingRepository.createEntityInBulk(paymentEntities, publishingFlow.orgDomainId);
 
     flowRepository.updateComputedValues(
             publishingFlow.getId(),
@@ -296,12 +305,12 @@ public class PaymentService {
 
   @SneakyThrows
   private void deletePaymentToExistingFlowInTransaction(
-      FlowEntity publishingFlow, List<PaymentEntity> paymentEntities, Instant now) {
+      FlowEntity publishingFlow, List<PaymentStagingEntity> paymentEntities, Instant now) {
 
     // generate quantity to subtract on computed values (evaluated as negative value)
     long paymentsToAdd = -1L * paymentEntities.size();
     BigDecimal amountToAdd = paymentEntities.stream()
-            .map(PaymentEntity::getAmount)
+            .map(PaymentStagingEntity::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add).multiply(BigDecimal.valueOf(-1));
 
     // finally, update referenced flow: increment counters about computed total payments and
@@ -310,7 +319,7 @@ public class PaymentService {
         publishingFlow.getComputedTotPayments() > 0
             ? FlowStatusEnum.INSERTED
             : FlowStatusEnum.CREATED;
-    this.paymentRepository.deleteEntityInBulk(paymentEntities);
+    this.paymentStagingRepository.deleteEntityInBulk(paymentEntities);
     this.flowRepository.updateComputedValues(
         publishingFlow.getId(), paymentsToAdd, amountToAdd, now, status);
   }

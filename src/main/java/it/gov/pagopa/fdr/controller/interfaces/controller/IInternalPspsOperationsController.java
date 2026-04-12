@@ -4,8 +4,8 @@ import it.gov.pagopa.fdr.controller.model.common.response.GenericResponse;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.request.CreateFlowRequest;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowCreatedResponse;
-import it.gov.pagopa.fdr.controller.model.payment.request.AddPaymentRequest;
-import it.gov.pagopa.fdr.controller.model.payment.request.DeletePaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.request.InternalAddPaymentRequest;
+import it.gov.pagopa.fdr.controller.model.payment.request.InternalDeletePaymentRequest;
 import it.gov.pagopa.fdr.util.constant.ControllerConstants;
 import it.gov.pagopa.fdr.util.error.enums.AppErrorCodeMessageEnum;
 import it.gov.pagopa.fdr.util.openapi.APIAppErrorMetadata;
@@ -16,14 +16,7 @@ import it.gov.pagopa.fdr.util.openapi.APITableMetadata.ReadWrite;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -41,12 +34,12 @@ import org.jboss.resteasy.reactive.RestResponse;
 @Tag(
     name = "Internal Operations",
     description = "APIs for internal operations, used for hidden processes in FdR ecosystem")
-public interface IInternalOperationsController {
+public interface IInternalPspsOperationsController {
 
   @POST
   @Path(ControllerConstants.URL_API_CREATE_EMPTY_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController_createEmptyFlowForInternalUse",
+      operationId = "IInternalPspsOperationsController_createEmptyFlowForInternalUse",
       summary = "Create a new flow structure (for internal process)",
       description =
           """
@@ -139,7 +132,7 @@ This API is used only by internal processes in FdR ecosystem.
   @PUT
   @Path(ControllerConstants.URL_API_ADD_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController_addPaymentToExistingFlowForInternalUse",
+      operationId = "IInternalPspsOperationsController_addPaymentToExistingFlowForInternalUse",
       summary = "Add one or more payments to an existing flow (for internal process)",
       description =
           """
@@ -158,7 +151,7 @@ Before executing the operation, the request fields are validated against entitie
 against a specific standard format.<br>
 This API is used only by internal processes in FdR ecosystem.
 """)
-  @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
+  @RequestBody(content = @Content(schema = @Schema(implementation = InternalAddPaymentRequest.class)))
   @APIResponses(
       value = {
         @APIResponse(
@@ -220,12 +213,12 @@ This API is used only by internal processes in FdR ecosystem.
               description = "The flow name, used as a search filter",
               example = "2025-01-0188888888888-0001")
           String flowName,
-      @NotNull @Valid AddPaymentRequest request);
+      @NotNull @Valid InternalAddPaymentRequest request);
 
   @PUT
   @Path(ControllerConstants.URL_API_DELETE_PAYMENT_IN_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController_deletePaymentFromExistingFlowForInternalUse",
+      operationId = "IInternalPspsOperationsController_deletePaymentFromExistingFlowForInternalUse",
       summary = "Delete one or more payments from an existing flow (for internal process)",
       description =
           """
@@ -244,7 +237,7 @@ Before executing the operation, the request fields are validated against entitie
 <i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
 This API is used only by internal processes in FdR ecosystem.
 """)
-  @RequestBody(content = @Content(schema = @Schema(implementation = DeletePaymentRequest.class)))
+  @RequestBody(content = @Content(schema = @Schema(implementation = InternalDeletePaymentRequest.class)))
   @APIResponses(
       value = {
         @APIResponse(
@@ -307,12 +300,12 @@ This API is used only by internal processes in FdR ecosystem.
               description = "The flow name, used as a search filter",
               example = "2025-01-0188888888888-0001")
           String flowName,
-      @NotNull @Valid DeletePaymentRequest request);
+      @NotNull @Valid InternalDeletePaymentRequest request);
 
   @POST
   @Path(ControllerConstants.URL_API_PUBLISH_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController_publishFlowForInternalUse",
+      operationId = "IInternalPspsOperationsController_publishFlowForInternalUse",
       summary = "Publish an existing flow in draft status (for internal process)",
       description =
           """
@@ -393,7 +386,7 @@ provide a historicization procedure: that task is demanded uniquely to external 
   @DELETE
   @Path(ControllerConstants.URL_API_DELETE_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController_deleteExistingFlowForInternalUse",
+      operationId = "IInternalPspsOperationsController_deleteExistingFlowForInternalUse",
       summary = "Delete an existing draft flow and all related payments (for internal process)",
       description =
           """
@@ -472,7 +465,7 @@ This API is used only by internal processes in FdR ecosystem.
   @GET
   @Path(ControllerConstants.URL_API_GET_SINGLE_NOT_PUBLISHED_FLOW)
   @Operation(
-      operationId = "IInternalOperationsController_getSingleFlowNotInPublishedStatusForInternalUse",
+      operationId = "IInternalPspsOperationsController_getSingleFlowNotInPublishedStatusForInternalUse",
       summary =
           "Get single draft flow related to the PSP, searching by name (for internal process)",
       description =

@@ -69,6 +69,12 @@ data "azurerm_key_vault_secret" "integration_test_org_subscription_key" {
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
+data "azurerm_key_vault_secret" "integration_test_apicfg_subscription_key" {
+  count        = var.env_short == "p" ? 0 : 1
+  name         = "integration-test-subkey"
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+}
+
 data "azurerm_key_vault_secret" "opex_internal_subscription_key" {
   count        = var.env_short == "p" ? 1 : 0
   name         = "opex-internal-subscription-key"

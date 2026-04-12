@@ -122,18 +122,18 @@ The result of the query is paginated and contains all the metadata needed for pa
               description =
                   "A date to be used as a lower limit search on publication date. In format"
                       + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses a "
-                      + "dynamic default equal to the start of the previous calendar month at 00:00 UTC",
+                      + "dynamic default equal to the start of the previous 30th days at 00:00 UTC",
               example = "2025-01-01T12:00:00Z")
-          @PastDateLimit(value = 1, unit = ChronoUnit.MONTHS)
+          @PastDateLimit(value = 30, unit = ChronoUnit.DAYS)
           @QueryParam(ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN)
           Optional<Instant> publishedGt,
       @Parameter(
               description =
                   "A date to be used as a lower limit search on flow date. In format"
                       + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses"
-                      + " a dynamic default equal to the start of the previous calendar month at 00:00 UTC",
+                      + " a dynamic default equal to the start of the previous 30th days at 00:00 UTC",
               example = "2025-01-01T12:00:00Z")
-          @PastDateLimit(value = 1, unit = ChronoUnit.MONTHS)
+          @PastDateLimit(value = 30, unit = ChronoUnit.DAYS)
           @QueryParam(ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN)
           Optional<Instant> flowDate,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)

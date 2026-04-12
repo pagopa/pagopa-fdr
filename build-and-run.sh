@@ -36,24 +36,8 @@ generate_openapi () {
   tags=$4
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Generate OpenAPI JSON [$version] [$conf]"
-  docker run -i -d --name exportfdr_$conf --rm -p 8080:8080 $REPO:$version-$conf
-  sleep 10
-  if [ $folder_name = "all" ]; then
-    curl http://localhost:8080/q/openapi?format=json > openapi/$conf.temp.json
-
-    jq '
-      # Mantiene solo la parte dopo "_" negli operationId
-      walk(
-        if type == "object" and has("operationId") then
-          .operationId = (.operationId | split("_")[1:] | join("_"))
-        else . end
-      )
-    ' openapi/$conf.temp.json > openapi/$conf.json
-    rm openapi/$conf.temp.json
-  else
-    curl http://localhost:8080/q/openapi?format=json > openapi/$conf.json
-
-    jq --arg tags "$tags" --arg section "$section" '
+  cp openapi/openapi.json openapi/$conf.json
+  jq --arg tags "$tags" --arg section "$section" '
       walk(
         if type == "object" then
           with_entries(if .key == "examples" then .key = "example" else . end)
@@ -108,10 +92,8 @@ generate_openapi () {
           )
         ' openapi/$folder_name/openapi_temp.json  > openapi/$folder_name/openapi.json
 
-    rm openapi/$folder_name/openapi_temp.json
-    rm openapi/$conf.json
-  fi
-  docker rm -f exportfdr_$conf
+  rm openapi/$folder_name/openapi_temp.json
+  rm openapi/$conf.json
 }
 
 test_curl () {
@@ -134,17 +116,12 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
     echo "###########"
     run docker
   elif [ $action = "generate_openapi" ]; then
-    build openapi_internal
+    echo "Generating OpenAPI JSON"
+    ./mvnw -q -Dtest=OpenApiGenerationTest test
+    echo "Generated general OpenAPI JSON. Generating partial OpenAPIs..."
     generate_openapi openapi_internal internal INTERNAL 'Info,Internal Operations,Support'
-
-    build openapi_psp
     generate_openapi openapi_psp psp PSPs 'Info,PSP'
-
-    build openapi_organization
     generate_openapi openapi_organization org ORGs 'Info,Organizations'
-
-    build openapi
-    generate_openapi openapi all
   else
     test_curl
   fi

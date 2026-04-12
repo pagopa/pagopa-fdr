@@ -73,7 +73,8 @@ Feature: Verify revision workflow
     And PSP receives revision 1 in the response of psp_get_published_fdr request
 
   Scenario: Create the same FdR
-    Given an FdR flow like create_2_payload
+    Given an unique FdR date named flow_date
+    And an FdR flow like create_2_payload
       """
         {
           "fdr": "$flow_name$",
@@ -136,7 +137,8 @@ Feature: Verify revision workflow
 
 
   Scenario: Create revision 3
-    Given the Check revision after second publish scenario executed successfully
+    Given an unique FdR date named flow_date
+    And the Check revision after second publish scenario executed successfully
     And PSP should sends 1 payments to the FdR
     And the Create the same FdR scenario executed successfully
     When PSP sends created_fdr request to fdr-microservice with None

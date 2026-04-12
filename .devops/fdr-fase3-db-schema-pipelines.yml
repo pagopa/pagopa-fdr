@@ -13,26 +13,24 @@ parameters:
     default: dev
     values:
       - dev
-      - it
-      - prf
       - uat
       - prd
 
 variables:
   ${{ if eq(parameters.k8sEnv, 'dev') }}:
-    DB_HOST: pagopa-d-weu-fdr-flexible-postgresql
+    DB_RESOURCE_NAME: pagopa-d-weu-fdr-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_DEV)'
     KEY_VAULT_NAME: 'pagopa-d-fdr-kv'
     DATABASE_NAME: fdr3
     poolImage: 'pagopa-dev-linux-infra'
   ${{ elseif eq(parameters.k8sEnv, 'uat') }}:
-    DB_HOST: pagopa-u-weu-fdr-flexible-postgresql
+    DB_RESOURCE_NAME: pagopa-u-weu-fdr-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_UAT)'
     KEY_VAULT_NAME: 'pagopa-u-fdr-kv'
     DATABASE_NAME: fdr3
     poolImage: 'pagopa-uat-linux-infra'
   ${{ elseif eq(parameters.k8sEnv, 'prd') }}:
-    DB_HOST: pagopa-p-weu-fdr-flexible-postgresql
+    DB_RESOURCE_NAME: pagopa-p-weu-fdr-flexible-postgresql
     AZURE_SERVICE_CONNECTION: '$(TF_AZURE_SERVICE_CONNECTION_PLAN_NAME_PROD)'
     KEY_VAULT_NAME: 'pagopa-p-fdr-kv'
     DATABASE_NAME: fdr3
@@ -41,6 +39,7 @@ variables:
   FDR3_USERNAME: fdr3
   FDR3_SCHEMA: fdr3
   FDR3_USERNAME_READ: fdr3r
+  MAINTENANCE_SCHEMA: maintenance
 
 stages:
   - stage: initialization_jobs
@@ -64,7 +63,8 @@ stages:
               scriptType: bash
               inlineScript: |
                 az config set extension.use_dynamic_install=yes_without_prompt
-                az postgres flexible-server execute --name $(DB_HOST) --admin-user $(ADMIN_USERNAME) \
+                az extension add --name rdbms-connect
+                az postgres flexible-server execute --name $(DB_RESOURCE_NAME) --admin-user $(ADMIN_USERNAME) \
                 --admin-password '$(db-administrator-login-password)' --database-name "$(DATABASE_NAME)" \
                 --querytext "
                 do \$\$
@@ -76,13 +76,20 @@ stages:
                 GRANT ALL PRIVILEGES ON DATABASE $DATABASE_NAME TO $FDR3_USERNAME;
 
                 GRANT $FDR3_USERNAME to $ADMIN_USERNAME;
-                  
+                
                 CREATE SCHEMA IF NOT EXISTS $FDR3_SCHEMA AUTHORIZATION $FDR3_USERNAME;
 
                 GRANT ALL ON SCHEMA $FDR3_SCHEMA TO $FDR3_USERNAME;
                 ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on tables to $FDR3_USERNAME;
                 ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on sequences to $FDR3_USERNAME;
                 ALTER DEFAULT PRIVILEGES IN SCHEMA $FDR3_SCHEMA grant all on functions to $FDR3_USERNAME;
+                
+                CREATE SCHEMA IF NOT EXISTS $MAINTENANCE_SCHEMA AUTHORIZATION $FDR3_USERNAME;
+
+                GRANT ALL ON SCHEMA $MAINTENANCE_SCHEMA TO $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $MAINTENANCE_SCHEMA GRANT SELECT, INSERT, UPDATE ON tables TO $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $MAINTENANCE_SCHEMA GRANT SELECT, USAGE, UPDATE on sequences to $FDR3_USERNAME;
+                ALTER DEFAULT PRIVILEGES IN SCHEMA $MAINTENANCE_SCHEMA GRANT ALL ON functions TO $FDR3_USERNAME;
                 END
                 \$\$;
                 "
@@ -95,7 +102,7 @@ stages:
               inlineScript: |
 
                 az config set extension.use_dynamic_install=yes_without_prompt
-                az postgres flexible-server execute --name $(DB_HOST) --admin-user $(ADMIN_USERNAME) \
+                az postgres flexible-server execute --name $(DB_RESOURCE_NAME) --admin-user $(ADMIN_USERNAME) \
                 --admin-password '$(db-administrator-login-password)' --database-name "$(DATABASE_NAME)" \
                 --querytext "
                 do \$\$

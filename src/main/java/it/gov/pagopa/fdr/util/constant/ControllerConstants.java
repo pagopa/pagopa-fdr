@@ -1,5 +1,7 @@
 package it.gov.pagopa.fdr.util.constant;
 
+import jakarta.ws.rs.Path;
+
 public class ControllerConstants {
 
   public static final String PARAMETER_CREATED_FROM = "createdFrom";
@@ -89,6 +91,8 @@ public class ControllerConstants {
   public static final String URL_CONTROLLER_PSPS = "/" + ControllerConstants.URL_PARAMETER_PSP;
 
   public static final String URL_CONTROLLER_INTERNAL_PSPS = "/internal" + URL_CONTROLLER_PSPS;
+
+  public static final String URL_CONTROLLER_INTERNAL_ORGS = "/internal" + URL_CONTROLLER_ORGANIZATIONS;
 
   public static final String OPENAPI_BADREQUEST_EXAMPLE =
       """

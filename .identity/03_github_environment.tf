@@ -30,6 +30,7 @@ locals {
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
     "PSP_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_psp_subscription_key[0].value : ""
     "ORG_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_org_subscription_key[0].value : "",
+    "APICFG_SUBSCRIPTION_KEY" : var.env_short != "p" ? data.azurerm_key_vault_secret.integration_test_apicfg_subscription_key[0].value : "",
     "POSTGRES_DB_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_password.value,
     "POSTGRES_DB_ADMIN_PASSWORD" : data.azurerm_key_vault_secret.postgres_db_admin_password.value
   }
@@ -48,6 +49,8 @@ locals {
     "POSTGRES_DB_NAME" : local.postgres_db.name,
     "POSTGRES_DB_USERNAME" : local.postgres_db.username,
     "POSTGRES_DB_ADMIN_USERNAME" : local.postgres_db.admin_username,
+    "POSTGRES_ARCHIVE_DB_HOST" : local.postgres_archive_db.host,
+    "POSTGRES_ARCHIVE_DB_PORT" : local.postgres_archive_db.port,
     "WORKLOAD_IDENTITY_ID" : data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
     "TERRAFORM_VERSION" : local.terraform_version
   }
