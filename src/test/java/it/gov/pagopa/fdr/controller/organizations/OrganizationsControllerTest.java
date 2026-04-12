@@ -11,6 +11,7 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.controller.model.error.ErrorResponse;
 import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
+import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
 import it.gov.pagopa.fdr.controller.model.payment.Payment;
@@ -428,5 +429,126 @@ class OrganizationsControllerTest {
         data.stream().map(o -> o.getPayStatus().name()).toList(),
         equalTo(List.of(PaymentStatusEnum.REVOKED.name())));
     assertThat(data.stream().map(Payment::getIndex).toList(), equalTo(List.of(101L)));
+  }
+  
+  @Test
+  @DisplayName("ORGANIZATIONS - OK - getReportingFlow returns UTC fdrDate and date-only regulationDate around midnight")
+  void testOrganization_getReportingFlow_datesAroundMidnight_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+
+    String boundaryFdrDate = "2026-03-24T23:30:00Z";
+    String regulationDate = "2026-03-24";
+
+    String urlCreate = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String bodyCreate =
+        TestUtil.FLOW_TEMPLATE
+            .formatted(
+                flowName,
+                boundaryFdrDate,
+                SenderTypeEnum.LEGAL_PERSON.name(),
+                PSP_CODE,
+                BROKER_CODE,
+                CHANNEL_CODE,
+                EC_CODE)
+            .replace("\"regulationDate\": \"2023-04-03\"", "\"regulationDate\": \"" + regulationDate + "\"");
+
+    given()
+        .body(bodyCreate)
+        .header(HEADER)
+        .when()
+        .post(urlCreate)
+        .then()
+        .statusCode(201);
+
+    String urlAddPayments = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    given()
+        .body(TestUtil.PAYMENTS_ADD_TEMPLATE)
+        .header(HEADER)
+        .when()
+        .put(urlAddPayments)
+        .then()
+        .statusCode(200);
+
+    String urlPublish = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+    given()
+        .header(HEADER)
+        .when()
+        .post(urlPublish)
+        .then()
+        .statusCode(200);
+
+    String urlGet = ORGANIZATIONS_GET_REPORTING_FLOW_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
+
+    given()
+        .header(HEADER)
+        .when()
+        .get(urlGet)
+        .then()
+        .statusCode(200)
+        .body("fdrDate", equalTo("2026-03-24T23:30:00Z"))
+        .body("regulationDate", equalTo("2026-03-24"))
+        .body("$", org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("+01:00")))
+        .body("$", org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("+02:00")));
+  }
+  
+  @Test
+  @DisplayName("ORGANIZATIONS - OK - getReportingFlowPayments preserves payDate business day around midnight")
+  void testOrganization_getReportingFlowPayments_payDateAroundMidnight_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+
+    String boundaryFdrDate = "2026-03-24T23:30:00Z";
+    String payDate = "2026-03-24T00:00:00+01:00";
+
+    String urlCreate = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String bodyCreate =
+        TestUtil.FLOW_TEMPLATE.formatted(
+            flowName,
+            boundaryFdrDate,
+            SenderTypeEnum.LEGAL_PERSON.name(),
+            PSP_CODE,
+            BROKER_CODE,
+            CHANNEL_CODE,
+            EC_CODE);
+
+    given()
+        .body(bodyCreate)
+        .header(HEADER)
+        .when()
+        .post(urlCreate)
+        .then()
+        .statusCode(201);
+
+    String paymentsBody =
+        TestUtil.PAYMENTS_ADD_TEMPLATE.replace(
+            "\"payDate\": \"2023-02-03T12:00:30.900000Z\"",
+            "\"payDate\": \"" + payDate + "\"");
+
+    String urlAddPayments = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    given()
+        .body(paymentsBody)
+        .header(HEADER)
+        .when()
+        .put(urlAddPayments)
+        .then()
+        .statusCode(200);
+
+    String urlPublish = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+    given()
+        .header(HEADER)
+        .when()
+        .post(urlPublish)
+        .then()
+        .statusCode(200);
+
+    String urlGetPayments =
+        ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
+
+    given()
+        .header(HEADER)
+        .when()
+        .get(urlGetPayments)
+        .then()
+        .statusCode(200)
+        .body("data[0].payDate", equalTo("2026-03-24T00:00:00Z"));
   }
 }
