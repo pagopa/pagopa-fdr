@@ -101,6 +101,7 @@ jobs:
         shell: bash
         env:
           POSTGRES_DB_ADMIN_PASSWORD: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
+          POSTGRES_DB_PASSWORD: ${{ secrets.POSTGRES_DB_PASSWORD }}
         run: |
           export PATH="$PATH:./liquibase-app"
           CLASSPATH="./src/main/resources/db/migration/liquibase/${{ inputs.db_type }}/${{ inputs.user }}.changelog"
@@ -112,12 +113,12 @@ jobs:
           fi
           if [[ "${{ inputs.user }}" == "azureuser" ]]; then
             USERNAME="${{ vars.POSTGRES_DB_ADMIN_USERNAME }}"
-            PASSWORD="${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}"
+            PASSWORD="$POSTGRES_DB_ADMIN_PASSWORD"
             DEFAULT_SCHEMA="public"
             LIQUIBASE_SCHEMA="public"
           elif [[ "${{ inputs.user }}" == "fdr3" ]]; then
             USERNAME="${{ vars.POSTGRES_DB_USERNAME }}"
-            PASSWORD="${{ secrets.POSTGRES_DB_PASSWORD }}"
+            PASSWORD="$POSTGRES_DB_PASSWORD"
             DEFAULT_SCHEMA="${{ vars.POSTGRES_DB_SCHEMA }}"
             LIQUIBASE_SCHEMA="${{ vars.POSTGRES_DB_SCHEMA }}"
           fi
@@ -134,8 +135,8 @@ jobs:
             log-level: INFO
             parameter.fdr3-online-host: ${{ vars.POSTGRES_DB_HOST }}
             parameter.fdr3-online-port: ${{ vars.POSTGRES_DB_PORT }}
-            parameter.fdr3-online-password: ${{ secrets.POSTGRES_DB_PASSWORD }}
-            parameter.azureuser-online-password: ${{ secrets.POSTGRES_DB_ADMIN_PASSWORD }}
+            parameter.fdr3-online-password: $POSTGRES_DB_PASSWORD
+            parameter.azureuser-online-password: $POSTGRES_DB_ADMIN_PASSWORD
           EOF
           liquibase --defaultsFile=$PROPS_FILE update --changelogFile="db.changelog-master-${{ inputs.db_version }}.xml"
           rm $PROPS_FILE
