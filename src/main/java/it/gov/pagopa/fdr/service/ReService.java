@@ -135,7 +135,7 @@ public class ReService {
     // Construct BLOB file name
     BlobHttpBody blobHttpBody = null;
 
-    LocalDateTime creationDate = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault());
+    LocalDateTime creationDate = LocalDateTime.ofInstant(createdAt, ZoneId.of("Europe/Rome"));
     String folder =
         String.format(
             "%d/%02d/%02d/%02d",

@@ -16,7 +16,7 @@ public interface ReEventMapper {
 
   String PATTERN_DATE_FORMAT = "yyyy-MM-dd";
   DateTimeFormatter DATE_FORMATTER =
-      DateTimeFormatter.ofPattern(PATTERN_DATE_FORMAT).withZone(ZoneId.systemDefault());
+      DateTimeFormatter.ofPattern(PATTERN_DATE_FORMAT).withZone(ZoneId.of("Europe/Rome"));
 
   ReEventMapper INSTANCE = Mappers.getMapper(ReEventMapper.class);
 
