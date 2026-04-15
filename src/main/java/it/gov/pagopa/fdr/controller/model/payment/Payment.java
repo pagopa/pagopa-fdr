@@ -85,8 +85,8 @@ public class Payment {
   @Schema(
       example = "2025-01-01T12:30:50.900000Z",
       description =
-          "The value of the date of the payment in relation to its completion.<br>In the XML"
-              + " request for SOAP primitives, this field is mappable with the tag"
-              + " <b>[FlussoRiversamento.datiSingoliPagamenti.dataEsitoSingoloPagamento]</b>.")
+          "The value of the date of the payment in relation to its completion. Defined with UTC time-zone. The original business day is preserved.<br>In the XML"
+                  + " request for SOAP primitives, this field is mappable with the tag"
+                  + " <b>[FlussoRiversamento.datiSingoliPagamenti.dataEsitoSingoloPagamento]</b>.")
   private Instant payDate;
 }

@@ -35,9 +35,9 @@ public class CreateFlowRequest {
   @Schema(
       example = "2025-01-01T12:20:30.800000Z",
       description =
-          "The date related to the flow reporting.<br>In the XML request for SOAP primitives, this"
-              + " field is mappable with the tag"
-              + " <b>[NodoInviaFlussoRendicontazione.dataOraFlusso]</b>.")
+          "The date related to the flow reporting. Defined with UTC time-zone.<br>In the XML request for SOAP primitives, this"
+                  + " field is mappable with the tag"
+                  + " <b>[NodoInviaFlussoRendicontazione.dataOraFlusso]</b>.")
   private Instant fdrDate;
 
   @NotNull
@@ -67,9 +67,9 @@ public class CreateFlowRequest {
   @Schema(
       example = "2023-04-03",
       description =
-          "The date of the regulation payment related to the flow.<br>In the XML request for SOAP"
-              + " primitives, this field is mappable with the tag"
-              + " <b>[FlussoRiversamento.dataRegolamento]</b>.")
+          "The date of the regulation payment related to the flow. Business date. The original calendar day is preserved.<br>In the XML request for SOAP"
+                  + " primitives, this field is mappable with the tag"
+                  + " <b>[FlussoRiversamento.dataRegolamento]</b>.")
   @JsonDeserialize(using = ISO8601LocalDateDeserializer.class)
   private LocalDate regulationDate;
 

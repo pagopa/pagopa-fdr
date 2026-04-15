@@ -68,6 +68,8 @@ to change it in its entirety.<br>
 Before executing the operation, the request fields are validated against entities configured for
 <i>Nodo dei Pagamenti</i> environment, in particular (but not limited) on creditor institution
 and PSP. Also, the name of the flow is validated against a specific standard format.<br>
+
+All date-time fields in the request body are defined with UTC time-zone unless otherwise specified at field level.<br>  
 """)
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
@@ -164,6 +166,8 @@ to create a new revision of the same flow through the 'new flow creation' API.<b
 Before executing the operation, the request fields are validated against entities configured for
 <i>Nodo dei Pagamenti</i> environment, in particular on PSP. Also, the name of the flow is validated
 against a specific standard format.<br>
+
+All date-time fields in the request body are defined with UTC time-zone unless otherwise specified at field level.<br>
 """)
   @RequestBody(content = @Content(schema = @Schema(implementation = AddPaymentRequest.class)))
   @APIResponses(
@@ -490,6 +494,8 @@ The only flows retrieved are the single draft revision, one for each flow identi
 Before executing the query, the search filters are validated against entities configured for
 <i>Nodo dei Pagamenti</i> environment, in particular on PSP.<br>
 The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+
+Date-time fields in the response are defined with UTC time-zone.<br>
 """)
   @APIResponses(
       value = {
@@ -545,9 +551,9 @@ The result of the query is paginated and contains all the metadata needed for pa
           String pspId,
       @QueryParam(ControllerConstants.PARAMETER_CREATED_GREATER_THAN)
           @Parameter(
-              description =
-                  "A date to be used as a lower limit search on creation date. In format ISO-8601"
-                      + " (yyyy-MM-dd'T'HH:mm:ss)",
+                  description =
+                  "A date-time to be used as a lower limit search on creation date. Defined with UTC "
+                      + "time-zone and formatted as ISO-8601 (yyyy-MM-dd'T'HH:mm:ss'Z').",
               example = "2025-01-01T12:00:00Z")
           Instant createdGt,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
@@ -581,6 +587,8 @@ unique identifier.<br>
 Before executing the query, the search filters are validated against entities configured for
 <i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
 the name of the flow is validated against a specific standard format.<br>
+
+Date-time fields in the response are defined with UTC time-zone. Business-date fields preserve the original calendar day.<br>
 """)
   @APIResponses(
       value = {
@@ -667,6 +675,8 @@ Before executing the query, the search filters are validated against entities co
 <i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
 the name of the flow is validated against a specific standard format.<br>
 The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+
+Date-time fields in the response are defined with UTC time-zone. Business-date fields preserve the original calendar day.<br>
 """)
   @APIResponses(
       value = {
@@ -763,6 +773,8 @@ Before executing the query, the search filters are validated against entities co
 <i>Nodo dei Pagamenti</i> environment, in particular on PSP and creditor institution (if that
 search filter is defined).<br>
 The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+
+Date-time fields in the response are defined with UTC time-zone.<br>
 """)
   @APIResponses(
       value = {
@@ -825,10 +837,10 @@ The result of the query is paginated and contains all the metadata needed for pa
               example = "15376371009")
           String organizationId,
       @QueryParam(ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN)
-          @Parameter(
+      @Parameter(
               description =
-                  "A date to be used as a lower limit search on publication date. In format"
-                      + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss)",
+                  "A date-time to be used as a lower limit search on publication date. Defined with UTC "
+                      + "time-zone and formatted as ISO-8601 (yyyy-MM-dd'T'HH:mm:ss'Z').",
               example = "2025-01-01T12:00:00Z")
           Instant publishedGt,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
@@ -863,6 +875,8 @@ unique identifier and revision.<br>
 Before executing the query, the search filters are validated against entities configured for
 <i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
 the name of the flow is validated against a specific standard format.<br>
+
+Date-time fields in the response are defined with UTC time-zone. Business-date fields preserve the original calendar day.<br>
 """)
   @APIResponses(
       value = {
@@ -953,6 +967,8 @@ Before executing the query, the search filters are validated against entities co
 <i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
 the name of the flow is validated against a specific standard format.<br>
 The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+
+Date-time fields in the response are defined with UTC time-zone. Business-date fields preserve the original calendar day.<br>
 """)
   @APIResponses(
       value = {

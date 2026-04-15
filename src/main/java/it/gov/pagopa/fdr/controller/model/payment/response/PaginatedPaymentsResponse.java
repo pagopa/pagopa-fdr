@@ -21,6 +21,8 @@ public class PaginatedPaymentsResponse {
   @Schema(example = "100", description = "The number of elements that can be found in this page.")
   private Long count;
 
-  @Schema(description = "The list of payments that are included in this page.")
+  @Schema(
+          description =
+              "The list of payments that are included in this page. Date-time fields inside each item are defined with UTC time-zone. The original business day is preserved where applicable.")
   private List<Payment> data;
 }

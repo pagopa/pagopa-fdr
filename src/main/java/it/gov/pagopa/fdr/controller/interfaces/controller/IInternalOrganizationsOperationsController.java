@@ -47,6 +47,8 @@ public interface IInternalOrganizationsOperationsController {
                     Before executing the query, the search filters are validated against entities configured for
                     <i>Nodo dei Pagamenti</i> environment, in particular on PSP (if that search filter is defined).<br>
                     The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
+                    
+                    Query date-time filters are defined with UTC time-zone.<br>
                     """)
     @APIResponses(
             value = {
@@ -111,18 +113,20 @@ public interface IInternalOrganizationsOperationsController {
             String pspId,
             @Parameter(
                     description =
-                            "A date to be used as a lower limit search on publication date. In format"
-                                    + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses a "
-                                    + "dynamic default equal to the start of the previous 30th days at 00:00 UTC",
+                            "A date-time to be used as a lower limit search on publication date. "
+                                    + "Defined with UTC time-zone and formatted as ISO-8601 "
+                                    + "(yyyy-MM-dd'T'HH:mm:ss'Z'). If omitted, the server uses a dynamic "
+                                    + "default equal to the start of the previous 30th day at 00:00:00Z.",
                     example = "2025-01-01T12:00:00Z")
             @PastDateLimit(value = 30, unit = ChronoUnit.DAYS)
             @QueryParam(ControllerConstants.PARAMETER_PUBLISHED_GREATER_THAN)
             Optional<Instant> publishedGt,
             @Parameter(
                     description =
-                            "A date to be used as a lower limit search on flow date. In format"
-                                    + " ISO-8601 (yyyy-MM-dd'T'HH:mm:ss). If omitted, the server uses"
-                                    + " a dynamic default equal to the start of the previous 30th days at 00:00 UTC",
+                            "A date-time to be used as a lower limit search on flow date. "
+                                    + "Defined with UTC time-zone and formatted as ISO-8601 "
+                                    + "(yyyy-MM-dd'T'HH:mm:ss'Z'). If omitted, the server uses a dynamic "
+                                    + "default equal to the start of the previous 30th day at 00:00:00Z.",
                     example = "2025-01-01T12:00:00Z")
             @PastDateLimit(value = 30, unit = ChronoUnit.DAYS)
             @QueryParam(ControllerConstants.PARAMETER_FLOW_DATE_GREATER_THAN)

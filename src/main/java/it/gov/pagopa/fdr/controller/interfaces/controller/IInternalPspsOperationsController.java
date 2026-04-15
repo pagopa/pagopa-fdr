@@ -54,6 +54,8 @@ Before executing the operation, the request fields are validated against entitie
 <i>Nodo dei Pagamenti</i> environment, in particular (but not limited) on creditor institution
 and PSP. Also, the name of the flow is validated against a specific standard format.<br>
 This API is used only by internal processes in FdR ecosystem.
+
+All date-time fields in the request body are defined with UTC time-zone unless otherwise specified at field level.<br>
 """)
   @RequestBody(content = @Content(schema = @Schema(implementation = CreateFlowRequest.class)))
   @APIResponses(
@@ -150,6 +152,8 @@ Before executing the operation, the request fields are validated against entitie
 <i>Nodo dei Pagamenti</i> environment, in particular on PSP. Also, the name of the flow is validated
 against a specific standard format.<br>
 This API is used only by internal processes in FdR ecosystem.
+
+All date-time fields in the request body are defined with UTC time-zone unless otherwise specified at field level.<br>
 """)
   @RequestBody(content = @Content(schema = @Schema(implementation = InternalAddPaymentRequest.class)))
   @APIResponses(
@@ -482,6 +486,8 @@ Before executing the query, the search filters are validated against entities co
 <i>Nodo dei Pagamenti</i> environment, in particular on creditor institution and PSP. Also,
 the name of the flow is validated against a specific standard format.<br>
 This API is used only by internal processes in FdR ecosystem.
+
+Date-time fields in the response are defined with UTC time-zone. Business-date fields preserve the original calendar day.<br>
 """)
   @APIResponses(
       value = {

@@ -19,6 +19,8 @@ public class AddPaymentRequest {
   @NotNull
   @Size(min = 1, max = AppConstant.MAX_PAYMENT)
   @Valid
-  @Schema(description = "The list of payments to be added on the draft flow")
+  @Schema(
+          description =
+              "The list of payments to be added on the draft flow. Date-time fields inside each payment are defined with UTC time-zone unless otherwise specified at field level.")
   private List<Payment> payments;
 }

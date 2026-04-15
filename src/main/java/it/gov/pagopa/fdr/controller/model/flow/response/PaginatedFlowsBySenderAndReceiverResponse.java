@@ -16,6 +16,8 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 @JsonPropertyOrder({"metadata", "count", "data"})
 public class PaginatedFlowsBySenderAndReceiverResponse extends PaginatedResponse {
 
-  @Schema(description = "The list of flows that are included in this page.")
+    @Schema(
+            description =
+                "The list of flows that are included in this page. Date-time fields inside each item are defined with UTC time-zone.")
   private List<FlowBySenderAndReceiver> data;
 }
