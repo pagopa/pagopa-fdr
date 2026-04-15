@@ -4,7 +4,6 @@ import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.repository.entity.re.ReEventEntity;
-import it.gov.pagopa.fdr.service.ReService;
 import it.gov.pagopa.fdr.service.middleware.mapper.ReEventMapper;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.service.model.re.ReEvent;
