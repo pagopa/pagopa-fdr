@@ -40,12 +40,12 @@ public class SingleFlowCreatedResponse {
 
   @Schema(
       example = "2025-01-01T12:00:30.900000Z",
-      description = "The date and time on which the flow is created.")
+      description = "The date and time on which the flow is created. Defined with UTC time-zone.")
   private Instant created;
 
   @Schema(
       example = "2025-01-01T12:10:30.900000Z",
-      description = "The last date and time on which the flow is updated.")
+      description = "The last date and time on which the flow is updated. Defined with UTC time-zone.")
   private Instant updated;
 
   @Schema(example = "CREATED", description = "The specific status of publication of the flow")
@@ -59,7 +59,7 @@ public class SingleFlowCreatedResponse {
 
   @Schema(
       example = "2025-01-01T12:20:30.800000Z",
-      description = "The date related to the flow reporting.")
+      description = "The date related to the flow reporting. Defined with UTC time-zone.")
   private Instant fdrDate;
 
   @Schema(
@@ -78,7 +78,7 @@ public class SingleFlowCreatedResponse {
 
   @Schema(
       example = "2023-04-03",
-      description = "The date of the regulation payment related to the flow.")
+      description = "The date of the regulation payment related to the flow. Business date. The original calendar day is preserved.")
   @JsonSerialize(using = ISO8601LocalDateSerializer.class)
   private LocalDate regulationDate;
 

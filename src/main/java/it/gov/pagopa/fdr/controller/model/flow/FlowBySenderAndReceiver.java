@@ -39,6 +39,6 @@ public class FlowBySenderAndReceiver {
 
   @Schema(
       example = "2025-01-01T12:00:30.900000Z",
-      description = "The date and time on which the flow is created.")
+      description = "The date and time on which the flow is created. Defined with UTC time-zone.")
   private Instant created;
 }

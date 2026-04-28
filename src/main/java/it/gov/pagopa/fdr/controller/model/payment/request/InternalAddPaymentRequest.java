@@ -19,7 +19,9 @@ public class InternalAddPaymentRequest {
   @NotNull
   @Size(min = 1, max = AppConstant.MAX_PAYMENT_INTERNAL)
   @Valid
-  @Schema(description = "The list of payments to be added on the draft flow (internal use)")
+  @Schema(
+          description =
+              "The list of payments to be added on the draft flow (internal use). Date-time fields inside each payment are defined with UTC time-zone unless otherwise specified at field level.")
   private List<Payment> payments;
 }
 

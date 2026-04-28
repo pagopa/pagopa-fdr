@@ -1,10 +1,30 @@
-package it.gov.pagopa.fdr.service.re;
+package it.gov.pagopa.fdr.service;
 
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import it.gov.pagopa.fdr.repository.entity.re.ReEventEntity;
+import it.gov.pagopa.fdr.service.middleware.mapper.ReEventMapper;
+import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
+import it.gov.pagopa.fdr.service.model.re.ReEvent;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+
+import java.lang.reflect.Field;
+import java.time.Instant;
+
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
@@ -213,4 +233,74 @@ class ReServiceTest {
     reServiceMock.publishEvents(null);
     Mockito.verify(producerMock, Mockito.times(0)).send((EventDataBatch) Mockito.any());
   }*/
+    
+    @Test
+    void storeEvent_shouldBuildBlobPathUsingEuropeRomeTimezone() throws Exception {
+        BlobContainerClient blobContainerClient = mock(BlobContainerClient.class);
+        BlobClient blobClient = mock(BlobClient.class);
+        ReEventMapper reEventMapper = mock(ReEventMapper.class);
+        ReEventEntity entity = mock(ReEventEntity.class);
+        Logger log = mock(Logger.class);
+
+        when(blobContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
+        when(blobContainerClient.getAccountName()).thenReturn("storage-account");
+        when(reEventMapper.toEntity(org.mockito.ArgumentMatchers.any(ReEvent.class))).thenReturn(entity);
+        doNothing().when(entity).persist();
+
+        ReService service = new ReService(log, reEventMapper, blobContainerClient, 1);
+        setField(service, "blobContainerName", "re-container");
+
+        ReEvent reEvent =
+                ReEvent.builder()
+                .sessionId("SESSION1")
+                .created(Instant.parse("2026-03-24T23:30:00Z"))
+                .fdrAction(FdrActionEnum.CREATE_FLOW)
+                .reqPayload("{\"ok\":true}")
+                .build();
+
+        service.storeEvent(reEvent);
+
+        assertNotNull(reEvent.getReqBodyRef());
+        assertNotNull(reEvent.getReqBodyRef().getFileName());
+        assertTrue(reEvent.getReqBodyRef().getFileName().startsWith("2026/03/25/00/"));
+        assertTrue(reEvent.getReqBodyRef().getFileName().contains("SESSION1_CREATE_FLOW_REQ.json.zip"));
+    }
+
+    @Test
+    void storeEvent_shouldKeepSameDateWhenUtcAndEuropeRomeAreSameDay() throws Exception {
+        BlobContainerClient blobContainerClient = mock(BlobContainerClient.class);
+        BlobClient blobClient = mock(BlobClient.class);
+        ReEventMapper reEventMapper = mock(ReEventMapper.class);
+        ReEventEntity entity = mock(ReEventEntity.class);
+        Logger log = mock(Logger.class);
+
+        when(blobContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
+        when(blobContainerClient.getAccountName()).thenReturn("storage-account");
+        when(reEventMapper.toEntity(org.mockito.ArgumentMatchers.any(ReEvent.class))).thenReturn(entity);
+        doNothing().when(entity).persist();
+
+        ReService service = new ReService(log, reEventMapper, blobContainerClient, 1);
+        setField(service, "blobContainerName", "re-container");
+
+        ReEvent reEvent =
+                ReEvent.builder()
+                .sessionId("SESSION1")
+                .created(Instant.parse("2026-03-24T10:15:00Z"))
+                .fdrAction(FdrActionEnum.CREATE_FLOW)
+                .reqPayload("{\"ok\":true}")
+                .build();
+
+        service.storeEvent(reEvent);
+
+        assertNotNull(reEvent.getReqBodyRef());
+        assertNotNull(reEvent.getReqBodyRef().getFileName());
+        assertTrue(reEvent.getReqBodyRef().getFileName().startsWith("2026/03/24/11/"));
+        assertTrue(reEvent.getReqBodyRef().getFileName().contains("SESSION1_CREATE_FLOW_REQ.json.zip"));
+    }
+
+    private void setField(Object target, String fieldName, Object value) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(target, value);
+    }
 }

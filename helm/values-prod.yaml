@@ -2,7 +2,7 @@ microservice-chart: &microservice-chart
   namespace: "fdr"
   image:
     repository: ghcr.io/pagopa/pagopa-fdr
-    tag: 1.2.2
+    tag: 1.2.2-2-PIDM-1734
     pullPolicy: Always
   readinessProbe:
     httpGet:
@@ -62,7 +62,6 @@ microservice-chart: &microservice-chart
     enable: false
   envConfig: &envConfig
     APP_ENVIRONMENT: "prod"
-    TZ: "Europe/Rome"
     OTEL_ENDPOINT: "http://otel-collector.elastic-system.svc.cluster.local:4317"
     OTEL_TRACES_SAMPLER: "traceidratio"
     OTEL_TRACES_SAMPLER_ARG: "0.5"

@@ -40,7 +40,8 @@ public interface ISupportController {
 This API permits to search all the flows that contains a payment with specific IUV code
 (Identificativo Univoco Versamento) in relation to a PSP.<br>
 The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
-This API is used for internal purpose in order to perform a deep-search for dedicated troubleshooting.
+This API is used for internal purpose in order to perform a deep-search for dedicated troubleshooting.<br>
+Date-time fields in the response are defined with UTC time-zone.<br>
 """)
   @APIResponses(
       value = {
@@ -92,13 +93,17 @@ This API is used for internal purpose in order to perform a deep-search for dedi
           String iuv,
       @QueryParam(ControllerConstants.PARAMETER_CREATED_FROM)
           @Parameter(
-              description = "The lower limit of the date related to the flow creation date",
-              example = "2025-01-01T12:00:00.00000Z")
+                  description =
+                  "The lower limit of the flow creation date-time. Defined with UTC time-zone and "
+                      + "formatted as ISO-8601.",
+              example = "2025-01-01T12:00:00Z")
           Instant createdFrom,
       @QueryParam(ControllerConstants.PARAMETER_CREATED_TO)
           @Parameter(
-              description = "The upper limit of the date related to the flow creation date",
-              example = "2025-01-31T12:00:00.00000Z")
+                  description =
+                  "The upper limit of the flow creation date-time. Defined with UTC time-zone and "
+                      + "formatted as ISO-8601.",
+              example = "2025-01-31T12:00:00Z")
           Instant createdTo,
       @QueryParam("organizationId") @Parameter(description = "The ID of an EC")
           String organizationId,
@@ -125,7 +130,8 @@ This API is used for internal purpose in order to perform a deep-search for dedi
 This API permits to search all the flows that contains a payment with specific IUR code
 (Identificativo Univoco Riscossione) in relation to a PSP.<br>
 The result of the query is paginated and contains all the metadata needed for pagination purposes.<br>
-This API is used for internal purpose in order to perform a deep-search for dedicated troubleshooting.
+This API is used for internal purpose in order to perform a deep-search for dedicated troubleshooting.<br>
+Date-time fields in the response are defined with UTC time-zone.<br>
 """)
   @APIResponses(
       value = {
@@ -177,13 +183,17 @@ This API is used for internal purpose in order to perform a deep-search for dedi
           String iur,
       @QueryParam(ControllerConstants.PARAMETER_CREATED_FROM)
           @Parameter(
-              description = "The lower limit of the date related to the flow creation date",
-              example = "2025-01-01T12:00:00.00000Z")
+                  description =
+                  "The lower limit of the flow creation date-time. Defined with UTC time-zone and "
+                      + "formatted as ISO-8601.",
+              example = "2025-01-01T12:00:00Z")
           Instant createdFrom,
       @QueryParam(ControllerConstants.PARAMETER_CREATED_TO)
           @Parameter(
-              description = "The upper limit of the date related to the flow creation date",
-              example = "2025-01-31T12:00:00.00000Z")
+                  description =
+                  "The upper limit of the flow creation date-time. Defined with UTC time-zone and "
+                      + "formatted as ISO-8601.",
+              example = "2025-01-31T12:00:00Z")
           Instant createdTo,
       @QueryParam(ControllerConstants.PARAMETER_PAGE_INDEX)
           @DefaultValue(ControllerConstants.PARAMETER_PAGE_INDEX_DEFAULT)
