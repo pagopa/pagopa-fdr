@@ -422,7 +422,6 @@ class OrganizationsControllerTest {
             .statusCode(200)
             .extract()
             .as(PaginatedPaymentsResponse.class);
-    List<Payment> data = res.getData();
 
     assertThat(res.getMetadata().getPageSize(), equalTo(1));
     assertThat(res.getMetadata().getPageNumber(), equalTo(2));
