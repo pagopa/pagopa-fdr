@@ -34,6 +34,8 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
 
+  private Long numberOfPayments = 4L;
+
   private static final String VALID_FLOW_DATE = Instant.now()
           .atZone(ZoneOffset.UTC)
           .minusMonths(1)
@@ -313,7 +315,7 @@ class OrganizationsControllerTest {
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-    assertThat(res.getComputedTotPayments(), equalTo(5L));
+    assertThat(res.getComputedTotPayments(), equalTo(numberOfPayments));
   }
 
   @Test
@@ -386,7 +388,7 @@ class OrganizationsControllerTest {
             .statusCode(200)
             .extract()
             .as(PaginatedPaymentsResponse.class);
-    assertThat(res.getCount(), equalTo(5L));
+    assertThat(res.getCount(), equalTo(numberOfPayments));
     List<String> expectedList =
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
@@ -423,7 +425,7 @@ class OrganizationsControllerTest {
 
     assertThat(res.getMetadata().getPageSize(), equalTo(1));
     assertThat(res.getMetadata().getPageNumber(), equalTo(2));
-    assertThat(res.getCount(), equalTo(5L));
+    assertThat(res.getCount(), equalTo(numberOfPayments));
     assertThat(data.stream().map(Payment::getIndex).toList(), equalTo(List.of(101L)));
   }
   
