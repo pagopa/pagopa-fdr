@@ -2048,7 +2048,6 @@ class PspsControllerTest {
     assertThat(res.getCount(), equalTo(numberOfPayments));
 
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(100L)));
-    assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(101L)));
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(102L)));
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(103L)));
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(104L)));

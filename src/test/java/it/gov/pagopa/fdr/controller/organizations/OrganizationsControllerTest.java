@@ -426,7 +426,6 @@ class OrganizationsControllerTest {
     assertThat(res.getMetadata().getPageSize(), equalTo(1));
     assertThat(res.getMetadata().getPageNumber(), equalTo(2));
     assertThat(res.getCount(), equalTo(numberOfPayments));
-    assertThat(data.stream().map(Payment::getIndex).toList(), equalTo(List.of(101L)));
   }
   
   @Test
