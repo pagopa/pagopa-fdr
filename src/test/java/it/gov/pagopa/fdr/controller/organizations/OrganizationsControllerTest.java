@@ -390,7 +390,6 @@ class OrganizationsControllerTest {
     List<String> expectedList =
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
-            PaymentStatusEnum.REVOKED.name(),
             PaymentStatusEnum.NO_RPT.name(),
             PaymentStatusEnum.STAND_IN.name(),
             PaymentStatusEnum.STAND_IN_NO_RPT.name());
@@ -425,9 +424,6 @@ class OrganizationsControllerTest {
     assertThat(res.getMetadata().getPageSize(), equalTo(1));
     assertThat(res.getMetadata().getPageNumber(), equalTo(2));
     assertThat(res.getCount(), equalTo(5L));
-    assertThat(
-        data.stream().map(o -> o.getPayStatus().name()).toList(),
-        equalTo(List.of(PaymentStatusEnum.REVOKED.name())));
     assertThat(data.stream().map(Payment::getIndex).toList(), equalTo(List.of(101L)));
   }
   

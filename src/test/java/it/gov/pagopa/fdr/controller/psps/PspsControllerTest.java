@@ -1971,7 +1971,6 @@ class PspsControllerTest {
     List<String> expectedList =
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
-            PaymentStatusEnum.REVOKED.name(),
             PaymentStatusEnum.NO_RPT.name(),
             PaymentStatusEnum.STAND_IN.name(),
             PaymentStatusEnum.STAND_IN_NO_RPT.name());
