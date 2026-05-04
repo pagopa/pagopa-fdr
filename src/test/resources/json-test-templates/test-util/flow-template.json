@@ -18,6 +18,6 @@
   "regulation": "SEPA - Bonifico xzy",
   "regulationDate": "2023-04-03",
   "bicCodePouringBank": "UNCRITMMXXX",
-  "totPayments": 5,
-  "sumPayments": 0.05
+  "totPayments": 4,
+  "sumPayments": 0.04
 }

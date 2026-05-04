@@ -10,15 +10,6 @@
       "payDate": "2023-02-03T12:00:30.900000Z"
     },
     {
-      "index": 101,
-      "iuv": "b",
-      "iur": "abcdefg",
-      "idTransfer": 2,
-      "pay": 0.01,
-      "payStatus": "REVOKED",
-      "payDate": "2023-02-03T12:00:30.900000Z"
-    },
-    {
       "index": 102,
       "iuv": "c",
       "iur": "abcdefg",
