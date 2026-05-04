@@ -47,7 +47,7 @@ class PspsControllerTest {
 
   private FileUtil fileUtil;
 
-  private Long numberOfPayments = 4L;
+  private Long numberOfPayments = 5L;
 
   @BeforeEach
   void setUp() {
@@ -1972,6 +1972,7 @@ class PspsControllerTest {
     assertThat(res.getCount(), equalTo(numberOfPayments));
     List<String> expectedList =
         List.of(
+            PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.NO_RPT.name(),
             PaymentStatusEnum.STAND_IN.name(),

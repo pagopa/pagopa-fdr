@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
 
-  private Long numberOfPayments = 4L;
+  private Long numberOfPayments = 5L;
 
   private static final String VALID_FLOW_DATE = Instant.now()
           .atZone(ZoneOffset.UTC)
@@ -391,6 +391,7 @@ class OrganizationsControllerTest {
     assertThat(res.getCount(), equalTo(numberOfPayments));
     List<String> expectedList =
         List.of(
+            PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.NO_RPT.name(),
             PaymentStatusEnum.STAND_IN.name(),
