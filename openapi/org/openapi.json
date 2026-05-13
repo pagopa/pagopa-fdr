@@ -1529,7 +1529,7 @@
   "info": {
     "title": "FDR - Flussi di Rendicontazione (ORGs)",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "1.2.2"
+    "version": "1.2.3"
   },
   "servers": [
     {
