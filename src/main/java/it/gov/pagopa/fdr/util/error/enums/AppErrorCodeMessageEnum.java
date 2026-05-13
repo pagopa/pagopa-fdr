@@ -190,6 +190,13 @@ public enum AppErrorCodeMessageEnum {
           + " is not compliant with the required values. The date must "
           + " come after the one in the last revision."),
 
+  REPORTING_FLOW_REVISION_ORGANIZATION_MISMATCH(
+          "3012",
+          "fdr.revision.organization.notMatch",
+          RestResponse.Status.BAD_REQUEST,
+          "An error occurred during flow analysis. A new revision cannot change the creditor"
+                  + " institution identifier of the previous published revision."),
+
   // semantic checks - publish-related checks
   REPORTING_FLOW_WRONG_TOT_PAYMENT(
       "4001",
