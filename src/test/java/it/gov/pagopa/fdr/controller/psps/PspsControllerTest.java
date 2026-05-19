@@ -707,7 +707,7 @@ class PspsControllerTest {
                 "message",
                 equalTo(
                     String.format(
-                        "Invalid reporting flow revision for flow [%s]: previous organizationId [%s] is different from current organizationId [%s].",
+                        "Invalid reporting flow revision for [%s]: previous organizationId [%s] is different from current organizationId [%s].",
                         flowName,
                         EC_CODE,
                         secondOrganizationId)))));
