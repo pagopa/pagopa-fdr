@@ -620,6 +620,100 @@ class PspsControllerTest {
                         + " The inserted date [%s] must be after the date "
                         + "in the last revision [%s].", flowName, FLOW_DATE, FLOW_DATE)))));
   }
+  
+  
+  @Test
+  @DisplayName("PSPS - KO - new revision with different organizationId")
+  void test_psp_KO_newRevisionWithDifferentOrganizationId() {
+    String flowName = TestUtil.getDynamicFlowName();
+    String secondOrganizationId = "PAtestD1";
+
+    String urlSave = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String urlSavePayment = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    String urlPublishFlow = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+
+    String firstRevisionBody =
+        FLOW_TEMPLATE.formatted(
+            flowName,
+            FLOW_DATE,
+            SenderTypeEnum.LEGAL_PERSON.name(),
+            PSP_CODE,
+            BROKER_CODE,
+            CHANNEL_CODE,
+            EC_CODE);
+
+    GenericResponse resSave =
+        given()
+            .body(firstRevisionBody)
+            .header(HEADER)
+            .when()
+            .post(urlSave)
+            .then()
+            .statusCode(201)
+            .extract()
+            .as(GenericResponse.class);
+    assertThat(resSave.getMessage(), equalTo("Fdr [%s] saved".formatted(flowName)));
+
+    GenericResponse resSavePays =
+        given()
+            .body(PAYMENTS_ADD_TEMPLATE)
+            .header(HEADER)
+            .when()
+            .put(urlSavePayment)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GenericResponse.class);
+    assertThat(resSavePays.getMessage(), equalTo("Fdr [%s] payment added".formatted(flowName)));
+
+    GenericResponse resPublish =
+        given()
+            .header(HEADER)
+            .when()
+            .post(urlPublishFlow)
+            .then()
+            .statusCode(200)
+            .extract()
+            .as(GenericResponse.class);
+    assertThat(resPublish.getMessage(), equalTo("Fdr [%s] published".formatted(flowName)));
+
+    String secondRevisionBody =
+        FLOW_TEMPLATE.formatted(
+            flowName,
+            FLOW_DATE_FUTURE,
+            SenderTypeEnum.LEGAL_PERSON.name(),
+            PSP_CODE,
+            BROKER_CODE,
+            CHANNEL_CODE,
+            secondOrganizationId);
+
+    ErrorResponse resCreateError =
+        given()
+            .body(secondRevisionBody)
+            .header(HEADER)
+            .when()
+            .post(urlSave)
+            .then()
+            .statusCode(400)
+            .extract()
+            .as(ErrorResponse.class);
+
+    assertThat(
+        resCreateError.getAppErrorCode(),
+        equalTo(AppErrorCodeMessageEnum.REPORTING_FLOW_REVISION_ORGANIZATION_MISMATCH.errorCode()));
+
+    assertThat(
+        resCreateError.getErrors(),
+        hasItem(
+            hasProperty(
+                "message",
+                equalTo(
+                    String.format(
+                        "Invalid reporting flow revision for [%s]: previous organizationId [%s] is different from current organizationId [%s].",
+                        flowName,
+                        EC_CODE,
+                        secondOrganizationId)))));
+  }
 
     @Test
     @DisplayName("PSPS - KO FDR-0702 - flow already exists")

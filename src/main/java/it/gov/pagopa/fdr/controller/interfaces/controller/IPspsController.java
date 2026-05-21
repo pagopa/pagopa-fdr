@@ -130,7 +130,8 @@ All date-time fields in the request body are defined with UTC time-zone unless o
         AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_PSP_WRONG_FORMAT,
         AppErrorCodeMessageEnum.REPORTING_FLOW_PSP_ID_NOT_MATCH,
         AppErrorCodeMessageEnum.REPORTING_FLOW_NAME_NOT_MATCH,
-        AppErrorCodeMessageEnum.REPORTING_FLOW_DATE_NOT_COMPLIANT
+        AppErrorCodeMessageEnum.REPORTING_FLOW_DATE_NOT_COMPLIANT,
+        AppErrorCodeMessageEnum.REPORTING_FLOW_REVISION_ORGANIZATION_MISMATCH
       })
   RestResponse<GenericResponse> createEmptyFlow(
       @PathParam(ControllerConstants.PARAMETER_PSP)

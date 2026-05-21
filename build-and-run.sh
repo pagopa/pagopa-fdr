@@ -37,11 +37,12 @@ generate_openapi () {
   version=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
   echo "Generate OpenAPI JSON [$version] [$conf]"
   cp openapi/openapi.json openapi/$conf.json
+  # Keep info.description in every generated OpenAPI file as requested, so the operational error codes section is available in the general, internal, PSP, and organization specs.
   jq --arg tags "$tags" --arg section "$section" '
       walk(
         if type == "object" then
           with_entries(if .key == "examples" then .key = "example" else . end)
-          | del(.info.description, .requestBody.required, .exclusiveMinimum, .get.description, .post.description, .put.description, .delete.description)
+          | del(.requestBody.required, .exclusiveMinimum)
         else . end
       )
     ' openapi/$conf.json > openapi/$folder_name/openapi_temp.json

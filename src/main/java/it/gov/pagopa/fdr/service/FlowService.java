@@ -27,6 +27,7 @@ import it.gov.pagopa.fdr.util.error.exception.common.AppException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import org.jboss.logging.Logger;
 import org.openapi.quarkus.api_config_cache_json.model.ConfigDataV1;
@@ -243,6 +244,9 @@ public class FlowService {
                 request.getFdrDate(),
                 lastPublishedFlow.get().date);
     }
+    
+    // A new revision must not move an existing flow to a different creditor institution.
+    validateRevisionOrganizationConsistency(flowName, request, lastPublishedFlow);
 
     // incrementing revision value using the revision of the last flow
     Long revision = lastPublishedFlow.map(flowEntity -> (flowEntity.getRevision() + 1)).orElse(1L);
@@ -409,6 +413,26 @@ public class FlowService {
     publishingFlow.setIsLatest(true);
     publishingFlow.setStatus(FlowStatusEnum.PUBLISHED.name());
     this.flowRepository.updateEntity(publishingFlow);
+  }
+  
+  private void validateRevisionOrganizationConsistency(
+          String flowName, CreateFlowRequest request, Optional<FlowEntity> lastPublishedFlow) {
+
+      if (lastPublishedFlow.isEmpty()) {
+          return;
+      }
+
+      String previousOrganizationId = lastPublishedFlow.get().getOrgDomainId();
+      String currentOrganizationId = request.getReceiver().getOrganizationId();
+
+      // Revisions can update flow data, but cannot change the creditor institution owner.
+      if (!Objects.equals(previousOrganizationId, currentOrganizationId)) {
+          throw new AppException(
+                  AppErrorCodeMessageEnum.REPORTING_FLOW_REVISION_ORGANIZATION_MISMATCH,
+                  flowName,
+                  previousOrganizationId,
+                  currentOrganizationId);
+      }
   }
 
   private void storeInternalREEvent(
