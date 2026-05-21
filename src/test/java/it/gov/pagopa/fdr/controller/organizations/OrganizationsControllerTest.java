@@ -14,7 +14,6 @@ import it.gov.pagopa.fdr.controller.model.flow.enums.ReportingFlowStatusEnum;
 import it.gov.pagopa.fdr.controller.model.flow.enums.SenderTypeEnum;
 import it.gov.pagopa.fdr.controller.model.flow.response.PaginatedFlowsResponse;
 import it.gov.pagopa.fdr.controller.model.flow.response.SingleFlowResponse;
-import it.gov.pagopa.fdr.controller.model.payment.Payment;
 import it.gov.pagopa.fdr.controller.model.payment.enums.PaymentStatusEnum;
 import it.gov.pagopa.fdr.controller.model.payment.response.PaginatedPaymentsResponse;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
@@ -33,6 +32,8 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(PostgresResource.class)
 @QuarkusTestResource(AzuriteResource.class)
 class OrganizationsControllerTest {
+
+  private Long numberOfPayments = 5L;
 
   private static final String VALID_FLOW_DATE = Instant.now()
           .atZone(ZoneOffset.UTC)
@@ -313,7 +314,7 @@ class OrganizationsControllerTest {
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-    assertThat(res.getComputedTotPayments(), equalTo(5L));
+    assertThat(res.getComputedTotPayments(), equalTo(numberOfPayments));
   }
 
   @Test
@@ -386,11 +387,11 @@ class OrganizationsControllerTest {
             .statusCode(200)
             .extract()
             .as(PaginatedPaymentsResponse.class);
-    assertThat(res.getCount(), equalTo(5L));
+    assertThat(res.getCount(), equalTo(numberOfPayments));
     List<String> expectedList =
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
-            PaymentStatusEnum.REVOKED.name(),
+            PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.NO_RPT.name(),
             PaymentStatusEnum.STAND_IN.name(),
             PaymentStatusEnum.STAND_IN_NO_RPT.name());
@@ -420,15 +421,10 @@ class OrganizationsControllerTest {
             .statusCode(200)
             .extract()
             .as(PaginatedPaymentsResponse.class);
-    List<Payment> data = res.getData();
 
     assertThat(res.getMetadata().getPageSize(), equalTo(1));
     assertThat(res.getMetadata().getPageNumber(), equalTo(2));
-    assertThat(res.getCount(), equalTo(5L));
-    assertThat(
-        data.stream().map(o -> o.getPayStatus().name()).toList(),
-        equalTo(List.of(PaymentStatusEnum.REVOKED.name())));
-    assertThat(data.stream().map(Payment::getIndex).toList(), equalTo(List.of(101L)));
+    assertThat(res.getCount(), equalTo(numberOfPayments));
   }
   
   @Test

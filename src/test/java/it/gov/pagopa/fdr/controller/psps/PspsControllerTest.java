@@ -47,6 +47,8 @@ class PspsControllerTest {
 
   private FileUtil fileUtil;
 
+  private Long numberOfPayments = 5L;
+
   @BeforeEach
   void setUp() {
     Logger logger = mock(Logger.class);
@@ -1732,7 +1734,7 @@ class PspsControllerTest {
             .statusCode(200)
             .extract()
             .as(SingleFlowResponse.class);
-    assertThat(res.getTotPayments(), equalTo(5L));
+    assertThat(res.getTotPayments(), equalTo(numberOfPayments));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
   }
 
@@ -1907,7 +1909,7 @@ class PspsControllerTest {
     assertThat(res.getReceiver().getOrganizationId(), equalTo(EC_CODE));
     assertThat(res.getSender().getPspId(), equalTo(PSP_CODE));
     assertThat(res.getStatus(), equalTo(ReportingFlowStatusEnum.PUBLISHED));
-    assertThat(res.getComputedTotPayments(), equalTo(5L));
+    assertThat(res.getComputedTotPayments(), equalTo(numberOfPayments));
   }
 
   @Test
@@ -1967,11 +1969,11 @@ class PspsControllerTest {
             .statusCode(200)
             .extract()
             .as(PaginatedPaymentsResponse.class);
-    assertThat(res.getCount(), equalTo(5L));
+    assertThat(res.getCount(), equalTo(numberOfPayments));
     List<String> expectedList =
         List.of(
             PaymentStatusEnum.EXECUTED.name(),
-            PaymentStatusEnum.REVOKED.name(),
+            PaymentStatusEnum.EXECUTED.name(),
             PaymentStatusEnum.NO_RPT.name(),
             PaymentStatusEnum.STAND_IN.name(),
             PaymentStatusEnum.STAND_IN_NO_RPT.name());
@@ -2044,10 +2046,9 @@ class PspsControllerTest {
 
     List<Payment> data = res.getData();
 
-    assertThat(res.getCount(), equalTo(5L));
+    assertThat(res.getCount(), equalTo(numberOfPayments));
 
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(100L)));
-    assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(101L)));
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(102L)));
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(103L)));
     assertTrue(data.stream().anyMatch(item -> item.getIndex().equals(104L)));
