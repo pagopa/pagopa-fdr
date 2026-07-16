@@ -55,11 +55,11 @@ microservice-chart: &microservice-chart
     allowPrivilegeEscalation: false
   resources: &resources
     requests:
-      memory: "1Gi"
-      cpu: "400m"
+      memory: "512Mi"
+      cpu: "200m"
     limits:
-      memory: "3Gi"
-      cpu: "800m"
+      memory: "1500Mi"
+      cpu: "500m"
   autoscaling: &autoscaling
     enable: false
   envConfig: &envConfig
@@ -160,12 +160,6 @@ scheduler:
     !!merge <<: *autoscaling
   resources:
     !!merge <<: *resources
-    requests:
-      memory: "1Gi"
-      cpu: "200m"
-    limits:
-      memory: "2Gi"
-      cpu: "800m"
   envConfig:
     !!merge <<: *envConfig
     SCHEDULE_HISTORY_CRON: "0 */1 * * * ?"
