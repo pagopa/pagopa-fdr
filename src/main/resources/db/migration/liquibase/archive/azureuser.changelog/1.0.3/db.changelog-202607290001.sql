@@ -3,7 +3,9 @@
 -- ==========================================================================
 --                                   NOTE
 --
--- Created execute_data_cleansing() procedure at initial version 1.
+-- Updated execute_data_cleansing() procedure to version 2.
+-- The procedure described in the file 1.0.1/db.changelog-202603090007.sql
+--  has been updated and included in this changelog.
 -- ==========================================================================
 
 --changeset liquibase:archive-azureuser-202603090007-01 endDelimiter:GO
@@ -88,9 +90,16 @@ BEGIN
          ORDER BY cfg.execution_order ASC
     LOOP
 
+        l_cleaned_rows := 0;
+        l_status := 'OK';
+        l_has_error := false;
+        l_error_msg := NULL;
+        l_stmt := NULL;
+        l_logged_stmts := NULL;
+        l_step := 'PRUNING_DATA';
+
+        -- Creating process_log record and using the generated ID in order to update the same record
         BEGIN
-            -- Creating process_log record and using the generated ID in order to update the same record
-            l_step := 'PRUNING_DATA';
             INSERT INTO maintenance.process_log(
                          "date"
                          ,execution_id
@@ -108,83 +117,100 @@ BEGIN
                           ,Concat('Table [', l_record.schema_name, '.', l_record.table_name, '], Rows: [', l_cleaned_rows, ']'))
                RETURNING id
                          INTO l_operation_process_log_id;
+        EXCEPTION WHEN OTHERS THEN
+            l_status := 'KO';
+            l_is_failed := true;
+            l_has_error := true;
+            l_error_msg := SQLERRM;
+        END;
 
-            RAISE NOTICE 'Analyzing [%.%] table for data cleansing', l_record.schema_name, l_record.table_name;
+        IF NOT l_has_error THEN
 
-            l_status := 'OK';
-            l_has_error := false;
-            l_error_msg := NULL;
-            l_stmt := NULL;
-            l_logged_stmts := NULL;
+            RAISE NOTICE '[%] Analyzing [%.%] table for data cleansing', Clock_timestamp(), l_record.schema_name, l_record.table_name;
 
             -- Check for partition on physical catalog
-            IF NOT EXISTS (
-                SELECT 1
-                  FROM pg_class rel
-                       JOIN pg_namespace rel_schema
-                         ON rel.relnamespace = rel_schema.oid
-                 WHERE Lower(l_record.schema_name) = Lower(rel_schema.nspname)
-                       AND Lower(l_record.table_name) = Lower(rel.relname)
-            ) THEN
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                      FROM pg_class rel
+                           JOIN pg_namespace rel_schema
+                             ON rel.relnamespace = rel_schema.oid
+                     WHERE Lower(l_record.schema_name) = Lower(rel_schema.nspname)
+                           AND Lower(l_record.table_name) = Lower(rel.relname)
+                ) THEN
 
-                -- Log skipped data cleansing step on non-existing table
-                RAISE NOTICE 'Skipping cleansing for table [%.%] because not existent in [pg_class] table.',  l_record.schema_name,  l_record.table_name;
-                UPDATE maintenance.process_log
-                   SET "date" = Clock_timestamp()
-                       ,outcome = 'SKIPPED'
-                       ,note = Concat('No table [', l_record.schema_name, '.', l_record.table_name, '] found in physical catalog.')
-                 WHERE id = l_operation_process_log_id;
-
-            ELSE
-
-                -- Build dynamic SQL for min/max boundaries
-                l_stmt := Format('
-                    SELECT Min(%I) AS min_id, Max(%I) AS max_id
-                    FROM %I.%I
-                    WHERE %I < Now()::DATE - (%L * interval ''1 %s'')
-                ', l_record.batch_column, l_record.batch_column, l_record.schema_name, l_record.table_name
-                 , l_record.retention_date_column, l_record.retention, l_record.retention_type);
-                 l_logged_stmts := regexp_replace(l_stmt, '\s+', ' ', 'g');
-
-                -- Use FOR ... IN EXECUTE to fetch into variables
-                l_min_id := NULL;
-                l_max_id := NULL;
-                FOR l_boundaries IN EXECUTE l_stmt
-                LOOP
-                    l_min_id := l_boundaries.min_id;
-                    l_max_id := l_boundaries.max_id;
-                END LOOP;
-
-                IF l_min_id IS NULL OR l_max_id IS NULL
-                THEN
-                    -- Update the same process_log record with updated info, setting date with current timestamp
-                    RAISE NOTICE 'No data to clean found for table [%.%]', l_record.schema_name, l_record.table_name;
+                    -- Log skipped data cleansing step on non-existing table
+                    RAISE NOTICE '[%] Skipping cleansing for table [%.%] because not existent in [pg_class] table.',  Clock_timestamp(), l_record.schema_name,  l_record.table_name;
                     UPDATE maintenance.process_log
                        SET "date" = Clock_timestamp()
                            ,outcome = 'SKIPPED'
-                           ,note = Concat('No data found in table [', l_record.schema_name, '.', l_record.table_name, '].')
-                           ,statement = l_logged_stmts
+                           ,note = Concat('No table [', l_record.schema_name, '.', l_record.table_name, '] found in physical catalog.')
                      WHERE id = l_operation_process_log_id;
 
                 ELSE
-                    RAISE NOTICE 'Analyzing [%.%] table for data cleansing in bulk [%s - %s]', l_record.schema_name, l_record.table_name, l_min_id, l_max_id;
-                    l_current_start_id := l_min_id;
-                    WHILE l_current_start_id <= l_max_id
-                    LOOP
 
+                    -- Build dynamic SQL for min/max boundaries
+                    l_stmt := Format('
+                        SELECT Min(%I) AS min_id, Max(%I) AS max_id
+                        FROM %I.%I
+                        WHERE %I < Now()::DATE - (%L * interval ''1 %s'')
+                    ', l_record.batch_column, l_record.batch_column, l_record.schema_name, l_record.table_name
+                     , l_record.retention_date_column, l_record.retention, l_record.retention_type);
+                     l_logged_stmts := regexp_replace(l_stmt, '\s+', ' ', 'g');
+
+                    -- Use FOR ... IN EXECUTE to fetch into variables
+                    l_min_id := NULL;
+                    l_max_id := NULL;
+                    FOR l_boundaries IN EXECUTE l_stmt
+                    LOOP
+                        l_min_id := l_boundaries.min_id;
+                        l_max_id := l_boundaries.max_id;
+                    END LOOP;
+
+                    IF l_min_id IS NULL OR l_max_id IS NULL
+                    THEN
+                        -- Update the same process_log record with updated info, setting date with current timestamp
+                        RAISE NOTICE '[%] No data to clean found for table [%.%]', Clock_timestamp(), l_record.schema_name, l_record.table_name;
+                        UPDATE maintenance.process_log
+                           SET "date" = Clock_timestamp()
+                               ,outcome = 'SKIPPED'
+                               ,note = Concat('No data found in table [', l_record.schema_name, '.', l_record.table_name, '].')
+                               ,statement = l_logged_stmts
+                         WHERE id = l_operation_process_log_id;
+
+                    ELSE
+                        RAISE NOTICE '[%] Analyzing [%.%] table for data cleansing in bulk [% - %]', Clock_timestamp(), l_record.schema_name, l_record.table_name, l_min_id, l_max_id;
+                        l_current_start_id := l_min_id;
+                    END IF;
+                END IF;
+            EXCEPTION WHEN OTHERS THEN
+                l_status := 'KO';
+                l_is_failed := true;
+                l_has_error := true;
+                l_error_msg := SQLERRM;
+            END;
+
+            -- Batch delete loop: kept OUTSIDE any exception-wrapping block so COMMIT is allowed after each batch
+            IF NOT l_has_error AND l_min_id IS NOT NULL AND l_max_id IS NOT NULL THEN
+                WHILE l_current_start_id <= l_max_id
+                LOOP
+
+                    BEGIN
                         -- Delete records in batch
                         l_current_end_id := l_current_start_id + l_record.batch_size;
-        				RAISE NOTICE 'No data to clean found for table [%.%]', l_record.schema_name, l_record.table_name;
                         l_stmt := Format('
                             DELETE FROM %I.%I
                              WHERE %I >= $1
                                    AND %I < $2
-                        ', l_record.schema_name, l_record.table_name, l_record.batch_column, l_record.batch_column);
+                                   AND %I < Now()::DATE - (%L * interval ''1 %s'')
+                        ', l_record.schema_name, l_record.table_name, l_record.batch_column, l_record.batch_column
+                        , l_record.retention_date_column, l_record.retention, l_record.retention_type);
                         EXECUTE l_stmt USING l_current_start_id, l_current_end_id;
 
                         -- Calculating statistics
                         GET DIAGNOSTICS l_batch_rows = ROW_COUNT;
                         l_cleaned_rows := l_cleaned_rows + l_batch_rows;
+                        RAISE NOTICE '[%] Deleted [%] records from id [%] to id [%] from table [%.%]', Clock_timestamp(), l_batch_rows, l_current_start_id, l_current_end_id, l_record.schema_name, l_record.table_name;
 
                         -- Update the same process_log record with updated info, setting date with current timestamp
                         l_logged_stmts := l_logged_stmts || ' ||| ' || Concat(regexp_replace(l_stmt, '\s+', ' ', 'g'), ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']');
@@ -196,25 +222,37 @@ BEGIN
                          WHERE id = l_operation_process_log_id;
 
                         l_current_start_id := l_current_end_id;
-                    END LOOP;
+                    EXCEPTION WHEN OTHERS THEN
+                        l_status := 'KO';
+                        l_is_failed := true;
+                        l_has_error := true;
+                        l_error_msg := SQLERRM;
+                    END;
 
-                    IF l_cleaned_rows > 0 THEN
+                    -- Intermediate commit per batch, allowed here because the BEGIN/EXCEPTION above has already ended
+                    COMMIT;
+
+                    EXIT WHEN l_has_error;
+
+                END LOOP;
+
+                IF NOT l_has_error AND l_cleaned_rows > 0 THEN
+                    BEGIN
                         EXECUTE Format('ANALYZE %I.%I', l_record.schema_name, l_record.table_name);
-                    END IF;
-
+                    EXCEPTION WHEN OTHERS THEN
+                        l_status := 'KO';
+                        l_is_failed := true;
+                        l_has_error := true;
+                        l_error_msg := SQLERRM;
+                    END;
                 END IF;
-            END IF;
 
-        EXCEPTION WHEN OTHERS THEN
-            l_status := 'KO';
-            l_is_failed := true;
-            l_has_error := true;
-            l_error_msg := SQLERRM;
-        END;
+            END IF;
+        END IF;
 
         IF l_has_error THEN
 
-            RAISE WARNING 'Error on data cleansing operation for [%.%] table: %', l_record.schema_name, l_record.table_name, l_error_msg;
+            RAISE WARNING '[%] Error on data cleansing operation for [%.%] table: %', Clock_timestamp(), l_record.schema_name, l_record.table_name, l_error_msg;
             l_logged_stmts := l_logged_stmts || ' ||| ' || Concat(regexp_replace(l_stmt, '\s+', ' ', 'g'), ', $1: [', l_current_start_id, '], $2: [', l_current_end_id, ']');
             INSERT INTO maintenance.process_log(
                             "date"
@@ -243,9 +281,10 @@ BEGIN
         l_status := 'KO';
     ELSE
         l_status := 'OK';
+		RAISE NOTICE '[%] Completed delete for [%] records from table [%.%]', Clock_timestamp(), l_cleaned_rows, l_record.schema_name, l_record.table_name;
     END IF;
     l_step := 'END';
-	UPDATE maintenance.process_log
+    UPDATE maintenance.process_log
        SET "date" = Clock_timestamp()
            ,step = l_step
            ,outcome = l_status
@@ -260,3 +299,8 @@ GO
 GRANT EXECUTE
       ON PROCEDURE maintenance.execute_data_cleansing()
       TO fdr3;
+
+--changeset liquibase:archive-azureuser-202603090007-03
+DELETE FROM maintenance.retention_config
+ 	  WHERE schema_name = 'maintenance'
+ 	    AND table_name = 'job_run_details';
