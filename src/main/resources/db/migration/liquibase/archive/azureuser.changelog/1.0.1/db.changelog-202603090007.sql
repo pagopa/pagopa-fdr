@@ -1,5 +1,11 @@
 --liquibase formatted sql
 
+-- ==========================================================================
+--                                   NOTE
+--
+-- Created execute_data_cleansing() procedure at initial version 1.
+-- ==========================================================================
+
 --changeset liquibase:archive-azureuser-202603090007-01 endDelimiter:GO
 CREATE OR REPLACE PROCEDURE maintenance.execute_data_cleansing()
 AS $function$
