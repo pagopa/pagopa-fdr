@@ -299,3 +299,8 @@ GO
 GRANT EXECUTE
       ON PROCEDURE maintenance.execute_data_cleansing()
       TO fdr3;
+
+--changeset liquibase:archive-azureuser-202603090007-03
+DELETE FROM maintenance.retention_config
+ 	  WHERE schema_name = 'maintenance'
+ 	    AND table_name = 'job_run_details';
