@@ -135,7 +135,7 @@ def step_impl(context, number, amount, flow_name, payload):
             "index": i+1,
             "pay": single_amount,
             "payStatus": "EXECUTED",
-            "payDate": pay_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+            "payDate": pay_date.strftime("%Y-%m-%dT00:00:00Z")
         }
         payments.append(single_payment)
     data = {
