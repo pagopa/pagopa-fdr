@@ -55,7 +55,7 @@ class PaymentStagingRepositoryTest {
     payment.setIuv("610901167426671");
     payment.setIur("65705570051");
     payment.setAmount(new BigDecimal("0.01"));
-    payment.setPayDate(Instant.parse("2023-02-03T12:00:30.900000Z"));
+    payment.setPayDate(Instant.parse("2023-02-03T00:00:00Z"));
     payment.setPayStatus("EXECUTED");
     payment.setTransferId(1L);
     payment.setCreated(Instant.now());
