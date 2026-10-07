@@ -193,17 +193,6 @@ resource "azurerm_api_management_api_operation_policy" "fdr3_get_single_publishe
   })
 }
 
-// Org API operationId=IOrganizationsController_getSinglePublishedFlow
-resource "azurerm_api_management_api_operation_policy" "fdr3_get_single_flow" {
-  api_name            = "${local.project}-fdr-service-api-org-v1"
-  resource_group_name = local.apim.rg
-  api_management_name = local.apim.name
-  operation_id        = "IOrganizationsController_getSinglePublishedFlow"
-  xml_content = templatefile("./policy/_operation_policy_regulation_date.xml.tpl", {
-    hostname = local.hostname
-  })
-}
-
 #######################
 ##  Policies SHA     ##
 #######################
