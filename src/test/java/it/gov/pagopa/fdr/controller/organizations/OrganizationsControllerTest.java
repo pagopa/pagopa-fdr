@@ -553,7 +553,7 @@ class OrganizationsControllerTest {
   void testOrganization_getReportingFlowPayments_payDateMidnightUtc_Ok() {
     String flowName = TestUtil.getDynamicFlowName();
 
-    // PIDM-2255: payDate is the applicationDate at midnight UTC
+    // PIDM-2255: payDate preserves the payment calendar date at midnight UTC.
     String payDate = "2026-07-28T00:00:00Z";
 
     String urlCreate = FLOWS_URL.formatted(PSP_CODE, flowName);

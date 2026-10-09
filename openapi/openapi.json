@@ -674,12 +674,12 @@
             "description": "The value of the status of the payment in relation to ist completion.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.datiSingoliPagamenti.codiceEsitoSingoloPagamento]</b>.<br>The enumeration is mapped with the following values:<br><ul><li>EXECUTED -> 0</li><li>STAND_IN -> 4</li><li>STAND_IN_NO_RPT -> 8</li><li>NO_RPT -> 9</li></ul>"
           },
           "payDate": {
-            "$ref": "#/components/schemas/Instant",
             "type": "string",
+            "format": "date-time",
             "examples": [
               "2026-07-28T00:00:00Z"
             ],
-            "description": "The payment date: the applicationDate sent in sendPaymentOutcome for the same payment, at midnight UTC (yyyy-MM-ddT00:00:00Z). No timezone conversion; other times and offsets are not allowed.<br>In the XML request for SOAP primitives, this field is mappable with the tag <b>[FlussoRiversamento.datiSingoliPagamenti.dataEsitoSingoloPagamento]</b>, which holds the same applicationDate."
+            "description": "For REST reporting flows, payDate represents the local calendar date (Europe/Rome) on which the individual payment was ordered by the PSP. The format to use is YYYY-MM-DDT00:00:00Z. Preserve the YYYY-MM-DD date component and append T00:00:00Z, without converting that date to UTC. For example, a payment ordered at 2026-07-28 00:30:00 in Europe/Rome must be reported as 2026-07-28T00:00:00Z.<br>In SOAP reporting flows, the corresponding calendar date is represented by <b>[FlussoRiversamento.datiSingoliPagamenti.dataEsitoSingoloPagamento]</b> in YYYY-MM-DD format."
           }
         }
       },

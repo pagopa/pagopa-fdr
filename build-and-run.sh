@@ -38,13 +38,15 @@ generate_openapi () {
   echo "Generate OpenAPI JSON [$version] [$conf]"
   cp openapi/openapi.json openapi/$conf.json
   # Keep info.description in every generated OpenAPI file as requested, so the operational error codes section is available in the general, internal, PSP, and organization specs.
-  jq --arg tags "$tags" --arg section "$section" '
+    jq --arg tags "$tags" --arg section "$section" '
       walk(
         if type == "object" then
           with_entries(if .key == "examples" then .key = "example" else . end)
           | del(.requestBody.required, .exclusiveMinimum)
         else . end
       )
+      | .components.schemas.Payment.properties.payDate.example |=
+          (if type == "array" then .[0] else . end)
     ' openapi/$conf.json > openapi/$folder_name/openapi_temp.json
 
     jq --arg tags "$tags" --arg section "$section" '
@@ -119,6 +121,12 @@ if echo "build run generate_openapi test_curl" | grep -w $action > /dev/null; th
   elif [ $action = "generate_openapi" ]; then
     echo "Generating OpenAPI JSON"
     ./mvnw -q -Dtest=OpenApiGenerationTest test
+
+    # Normalize the general OpenAPI using the same JSON formatting
+    # adopted by the generated partial OpenAPI files.
+    jq '.' openapi/openapi.json > openapi/openapi_formatted.json
+    mv openapi/openapi_formatted.json openapi/openapi.json
+
     echo "Generated general OpenAPI JSON. Generating partial OpenAPIs..."
     generate_openapi openapi_internal internal INTERNAL 'Info,Internal Operations,Support'
     generate_openapi openapi_psp psp PSPs 'Info,PSP'

@@ -82,14 +82,13 @@ public class Payment {
 
   @JsonDeserialize(using = InstantWithoutOffsetDeserializer.class)
   @NotNull
-  @Schema(
-      example = "2026-07-28T00:00:00Z",
-      description =
-          "The payment date: the applicationDate sent in sendPaymentOutcome for the same payment,"
-              + " at midnight UTC (yyyy-MM-ddT00:00:00Z). No timezone conversion; other times and"
-              + " offsets are not allowed.<br>In the XML request for SOAP primitives, this field is"
-              + " mappable with the tag"
-              + " <b>[FlussoRiversamento.datiSingoliPagamenti.dataEsitoSingoloPagamento]</b>, which"
-              + " holds the same applicationDate.")
+  @Schema(implementation = String.class, format = "date-time", examples = {"2026-07-28T00:00:00Z"}, description = "For REST reporting flows, payDate represents the local calendar date"
+          + " (Europe/Rome) on which the individual payment was ordered by the PSP."
+          + " The format to use is YYYY-MM-DDT00:00:00Z."
+          + " Preserve the YYYY-MM-DD date component and append T00:00:00Z," + " without converting that date to UTC."
+          + " For example, a payment ordered at 2026-07-28 00:30:00"
+          + " in Europe/Rome must be reported as 2026-07-28T00:00:00Z."
+          + "<br>In SOAP reporting flows, the corresponding calendar date" + " is represented by"
+          + " <b>[FlussoRiversamento.datiSingoliPagamenti.dataEsitoSingoloPagamento]</b>" + " in YYYY-MM-DD format.")
   private Instant payDate;
 }
