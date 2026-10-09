@@ -42,7 +42,7 @@ export function buildAddPaymentsRequest(partition, paymentAmount, date) {
       idTransfer: 1,
       pay: paymentAmount.toFixed(2),
       payStatus: "EXECUTED",
-      payDate: `${date}`
+      payDate: `${date.slice(0, 10)}T00:00:00Z`
     })
   }
   return JSON.stringify({

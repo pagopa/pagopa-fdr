@@ -23,6 +23,6 @@ public class PaginatedPaymentsResponse {
 
   @Schema(
           description =
-              "The list of payments that are included in this page. Date-time fields inside each item are defined with UTC time-zone. The original business day is preserved where applicable.")
+              "The list of payments that are included in this page. Date-time fields inside each item are defined with UTC time-zone.")
   private List<Payment> data;
 }
