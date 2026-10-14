@@ -130,12 +130,12 @@ core:
       restoreToOriginalReplicaCount: false
     triggers:
       - type: cpu
+        metricType: Utilization
         metadata:
-          type: Utilization
           value: "90"
       - type: memory
+        metricType: Utilization
         metadata:
-          type: Utilization
           value: "90"
   resources:
     !!merge <<: *resources
