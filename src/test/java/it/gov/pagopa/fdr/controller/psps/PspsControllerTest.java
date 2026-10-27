@@ -2266,7 +2266,7 @@ class PspsControllerTest {
 
     String paymentsBody =
         TestUtil.PAYMENTS_ADD_TEMPLATE.replace(
-            "\"payDate\": \"2023-02-03T12:00:30.900000Z\"",
+            "\"payDate\": \"2023-02-03T00:00:00Z\"",
             "\"payDate\": \"" + payDate + "\"");
 
     String urlAddPayments = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);

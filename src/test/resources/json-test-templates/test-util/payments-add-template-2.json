@@ -7,7 +7,7 @@
       "idTransfer": 5,
       "pay": 0.01,
       "payStatus": "EXECUTED",
-      "payDate": "2023-02-03T12:00:30.900000Z"
+      "payDate": "2023-02-03T00:00:00Z"
     },
     {
       "index": 106,
@@ -16,7 +16,7 @@
       "idTransfer": 5,
       "pay": 0.01,
       "payStatus": "EXECUTED",
-      "payDate": "2023-02-03T12:00:30.900000Z"
+      "payDate": "2023-02-03T00:00:00Z"
     },
     {
       "index": 107,
@@ -25,7 +25,7 @@
       "idTransfer": 5,
       "pay": 0.01,
       "payStatus": "NO_RPT",
-      "payDate": "2023-02-03T12:00:30.900000Z"
+      "payDate": "2023-02-03T00:00:00Z"
     },
     {
       "index": 108,
@@ -34,7 +34,7 @@
       "idTransfer": 5,
       "pay": 0.01,
       "payStatus": "STAND_IN",
-      "payDate": "2023-02-03T12:00:30.900000Z"
+      "payDate": "2023-02-03T00:00:00Z"
     },
     {
       "index": 109,
@@ -43,7 +43,7 @@
       "idTransfer": 5,
       "pay": 0.01,
       "payStatus": "STAND_IN_NO_RPT",
-      "payDate": "2023-02-03T12:00:30.900000Z"
+      "payDate": "2023-02-03T00:00:00Z"
     }
   ]
 }

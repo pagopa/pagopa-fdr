@@ -516,7 +516,7 @@ class OrganizationsControllerTest {
 
     String paymentsBody =
         TestUtil.PAYMENTS_ADD_TEMPLATE.replace(
-            "\"payDate\": \"2023-02-03T12:00:30.900000Z\"",
+            "\"payDate\": \"2023-02-03T00:00:00Z\"",
             "\"payDate\": \"" + payDate + "\"");
 
     String urlAddPayments = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
@@ -546,5 +546,66 @@ class OrganizationsControllerTest {
         .then()
         .statusCode(200)
         .body("data[0].payDate", equalTo("2026-03-24T00:00:00Z"));
+  }
+
+  @Test
+  @DisplayName("ORGANIZATIONS - OK - getReportingFlowPayments returns payDate at midnight UTC unchanged")
+  void testOrganization_getReportingFlowPayments_payDateMidnightUtc_Ok() {
+    String flowName = TestUtil.getDynamicFlowName();
+
+    // PIDM-2255: payDate preserves the payment calendar date at midnight UTC.
+    String payDate = "2026-07-28T00:00:00Z";
+
+    String urlCreate = FLOWS_URL.formatted(PSP_CODE, flowName);
+    String bodyCreate =
+        TestUtil.FLOW_TEMPLATE.formatted(
+            flowName,
+            "2026-07-29T10:00:00Z",
+            SenderTypeEnum.LEGAL_PERSON.name(),
+            PSP_CODE,
+            BROKER_CODE,
+            CHANNEL_CODE,
+            EC_CODE);
+
+    given()
+        .body(bodyCreate)
+        .header(HEADER)
+        .when()
+        .post(urlCreate)
+        .then()
+        .statusCode(201);
+
+    String paymentsBody =
+        TestUtil.PAYMENTS_ADD_TEMPLATE.replace(
+            "\"payDate\": \"2023-02-03T00:00:00Z\"",
+            "\"payDate\": \"" + payDate + "\"");
+
+    String urlAddPayments = PAYMENTS_ADD_URL.formatted(PSP_CODE, flowName);
+    given()
+        .body(paymentsBody)
+        .header(HEADER)
+        .when()
+        .put(urlAddPayments)
+        .then()
+        .statusCode(200);
+
+    String urlPublish = FLOWS_PUBLISH_URL.formatted(PSP_CODE, flowName);
+    given()
+        .header(HEADER)
+        .when()
+        .post(urlPublish)
+        .then()
+        .statusCode(200);
+
+    String urlGetPayments =
+        ORGANIZATIONS_GET_REPORTING_FLOW_PAYMENTS_URL.formatted(EC_CODE, flowName, 1L, PSP_CODE);
+
+    given()
+        .header(HEADER)
+        .when()
+        .get(urlGetPayments)
+        .then()
+        .statusCode(200)
+        .body("data[0].payDate", equalTo(payDate));
   }
 }

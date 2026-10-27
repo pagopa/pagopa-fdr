@@ -95,7 +95,7 @@ def generate_payments(number_of_payments, total_amount, date):
                 "pay": total_amount / number_of_payments,
                 "idTransfer": 1,
                 "payStatus": "EXECUTED",
-                "payDate": f"{date}T12:00:00.000Z"
+                "payDate": f"{date}T00:00:00Z"
             })
         else:
             idx -= 1

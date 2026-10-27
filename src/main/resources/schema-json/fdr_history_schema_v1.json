@@ -212,9 +212,9 @@
             ]
           },
           "payDate": {
-            "description": "Data pagamento",
+            "description": "Data solare del pagamento. Il formato indicato dalle SANP è YYYY-MM-DDT00:00:00Z, mantenendo invariata la componente YYYY-MM-DD.",
             "type": "string",
-            "example": "2023-02-03T12:00:30.900000Z"
+            "example": "2026-07-28T00:00:00Z"
           }
         }
       },

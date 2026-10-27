@@ -105,7 +105,7 @@ generate_inputs() {
   current_timestamp=$(date +%s)
   now=$(date -u +"%Y-%m-%d")
   now_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  yesterday_date=$( (date --version >/dev/null 2>&1 && date -d "yesterday" +"%Y-%m-%dT%H:%M:%SZ") || date -v-1d +"%Y-%m-%dT%H:%M:%SZ")
+  yesterday_date=$( (date --version >/dev/null 2>&1 && date -d "yesterday" +"%Y-%m-%dT00:00:00Z") || date -v-1d +"%Y-%m-%dT00:00:00Z")
   flow_name="${now}${sender_psp_id}-${current_timestamp}"
 
   single_payment_amount=$(echo "scale=2; $sum_payments / $total_payments" | bc)
