@@ -138,12 +138,12 @@ core:
           end: 30 10 * * *
           desiredReplicas: "5"
       - type: cpu
+        metricType: Utilization
         metadata:
-          type: Utilization
           value: "150"
       - type: memory
+        metricType: Utilization
         metadata:
-          type: Utilization
           value: "110"
   envConfig:
     !!merge <<: *envConfig
