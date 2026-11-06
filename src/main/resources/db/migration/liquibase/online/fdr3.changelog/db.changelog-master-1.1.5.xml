@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <include
+        file="db.changelog-master-1.1.3.xml"
+        relativeToChangelogFile="true"/>
+
+    <include
+        file="1.1.5/01-payment-index.xml"
+        relativeToChangelogFile="true"/>
+
+    <include
+        file="1.1.5/02-payment-staging-indexes.xml"
+        relativeToChangelogFile="true"/>
+
+    <include
+        file="1.1.5/03-payment-staging-parent-index.xml"
+        relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

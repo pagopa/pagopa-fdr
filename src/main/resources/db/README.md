@@ -25,6 +25,27 @@ introduce to the current structure.
 | 1.1.2   | fdr3     | fdr3      | <ul><li>Introducing delete_unpublished_flows procedure;</li><li>Introducing materialized views for daily grouping data for archive processes;</li></ul>                                                                                     |
 | 1.1.3   | postgres | azureuser | <ul><li>Scheduling execute_data_cleansing procedure;</li><li>Scheduling materialized views refresh;</li></ul>                                                                                                                               |
 | 1.1.4   | fdr3     | azureuser | <ul><li>Updating execute_data_cleansing procedure;</li><li>Removing retention strategy for job_run_details table;</ul></li>                                                                                                                 |
+| 1.1.5 | fdr3 | fdr3 | Add indexes on `(pay_date, flow_id)` to `payment` and all 32 `payment_staging` partitions for daily recovery discovery.
+|
+
+#### Version 1.1.5 — recovery discovery indexes
+
+Run through the dedicated **DB migration** workflow with:
+
+- Environment: select the intended environment.
+- DB type: `online`.
+- DB name: `fdr3`.
+- User: `fdr3`.
+- DB version: `1.1.5`.
+
+The migration contains 35 changesets. Indexes are created concurrently,
+one changeset per index. Existing indexes with the expected names are
+validated before being reused. Missing, invalid or incompatible indexes
+cause the relevant checks to fail.
+
+The staging migration expects the verified 32-partition layout.
+The final changeset attaches partition indexes to the parent and
+checks its validity and coverage.
 
 ### Archive server
 | Version | Database | User      | Description                                                                                                                                                                                                                                                                                                                                                                                                                   |

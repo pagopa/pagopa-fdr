@@ -1,0 +1,1116 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="         http://www.liquibase.org/xml/ns/dbchangelog         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    <changeSet
+        id="PIDM-2543-check-staging-partition-layout"
+        author="liquibase"
+        dbms="postgresql"
+        runInTransaction="true">
+
+        <preConditions
+            onFail="HALT"
+            onError="HALT"
+            onFailMessage="Unexpected payment_staging partition count: review the migration before execution.">
+
+            <sqlCheck expectedResult="32"><![CDATA[
+                SELECT COUNT(*)
+                FROM pg_inherits
+                WHERE inhparent = 'fdr3.payment_staging'::regclass
+            ]]></sqlCheck>
+        </preConditions>
+
+        <comment>
+            Verify the expected partition layout before creating
+            the staging recovery indexes.
+        </comment>
+
+        <sql>SELECT 1;</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p00-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p00_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p00_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p00'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p00. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p00_pay_date_flow_id_idx
+ON fdr3.payment_staging_p00 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p01-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p01_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p01_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p01'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p01. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p01_pay_date_flow_id_idx
+ON fdr3.payment_staging_p01 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p02-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p02_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p02_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p02'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p02. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p02_pay_date_flow_id_idx
+ON fdr3.payment_staging_p02 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p03-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p03_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p03_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p03'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p03. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p03_pay_date_flow_id_idx
+ON fdr3.payment_staging_p03 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p04-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p04_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p04_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p04'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p04. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p04_pay_date_flow_id_idx
+ON fdr3.payment_staging_p04 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p05-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p05_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p05_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p05'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p05. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p05_pay_date_flow_id_idx
+ON fdr3.payment_staging_p05 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p06-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p06_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p06_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p06'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p06. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p06_pay_date_flow_id_idx
+ON fdr3.payment_staging_p06 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p07-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p07_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p07_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p07'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p07. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p07_pay_date_flow_id_idx
+ON fdr3.payment_staging_p07 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p08-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p08_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p08_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p08'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p08. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p08_pay_date_flow_id_idx
+ON fdr3.payment_staging_p08 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p09-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p09_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p09_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p09'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p09. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p09_pay_date_flow_id_idx
+ON fdr3.payment_staging_p09 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p10-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p10_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p10_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p10'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p10. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p10_pay_date_flow_id_idx
+ON fdr3.payment_staging_p10 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p11-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p11_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p11_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p11'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p11. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p11_pay_date_flow_id_idx
+ON fdr3.payment_staging_p11 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p12-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p12_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p12_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p12'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p12. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p12_pay_date_flow_id_idx
+ON fdr3.payment_staging_p12 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p13-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p13_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p13_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p13'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p13. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p13_pay_date_flow_id_idx
+ON fdr3.payment_staging_p13 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p14-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p14_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p14_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p14'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p14. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p14_pay_date_flow_id_idx
+ON fdr3.payment_staging_p14 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p15-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p15_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p15_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p15'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p15. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p15_pay_date_flow_id_idx
+ON fdr3.payment_staging_p15 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p16-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p16_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p16_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p16'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p16. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p16_pay_date_flow_id_idx
+ON fdr3.payment_staging_p16 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p17-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p17_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p17_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p17'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p17. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p17_pay_date_flow_id_idx
+ON fdr3.payment_staging_p17 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p18-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p18_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p18_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p18'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p18. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p18_pay_date_flow_id_idx
+ON fdr3.payment_staging_p18 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p19-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p19_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p19_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p19'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p19. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p19_pay_date_flow_id_idx
+ON fdr3.payment_staging_p19 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p20-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p20_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p20_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p20'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p20. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p20_pay_date_flow_id_idx
+ON fdr3.payment_staging_p20 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p21-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p21_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p21_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p21'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p21. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p21_pay_date_flow_id_idx
+ON fdr3.payment_staging_p21 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p22-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p22_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p22_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p22'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p22. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p22_pay_date_flow_id_idx
+ON fdr3.payment_staging_p22 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p23-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p23_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p23_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p23'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p23. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p23_pay_date_flow_id_idx
+ON fdr3.payment_staging_p23 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p24-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p24_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p24_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p24'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p24. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p24_pay_date_flow_id_idx
+ON fdr3.payment_staging_p24 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p25-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p25_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p25_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p25'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p25. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p25_pay_date_flow_id_idx
+ON fdr3.payment_staging_p25 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p26-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p26_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p26_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p26'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p26. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p26_pay_date_flow_id_idx
+ON fdr3.payment_staging_p26 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p27-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p27_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p27_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p27'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p27. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p27_pay_date_flow_id_idx
+ON fdr3.payment_staging_p27 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p28-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p28_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p28_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p28'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p28. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p28_pay_date_flow_id_idx
+ON fdr3.payment_staging_p28 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p29-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p29_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p29_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p29'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p29. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p29_pay_date_flow_id_idx
+ON fdr3.payment_staging_p29 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p30-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p30_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p30_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p30'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p30. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p30_pay_date_flow_id_idx
+ON fdr3.payment_staging_p30 (pay_date, flow_id);
+</sql>
+    </changeSet>
+    <changeSet id="PIDM-2543-payment_staging_p31-pay-date-flow-id-index" author="liquibase" dbms="postgresql" runInTransaction="false">
+        <preConditions onFail="HALT" onError="HALT" onFailMessage="Existing payment_staging_p31_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_staging_p31_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment_staging_p31'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            </sqlCheck>
+        </preConditions>
+        <comment>Support daily recovery discovery on payment_staging_p31. Preserve an existing matching index.</comment>
+        <sql splitStatements="false">
+CREATE INDEX CONCURRENTLY IF NOT EXISTS payment_staging_p31_pay_date_flow_id_idx
+ON fdr3.payment_staging_p31 (pay_date, flow_id);
+</sql>
+    </changeSet>
+</databaseChangeLog>

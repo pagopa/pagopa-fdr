@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet
+        id="PIDM-2543-payment-staging-parent-index"
+        author="liquibase"
+        dbms="postgresql"
+        runInTransaction="true">
+
+        <comment>
+            Attach existing partition indexes to the staging parent index.
+            Validate existing definitions before adopting manually created indexes.
+        </comment>
+
+        <sql splitStatements="false"><![CDATA[
+DO $migration$
+DECLARE
+    partition_record RECORD;
+    parent_index_oid OID;
+    partition_index_oid OID;
+BEGIN
+    PERFORM set_config('lock_timeout', '5s', true);
+
+    parent_index_oid :=
+        to_regclass('fdr3.payment_staging_pay_date_flow_id_idx');
+
+    IF parent_index_oid IS NULL THEN
+        CREATE INDEX payment_staging_pay_date_flow_id_idx
+        ON ONLY fdr3.payment_staging (pay_date, flow_id);
+
+        parent_index_oid :=
+            'fdr3.payment_staging_pay_date_flow_id_idx'::regclass;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_class idx
+        JOIN pg_index ix ON ix.indexrelid = idx.oid
+        JOIN pg_am am ON am.oid = idx.relam
+        WHERE idx.oid = parent_index_oid
+          AND idx.relkind = 'I'
+          AND am.amname = 'btree'
+          AND ix.indrelid = 'fdr3.payment_staging'::regclass
+          AND NOT ix.indisunique
+          AND ix.indnatts = 2
+          AND ix.indnkeyatts = 2
+          AND ix.indpred IS NULL
+          AND ix.indexprs IS NULL
+          AND ix.indoption::text = '0 0'
+          AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+          AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id'
+    ) THEN
+        RAISE EXCEPTION
+            'Unexpected definition for payment_staging_pay_date_flow_id_idx';
+    END IF;
+
+    FOR partition_record IN
+        SELECT
+            c.oid AS table_oid,
+            n.nspname AS schema_name,
+            c.relname AS table_name
+        FROM pg_inherits inh
+        JOIN pg_class c ON c.oid = inh.inhrelid
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE inh.inhparent = 'fdr3.payment_staging'::regclass
+        ORDER BY c.relname
+    LOOP
+        partition_index_oid := to_regclass(format(
+            '%I.%I',
+            partition_record.schema_name,
+            partition_record.table_name || '_pay_date_flow_id_idx'
+        ));
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_class idx
+            JOIN pg_index ix ON ix.indexrelid = idx.oid
+            JOIN pg_am am ON am.oid = idx.relam
+            WHERE idx.oid = partition_index_oid
+              AND idx.relkind = 'i'
+              AND am.amname = 'btree'
+              AND ix.indrelid = partition_record.table_oid
+              AND ix.indisvalid
+              AND ix.indisready
+              AND NOT ix.indisunique
+              AND ix.indnatts = 2
+              AND ix.indnkeyatts = 2
+              AND ix.indpred IS NULL
+              AND ix.indexprs IS NULL
+              AND ix.indoption::text = '0 0'
+              AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+              AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id'
+        ) THEN
+            RAISE EXCEPTION
+                'Missing, invalid or unexpected index for partition %',
+                partition_record.table_name;
+        END IF;
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_inherits
+            WHERE inhparent = parent_index_oid
+              AND inhrelid = partition_index_oid
+        ) THEN
+            EXECUTE format(
+                'ALTER INDEX fdr3.payment_staging_pay_date_flow_id_idx '
+                'ATTACH PARTITION %I.%I',
+                partition_record.schema_name,
+                partition_record.table_name || '_pay_date_flow_id_idx'
+            );
+        END IF;
+    END LOOP;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_index
+        WHERE indexrelid = parent_index_oid
+          AND indisvalid
+          AND indisready
+    ) THEN
+        RAISE EXCEPTION
+            'Staging parent index is not valid and ready after attachment';
+    END IF;
+
+    IF (
+        SELECT COUNT(*)
+        FROM pg_inherits
+        WHERE inhparent = parent_index_oid
+    ) <> (
+        SELECT COUNT(*)
+        FROM pg_inherits
+        WHERE inhparent = 'fdr3.payment_staging'::regclass
+    ) THEN
+        RAISE EXCEPTION
+            'Staging parent index does not cover all partitions';
+    END IF;
+END
+$migration$;
+        ]]></sql>
+
+    </changeSet>
+
+</databaseChangeLog>

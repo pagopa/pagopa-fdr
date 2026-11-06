@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet
+        id="PIDM-2543-payment-pay-date-flow-id-index"
+        author="liquibase"
+        dbms="postgresql"
+        runInTransaction="false">
+
+        <preConditions
+            onFail="HALT"
+            onError="HALT"
+            onFailMessage="Existing payment_pay_date_flow_id_idx has an unexpected definition or is not valid and ready.">
+
+            <sqlCheck expectedResult="0"><![CDATA[
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname = 'payment_pay_date_flow_id_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'i'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment'::regclass
+                      AND ix.indisvalid
+                      AND ix.indisready
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 2
+                      AND ix.indnkeyatts = 2
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id',
+                      FALSE
+                  )
+            ]]></sqlCheck>
+        </preConditions>
+
+        <comment>
+            Support daily recovery discovery without scanning the full
+            payment history. Preserve an existing matching index.
+        </comment>
+
+        <sql splitStatements="false"><![CDATA[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS
+                payment_pay_date_flow_id_idx
+            ON fdr3.payment (pay_date, flow_id);
+        ]]></sql>
+
+    </changeSet>
+
+</databaseChangeLog>
