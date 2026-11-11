@@ -1,30 +1,47 @@
 package it.gov.pagopa.fdr.service;
 
+import com.azure.core.util.Context;
+import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import io.quarkiverse.mockserver.test.MockServerTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import it.gov.pagopa.fdr.repository.entity.re.ReEventEntity;
+import it.gov.pagopa.fdr.repository.enums.BlobProcessingStatusEnum;
+import it.gov.pagopa.fdr.repository.enums.BlobTagNameEnum;
 import it.gov.pagopa.fdr.service.middleware.mapper.ReEventMapper;
 import it.gov.pagopa.fdr.service.model.re.FdrActionEnum;
 import it.gov.pagopa.fdr.service.model.re.ReEvent;
 import it.gov.pagopa.fdr.test.util.AzuriteResource;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
 
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import org.mockito.ArgumentCaptor;
 
 @QuarkusTest
 @QuarkusTestResource(MockServerTestResource.class)
@@ -244,7 +261,7 @@ class ReServiceTest {
 
         when(blobContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
         when(blobContainerClient.getAccountName()).thenReturn("storage-account");
-        when(reEventMapper.toEntity(org.mockito.ArgumentMatchers.any(ReEvent.class))).thenReturn(entity);
+        when(reEventMapper.toEntity(any(ReEvent.class))).thenReturn(entity);
         doNothing().when(entity).persist();
 
         ReService service = new ReService(log, reEventMapper, blobContainerClient, 1);
@@ -276,7 +293,7 @@ class ReServiceTest {
 
         when(blobContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
         when(blobContainerClient.getAccountName()).thenReturn("storage-account");
-        when(reEventMapper.toEntity(org.mockito.ArgumentMatchers.any(ReEvent.class))).thenReturn(entity);
+        when(reEventMapper.toEntity(any(ReEvent.class))).thenReturn(entity);
         doNothing().when(entity).persist();
 
         ReService service = new ReService(log, reEventMapper, blobContainerClient, 1);
@@ -303,4 +320,214 @@ class ReServiceTest {
         field.setAccessible(true);
         field.set(target, value);
     }
+
+
+
+    @Test
+    void storeEvent_shouldInitializeProcessingTags() throws Exception {
+
+        BlobContainerClient blobContainerClient = mock(BlobContainerClient.class);
+        BlobClient blobClient = mock(BlobClient.class);
+        ReEventMapper reEventMapper = mock(ReEventMapper.class);
+        ReEventEntity entity = mock(ReEventEntity.class);
+        Logger log = mock(Logger.class);
+
+        when(blobContainerClient.getBlobClient(anyString())).thenReturn(blobClient);
+        when(blobContainerClient.getAccountName()).thenReturn("storage-account");
+        when(reEventMapper.toEntity(any(ReEvent.class))).thenReturn(entity);
+
+        ReService service = new ReService(
+            log,
+            reEventMapper,
+            blobContainerClient,
+            1
+        );
+
+        setField(service, "blobContainerName", "re-container");
+
+        ReEvent reEvent = ReEvent.builder()
+            .sessionId("SESSION1")
+            .created(Instant.parse("2026-11-11T10:00:00Z"))
+            .fdrAction(FdrActionEnum.CREATE_FLOW)
+            .reqPayload("{\"test\":true}")
+            .build();
+
+        Instant before = Instant.now();
+
+        service.storeEvent(reEvent);
+
+        Instant after = Instant.now();
+
+        ArgumentCaptor<BlobParallelUploadOptions> captor =
+            ArgumentCaptor.forClass(BlobParallelUploadOptions.class);
+
+        verify(blobClient).uploadWithResponse(
+            captor.capture(),
+            isNull(),
+            eq(Context.NONE)
+        );
+
+        BlobParallelUploadOptions options = captor.getValue();
+
+        Map<String, String> tags = options.getTags();
+
+        assertNotNull(tags);
+        assertEquals(3, tags.size());
+
+        assertEquals(
+            BlobProcessingStatusEnum.DA_ELABORARE.name(),
+            tags.get(BlobTagNameEnum.PROCESSING_STATUS.getValue())
+        );
+
+        assertEquals(
+            "0",
+            tags.get(BlobTagNameEnum.PROCESSING_ATTEMPT.getValue())
+        );
+
+        String updatedAt = tags.get(
+            BlobTagNameEnum.PROCESSING_UPDATED_AT.getValue()
+        );
+
+        assertNotNull(updatedAt);
+
+        Instant timestamp = Instant.parse(updatedAt);
+
+        assertEquals(
+            timestamp.truncatedTo(ChronoUnit.SECONDS),
+            timestamp
+        );
+
+        assertFalse(
+            timestamp.isBefore(
+                before.truncatedTo(ChronoUnit.SECONDS)
+            )
+        );
+
+        assertFalse(timestamp.isAfter(after));
+
+        assertEquals(
+            "*",
+            options.getRequestConditions().getIfNoneMatch()
+        );
+
+        verify(blobClient, never()).setTags(anyMap());
+
+        assertNotNull(reEvent.getReqBodyRef());
+
+        service.shutdown();
+    }
+
+
+    @Test
+    void storeEvent_shouldInitializeTagsForRequestAndResponse() throws Exception {
+
+        BlobContainerClient blobContainerClient = mock(BlobContainerClient.class);
+        BlobClient reqBlobClient = mock(BlobClient.class);
+        BlobClient resBlobClient = mock(BlobClient.class);
+        ReEventMapper reEventMapper = mock(ReEventMapper.class);
+        ReEventEntity entity = mock(ReEventEntity.class);
+        Logger log = mock(Logger.class);
+
+        when(blobContainerClient.getBlobClient(anyString()))
+            .thenAnswer(invocation -> {
+                String fileName = invocation.getArgument(0);
+
+                return fileName.contains("_REQ.json.zip")
+                    ? reqBlobClient
+                    : resBlobClient;
+            });
+
+        when(blobContainerClient.getAccountName()).thenReturn("storage-account");
+        when(reEventMapper.toEntity(any(ReEvent.class))).thenReturn(entity);
+
+        ReService service = new ReService(
+            log,
+            reEventMapper,
+            blobContainerClient,
+            1
+        );
+
+        setField(service, "blobContainerName", "re-container");
+
+        ReEvent reEvent = ReEvent.builder()
+            .sessionId("SESSION1")
+            .created(Instant.parse("2026-11-11T10:00:00Z"))
+            .fdrAction(FdrActionEnum.CREATE_FLOW)
+            .reqPayload("{\"request\":true}")
+            .resPayload("{\"response\":true}")
+            .build();
+
+        service.storeEvent(reEvent);
+
+        ArgumentCaptor<BlobParallelUploadOptions> reqCaptor =
+            ArgumentCaptor.forClass(BlobParallelUploadOptions.class);
+
+        ArgumentCaptor<BlobParallelUploadOptions> resCaptor =
+            ArgumentCaptor.forClass(BlobParallelUploadOptions.class);
+
+        verify(reqBlobClient).uploadWithResponse(
+            reqCaptor.capture(),
+            isNull(),
+            eq(Context.NONE)
+        );
+
+        verify(resBlobClient).uploadWithResponse(
+            resCaptor.capture(),
+            isNull(),
+            eq(Context.NONE)
+        );
+
+        Map<String, String> reqTags = reqCaptor.getValue().getTags();
+        Map<String, String> resTags = resCaptor.getValue().getTags();
+
+        for (Map<String, String> tags : List.of(reqTags, resTags)) {
+
+            assertEquals(3, tags.size());
+
+            assertEquals(
+                "DA_ELABORARE",
+                tags.get(BlobTagNameEnum.PROCESSING_STATUS.getValue())
+            );
+
+            assertEquals(
+                "0",
+                tags.get(BlobTagNameEnum.PROCESSING_ATTEMPT.getValue())
+            );
+
+            assertNotNull(
+                tags.get(BlobTagNameEnum.PROCESSING_UPDATED_AT.getValue())
+            );
+
+            assertDoesNotThrow(() ->
+                Instant.parse(
+                    tags.get(
+                        BlobTagNameEnum.PROCESSING_UPDATED_AT.getValue()
+                    )
+                )
+            );
+        }
+
+        assertEquals(
+            "*",
+            reqCaptor.getValue()
+                .getRequestConditions()
+                .getIfNoneMatch()
+        );
+
+        assertEquals(
+            "*",
+            resCaptor.getValue()
+                .getRequestConditions()
+                .getIfNoneMatch()
+        );
+
+        verify(reqBlobClient, never()).setTags(anyMap());
+        verify(resBlobClient, never()).setTags(anyMap());
+
+        assertNotNull(reEvent.getReqBodyRef());
+        assertNotNull(reEvent.getResBodyRef());
+
+        service.shutdown();
+    }
+
 }
