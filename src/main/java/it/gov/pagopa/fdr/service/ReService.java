@@ -164,6 +164,7 @@ public class ReService {
 
     try {
 
+      log.info("Add tags");
       // Compress payload as zipped content
       byte[] compressedPayload = StringUtil.zip(payload);
 
@@ -180,6 +181,7 @@ public class ReService {
               .setRequestConditions(new BlobRequestConditions().setIfNoneMatch("*"));
       blobClient.uploadWithResponse(options, null, Context.NONE);
 
+      log.info("Add tags" + initialTags());
       // Construct BlobHttpBody object to be returned
       blobHttpBody =
           BlobHttpBody.builder()
