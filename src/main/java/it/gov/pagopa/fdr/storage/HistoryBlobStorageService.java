@@ -3,6 +3,8 @@ package it.gov.pagopa.fdr.storage;
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobAsyncClient;
 import com.azure.storage.blob.BlobContainerAsyncClient;
+import com.azure.storage.blob.models.BlobRequestConditions;
+import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,6 +16,8 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import it.gov.pagopa.fdr.repository.entity.FlowToHistoryEntity;
+import it.gov.pagopa.fdr.repository.enums.BlobProcessingStatusEnum;
+import it.gov.pagopa.fdr.repository.enums.BlobTagNameEnum;
 import it.gov.pagopa.fdr.storage.model.FlowBlob;
 import it.gov.pagopa.fdr.util.common.FileUtil;
 import it.gov.pagopa.fdr.util.common.StringUtil;
@@ -22,22 +26,26 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.ValidationException;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class HistoryBlobStorageService {
 
   private final BlobContainerAsyncClient blobContainerClient;
   private final FileUtil fileUtil;
-
+  private final Logger log;
   @Inject
   public HistoryBlobStorageService(
-      BlobContainerAsyncClient blobContainerClient, FileUtil fileUtil) {
+      BlobContainerAsyncClient blobContainerClient, FileUtil fileUtil,  Logger log) {
     this.blobContainerClient = blobContainerClient;
     this.fileUtil = fileUtil;
+    this.log = log;
   }
 
   public void saveJsonFile(FlowBlob fdrEntity, FlowToHistoryEntity flowToHistoryEntity)
@@ -69,18 +77,42 @@ public class HistoryBlobStorageService {
   }
 
   private void uploadBlob(
-      FlowBlob fdrEntity, String fileName, boolean permitsElaborationForQI, BinaryData jsonFile) {
-    BlobAsyncClient blobClient = blobContainerClient.getBlobAsyncClient(fileName);
-    // Set metadata
+      FlowBlob fdrEntity,
+      String fileName,
+      boolean permitsElaborationForQI,
+      BinaryData jsonFile) {
+
+    BlobAsyncClient blobClient =
+        blobContainerClient.getBlobAsyncClient(fileName);
+
     Map<String, String> metadata = new HashMap<>();
     metadata.put("elaborate", Boolean.toString(permitsElaborationForQI));
     metadata.put("sessionId", UUID.randomUUID().toString());
     metadata.put("insertedTimestamp", fdrEntity.getPublished().toString());
     metadata.put("serviceIdentifier", AppConstant.SERVICE_IDENTIFIER);
+
+    Map<String, String> tags = initialTags();
+
+    BlobParallelUploadOptions options =
+        new BlobParallelUploadOptions(jsonFile)
+            .setMetadata(metadata)
+            .setTags(tags);
+
     blobClient
-        .upload(jsonFile, true)
-        .flatMap(ignored -> blobClient.setMetadata(metadata))
-        .subscribe();
+        .uploadWithResponse(options)
+        .flatMap(response -> blobClient.getTags())
+        .subscribe(
+            savedTags -> log.infof(
+                "Blob [%s] uploaded successfully. Saved tags: %s",
+                fileName,
+                savedTags
+            ),
+            error -> log.errorf(
+                error,
+                "Error uploading blob [%s]",
+                fileName
+            )
+        );
   }
 
   private void isJsonValid(String jsonString, String jsonSchema)
@@ -93,5 +125,15 @@ public class HistoryBlobStorageService {
     if (!errors.isEmpty()) {
       throw new ValidationException(errors.toString());
     }
+  }
+
+  private Map<String, String> initialTags() {
+    return Map.of(
+        BlobTagNameEnum.PROCESSING_STATUS.getValue(),
+        BlobProcessingStatusEnum.DA_ELABORARE.name(),
+        BlobTagNameEnum.PROCESSING_ATTEMPT.getValue(),
+        "0",
+        BlobTagNameEnum.PROCESSING_UPDATED_AT.getValue(),
+        Instant.now().truncatedTo(ChronoUnit.SECONDS).toString());
   }
 }
