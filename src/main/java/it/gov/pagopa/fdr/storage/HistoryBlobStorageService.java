@@ -91,12 +91,13 @@ public class HistoryBlobStorageService {
     metadata.put("insertedTimestamp", fdrEntity.getPublished().toString());
     metadata.put("serviceIdentifier", AppConstant.SERVICE_IDENTIFIER);
 
-    Map<String, String> tags = initialTags();
-
     BlobParallelUploadOptions options =
         new BlobParallelUploadOptions(jsonFile)
-            .setMetadata(metadata)
-            .setTags(tags);
+            .setMetadata(metadata);
+
+    if(permitsElaborationForQI) {
+      options.setTags(initialTags());
+    }
 
     blobClient
         .uploadWithResponse(options)
