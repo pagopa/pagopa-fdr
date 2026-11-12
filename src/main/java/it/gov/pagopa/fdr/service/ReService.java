@@ -1,15 +1,10 @@
 package it.gov.pagopa.fdr.service;
 
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobRequestConditions;
-import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import io.smallrye.mutiny.Uni;
 import it.gov.pagopa.fdr.repository.entity.re.ReEventEntity;
-import it.gov.pagopa.fdr.repository.enums.BlobProcessingStatusEnum;
-import it.gov.pagopa.fdr.repository.enums.BlobTagNameEnum;
 import it.gov.pagopa.fdr.service.middleware.mapper.ReEventMapper;
 import it.gov.pagopa.fdr.service.model.re.BlobHttpBody;
 import it.gov.pagopa.fdr.service.model.re.ReEvent;
@@ -20,8 +15,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -136,16 +129,6 @@ public class ReService {
     }
   }
 
-  private Map<String, String> initialTags() {
-    return Map.of(
-        BlobTagNameEnum.PROCESSING_STATUS.getValue(),
-        BlobProcessingStatusEnum.DA_ELABORARE.name(),
-        BlobTagNameEnum.PROCESSING_ATTEMPT.getValue(),
-        "0",
-        BlobTagNameEnum.PROCESSING_UPDATED_AT.getValue(),
-        Instant.now().truncatedTo(ChronoUnit.SECONDS).toString());
-  }
-
   private BlobHttpBody writeBlob(
       String sessionId, Instant createdAt, String fdrAction, String httpType, String payload) {
 
@@ -164,7 +147,6 @@ public class ReService {
 
     try {
 
-      log.info("Add tags");
       // Compress payload as zipped content
       byte[] compressedPayload = StringUtil.zip(payload);
 
@@ -174,14 +156,8 @@ public class ReService {
       // used memory is too much high, return to use fromStream() method.
       BinaryData body = BinaryData.fromBytes(compressedPayload);
       BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+      blobClient.upload(body);
 
-      BlobParallelUploadOptions options =
-          new BlobParallelUploadOptions(body)
-              .setTags(initialTags())
-              .setRequestConditions(new BlobRequestConditions().setIfNoneMatch("*"));
-      blobClient.uploadWithResponse(options, null, Context.NONE);
-
-      log.info("Add tags" + initialTags());
       // Construct BlobHttpBody object to be returned
       blobHttpBody =
           BlobHttpBody.builder()
