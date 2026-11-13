@@ -32,6 +32,24 @@ on:
         type: boolean
         description: deploy beta version on AKS
         default: false
+      dry_run:
+        required: false
+        type: boolean
+        description: "Dry run: run the TAS integration tests, then replace release/image/deploy with fake steps that only log their invocation"
+        default: false
+      tas_mode:
+        required: false
+        type: choice
+        description: "TAS invocation mode: sync waits for the tests and blocks release/deploy on failure, async only dispatches them and proceeds in any case"
+        options:
+          - sync
+          - async
+        default: sync
+      tas_ref:
+        required: false
+        type: string
+        description: "Branch or tag of pagopa-platform-integration-test (TAS repo) the tests are run from"
+        default: main
 
   workflow_call:
     inputs:
@@ -103,11 +121,37 @@ jobs:
         name: Set Output
         run: echo "environment=${{env.ENVIRNOMENT}}" >> $GITHUB_OUTPUT
 
+  # Quality gate: FDR3 integration tests run through the TAS composite action.
+  # In sync mode the step fails when any scenario fails, so every downstream job
+  # (release, image, deploy) is blocked. TAS supports dev/uat only: on prod the
+  # job is skipped and the pipeline proceeds as before.
+  integration_tests:
+    name: Integration Tests (TAS)
+    runs-on: ubuntu-latest
+    needs: [ setup ]
+    if: ${{ needs.setup.outputs.environment != 'prod' }}
+    outputs:
+      correlation_id: ${{ steps.tas.outputs.correlation_id }}
+      run_url: ${{ steps.tas.outputs.run_url }}
+    steps:
+      - name: Run TAS
+        id: tas
+        uses: pagopa/pagopa-platform-integration-test/.github/actions/tas-integration-tests@main
+        with:
+          test_type: integration
+          suite: fdr3
+          environment: ${{ needs.setup.outputs.environment }}
+          mode: ${{ inputs.tas_mode || 'sync' }}
+          ref: ${{ inputs.tas_ref || 'main' }}
+          tags: '@runnable'
+          github_token: ${{ secrets.INTEGRATION_TEST_PAT }}
+
   release:
     name: Create a New Release
     runs-on: ubuntu-latest
-    needs: [ setup ]
-    if: ${{ needs.setup.outputs.semver != 'skip' }}
+    needs: [ setup, integration_tests ]
+    # Proceed only if TAS passed (or was skipped, e.g. prod); never in dry run.
+    if: ${{ !cancelled() && !inputs.dry_run && needs.setup.result == 'success' && contains(fromJSON('["success","skipped"]'), needs.integration_tests.result) && needs.setup.outputs.semver != 'skip' }}
     outputs:
       version: ${{ steps.release.outputs.version }}
     steps:
@@ -126,7 +170,7 @@ jobs:
     needs: [ setup, release ]
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    if: ${{ needs.setup.outputs.semver != 'skip' }}
+    if: ${{ !inputs.dry_run && needs.setup.outputs.semver != 'skip' }}
     steps:
       - name: Build and Push
         id: semver
@@ -138,18 +182,41 @@ jobs:
 
   deploy_aks:
     name: Deploy on AKS
-    needs: [ setup, release, image ]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    needs: [ setup, integration_tests, release, image ]
+    if: ${{ always() && !inputs.dry_run && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     uses: ./.github/workflows/04h_deploy_with_github_runner.yml
     with:
       environment: ${{ needs.setup.outputs.environment }}
     secrets: inherit
 
+  # ── Dry run only: fake release/image/deploy, they just trace their invocation ──
+  fake_release:
+    name: "[DRY RUN] Fake Release and Image"
+    runs-on: ubuntu-latest
+    needs: [ setup, integration_tests ]
+    if: ${{ !cancelled() && inputs.dry_run && needs.setup.result == 'success' && contains(fromJSON('["success","skipped"]'), needs.integration_tests.result) }}
+    steps:
+      - name: Trace release and image invocation
+        run: |
+          echo "FAKE RELEASE invoked: semver=${{ needs.setup.outputs.semver }}, beta=${{ inputs.beta }}"
+          echo "FAKE IMAGE invoked"
+          echo "TAS correlation_id=${{ needs.integration_tests.outputs.correlation_id }}"
+
+  fake_deploy:
+    name: "[DRY RUN] Fake Deploy"
+    runs-on: ubuntu-latest
+    needs: [ setup, integration_tests, fake_release ]
+    if: ${{ always() && inputs.dry_run && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    steps:
+      - name: Trace deploy invocation
+        run: |
+          echo "FAKE DEPLOY invoked: environment=${{ needs.setup.outputs.environment }}"
+
   notify:
     needs: [ setup, release, deploy_aks ]
     runs-on: ubuntu-latest
     name: Notify
-    if: always()
+    if: ${{ always() && !inputs.dry_run }}
     steps:
       - name: Report Status
         if: ${{ needs.setup.outputs.environment == 'prod' }}
