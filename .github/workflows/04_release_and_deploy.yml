@@ -128,7 +128,7 @@ jobs:
           test_type: integration
           suite: fdr3
           environment: ${{ needs.setup.outputs.environment }}
-          mode: sync
+          mode: async
           ref: main
           tags: '@runnable'
           github_token: ${{ secrets.INTEGRATION_TEST_PAT }}
