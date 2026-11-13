@@ -37,6 +37,19 @@ on:
         type: boolean
         description: "Dry run: run the TAS integration tests, then replace release/image/deploy with fake steps that only log their invocation"
         default: false
+      tas_mode:
+        required: false
+        type: choice
+        description: "TAS invocation mode: sync waits for the tests and blocks release/deploy on failure, async only dispatches them and proceeds in any case"
+        options:
+          - sync
+          - async
+        default: sync
+      tas_ref:
+        required: false
+        type: string
+        description: "Branch or tag of pagopa-platform-integration-test (TAS repo) the tests are run from"
+        default: main
 
   workflow_call:
     inputs:
@@ -128,8 +141,8 @@ jobs:
           test_type: integration
           suite: fdr3
           environment: ${{ needs.setup.outputs.environment }}
-          mode: async
-          ref: main
+          mode: ${{ inputs.tas_mode || 'sync' }}
+          ref: ${{ inputs.tas_ref || 'main' }}
           tags: '@runnable'
           github_token: ${{ secrets.INTEGRATION_TEST_PAT }}
 

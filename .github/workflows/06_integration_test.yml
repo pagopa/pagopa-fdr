@@ -18,6 +18,19 @@ on:
         required: false
         type: string
         default: '@runnable'
+      tas_mode:
+        required: false
+        type: choice
+        description: 'TAS invocation mode: sync waits for the tests and fails on test failure, async only dispatches them'
+        options:
+          - sync
+          - async
+        default: sync
+      tas_ref:
+        required: false
+        type: string
+        description: "Branch or tag of pagopa-platform-integration-test (TAS repo) the tests are run from"
+        default: main
       notify:
         required: false
         type: boolean
@@ -31,7 +44,8 @@ permissions:
 
 jobs:
   # The FDR3 integration tests are executed by the Test Automation Service (TAS)
-  # through its composite action. Sync mode: the step fails if any scenario fails.
+  # through its composite action. In sync mode (default, always used by the schedule)
+  # the step fails if any scenario fails; in async mode the tests are only dispatched.
   integration_test:
     name: Test ${{ inputs.environment || 'dev' }} (TAS)
     runs-on: ubuntu-latest
@@ -46,8 +60,8 @@ jobs:
           test_type: integration
           suite: fdr3
           environment: ${{ inputs.environment || 'dev' }}
-          mode: sync
-          ref: main
+          mode: ${{ inputs.tas_mode || 'sync' }}
+          ref: ${{ inputs.tas_ref || 'main' }}
           tags: ${{ inputs.tags || '@runnable' }}
           github_token: ${{ secrets.INTEGRATION_TEST_PAT }}
 
@@ -64,7 +78,7 @@ jobs:
           status: ${{ needs.integration_test.result }}
           token: ${{ secrets.GITHUB_TOKEN }}
           notify_when: 'failure,skipped'
-          notification_title: '<{run_url}|Scheduled Integration Test (via TAS)> has {status_message} - <${{ needs.integration_test.outputs.run_url }}|TAS run>'
+          notification_title: "<{run_url}|Scheduled Integration Test (via TAS)> has {status_message} - <${{ needs.integration_test.outputs.run_url || 'https://github.com/pagopa/pagopa-platform-integration-test/actions' }}|TAS run>"
           message_format: '{emoji} <{run_url}|{workflow}> {status_message} in <{repo_url}|{repo}>'
           footer: 'Linked to <{workflow_url}| workflow file>'
         env:
