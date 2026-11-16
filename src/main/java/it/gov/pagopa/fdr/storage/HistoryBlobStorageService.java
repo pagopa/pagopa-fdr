@@ -131,7 +131,7 @@ public class HistoryBlobStorageService {
   private Map<String, String> initialTags() {
     return Map.of(
         BlobTagNameEnum.PROCESSING_STATUS.getValue(),
-        BlobProcessingStatusEnum.DA_ELABORARE.name(),
+        BlobProcessingStatusEnum.PENDING.name(),
         BlobTagNameEnum.PROCESSING_ATTEMPT.getValue(),
         "0",
         BlobTagNameEnum.PROCESSING_UPDATED_AT.getValue(),

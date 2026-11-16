@@ -105,7 +105,7 @@ class HistoryBlobStorageServiceTest {
     assertEquals(3, tags.size());
 
     assertEquals(
-        BlobProcessingStatusEnum.DA_ELABORARE.name(),
+        BlobProcessingStatusEnum.PENDING.name(),
         tags.get(BlobTagNameEnum.PROCESSING_STATUS.getValue())
     );
 
@@ -174,7 +174,7 @@ class HistoryBlobStorageServiceTest {
     assertEquals(3, tags.size());
 
     assertEquals(
-        BlobProcessingStatusEnum.DA_ELABORARE.name(),
+        BlobProcessingStatusEnum.PENDING.name(),
         tags.get(BlobTagNameEnum.PROCESSING_STATUS.getValue())
     );
 
@@ -283,7 +283,7 @@ class HistoryBlobStorageServiceTest {
         ));
 
     Map<String, String> tags = Map.of(
-        "processingStatus", "DA_ELABORARE",
+        "processingStatus", "PENDING",
         "processingAttempt", "0",
         "processingUpdatedAt", "2026-11-12T09:34:49Z"
     );
