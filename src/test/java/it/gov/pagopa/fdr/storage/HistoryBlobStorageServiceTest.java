@@ -150,9 +150,6 @@ class HistoryBlobStorageServiceTest {
     when(blobClient.uploadWithResponse(any(BlobParallelUploadOptions.class)))
         .thenReturn(Mono.empty());
 
-    when(blobClient.getTags())
-        .thenReturn(Mono.just(new HashMap<>()));
-
     historyBlobStorageService.saveJsonFile(
         validFlowBlob(),
         flowToHistoryEntity
@@ -165,34 +162,31 @@ class HistoryBlobStorageServiceTest {
 
     BlobParallelUploadOptions options = captor.getValue();
 
+    // Verifica metadata
     Map<String, String> metadata = options.getMetadata();
 
+    assertNotNull(metadata);
     assertEquals("false", metadata.get("elaborate"));
-
-    Map<String, String> tags = options.getTags();
-
-    assertEquals(3, tags.size());
+    assertNotNull(metadata.get("sessionId"));
+    assertNotNull(metadata.get("insertedTimestamp"));
 
     assertEquals(
-        BlobProcessingStatusEnum.PENDING.name(),
-        tags.get(BlobTagNameEnum.PROCESSING_STATUS.getValue())
+        AppConstant.SERVICE_IDENTIFIER,
+        metadata.get("serviceIdentifier")
     );
 
-    assertEquals(
-        "0",
-        tags.get(BlobTagNameEnum.PROCESSING_ATTEMPT.getValue())
-    );
-
-    assertDoesNotThrow(() ->
-        Instant.parse(
-            tags.get(BlobTagNameEnum.PROCESSING_UPDATED_AT.getValue())
-        )
-    );
+    // I flussi interni NON devono avere Blob Index Tags
+    assertNull(options.getTags());
 
     assertNull(options.getRequestConditions());
 
+    // Nessuna operazione separata di aggiornamento metadata/tag
     verify(blobClient, never()).setMetadata(anyMap());
     verify(blobClient, never()).setTags(anyMap());
+
+    // Mono.empty() non emette una risposta:
+    // il successivo getTags() non viene chiamato
+    verify(blobClient, never()).getTags();
   }
 
   @Test
