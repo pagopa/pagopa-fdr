@@ -14,12 +14,4 @@
         file="1.1.5/01-payment-index.xml"
         relativeToChangelogFile="true"/>
 
-    <include
-        file="1.1.5/02-payment-staging-indexes.xml"
-        relativeToChangelogFile="true"/>
-
-    <include
-        file="1.1.5/03-payment-staging-parent-index.xml"
-        relativeToChangelogFile="true"/>
-
 </databaseChangeLog>
