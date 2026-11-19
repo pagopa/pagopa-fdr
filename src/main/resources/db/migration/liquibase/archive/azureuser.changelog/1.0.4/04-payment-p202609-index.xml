@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet
+        id="PIDM-2543-archive-payment-p202609-recovery-index"
+        author="liquibase"
+        dbms="postgresql"
+        runInTransaction="false">
+
+        <preConditions
+            onFail="CONTINUE"
+            onError="HALT"
+            onFailMessage="Payment partition is absent or not attached; skip this changeset.">
+
+            <sqlCheck expectedResult="1"><![CDATA[
+                SELECT COUNT(*)
+                FROM pg_inherits inh
+                JOIN pg_class child ON child.oid = inh.inhrelid
+                JOIN pg_namespace ns ON ns.oid = child.relnamespace
+                WHERE inh.inhparent = 'fdr3.payment'::regclass
+                  AND ns.nspname = 'fdr3'
+                  AND child.relname = 'payment_p202609'
+                  AND child.relkind = 'r'
+            ]]></sqlCheck>
+
+        </preConditions>
+
+        <comment>
+            Validate an existing archive recovery index, then create
+            the missing index concurrently on the payment partition.
+        </comment>
+
+        <sql splitStatements="false"><![CDATA[
+DO $validation$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM pg_class idx
+        JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+        LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+        LEFT JOIN pg_am am ON am.oid = idx.relam
+        WHERE ns.nspname = 'fdr3'
+          AND idx.relname =
+              'payment_p202609_pay_date_flow_id_flow_date_idx'
+          AND NOT COALESCE(
+              idx.relkind = 'i'
+              AND am.amname = 'btree'
+              AND ix.indrelid = 'fdr3.payment_p202609'::regclass
+              AND ix.indisvalid
+              AND ix.indisready
+              AND NOT ix.indisunique
+              AND ix.indnatts = 3
+              AND ix.indnkeyatts = 3
+              AND ix.indpred IS NULL
+              AND ix.indexprs IS NULL
+              AND ix.indoption::text = '0 0 0'
+              AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+              AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id'
+              AND pg_get_indexdef(idx.oid, 3, true) = 'flow_date',
+              FALSE
+          )
+    ) THEN
+        RAISE EXCEPTION
+            'Invalid or incompatible index: payment_p202609_pay_date_flow_id_flow_date_idx';
+    END IF;
+END
+$validation$;
+        ]]></sql>
+
+        <sql splitStatements="false"><![CDATA[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS
+                payment_p202609_pay_date_flow_id_flow_date_idx
+            ON fdr3.payment_p202609 (pay_date, flow_id, flow_date);
+        ]]></sql>
+
+    </changeSet>
+
+</databaseChangeLog>

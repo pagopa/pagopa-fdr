@@ -26,6 +26,7 @@ introduce to the current structure.
 | 1.1.3   | postgres | azureuser | <ul><li>Scheduling execute_data_cleansing procedure;</li><li>Scheduling materialized views refresh;</li></ul>                                                                                                                               |
 | 1.1.4   | fdr3     | azureuser | <ul><li>Updating execute_data_cleansing procedure;</li><li>Removing retention strategy for job_run_details table;</ul></li>                                                                                                                 |
 
+
 ### Archive server
 | Version | Database | User      | Description                                                                                                                                                                                                                                                                                                                                                                                                                   |
 |---------|----------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -34,3 +35,36 @@ introduce to the current structure.
 | 1.0.1   | fdr3     | azureuser | <ul><li>Installing postgres_fdw;</li><li>Creating maintenance tables;</li><li>Configuring remote servers for maintenance purpose;</li><li>Introducing create_partition_on_month procedure;</li><li>Introducing delete_expired_partitions procedure;</li><li>Introducing execute_daily_copy procedure;</li><li>Introducing execute_data_cleansing procedure;</li><li>Configuring retention and archiving strategies;</li></ul> |
 | 1.0.2   | postgres | azureuzer | <ul><li>Scheduling create_partition_on_month procedure;</li><li>Scheduling delete_expired_partitions procedure;</li><li>Scheduling execute_daily_copy procedure;</li><li>Scheduling execute_data_cleansing procedure;</li></ul>                                                                                                                                                                                               |
 | 1.0.3   | fdr3     | azureuser | <ul><li>Updating execute_data_cleansing procedure;</li><li>Removing retention strategy for job_run_details table;</ul></li>                                                                                                                                                                                                                                                                                                   |
+| 1.0.4 | fdr3 | azureuser | Add partitioned recovery discovery index on `payment (pay_date, flow_id, flow_date)`. |
+
+#### Version 1.0.4 — archive recovery discovery index
+
+Run through the existing **DB migration** workflow with:
+
+- Environment: select the intended environment.
+- DB type: `archive`.
+- DB name: `fdr3`.
+- User: `azureuser`.
+- DB version: `1.0.4`.
+
+The migration creates a parent index on
+`payment (pay_date, flow_id, flow_date)`, builds indexes concurrently
+on existing monthly partitions, and attaches them to the parent.
+
+Partition changesets are skipped without being marked as executed
+when the corresponding partition is absent. Invalid or incompatible
+existing indexes stop the migration.
+
+The final changeset requires every existing payment partition to have
+a valid, ready index attached to the parent. Before deployment, compare
+the target partition inventory with the partition changesets included
+in this migration.
+
+This migration applies only to the archive database.
+
+Run as `azureuser`: existing payment partitions are owned by this role.
+The migration also requires inherited ownership privileges on the
+`fdr3`-owned parent table and index.
+
+With the current migration workflow, execution history is recorded in
+`public.databasechangelog`.
