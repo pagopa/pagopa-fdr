@@ -25,23 +25,7 @@ introduce to the current structure.
 | 1.1.2   | fdr3     | fdr3      | <ul><li>Introducing delete_unpublished_flows procedure;</li><li>Introducing materialized views for daily grouping data for archive processes;</li></ul>                                                                                     |
 | 1.1.3   | postgres | azureuser | <ul><li>Scheduling execute_data_cleansing procedure;</li><li>Scheduling materialized views refresh;</li></ul>                                                                                                                               |
 | 1.1.4   | fdr3     | azureuser | <ul><li>Updating execute_data_cleansing procedure;</li><li>Removing retention strategy for job_run_details table;</ul></li>                                                                                                                 |
-| 1.1.5 | fdr3 | fdr3 | Add a composite index on `(pay_date, flow_id)` to `payment` for daily recovery discovery. |
 
-#### Version 1.1.5 — recovery discovery indexes
-
-Run through the dedicated **DB migration** workflow with:
-
-- Environment: select the intended environment.
-- DB type: `online`.
-- DB name: `fdr3`.
-- User: `fdr3`.
-- DB version: `1.1.5`.
-
-The migration contains a changeset, which creates the
-`payment_pay_date_flow_id_idx` index concurrently on `fdr3.payment`.
-
-An existing index with the expected name is validated before being reused.
-An invalid or incompatible index causes the migration to fail.
 
 ### Archive server
 | Version | Database | User      | Description                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -51,3 +35,29 @@ An invalid or incompatible index causes the migration to fail.
 | 1.0.1   | fdr3     | azureuser | <ul><li>Installing postgres_fdw;</li><li>Creating maintenance tables;</li><li>Configuring remote servers for maintenance purpose;</li><li>Introducing create_partition_on_month procedure;</li><li>Introducing delete_expired_partitions procedure;</li><li>Introducing execute_daily_copy procedure;</li><li>Introducing execute_data_cleansing procedure;</li><li>Configuring retention and archiving strategies;</li></ul> |
 | 1.0.2   | postgres | azureuzer | <ul><li>Scheduling create_partition_on_month procedure;</li><li>Scheduling delete_expired_partitions procedure;</li><li>Scheduling execute_daily_copy procedure;</li><li>Scheduling execute_data_cleansing procedure;</li></ul>                                                                                                                                                                                               |
 | 1.0.3   | fdr3     | azureuser | <ul><li>Updating execute_data_cleansing procedure;</li><li>Removing retention strategy for job_run_details table;</ul></li>                                                                                                                                                                                                                                                                                                   |
+| 1.0.4 | fdr3 | fdr3 | Add partitioned recovery discovery index on `payment (pay_date, flow_id, flow_date)`. |
+
+#### Version 1.0.4 — archive recovery discovery index
+
+Run through the existing **DB migration** workflow with:
+
+- Environment: select the intended environment.
+- DB type: `archive`.
+- DB name: `fdr3`.
+- User: `fdr3`.
+- DB version: `1.0.4`.
+
+The migration creates a parent index on
+`payment (pay_date, flow_id, flow_date)`, builds indexes concurrently
+on existing monthly partitions, and attaches them to the parent.
+
+Partition changesets are skipped without being marked as executed
+when the corresponding partition is absent. Invalid or incompatible
+existing indexes stop the migration.
+
+The final changeset requires every existing payment partition to have
+a valid, ready index attached to the parent. Before deployment, compare
+the target partition inventory with the partition changesets included
+in this migration.
+
+This migration applies only to the archive database.

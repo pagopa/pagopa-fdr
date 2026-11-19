@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet
+        id="PIDM-2543-archive-payment-attach-indexes"
+        author="liquibase"
+        dbms="postgresql"
+        runInTransaction="true">
+
+        <comment>
+            Attach existing partition indexes to the archive payment
+            parent index. Validate readiness and complete coverage.
+            Accept automatically named indexes already attached.
+        </comment>
+
+        <sql splitStatements="false"><![CDATA[
+DO $migration$
+DECLARE
+    parent_index_oid OID;
+    partition_index_oid OID;
+    partition_record RECORD;
+    index_record RECORD;
+BEGIN
+    PERFORM set_config('lock_timeout', '5s', true);
+
+    parent_index_oid :=
+        to_regclass('fdr3.payment_pay_date_flow_id_flow_date_idx');
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_class idx
+        JOIN pg_index ix ON ix.indexrelid = idx.oid
+        JOIN pg_am am ON am.oid = idx.relam
+        WHERE idx.oid = parent_index_oid
+          AND idx.relkind = 'I'
+          AND am.amname = 'btree'
+          AND ix.indrelid = 'fdr3.payment'::regclass
+          AND NOT ix.indisunique
+          AND ix.indnatts = 3
+          AND ix.indnkeyatts = 3
+          AND ix.indpred IS NULL
+          AND ix.indexprs IS NULL
+          AND ix.indoption::text = '0 0 0'
+          AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+          AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id'
+          AND pg_get_indexdef(idx.oid, 3, true) = 'flow_date'
+    ) THEN
+        RAISE EXCEPTION
+            'Missing or incompatible archive payment parent index';
+    END IF;
+
+    FOR partition_record IN
+        SELECT
+            child.oid AS table_oid,
+            child.relname AS table_name,
+            child.relkind AS table_kind,
+            ns.nspname AS schema_name
+        FROM pg_inherits inh
+        JOIN pg_class child ON child.oid = inh.inhrelid
+        JOIN pg_namespace ns ON ns.oid = child.relnamespace
+        WHERE inh.inhparent = 'fdr3.payment'::regclass
+        ORDER BY ns.nspname, child.relname
+    LOOP
+        IF partition_record.table_kind <> 'r' THEN
+            RAISE EXCEPTION
+                'Unsupported payment partition type: %',
+                partition_record.table_name;
+        END IF;
+
+        -- Prefer an index already attached, regardless of its name.
+        SELECT ix.indexrelid
+        INTO partition_index_oid
+        FROM pg_inherits inh
+        JOIN pg_index ix ON ix.indexrelid = inh.inhrelid
+        WHERE inh.inhparent = parent_index_oid
+          AND ix.indrelid = partition_record.table_oid;
+
+        IF partition_index_oid IS NULL THEN
+            partition_index_oid := to_regclass(format(
+                '%I.%I',
+                partition_record.schema_name,
+                partition_record.table_name
+                    || '_pay_date_flow_id_flow_date_idx'
+            ));
+        END IF;
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_index ix
+            WHERE ix.indexrelid = partition_index_oid
+              AND ix.indrelid = partition_record.table_oid
+              AND ix.indisvalid
+              AND ix.indisready
+        ) THEN
+            RAISE EXCEPTION
+                'Missing or invalid recovery index for partition %',
+                partition_record.table_name;
+        END IF;
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_inherits
+            WHERE inhparent = parent_index_oid
+              AND inhrelid = partition_index_oid
+        ) THEN
+            SELECT ns.nspname AS schema_name, idx.relname AS index_name
+            INTO index_record
+            FROM pg_class idx
+            JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+            WHERE idx.oid = partition_index_oid;
+
+            -- PostgreSQL validates index compatibility when attaching.
+            EXECUTE format(
+                'ALTER INDEX fdr3.payment_pay_date_flow_id_flow_date_idx '
+                'ATTACH PARTITION %I.%I',
+                index_record.schema_name,
+                index_record.index_name
+            );
+        END IF;
+    END LOOP;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_index
+        WHERE indexrelid = parent_index_oid
+          AND indisvalid
+          AND indisready
+    ) THEN
+        RAISE EXCEPTION
+            'Archive payment parent index is not valid and ready';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM pg_inherits partitions
+        WHERE partitions.inhparent = 'fdr3.payment'::regclass
+          AND NOT EXISTS (
+              SELECT 1
+              FROM pg_inherits attached
+              JOIN pg_index ix ON ix.indexrelid = attached.inhrelid
+              WHERE attached.inhparent = parent_index_oid
+                AND ix.indrelid = partitions.inhrelid
+                AND ix.indisvalid
+                AND ix.indisready
+          )
+    ) THEN
+        RAISE EXCEPTION
+            'Archive recovery index does not cover every payment partition';
+    END IF;
+END
+$migration$;
+        ]]></sql>
+
+    </changeSet>
+
+</databaseChangeLog>
