@@ -31,6 +31,11 @@ on:
         type: string
         description: "Branch or tag of pagopa-platform-integration-test (TAS repo) the tests are run from"
         default: main
+      tas_quality_gate:
+        required: false
+        type: boolean
+        description: "Classify this run as Quality Gate (QG) instead of a regular TAS run"
+        default: false
       notify:
         required: false
         type: boolean
@@ -63,6 +68,7 @@ jobs:
           mode: ${{ inputs.tas_mode || 'sync' }}
           ref: ${{ inputs.tas_ref || 'main' }}
           tags: ${{ inputs.tags || '@runnable' }}
+          isQualityGateRun: ${{ inputs.tas_quality_gate && 'true' || 'false' }}
           github_token: ${{ secrets.INTEGRATION_TEST_PAT }}
 
   notify:
