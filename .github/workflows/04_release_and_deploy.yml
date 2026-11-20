@@ -45,11 +45,6 @@ on:
           - sync
           - async
         default: sync
-      tas_blocking:
-        required: false
-        type: boolean
-        description: "If true (default) a TAS failure blocks release/deploy; if false the pipeline proceeds and the failure is only reported (meaningful with sync mode)"
-        default: true
       tas_ref:
         required: false
         type: string
@@ -138,15 +133,9 @@ jobs:
     outputs:
       correlation_id: ${{ steps.tas.outputs.correlation_id }}
       run_url: ${{ steps.tas.outputs.run_url }}
-      # Real outcome of the TAS step (success/failure), also when continue-on-error hides it.
-      tests_outcome: ${{ steps.tas.outcome }}
     steps:
       - name: Run TAS
         id: tas
-        # Non-blocking only when tas_blocking is explicitly false. format() is used because
-        # on events without inputs (merge_group, pull_request) the value is null, and
-        # `null == false` is true in GitHub expressions: it would silently disable the gate.
-        continue-on-error: ${{ format('{0}', inputs.tas_blocking) == 'false' }}
         uses: pagopa/pagopa-platform-integration-test/.github/actions/tas-integration-tests@main
         with:
           test_type: integration
@@ -156,17 +145,6 @@ jobs:
           ref: ${{ inputs.tas_ref || 'main' }}
           tags: '@runnable'
           github_token: ${{ secrets.INTEGRATION_TEST_PAT }}
-
-      - name: Report ignored TAS failure
-        # The step failed but continue-on-error kept the job green: make it visible.
-        if: ${{ always() && steps.tas.outcome == 'failure' && steps.tas.conclusion == 'success' }}
-        run: |
-          echo "::warning title=TAS failed (non-blocking)::TAS failed but tas_blocking=false, release and deploy proceed. TAS run: ${{ steps.tas.outputs.run_url }}"
-          {
-            echo "### :warning: TAS integration tests failed (non-blocking)"
-            echo "- tas_blocking: false, so release/deploy proceed anyway"
-            echo "- TAS run: ${{ steps.tas.outputs.run_url || 'n/a' }}"
-          } >> "$GITHUB_STEP_SUMMARY"
 
   release:
     name: Create a New Release
@@ -223,7 +201,6 @@ jobs:
           echo "FAKE RELEASE invoked: semver=${{ needs.setup.outputs.semver }}, beta=${{ inputs.beta }}"
           echo "FAKE IMAGE invoked"
           echo "TAS correlation_id=${{ needs.integration_tests.outputs.correlation_id }}"
-          echo "TAS tests_outcome=${{ needs.integration_tests.outputs.tests_outcome }}"
 
   fake_deploy:
     name: "[DRY RUN] Fake Deploy"
