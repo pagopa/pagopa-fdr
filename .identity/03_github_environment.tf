@@ -112,6 +112,12 @@ resource "github_actions_secret" "secret_integrationtest_slack_webhook" {
   plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_slack_webhook.value
 }
 
+resource "github_actions_secret" "secret_integrationtest_tas_pat_token" {
+  repository      = local.github.repository
+  secret_name     = "INTEGRATION_TEST_PAT"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_tas_pat_token.value
+}
+
 ############
 ## Labels ##
 ############

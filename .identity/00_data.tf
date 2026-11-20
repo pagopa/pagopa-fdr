@@ -102,6 +102,11 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_slack_webhook" {
   name         = "pagopa-pagamenti-integration-test-slack-webhook"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
+  
+data "azurerm_key_vault_secret" "key_vault_integration_test_tas_pat_token" {
+  name         = "pagopa-platform-domain-github-bot-cd-pat"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
 
 #data "azurerm_resource_group" "app_rg" {
 #  name  = "${local.prefix}-${var.env_short}-${local.location_short}-${local.domain}-rg"
