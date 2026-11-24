@@ -22,7 +22,7 @@
         <surefire-plugin.version>3.0.0</surefire-plugin.version>
         <jvm.args>${env.CUSTOM_JAVA_OPTS}</jvm.args>
         <!-- Testcontainers version compatible with Rancher Desktop (requires Docker API 1.41+) -->
-        <testcontainers.version>1.20.4</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
         <!-- Docker Java API client version - required for API 1.41+ compatibility -->
         <docker-java.version>3.4.1</docker-java.version>
         <!-- JVM args per Surefire: in locale senza UseContainerSupport, in CI viene sovrascritto dal profilo ci -->
