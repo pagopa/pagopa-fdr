@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -17,7 +16,6 @@ import static org.mockito.Mockito.when;
 
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.rest.SimpleResponse;
-import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobAsyncClient;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.models.BlockBlobItem;
@@ -40,8 +38,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Mono;
+import static org.mockito.Mockito.mock;
 
 @QuarkusTest
 class HistoryBlobStorageServiceTest {
@@ -55,7 +53,7 @@ class HistoryBlobStorageServiceTest {
 
     BlobAsyncClient blobClient = Mockito.mock(BlobAsyncClient.class);
     FlowToHistoryEntity flowToHistoryEntity =
-        Mockito.mock(FlowToHistoryEntity.class);
+        mock(FlowToHistoryEntity.class);
 
     when(blobContainerAsyncClient.getBlobAsyncClient(anyString()))
         .thenReturn(blobClient);
@@ -138,9 +136,9 @@ class HistoryBlobStorageServiceTest {
   @Test
   void saveJsonFileOk_internal() throws IOException {
 
-    BlobAsyncClient blobClient = Mockito.mock(BlobAsyncClient.class);
+    BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
     FlowToHistoryEntity flowToHistoryEntity =
-        Mockito.mock(FlowToHistoryEntity.class);
+        mock(FlowToHistoryEntity.class);
 
     when(blobContainerAsyncClient.getBlobAsyncClient(anyString()))
         .thenReturn(blobClient);
@@ -191,8 +189,8 @@ class HistoryBlobStorageServiceTest {
 
   @Test
   void saveJsonFileKo() {
-    BlobAsyncClient blobClient = Mockito.mock(BlobAsyncClient.class);
-    FlowToHistoryEntity flowToHistoryEntity = Mockito.mock(FlowToHistoryEntity.class);
+    BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
+    FlowToHistoryEntity flowToHistoryEntity = mock(FlowToHistoryEntity.class);
     when(blobContainerAsyncClient.getBlobAsyncClient(anyString())).thenReturn(blobClient);
     when(flowToHistoryEntity.getIsExternal()).thenReturn(true);
     FlowBlob build = FlowBlob.builder().build();
@@ -206,9 +204,9 @@ class HistoryBlobStorageServiceTest {
   @Test
   void saveJsonFile_uploadFailureShouldBeLogged() throws IOException {
 
-    BlobAsyncClient blobClient = Mockito.mock(BlobAsyncClient.class);
+    BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
     FlowToHistoryEntity flowToHistoryEntity =
-        Mockito.mock(FlowToHistoryEntity.class);
+        mock(FlowToHistoryEntity.class);
 
     when(blobContainerAsyncClient.getBlobAsyncClient(anyString()))
         .thenReturn(blobClient);
@@ -239,7 +237,7 @@ class HistoryBlobStorageServiceTest {
   void saveJsonFileKo_invalidJsonSchema() {
 
     FlowToHistoryEntity flowToHistoryEntity =
-        Mockito.mock(FlowToHistoryEntity.class);
+        mock(FlowToHistoryEntity.class);
 
     FlowBlob invalidFlowBlob = validFlowBlob();
 
@@ -257,9 +255,9 @@ class HistoryBlobStorageServiceTest {
   @Test
   void saveJsonFile_shouldLogSavedTags() throws IOException {
 
-    BlobAsyncClient blobClient = Mockito.mock(BlobAsyncClient.class);
+    BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
     FlowToHistoryEntity flowToHistoryEntity =
-        Mockito.mock(FlowToHistoryEntity.class);
+        mock(FlowToHistoryEntity.class);
 
     when(blobContainerAsyncClient.getBlobAsyncClient(anyString()))
         .thenReturn(blobClient);
@@ -272,7 +270,7 @@ class HistoryBlobStorageServiceTest {
                 null,
                 201,
                 new HttpHeaders(),
-                Mockito.mock(BlockBlobItem.class)
+                mock(BlockBlobItem.class)
             )
         ));
 

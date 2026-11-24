@@ -3,7 +3,6 @@ package it.gov.pagopa.fdr.storage;
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobAsyncClient;
 import com.azure.storage.blob.BlobContainerAsyncClient;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
