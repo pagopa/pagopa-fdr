@@ -202,7 +202,7 @@ class HistoryBlobStorageServiceTest {
   }
 
   @Test
-  void saveJsonFile_uploadFailureShouldBeLogged() throws IOException {
+  void saveJsonFile_uploadFailureShouldBeLogged() {
 
     BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
     FlowToHistoryEntity flowToHistoryEntity =
