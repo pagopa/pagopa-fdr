@@ -1,8 +1,9 @@
 package it.gov.pagopa.fdr.storage;
 
 import com.azure.core.util.BinaryData;
-import com.azure.storage.blob.BlobAsyncClient;
-import com.azure.storage.blob.BlobContainerAsyncClient;
+import com.azure.core.util.Context;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -36,12 +37,12 @@ import org.jboss.logging.Logger;
 @ApplicationScoped
 public class HistoryBlobStorageService {
 
-  private final BlobContainerAsyncClient blobContainerClient;
+  private final BlobContainerClient blobContainerClient;
   private final FileUtil fileUtil;
   private final Logger log;
   @Inject
   public HistoryBlobStorageService(
-      BlobContainerAsyncClient blobContainerClient, FileUtil fileUtil,  Logger log) {
+      BlobContainerClient blobContainerClient, FileUtil fileUtil,  Logger log) {
     this.blobContainerClient = blobContainerClient;
     this.fileUtil = fileUtil;
     this.log = log;
@@ -81,8 +82,8 @@ public class HistoryBlobStorageService {
       boolean permitsElaborationForQI,
       BinaryData jsonFile) {
 
-    BlobAsyncClient blobClient =
-        blobContainerClient.getBlobAsyncClient(fileName);
+    BlobClient blobClient =
+        blobContainerClient.getBlobClient(fileName);
 
     Map<String, String> metadata = new HashMap<>();
     metadata.put("elaborate", Boolean.toString(permitsElaborationForQI));
@@ -98,21 +99,7 @@ public class HistoryBlobStorageService {
       options.setTags(initialTags());
     }
 
-    blobClient
-        .uploadWithResponse(options)
-        .flatMap(response -> blobClient.getTags())
-        .subscribe(
-            savedTags -> log.infof(
-                "Blob [%s] uploaded successfully. Saved tags: %s",
-                fileName,
-                savedTags
-            ),
-            error -> log.errorf(
-                error,
-                "Error uploading blob [%s]",
-                fileName
-            )
-        );
+    blobClient.uploadWithResponse(options, null, Context.NONE);
   }
 
   private void isJsonValid(String jsonString, String jsonSchema)

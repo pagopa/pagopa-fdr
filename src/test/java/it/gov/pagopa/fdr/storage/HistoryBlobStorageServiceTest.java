@@ -6,18 +6,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.rest.SimpleResponse;
-import com.azure.storage.blob.BlobAsyncClient;
-import com.azure.storage.blob.BlobContainerAsyncClient;
+import com.azure.core.util.Context;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlockBlobItem;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import io.quarkus.test.InjectMock;
@@ -32,39 +37,42 @@ import jakarta.validation.ValidationException;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import reactor.core.publisher.Mono;
 import static org.mockito.Mockito.mock;
 
 @QuarkusTest
 class HistoryBlobStorageServiceTest {
 
-  @InjectMock BlobContainerAsyncClient blobContainerAsyncClient;
+  @InjectMock
+  BlobContainerClient blobContainerClient;
 
   @Inject HistoryBlobStorageService historyBlobStorageService;
 
   @Test
   void saveJsonFileOk_external() throws IOException {
 
-    BlobAsyncClient blobClient = Mockito.mock(BlobAsyncClient.class);
+    BlobClient blobClient = mock(BlobClient.class);
     FlowToHistoryEntity flowToHistoryEntity =
         mock(FlowToHistoryEntity.class);
 
-    when(blobContainerAsyncClient.getBlobAsyncClient(anyString()))
+    when(blobContainerClient.getBlobClient(anyString()))
         .thenReturn(blobClient);
 
     when(flowToHistoryEntity.getIsExternal()).thenReturn(true);
 
-    when(blobClient.uploadWithResponse(any(BlobParallelUploadOptions.class)))
-        .thenReturn(Mono.empty());
-
-    when(blobClient.getTags())
-        .thenReturn(Mono.just(new HashMap<>()));
+    when(blobClient.uploadWithResponse(
+        any(BlobParallelUploadOptions.class),
+        isNull(),
+        eq(Context.NONE)))
+        .thenReturn(
+            new SimpleResponse<>(
+                null,
+                201,
+                new HttpHeaders(),
+                mock(BlockBlobItem.class)));
 
     Instant before = Instant.now();
 
@@ -78,7 +86,10 @@ class HistoryBlobStorageServiceTest {
     ArgumentCaptor<BlobParallelUploadOptions> captor =
         ArgumentCaptor.forClass(BlobParallelUploadOptions.class);
 
-    verify(blobClient).uploadWithResponse(captor.capture());
+    verify(blobClient).uploadWithResponse(
+        captor.capture(),
+        isNull(),
+        eq(Context.NONE));
 
     BlobParallelUploadOptions options = captor.getValue();
 
@@ -136,17 +147,25 @@ class HistoryBlobStorageServiceTest {
   @Test
   void saveJsonFileOk_internal() throws IOException {
 
-    BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
+    BlobClient blobClient = mock(BlobClient.class);
     FlowToHistoryEntity flowToHistoryEntity =
         mock(FlowToHistoryEntity.class);
 
-    when(blobContainerAsyncClient.getBlobAsyncClient(anyString()))
+    when(blobContainerClient.getBlobClient(anyString()))
         .thenReturn(blobClient);
 
     when(flowToHistoryEntity.getIsExternal()).thenReturn(false);
 
-    when(blobClient.uploadWithResponse(any(BlobParallelUploadOptions.class)))
-        .thenReturn(Mono.empty());
+    when(blobClient.uploadWithResponse(
+        any(BlobParallelUploadOptions.class),
+        isNull(),
+        eq(Context.NONE)))
+        .thenReturn(
+            new SimpleResponse<>(
+                null,
+                201,
+                new HttpHeaders(),
+                mock(BlockBlobItem.class)));
 
     historyBlobStorageService.saveJsonFile(
         validFlowBlob(),
@@ -156,11 +175,13 @@ class HistoryBlobStorageServiceTest {
     ArgumentCaptor<BlobParallelUploadOptions> captor =
         ArgumentCaptor.forClass(BlobParallelUploadOptions.class);
 
-    verify(blobClient).uploadWithResponse(captor.capture());
+    verify(blobClient).uploadWithResponse(
+        captor.capture(),
+        isNull(),
+        eq(Context.NONE));
 
     BlobParallelUploadOptions options = captor.getValue();
 
-    // Verifica metadata
     Map<String, String> metadata = options.getMetadata();
 
     assertNotNull(metadata);
@@ -173,62 +194,63 @@ class HistoryBlobStorageServiceTest {
         metadata.get("serviceIdentifier")
     );
 
-    // I flussi interni NON devono avere Blob Index Tags
     assertNull(options.getTags());
 
     assertNull(options.getRequestConditions());
 
-    // Nessuna operazione separata di aggiornamento metadata/tag
     verify(blobClient, never()).setMetadata(anyMap());
     verify(blobClient, never()).setTags(anyMap());
-
-    // Mono.empty() non emette una risposta:
-    // il successivo getTags() non viene chiamato
     verify(blobClient, never()).getTags();
   }
 
   @Test
   void saveJsonFileKo() {
-    BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
     FlowToHistoryEntity flowToHistoryEntity = mock(FlowToHistoryEntity.class);
-    when(blobContainerAsyncClient.getBlobAsyncClient(anyString())).thenReturn(blobClient);
-    when(flowToHistoryEntity.getIsExternal()).thenReturn(true);
     FlowBlob build = FlowBlob.builder().build();
     assertThrows(
         Exception.class,
         () -> {
           historyBlobStorageService.saveJsonFile(build, flowToHistoryEntity);
         });
+    verifyNoInteractions(blobContainerClient);
   }
 
   @Test
-  void saveJsonFile_uploadFailureShouldBeLogged() {
+  void saveJsonFile_uploadFailureShouldBePropagated() {
 
-    BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
+    BlobClient blobClient = mock(BlobClient.class);
+
     FlowToHistoryEntity flowToHistoryEntity =
         mock(FlowToHistoryEntity.class);
 
-    when(blobContainerAsyncClient.getBlobAsyncClient(anyString()))
+    when(flowToHistoryEntity.getIsExternal()).thenReturn(true);
+
+    when(blobContainerClient.getBlobClient(anyString()))
         .thenReturn(blobClient);
 
-    when(flowToHistoryEntity.getIsExternal()).thenReturn(true);
+    FlowBlob flowBlob = validFlowBlob();
 
     RuntimeException uploadError =
         new RuntimeException("Azure Blob upload failed");
 
-    when(blobClient.uploadWithResponse(any(BlobParallelUploadOptions.class)))
-        .thenReturn(Mono.error(uploadError));
+    when(blobClient.uploadWithResponse(
+        any(BlobParallelUploadOptions.class),
+        isNull(),
+        eq(Context.NONE)))
+        .thenThrow(uploadError);
 
-    assertDoesNotThrow(() ->
-        historyBlobStorageService.saveJsonFile(
-            validFlowBlob(),
-            flowToHistoryEntity
-        )
-    );
+    RuntimeException actualException =
+        assertThrows(
+            RuntimeException.class,
+            () -> historyBlobStorageService.saveJsonFile(
+                flowBlob, flowToHistoryEntity));
+
+    assertSame(uploadError, actualException);
 
     verify(blobClient).uploadWithResponse(
-        any(BlobParallelUploadOptions.class)
-    );
+        any(BlobParallelUploadOptions.class),
+        isNull(),
+        eq(Context.NONE));
 
     verify(blobClient, never()).getTags();
   }
@@ -253,45 +275,42 @@ class HistoryBlobStorageServiceTest {
   }
 
   @Test
-  void saveJsonFile_shouldLogSavedTags() throws IOException {
+  void saveJsonFile_shouldUploadWithoutAdditionalOperations() {
 
-    BlobAsyncClient blobClient = mock(BlobAsyncClient.class);
+    BlobClient blobClient = mock(BlobClient.class);
+
     FlowToHistoryEntity flowToHistoryEntity =
         mock(FlowToHistoryEntity.class);
 
-    when(blobContainerAsyncClient.getBlobAsyncClient(anyString()))
-        .thenReturn(blobClient);
-
     when(flowToHistoryEntity.getIsExternal()).thenReturn(true);
 
-    when(blobClient.uploadWithResponse(any(BlobParallelUploadOptions.class)))
-        .thenReturn(Mono.just(
+    when(blobContainerClient.getBlobClient(anyString()))
+        .thenReturn(blobClient);
+
+    when(blobClient.uploadWithResponse(
+        any(BlobParallelUploadOptions.class),
+        isNull(),
+        eq(Context.NONE)))
+        .thenReturn(
             new SimpleResponse<>(
                 null,
                 201,
                 new HttpHeaders(),
-                mock(BlockBlobItem.class)
-            )
-        ));
+                mock(BlockBlobItem.class)));
 
-    Map<String, String> tags = Map.of(
-        "processingStatus", "PENDING",
-        "processingAttempt", "0",
-        "processingUpdatedAt", "2026-11-12T09:34:49Z"
-    );
+    FlowBlob flowBlob = validFlowBlob();
 
-    when(blobClient.getTags())
-        .thenReturn(Mono.just(tags));
-
-    historyBlobStorageService.saveJsonFile(
-        validFlowBlob(),
-        flowToHistoryEntity
-    );
+    assertDoesNotThrow(
+        () -> historyBlobStorageService.saveJsonFile(
+            flowBlob, flowToHistoryEntity));
 
     verify(blobClient).uploadWithResponse(
-        any(BlobParallelUploadOptions.class)
-    );
+        any(BlobParallelUploadOptions.class),
+        isNull(),
+        eq(Context.NONE));
 
-    verify(blobClient).getTags();
+    verify(blobClient, never()).setMetadata(anyMap());
+    verify(blobClient, never()).setTags(anyMap());
+    verify(blobClient, never()).getTags();
   }
 }
