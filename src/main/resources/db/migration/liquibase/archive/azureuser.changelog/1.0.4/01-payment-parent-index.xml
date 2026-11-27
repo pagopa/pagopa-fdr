@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet
+        id="PIDM-2543-archive-payment-parent-index"
+        author="liquibase"
+        dbms="postgresql"
+        runInTransaction="true">
+
+        <preConditions onFail="HALT" onError="HALT">
+
+            <sqlCheck expectedResult="1"><![CDATA[
+                SELECT COUNT(*)
+                FROM pg_partitioned_table pt
+                WHERE pt.partrelid = 'fdr3.payment'::regclass
+                  AND pg_get_partkeydef(pt.partrelid)
+                      = 'RANGE (flow_date)'
+            ]]></sqlCheck>
+
+            <sqlCheck expectedResult="0"><![CDATA[
+                SELECT COUNT(*)
+                FROM pg_class idx
+                JOIN pg_namespace ns ON ns.oid = idx.relnamespace
+                LEFT JOIN pg_index ix ON ix.indexrelid = idx.oid
+                LEFT JOIN pg_am am ON am.oid = idx.relam
+                WHERE ns.nspname = 'fdr3'
+                  AND idx.relname =
+                      'payment_pay_date_flow_id_flow_date_idx'
+                  AND NOT COALESCE(
+                      idx.relkind = 'I'
+                      AND am.amname = 'btree'
+                      AND ix.indrelid = 'fdr3.payment'::regclass
+                      AND NOT ix.indisunique
+                      AND ix.indnatts = 3
+                      AND ix.indnkeyatts = 3
+                      AND ix.indpred IS NULL
+                      AND ix.indexprs IS NULL
+                      AND ix.indoption::text = '0 0 0'
+                      AND pg_get_indexdef(idx.oid, 1, true) = 'pay_date'
+                      AND pg_get_indexdef(idx.oid, 2, true) = 'flow_id'
+                      AND pg_get_indexdef(idx.oid, 3, true) = 'flow_date',
+                      FALSE
+                  )
+            ]]></sqlCheck>
+
+        </preConditions>
+
+        <comment>
+            Create the archive payment parent index without building
+            indexes on existing partitions. Partition indexes are built
+            concurrently and attached by subsequent changesets.
+            Parent validity is checked after all attachments.
+        </comment>
+
+        <sql>SET LOCAL lock_timeout = '5s';</sql>
+
+        <sql><![CDATA[
+            CREATE INDEX IF NOT EXISTS
+                payment_pay_date_flow_id_flow_date_idx
+            ON ONLY fdr3.payment (pay_date, flow_id, flow_date);
+        ]]></sql>
+
+    </changeSet>
+
+</databaseChangeLog>
